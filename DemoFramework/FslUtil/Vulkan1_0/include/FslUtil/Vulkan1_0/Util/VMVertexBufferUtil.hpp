@@ -33,8 +33,8 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslUtil/Vulkan1_0/Common.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>
 #include <cassert>
@@ -100,7 +100,7 @@ namespace Fsl::Vulkan::VMVertexBufferUtil
   inline void FillVertexInputAttributeDescription(std::array<VkVertexInputAttributeDescription, TSize>& rDstDescription,
                                                   const std::vector<VertexElementUsage>& shaderBindOrder, const VMVertexBuffer& vertexBuffer)
   {
-    FillVertexInputAttributeDescription(SpanUtil::AsSpan(rDstDescription), ReadOnlySpanUtil::AsSpan(shaderBindOrder), shaderBindOrder.size(),
+    FillVertexInputAttributeDescription(SpanUtil::AsSpan(rDstDescription), SpanUtil::AsReadOnlySpan(shaderBindOrder), shaderBindOrder.size(),
                                         vertexBuffer);
   }
 
@@ -108,14 +108,14 @@ namespace Fsl::Vulkan::VMVertexBufferUtil
   inline void FillVertexInputAttributeDescription(Span<VkVertexInputAttributeDescription> dstDescription,
                                                   const std::vector<VertexElementUsage>& shaderBindOrder, const VMVertexBuffer& vertexBuffer)
   {
-    FillVertexInputAttributeDescription(dstDescription, ReadOnlySpanUtil::AsSpan(shaderBindOrder), vertexBuffer);
+    FillVertexInputAttributeDescription(dstDescription, SpanUtil::AsReadOnlySpan(shaderBindOrder), vertexBuffer);
   }
 
   template <std::size_t TSize>
   inline void FillVertexInputAttributeDescription(Span<VkVertexInputAttributeDescription> dstDescription,
                                                   const std::array<VertexElementUsage, TSize>& shaderBindOrder, const VMVertexBuffer& vertexBuffer)
   {
-    FillVertexInputAttributeDescription(dstDescription, ReadOnlySpanUtil::AsSpan(shaderBindOrder), vertexBuffer);
+    FillVertexInputAttributeDescription(dstDescription, SpanUtil::AsReadOnlySpan(shaderBindOrder), vertexBuffer);
   }
 
 }

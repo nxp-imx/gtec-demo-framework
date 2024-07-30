@@ -93,7 +93,7 @@ namespace Fsl
     };
   }
 
-  const uint32_t GenericBatch2D_DEFAULT_CAPACITY = 2048;
+  constexpr uint32_t GenericBatch2DDefaultCapacity = 2048;
 
   //! @brief A really simple API independent way to draw some graphics
   //!        All methods operate in screen coordinate pixel mode where 0,0 is the top left corner and
@@ -103,8 +103,8 @@ namespace Fsl
   template <typename TNativeBatch, typename TTexture, typename TVFormatter = GenericBatch2DFormat::Flipped>
   class GenericBatch2D
   {
-    static const uint32_t VERTICES_PER_QUAD = 4;
-    static const uint32_t EXPAND_QUAD_GROWTH = 1024;
+    const static uint32_t VerticesPerQuad = 4;
+    const static uint32_t ExpandQuadGrowth = 1024;
 
   public:
     using texture_type = TTexture;

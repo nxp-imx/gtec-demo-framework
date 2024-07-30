@@ -30,7 +30,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Transition/TransitionCache.hpp>
 #include <FslBase/Transition/TransitionValue.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
@@ -60,8 +59,7 @@ TEST(TestTransition_TransitionValue, Construct_Default)
 
 TEST(TestTransition_TransitionValue, Construct_CacheAndTimespan)
 {
-  TransitionCache cache;
-  TransitionValue transitionValue(cache, TimeSpan(10));
+  TransitionValue transitionValue(TimeSpan(10));
 
   EXPECT_TRUE(transitionValue.IsCompleted());
   EXPECT_EQ(TimeSpan(0), transitionValue.GetStartDelay());
@@ -73,7 +71,6 @@ TEST(TestTransition_TransitionValue, Construct_CacheAndTimespan)
 
 TEST(TestTransition_TransitionValue, SetTransitionTime)
 {
-  TransitionCache cache;
   TransitionValue transitionValue;
 
   EXPECT_TRUE(transitionValue.IsCompleted());
@@ -82,7 +79,7 @@ TEST(TestTransition_TransitionValue, SetTransitionTime)
   EXPECT_EQ(0.0f, transitionValue.GetActualValue());
   EXPECT_EQ(TimeSpan(0), transitionValue.GetTransitionTime());
 
-  transitionValue.SetTransitionTime(cache, TimeSpan(10));
+  transitionValue.SetTransitionTime(TimeSpan(10));
 
   EXPECT_TRUE(transitionValue.IsCompleted());
   EXPECT_EQ(TimeSpan(0), transitionValue.GetStartDelay());
@@ -93,8 +90,7 @@ TEST(TestTransition_TransitionValue, SetTransitionTime)
 
 TEST(TestTransition_TransitionValue, SetValue)
 {
-  TransitionCache cache;
-  TransitionValue transitionValue(cache, TimeSpan(2), TransitionType::Linear);
+  TransitionValue transitionValue(TimeSpan(2), TransitionType::Linear);
 
   const float value = 42.0f;
 
@@ -129,8 +125,7 @@ TEST(TestTransition_TransitionValue, SetValue)
 
 TEST(TestTransition_TransitionValue, SetActualValue)
 {
-  TransitionCache cache;
-  TransitionValue transitionValue(cache, TimeSpan(2), TransitionType::Linear);
+  TransitionValue transitionValue(TimeSpan(2), TransitionType::Linear);
 
   const float value = 42.0f;
   const float overrideValue = 80.0f;
@@ -160,8 +155,7 @@ TEST(TestTransition_TransitionValue, SetActualValue)
 
 TEST(TestTransition_TransitionValue, SetStartDelay)
 {
-  TransitionCache cache;
-  TransitionValue transitionValue(cache, TimeSpan(2), TransitionType::Linear);
+  TransitionValue transitionValue(TimeSpan(2), TransitionType::Linear);
 
   const float value = 42.0f;
 

@@ -38,10 +38,10 @@
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslGraphics/Render/Basic/IBasicDynamicBuffer.hpp>
 #include <FslGraphics/Sprite/ISprite.hpp>
-#include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
 #include <FslGraphics2D/Procedural/Batcher/BatchMaterialHandle.hpp>
 #include <FslSimpleUI/Render/Base/DrawCommandBufferEx.hpp>
 #include <FslSimpleUI/Render/Base/IRenderSystem.hpp>
+#include <FslSimpleUI/Render/Builder/UIVertex.hpp>
 #include <cassert>
 #include <memory>
 #include <utility>
@@ -114,7 +114,7 @@ namespace Fsl::UI::RenderIMBatch
 
     static VertexDeclarationSpan GetVertexDeclarationSpan()
     {
-      return VertexPositionColorTexture::AsVertexDeclarationSpan();
+      return UIVertex::AsVertexDeclarationSpan();
     }
 
   protected:

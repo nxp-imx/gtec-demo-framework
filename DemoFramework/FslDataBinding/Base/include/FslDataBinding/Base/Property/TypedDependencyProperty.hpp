@@ -120,6 +120,7 @@ namespace Fsl::DataBinding
       return m_hInstance;
     }
 
+
     bool SetBinding(void* const pOwnerThis, ScopedDependencyObject& rDependencyObject, const DependencyPropertyDefinition& thisPropertyDef,
                     const Binding& binding)
     {
@@ -162,14 +163,14 @@ namespace Fsl::DataBinding
   class TypedDependencyProperty<StringViewLite> final
   {
   private:
-    std::string m_value{};
+    std::string m_value;
     mutable DataBindingInstanceHandle m_hInstance;
 
   public:
-    TypedDependencyProperty<StringViewLite>() = default;
+    TypedDependencyProperty() = default;
 
     explicit TypedDependencyProperty<StringViewLite>(const StringViewLite value)
-      : m_value(StringViewLiteUtil::ToString(value))
+      : m_value(value)
     {
     }
 
@@ -190,7 +191,7 @@ namespace Fsl::DataBinding
 
     StringViewLite Get() const noexcept
     {
-      return StringViewLiteUtil::AsStringViewLite(m_value);
+      return std::string_view(m_value);
     }
 
 
@@ -208,7 +209,7 @@ namespace Fsl::DataBinding
         if (allowChanges)
         {
           changed = true;
-          StringViewLiteUtil::Set(m_value, value);
+          m_value = value;
         }
       }
       return changed;
@@ -217,7 +218,7 @@ namespace Fsl::DataBinding
     bool Set(ScopedDependencyObject& rDependencyObject, const std::string& value,
              const PropertyChangeReason changeReason = PropertyChangeReason::Modified)
     {
-      return Set(rDependencyObject, StringViewLiteUtil::AsStringViewLite(value), changeReason);
+      return Set(rDependencyObject, StringViewLite(value), changeReason);
     }
 
     bool Set(ScopedDependencyObject& rDependencyObject, std::string&& value, const PropertyChangeReason changeReason = PropertyChangeReason::Modified)

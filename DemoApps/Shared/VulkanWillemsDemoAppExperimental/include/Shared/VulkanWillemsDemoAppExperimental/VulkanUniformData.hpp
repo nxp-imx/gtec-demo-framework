@@ -47,6 +47,7 @@ namespace Fsl::Willems
     RapidVulkan::Memory Memory;
     VkDescriptorBufferInfo Descriptor;
     uint32_t AllocSize;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void* pMapped;
 
     VulkanUniformData(const VulkanUniformData&) = delete;

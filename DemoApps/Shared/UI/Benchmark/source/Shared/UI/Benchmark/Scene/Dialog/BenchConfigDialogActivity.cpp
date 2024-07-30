@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
 #include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/CheckBox.hpp>
@@ -104,7 +104,7 @@ namespace Fsl::UI
                                                        std::shared_ptr<AppBenchSettings> settings)
     : DialogActivity(std::move(activityStack), themeControlFactory, std::make_shared<GridLayout>(themeControlFactory->GetContext()),
                      Theme::WindowType::DialogNormal, ItemAlignment::Center, ItemAlignment::Center)
-    , m_renderMethods(ReadOnlySpanUtil::ToVector(renderMethods))
+    , m_renderMethods(SpanUtil::ToVector(renderMethods))
     , m_activeRenderIndex(LocateActiveRenderIndex(renderMethods, *settings))
     , m_settings(std::move(settings))
   {
@@ -133,7 +133,7 @@ namespace Fsl::UI
   }
 
 
-  void BenchConfigDialogActivity::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
+  void BenchConfigDialogActivity::OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent)
   {
     if (m_state == State::Ready && !theEvent->IsHandled())
     {
@@ -156,11 +156,11 @@ namespace Fsl::UI
         }
       }
     }
-    DialogActivity::OnContentChanged(args, theEvent);
+    DialogActivity::OnContentChanged(theEvent);
   }
 
 
-  void BenchConfigDialogActivity::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  void BenchConfigDialogActivity::OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent)
   {
     if (m_state == State::Ready && !theEvent->IsHandled())
     {
@@ -175,7 +175,7 @@ namespace Fsl::UI
         DoScheduleClose(false);
       }
     }
-    DialogActivity::OnSelect(args, theEvent);
+    DialogActivity::OnSelect(theEvent);
   }
 
 
@@ -377,7 +377,7 @@ namespace Fsl::UI
     }
 
     return {AppRenderBasicOptions(m_mainUI.SwitchGpuTimestamps->IsChecked(), m_mainUI.SwitchNoOpaqueMaterials->IsChecked(),
-                                  m_mainUI.switchDrawCache->IsChecked(), m_mainUI.switchOnDemandRendering->IsChecked(),
+                                  m_mainUI.SwitchDrawCache->IsChecked(), m_mainUI.SwitchOnDemandRendering->IsChecked(),
                                   m_mainUI.SwitchUseSdfFonts->IsChecked()),
             renderMethod, renderOptions};
   }

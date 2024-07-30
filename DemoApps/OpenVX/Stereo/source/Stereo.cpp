@@ -326,7 +326,7 @@ namespace Fsl
     *********************************************************************************************/
 
     // create different resolution mats
-    // greyscale images
+    // Grayscale images
     pyrDown(m_mImgl1, m_mImgl2, Size(m_mImgl1.cols / 2, m_mImgl1.rows / 2));
     pyrDown(m_mImgl2, m_mImgl4, Size(m_mImgl2.cols / 2, m_mImgl2.rows / 2));
 

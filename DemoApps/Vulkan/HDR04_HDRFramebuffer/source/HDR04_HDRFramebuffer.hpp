@@ -49,6 +49,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class HDR04_HDRFramebuffer
     : public VulkanBasic::DemoAppVulkanBasic
     , public UI::EventListener

@@ -1,7 +1,7 @@
 #ifndef GLES3_ASSIMPDOUBLETEXTURE_ASSIMPDOUBLETEXTURE_HPP
 #define GLES3_ASSIMPDOUBLETEXTURE_ASSIMPDOUBLETEXTURE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,23 +45,23 @@ namespace Fsl
 {
   struct MeshVertex
   {
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec2 texCoords;
+    glm::vec3 Position;
+    glm::vec3 Normal;
+    glm::vec2 TexCoords;
   };
 
   struct Mesh
   {
-    std::vector<MeshVertex> vertexData;
+    std::vector<MeshVertex> VertexData;
     GLuint VAO{};
-    GLuint posVBO{};
-    GLuint indexBO{};
-    int numFaces{};
+    GLuint PosVbo{};
+    GLuint IndexBo{};
+    int NumFaces{};
 
-    float diffuse[4]{};     // NOLINT(modernize-avoid-c-arrays)
-    float ambient[4]{};     // NOLINT(modernize-avoid-c-arrays)
-    float specular[4]{};    // NOLINT(modernize-avoid-c-arrays)
-    float shininess{};
+    float Diffuse[4]{};     // NOLINT(modernize-avoid-c-arrays)
+    float Ambient[4]{};     // NOLINT(modernize-avoid-c-arrays)
+    float Specular[4]{};    // NOLINT(modernize-avoid-c-arrays)
+    float Shininess{};
   };
 
   class AssimpDoubleTexture : public DemoAppGLES3
@@ -71,9 +71,9 @@ namespace Fsl
     std::vector<Mesh> m_mesh;
 
     // Attributes needed to render a 3D mesh
-    GLint m_attribLocMeshPosition{GLES3::GLValues::INVALID_LOCATION};
-    GLint m_attribLocMeshNormal{GLES3::GLValues::INVALID_LOCATION};
-    GLint m_attribLocMeshTexCoord{GLES3::GLValues::INVALID_LOCATION};
+    GLint m_attribLocMeshPosition{GLES3::GLValues::InvalidLocation};
+    GLint m_attribLocMeshNormal{GLES3::GLValues::InvalidLocation};
+    GLint m_attribLocMeshTexCoord{GLES3::GLValues::InvalidLocation};
 
     // Uniforms needed to render
     // Uniforms
@@ -86,12 +86,12 @@ namespace Fsl
     glm::mat3 m_normalMatrix{};
 
     // Matrices shader location
-    // GLint m_modelMatrixLoc{GLES3::GLValues::INVALID_LOCATION};
-    // GLint m_viewMatrixLoc{GLES3::GLValues::INVALID_LOCATION};
-    // GLint m_projectionMatrixLoc{GLES3::GLValues::INVALID_LOCATION};
-    GLint m_modelViewMatrixLoc{GLES3::GLValues::INVALID_LOCATION};
-    GLint m_modelViewProjectionMatrixLoc{GLES3::GLValues::INVALID_LOCATION};
-    GLint m_normalMatrixLoc{GLES3::GLValues::INVALID_LOCATION};
+    // GLint m_modelMatrixLoc{GLES3::GLValues::InvalidLocation};
+    // GLint m_viewMatrixLoc{GLES3::GLValues::InvalidLocation};
+    // GLint m_projectionMatrixLoc{GLES3::GLValues::InvalidLocation};
+    GLint m_modelViewMatrixLoc{GLES3::GLValues::InvalidLocation};
+    GLint m_modelViewProjectionMatrixLoc{GLES3::GLValues::InvalidLocation};
+    GLint m_normalMatrixLoc{GLES3::GLValues::InvalidLocation};
 
 
     // Light values
@@ -102,21 +102,21 @@ namespace Fsl
     // GLfloat m_specularStrength{};
 
     // Light Locations
-    GLint m_lightIntensityLoc{GLES3::GLValues::INVALID_LOCATION};
-    GLint m_lightLoc{GLES3::GLValues::INVALID_LOCATION};
+    GLint m_lightIntensityLoc{GLES3::GLValues::InvalidLocation};
+    GLint m_lightLoc{GLES3::GLValues::InvalidLocation};
 
-    GLint m_diffuseLoc{GLES3::GLValues::INVALID_LOCATION};
-    GLint m_ambientLoc{GLES3::GLValues::INVALID_LOCATION};
-    GLint m_specularLoc{GLES3::GLValues::INVALID_LOCATION};
-    GLint m_shininessLoc{GLES3::GLValues::INVALID_LOCATION};
+    GLint m_diffuseLoc{GLES3::GLValues::InvalidLocation};
+    GLint m_ambientLoc{GLES3::GLValues::InvalidLocation};
+    GLint m_specularLoc{GLES3::GLValues::InvalidLocation};
+    GLint m_shininessLoc{GLES3::GLValues::InvalidLocation};
 
     // Textures, this cog example uses 2 textures
-    GLES3::GLTexture textureClean;
-    GLES3::GLTexture textureDirty;
+    GLES3::GLTexture m_textureClean;
+    GLES3::GLTexture m_textureDirty;
     GLfloat m_mixFactor{0.0f};
-    GLint m_texUnitLoc1{GLES3::GLValues::INVALID_LOCATION};
-    GLint m_texUnitLoc2{GLES3::GLValues::INVALID_LOCATION};
-    GLint m_mixFactorLoc{GLES3::GLValues::INVALID_LOCATION};
+    GLint m_texUnitLoc1{GLES3::GLValues::InvalidLocation};
+    GLint m_texUnitLoc2{GLES3::GLValues::InvalidLocation};
+    GLint m_mixFactorLoc{GLES3::GLValues::InvalidLocation};
 
     float m_rotation{0.0f};
     float m_rotationSpeed{-0.6f};

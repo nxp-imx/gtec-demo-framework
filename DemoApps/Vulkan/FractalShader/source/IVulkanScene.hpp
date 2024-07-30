@@ -47,8 +47,8 @@ namespace Fsl
   public:
     virtual ~IVulkanScene() = default;
 
-    virtual void OnBuildResources(const VulkanBasic::BuildResourcesContext& /*context*/, const VkRenderPass /*hRenderPass*/){};
-    virtual void OnFreeResources(){};
+    virtual void OnBuildResources(const VulkanBasic::BuildResourcesContext& /*context*/, const VkRenderPass /*hRenderPass*/) {};
+    virtual void OnFreeResources() {};
 
     virtual void Update(const DemoTime& demoTime) = 0;
     // virtual void PreDraw(const uint32_t frameIndex, const VkCommandBuffer hCmdBuffer) = 0;

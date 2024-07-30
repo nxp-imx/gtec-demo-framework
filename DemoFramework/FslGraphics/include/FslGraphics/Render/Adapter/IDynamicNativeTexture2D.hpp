@@ -37,13 +37,13 @@
 
 namespace Fsl
 {
-  class RawTexture;
+  class ReadOnlyRawTexture;
 
   class IDynamicNativeTexture2D : public INativeTexture2D
   {
   public:
     //! @brief Set the data of the texture
-    virtual void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) = 0;
+    virtual void SetData(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) = 0;
   };
 }
 

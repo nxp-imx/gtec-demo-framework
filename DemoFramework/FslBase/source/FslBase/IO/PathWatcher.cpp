@@ -100,7 +100,7 @@ namespace Fsl::IO
       throw std::invalid_argument("Path is not rooted");
     }
 
-    if (std::find_if(m_paths.begin(), m_paths.end(), FullPathComp(fullPath)) != m_paths.end())
+    if (std::find_if(SysPaths.begin(), SysPaths.end(), FullPathComp(fullPath)) != SysPaths.end())
     {
       return false;
     }
@@ -112,20 +112,20 @@ namespace Fsl::IO
     }
 
     const auto record = std::make_shared<PathWatcherInternalRecord>(fullPath, token);
-    m_paths.push_back(record);
+    SysPaths.push_back(record);
     return true;
   }
 
 
   void PathWatcher::Remove(const IO::Path& fullPath)
   {
-    m_paths.remove_if(FullPathComp(fullPath));
+    SysPaths.remove_if(FullPathComp(fullPath));
   }
 
 
   bool PathWatcher::Check()
   {
-    for (auto itr = m_paths.begin(); itr != m_paths.end(); ++itr)
+    for (auto itr = SysPaths.begin(); itr != SysPaths.end(); ++itr)
     {
       if ((*itr)->CheckForChanges())
       {

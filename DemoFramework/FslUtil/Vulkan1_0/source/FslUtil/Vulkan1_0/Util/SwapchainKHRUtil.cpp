@@ -170,10 +170,10 @@ namespace Fsl::Vulkan::SwapchainKHRUtil
     const auto surfacePresentModes = PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface);
     if (std::find(surfacePresentModes.begin(), surfacePresentModes.end(), swapchainCreateInfo.presentMode) == surfacePresentModes.end())
     {
-      constexpr auto presentModeFallback = VK_PRESENT_MODE_FIFO_KHR;    // This is the only value of presentMode that is required to be supported
+      constexpr auto PresentModeFallback = VK_PRESENT_MODE_FIFO_KHR;    // This is the only value of presentMode that is required to be supported
       FSLLOG3_WARNING("PresentMode: {} not supported, using fallback: {}", RapidVulkan::Debug::ToString(swapchainCreateInfo.presentMode),
-                      RapidVulkan::Debug::ToString(presentModeFallback));
-      swapchainCreateInfo.presentMode = presentModeFallback;
+                      RapidVulkan::Debug::ToString(PresentModeFallback));
+      swapchainCreateInfo.presentMode = PresentModeFallback;
     }
 
     //// Default to allow VK_IMAGE_USAGE_TRANSFER_SRC_BIT so we can do screenshots

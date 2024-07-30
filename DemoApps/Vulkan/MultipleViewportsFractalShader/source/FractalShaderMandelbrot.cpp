@@ -50,7 +50,7 @@ namespace Fsl
 {
   namespace
   {
-    const uint32_t VERTEX_BUFFER_BIND_ID = 0;
+    constexpr uint32_t VertexBufferBindId = 0;
 
     RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const Vulkan::VUDevice& device)
     {
@@ -259,16 +259,16 @@ namespace Fsl
       //  break;
       case RenderMode::Smooth:
         fragmentShaderFile =
-          (cfg.IterationsM == DefaultValues::MANDELBROT_DEFAULT_ITERATIONS ? "Mandelbrot_smooth_default.frag.spv" : "Mandelbrot_smooth.frag.spv");
+          (cfg.IterationsM == DefaultValues::MandelbrotDefaultIterations ? "Mandelbrot_smooth_default.frag.spv" : "Mandelbrot_smooth.frag.spv");
         break;
       case RenderMode::Col:
         fragmentShaderFile =
-          (cfg.IterationsM == DefaultValues::MANDELBROT_DEFAULT_ITERATIONS ? "Mandelbrot_col_default.frag.spv" : "Mandelbrot_col.frag.spv");
+          (cfg.IterationsM == DefaultValues::MandelbrotDefaultIterations ? "Mandelbrot_col_default.frag.spv" : "Mandelbrot_col.frag.spv");
         break;
       case RenderMode::Gray:
       default:
         fragmentShaderFile =
-          (cfg.IterationsM == DefaultValues::MANDELBROT_DEFAULT_ITERATIONS ? "Mandelbrot_gray_default.frag.spv" : "Mandelbrot_gray.frag.spv");
+          (cfg.IterationsM == DefaultValues::MandelbrotDefaultIterations ? "Mandelbrot_gray_default.frag.spv" : "Mandelbrot_gray.frag.spv");
         break;
       }
 
@@ -391,7 +391,7 @@ namespace Fsl
     vkCmdSetScissor(hCmdBuffer, 0, 1, &scissor);
 
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(hCmdBuffer, VertexBufferBindId, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(hCmdBuffer, m_resources.Mesh.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 }

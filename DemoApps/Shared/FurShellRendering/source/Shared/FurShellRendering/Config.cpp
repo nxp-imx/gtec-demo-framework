@@ -49,7 +49,7 @@ namespace Fsl
     , m_layerCount(10)
     , m_hairLength(2.0f)
     , m_hairDensity(0.8f)
-    , m_furTextureDimensions(512, 512)    // WARNING: this must be a pow2 number (1,2,4,8....)
+    , m_furTextureSize(PxSize2D::Create(512, 512))    // WARNING: this must be a pow2 number (1,2,4,8....)
     , m_torusMajorSegments(32)
     , m_torusMinorSegments(32)
     , m_useTriangleStrip(true)
@@ -113,22 +113,22 @@ namespace Fsl
   }
 
 
-  Point2 Config::GetFurTextureDimensions() const
+  PxSize2D Config::GetFurTextureSize() const
   {
-    return m_furTextureDimensions;
+    return m_furTextureSize;
   }
 
 
-  void Config::SetFurTextureDimensions(const int32_t value)
+  void Config::SetFurTextureSize(const int32_t value)
   {
-    SetFurTextureDimensions(Point2(value, value));
+    SetFurTextureSize(PxSize2D::Create(value, value));
   }
 
 
-  void Config::SetFurTextureDimensions(const Point2 value)
+  void Config::SetFurTextureSize(const PxSize2D value)
   {
-    m_furTextureDimensions.X = MathHelper::ToPowerOfTwo(std::max(std::min(value.X, 4096), 0));
-    m_furTextureDimensions.Y = MathHelper::ToPowerOfTwo(std::max(std::min(value.Y, 4096), 0));
+    m_furTextureSize = PxSize2D::Create(MathHelper::ToPowerOfTwo(std::max(std::min(value.RawWidth(), 4096), 0)),
+                                        MathHelper::ToPowerOfTwo(std::max(std::min(value.RawHeight(), 4096), 0)));
   }
 
 

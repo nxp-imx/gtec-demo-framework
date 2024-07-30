@@ -98,8 +98,8 @@ namespace Fsl
     TestAppHost(const ServiceProvider& serviceProvider, const DemoWindowMetrics& windowMetrics, const bool useCustomModule = false);
     ~TestAppHost() override;
 
-    Color GetRootColor() const;
-    bool TrySetRootColor(const Color color);
+    UI::UIColor GetRootColor() const;
+    bool TrySetRootColor(const UI::UIColor color);
 
     void ClearProfileData();
 

@@ -51,16 +51,16 @@ namespace Fsl
       constexpr auto WindowName = "Edge map";
     }
 
-    Mat image, gray, edge, cedge;
+    Mat g_image, g_gray, g_edge, g_cedge;
     // define a trackbar callback
-    void onTrackbar(int edgeThresh, void* /*data*/)
+    void OnTrackbar(int edgeThresh, void* /*data*/)
     {
-      blur(gray, edge, Size(3, 3));
+      blur(g_gray, g_edge, Size(3, 3));
       // Run the edge detector on grayscale
-      Canny(edge, edge, edgeThresh, edgeThresh * 3, 3);
-      cedge = Scalar::all(0);
-      image.copyTo(cedge, edge);
-      imshow(LocalConfig::WindowName, cedge);
+      Canny(g_edge, g_edge, edgeThresh, edgeThresh * 3, 3);
+      g_cedge = Scalar::all(0);
+      g_image.copyTo(g_cedge, g_edge);
+      imshow(LocalConfig::WindowName, g_cedge);
     }
   }
 
@@ -82,24 +82,24 @@ namespace Fsl
     IO::Path pathImg1 = IO::Path::Combine(contentPath, "Image.png");
 
     /// Read image ( same size, same type )
-    image = imread(pathImg1.ToUTF8String());
+    g_image = imread(pathImg1.ToUTF8String());
 
-    if (image.data == nullptr)
+    if (g_image.data == nullptr)
     {
       throw GraphicsException("Error loading src1");
     }
 
-    cedge.create(image.size(), image.type());
-    cvtColor(image, gray, COLOR_BGR2GRAY);
+    g_cedge.create(g_image.size(), g_image.type());
+    cvtColor(g_image, g_gray, COLOR_BGR2GRAY);
     // Create a window
     namedWindow(LocalConfig::WindowName, 1);
 
     // create a toolbar
-    createTrackbar("Canny threshold:", LocalConfig::WindowName, nullptr, 100, onTrackbar);
+    createTrackbar("Canny threshold:", LocalConfig::WindowName, nullptr, 100, OnTrackbar);
     setTrackbarPos("Canny threshold:", LocalConfig::WindowName, edgeThresh);
 
     // Show the image
-    onTrackbar(edgeThresh, nullptr);
+    OnTrackbar(edgeThresh, nullptr);
     // Wait for a key stroke;
     waitKey(0);
   }

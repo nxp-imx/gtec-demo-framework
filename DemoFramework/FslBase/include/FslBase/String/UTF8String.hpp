@@ -33,7 +33,6 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/String/StringViewLite.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <string>
 #include <utility>
 
@@ -69,8 +68,8 @@ namespace Fsl
 
     explicit UTF8String(std::string str);
 
-    UTF8String(const char* const psz);        // NOLINT(google-explicit-constructor)
-    UTF8String(const StringViewLite& str);    // NOLINT(google-explicit-constructor)
+    UTF8String(const char* const psz);       // NOLINT(google-explicit-constructor)
+    UTF8String(const StringViewLite str);    // NOLINT(google-explicit-constructor)
     UTF8String(const std::string& str, const std::size_t startIndex, const std::size_t length);
     UTF8String(const UTF8String& str, const std::size_t startIndex, const std::size_t length);
     ~UTF8String() noexcept = default;
@@ -84,7 +83,7 @@ namespace Fsl
     void Append(const char* const psz);
 
     //! @brief append the string at the end of the string
-    void Append(const StringViewLite& str);
+    void Append(const StringViewLite str);
 
     //! @brief append the string at the end of the string
     void Append(const UTF8String& str)
@@ -99,7 +98,7 @@ namespace Fsl
     void Prepend(const char* const psz);
 
     // @brief Insert the string at the beginning at the current string
-    void Prepend(const StringViewLite& str);
+    void Prepend(const StringViewLite str);
 
     // @brief Insert the string at the beginning at the current string
     void Prepend(const UTF8String& str)
@@ -119,7 +118,7 @@ namespace Fsl
     }
 
     bool Contains(const char ch) const;
-    // bool Contains(const StringViewLite& str) const;
+    // bool Contains(const StringViewLite str) const;
     bool Contains(const UTF8String& str) const;
 
     bool StartsWith(const char ch) const;
@@ -129,7 +128,7 @@ namespace Fsl
       return AsStringViewLite().starts_with(psz);
     }
 
-    bool StartsWith(const StringViewLite& str) const
+    bool StartsWith(const StringViewLite str) const
     {
       return AsStringViewLite().starts_with(str);
     }
@@ -143,7 +142,7 @@ namespace Fsl
       return AsStringViewLite().ends_with(psz);
     }
 
-    bool EndsWith(const StringViewLite& str) const
+    bool EndsWith(const StringViewLite str) const
     {
       return AsStringViewLite().ends_with(str);
     }
@@ -168,7 +167,7 @@ namespace Fsl
 
     std::string ToAsciiString() const;
 
-    UTF8String& operator=(const StringViewLite& str);
+    UTF8String& operator=(const StringViewLite str);
 
     UTF8String& operator=(const char* const psz)
     {
@@ -184,7 +183,7 @@ namespace Fsl
       return *this;
     }
 
-    UTF8String& operator+=(const StringViewLite& rhs)
+    UTF8String& operator+=(const StringViewLite rhs)
     {
       Append(rhs);
       return *this;
@@ -202,7 +201,7 @@ namespace Fsl
       return lhs;
     }
 
-    inline friend UTF8String operator+(UTF8String lhs, const StringViewLite& rhs)
+    inline friend UTF8String operator+(UTF8String lhs, const StringViewLite rhs)
     {
       lhs.Append(rhs);
       return lhs;
@@ -220,7 +219,7 @@ namespace Fsl
       return rhs;
     }
 
-    inline friend UTF8String operator+(const StringViewLite& lhs, UTF8String rhs)
+    inline friend UTF8String operator+(const StringViewLite lhs, UTF8String rhs)
     {
       rhs.Prepend(lhs);
       return rhs;
@@ -228,8 +227,12 @@ namespace Fsl
 
     inline StringViewLite AsStringViewLite() const noexcept
     {
-      // we call the special noexcept constructor here as we trust that std::string wont have a nullptr and a size > 0
-      return StringViewLite(m_content.data(), m_content.size(), OptimizationCheckFlag::NoCheck);
+      return {AsStringView()};
+    }
+
+    inline std::string_view AsStringView() const noexcept
+    {
+      return m_content;
     }
   };
 
@@ -245,14 +248,14 @@ namespace Fsl
     return lhs.AsStringViewLite() == pszRhs;
   }
 
-  inline bool operator==(const UTF8String& lhs, const StringViewLite& rhs) noexcept
+  inline bool operator==(const UTF8String& lhs, const StringViewLite rhs) noexcept
   {
     return lhs.AsStringViewLite() == rhs;
   }
 
   inline bool operator==(const UTF8String& lhs, const std::string& rhs) noexcept
   {
-    return lhs.AsStringViewLite() == StringViewLiteUtil::AsStringViewLite(rhs);
+    return lhs.AsStringViewLite() == StringViewLite(rhs);
   }
 
   inline bool operator==(const char* const pszLhs, const UTF8String& rhs) noexcept
@@ -260,14 +263,14 @@ namespace Fsl
     return pszLhs == rhs.AsStringViewLite();
   }
 
-  inline bool operator==(const StringViewLite& lhs, const UTF8String& rhs) noexcept
+  inline bool operator==(const StringViewLite lhs, const UTF8String& rhs) noexcept
   {
     return lhs == rhs.AsStringViewLite();
   }
 
   inline bool operator==(const std::string& lhs, const UTF8String& rhs) noexcept
   {
-    return StringViewLiteUtil::AsStringViewLite(lhs) == rhs.AsStringViewLite();
+    return StringViewLite(lhs) == rhs.AsStringViewLite();
   }
 
   // Operator !=
@@ -283,14 +286,14 @@ namespace Fsl
     return lhs.AsStringViewLite() != pszRhs;
   }
 
-  inline bool operator!=(const UTF8String& lhs, const StringViewLite& rhs) noexcept
+  inline bool operator!=(const UTF8String& lhs, const StringViewLite rhs) noexcept
   {
     return lhs.AsStringViewLite() != rhs;
   }
 
   inline bool operator!=(const UTF8String& lhs, const std::string& rhs) noexcept
   {
-    return lhs.AsStringViewLite() != StringViewLiteUtil::AsStringViewLite(rhs);
+    return lhs.AsStringViewLite() != StringViewLite(rhs);
   }
 
   inline bool operator!=(const char* const pszLhs, const UTF8String& rhs) noexcept
@@ -298,14 +301,14 @@ namespace Fsl
     return pszLhs != rhs.AsStringViewLite();
   }
 
-  inline bool operator!=(const StringViewLite& lhs, const UTF8String& rhs) noexcept
+  inline bool operator!=(const StringViewLite lhs, const UTF8String& rhs) noexcept
   {
     return lhs != rhs.AsStringViewLite();
   }
 
   inline bool operator!=(const std::string& lhs, const UTF8String& rhs) noexcept
   {
-    return StringViewLiteUtil::AsStringViewLite(lhs) != rhs.AsStringViewLite();
+    return StringViewLite(lhs) != rhs.AsStringViewLite();
   }
 
   // Operator <
@@ -320,14 +323,14 @@ namespace Fsl
     return lhs.AsStringViewLite() < pszRhs;
   }
 
-  inline bool operator<(const UTF8String& lhs, const StringViewLite& rhs) noexcept
+  inline bool operator<(const UTF8String& lhs, const StringViewLite rhs) noexcept
   {
     return lhs.AsStringViewLite() < rhs;
   }
 
   inline bool operator<(const UTF8String& lhs, const std::string& rhs) noexcept
   {
-    return lhs.AsStringViewLite() < StringViewLiteUtil::AsStringViewLite(rhs);
+    return lhs.AsStringViewLite() < StringViewLite(rhs);
   }
 
   inline bool operator<(const char* const pszLhs, const UTF8String& rhs) noexcept
@@ -335,14 +338,14 @@ namespace Fsl
     return pszLhs < rhs.AsStringViewLite();
   }
 
-  inline bool operator<(const StringViewLite& lhs, const UTF8String& rhs) noexcept
+  inline bool operator<(const StringViewLite lhs, const UTF8String& rhs) noexcept
   {
     return lhs < rhs.AsStringViewLite();
   }
 
   inline bool operator<(const std::string& lhs, const UTF8String& rhs) noexcept
   {
-    return StringViewLiteUtil::AsStringViewLite(lhs) < rhs.AsStringViewLite();
+    return StringViewLite(lhs) < rhs.AsStringViewLite();
   }
 
   // Operator <=
@@ -357,14 +360,14 @@ namespace Fsl
     return lhs.AsStringViewLite() <= pszRhs;
   }
 
-  inline bool operator<=(const UTF8String& lhs, const StringViewLite& rhs) noexcept
+  inline bool operator<=(const UTF8String& lhs, const StringViewLite rhs) noexcept
   {
     return lhs.AsStringViewLite() <= rhs;
   }
 
   inline bool operator<=(const UTF8String& lhs, const std::string& rhs) noexcept
   {
-    return lhs.AsStringViewLite() <= StringViewLiteUtil::AsStringViewLite(rhs);
+    return lhs.AsStringViewLite() <= StringViewLite(rhs);
   }
 
   inline bool operator<=(const char* const pszLhs, const UTF8String& rhs) noexcept
@@ -372,14 +375,14 @@ namespace Fsl
     return pszLhs <= rhs.AsStringViewLite();
   }
 
-  inline bool operator<=(const StringViewLite& lhs, const UTF8String& rhs) noexcept
+  inline bool operator<=(const StringViewLite lhs, const UTF8String& rhs) noexcept
   {
     return lhs <= rhs.AsStringViewLite();
   }
 
   inline bool operator<=(const std::string& lhs, const UTF8String& rhs) noexcept
   {
-    return StringViewLiteUtil::AsStringViewLite(lhs) <= rhs.AsStringViewLite();
+    return StringViewLite(lhs) <= rhs.AsStringViewLite();
   }
 
   // Operator >
@@ -394,14 +397,14 @@ namespace Fsl
     return lhs.AsStringViewLite() > pszRhs;
   }
 
-  inline bool operator>(const UTF8String& lhs, const StringViewLite& rhs) noexcept
+  inline bool operator>(const UTF8String& lhs, const StringViewLite rhs) noexcept
   {
     return lhs.AsStringViewLite() > rhs;
   }
 
   inline bool operator>(const UTF8String& lhs, const std::string& rhs) noexcept
   {
-    return lhs.AsStringViewLite() > StringViewLiteUtil::AsStringViewLite(rhs);
+    return lhs.AsStringViewLite() > StringViewLite(rhs);
   }
 
   inline bool operator>(const char* const pszLhs, const UTF8String& rhs) noexcept
@@ -409,14 +412,14 @@ namespace Fsl
     return pszLhs > rhs.AsStringViewLite();
   }
 
-  inline bool operator>(const StringViewLite& lhs, const UTF8String& rhs) noexcept
+  inline bool operator>(const StringViewLite lhs, const UTF8String& rhs) noexcept
   {
     return lhs > rhs.AsStringViewLite();
   }
 
   inline bool operator>(const std::string& lhs, const UTF8String& rhs) noexcept
   {
-    return StringViewLiteUtil::AsStringViewLite(lhs) > rhs.AsStringViewLite();
+    return StringViewLite(lhs) > rhs.AsStringViewLite();
   }
 
   // Operator >=
@@ -431,14 +434,14 @@ namespace Fsl
     return lhs.AsStringViewLite() >= pszRhs;
   }
 
-  inline bool operator>=(const UTF8String& lhs, const StringViewLite& rhs) noexcept
+  inline bool operator>=(const UTF8String& lhs, const StringViewLite rhs) noexcept
   {
     return lhs.AsStringViewLite() >= rhs;
   }
 
   inline bool operator>=(const UTF8String& lhs, const std::string& rhs) noexcept
   {
-    return lhs.AsStringViewLite() >= StringViewLiteUtil::AsStringViewLite(rhs);
+    return lhs.AsStringViewLite() >= StringViewLite(rhs);
   }
 
   inline bool operator>=(const char* const pszLhs, const UTF8String& rhs) noexcept
@@ -446,14 +449,14 @@ namespace Fsl
     return pszLhs >= rhs.AsStringViewLite();
   }
 
-  inline bool operator>=(const StringViewLite& lhs, const UTF8String& rhs) noexcept
+  inline bool operator>=(const StringViewLite lhs, const UTF8String& rhs) noexcept
   {
     return lhs >= rhs.AsStringViewLite();
   }
 
   inline bool operator>=(const std::string& lhs, const UTF8String& rhs) noexcept
   {
-    return StringViewLiteUtil::AsStringViewLite(lhs) >= rhs.AsStringViewLite();
+    return StringViewLite(lhs) >= rhs.AsStringViewLite();
   }
 }
 

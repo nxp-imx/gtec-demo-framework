@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,10 +38,10 @@
 #include <FslGraphics/Render/Basic/Material/BasicMaterialInfo.hpp>
 #include <FslGraphics/Render/BlendStateUtil.hpp>
 #include <FslGraphics/Sprite/Material/Basic/BasicSpriteMaterial.hpp>
-#include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
 #include <FslSimpleUI/App/Resource/UIAppMaterialManager.hpp>
 #include <FslSimpleUI/App/Resource/UIAppTextureInfo.hpp>
 #include <FslSimpleUI/App/UIAppConfig.hpp>
+#include <FslSimpleUI/Render/Builder/UIVertex.hpp>
 #include <fmt/format.h>
 
 namespace Fsl::SimpleUIApp
@@ -65,7 +65,7 @@ namespace Fsl::SimpleUIApp
   }
 
   UIAppMaterialManager::UIAppMaterialManager(const bool allowDepthBuffer, const bool defaultToDynamicMaterials)
-    : m_vertexDeclaration(VertexPositionColorTexture::AsVertexDeclarationSpan())
+    : m_vertexDeclaration(UI::UIVertex::AsVertexDeclarationSpan())
     , m_options(allowDepthBuffer, defaultToDynamicMaterials)
     , m_nextDynamicId(UIAppConfig::MaterialId::DynamicOffset.Value)
   {
@@ -85,7 +85,8 @@ namespace Fsl::SimpleUIApp
   }
 
   void UIAppMaterialManager::AddMaterial(IBasicRenderSystem& rRenderSystem, const SpriteMaterialId spriteMaterialId,
-                                         const UIAppTextureHandle hTexture, const UIAppTextureInfo& textureInfo, const BlendState blendState)
+                                         const UIAppTextureHandle hTexture, const UIAppTextureInfo& textureInfo, const BlendState blendState,
+                                         const BasicPrimitiveTopology primitiveTopology)
   {
     // verify that the material isn't defined!
     if (Contains(spriteMaterialId))
@@ -97,21 +98,24 @@ namespace Fsl::SimpleUIApp
     const BasicMaterialDepthInfo transparentDepthInfo(m_options.AllowDepthBuffer, false, LocalConfig::MaterialCompareOp);
     const BasicMaterialDepthInfo& depthInfo = blendState != BlendState::Opaque ? transparentDepthInfo : opaqueDepthInfo;
 
-    BasicMaterialCreateInfo matCreateInfo(blendState, BasicCullMode::Back, BasicFrontFace::Clockwise, depthInfo, m_vertexDeclaration.AsSpan());
+    BasicMaterialInfo matInfo(blendState, BasicCullMode::Back, BasicFrontFace::Clockwise, depthInfo, primitiveTopology);
+    BasicMaterialCreateInfo matCreateInfo(matInfo, m_vertexDeclaration.AsSpan());
     auto basicMaterial = std::make_shared<BasicSpriteMaterial>(rRenderSystem.CreateMaterial(matCreateInfo, textureInfo.Texture, m_options.IsDynamic));
 
-    SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureInfo.ExtentPx, BlendStateUtil::IsOpaque(blendState), basicMaterial);
+    SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureInfo.ExtentPx, BlendStateUtil::IsOpaque(blendState), primitiveTopology,
+                                          basicMaterial);
     m_materials.emplace(spriteMaterialId, MaterialRecord{hTexture, basicMaterial, spriteMaterialInfo, blendState});
   }
 
 
   SpriteMaterialId UIAppMaterialManager::AddMaterial(IBasicRenderSystem& rRenderSystem, const UIAppTextureHandle hTexture,
-                                                     const UIAppTextureInfo& textureInfo, const BlendState blendState)
+                                                     const UIAppTextureInfo& textureInfo, const BlendState blendState,
+                                                     const BasicPrimitiveTopology primitiveTopology)
   {
     SpriteMaterialId materialId = CreateDynamicSpriteMaterialId();
     try
     {
-      AddMaterial(rRenderSystem, materialId, hTexture, textureInfo, blendState);
+      AddMaterial(rRenderSystem, materialId, hTexture, textureInfo, blendState, primitiveTopology);
       return materialId;
     }
     catch (const std::exception& ex)
@@ -181,7 +185,7 @@ namespace Fsl::SimpleUIApp
       auto newMaterial =
         std::make_shared<BasicSpriteMaterial>(rRenderSystem.CloneMaterial(rMaterialEntry.second.BasicMaterial->Material, newMaterialInfo));
 
-      SpriteMaterialInfo spriteMaterialInfo(oldInfo.Id, oldInfo.ExtentPx, oldInfo.IsOpaque, newMaterial);
+      SpriteMaterialInfo spriteMaterialInfo(oldInfo.Id, oldInfo.ExtentPx, oldInfo.IsOpaque, oldInfo.PrimitiveTopology, newMaterial);
 
       rMaterialEntry.second.BasicMaterial = newMaterial;
       rMaterialEntry.second.MaterialInfo = spriteMaterialInfo;
@@ -226,7 +230,8 @@ namespace Fsl::SimpleUIApp
     }
     assert(itrFind->second.TextureHandle == debugExpectedTextureHandle);
 
-    SpriteMaterialInfo newInfo(spriteMaterialId, newExtentPx, itrFind->second.MaterialInfo.IsOpaque, itrFind->second.BasicMaterial);
+    SpriteMaterialInfo newInfo(spriteMaterialId, newExtentPx, itrFind->second.MaterialInfo.IsOpaque, itrFind->second.MaterialInfo.PrimitiveTopology,
+                               itrFind->second.BasicMaterial);
     itrFind->second.MaterialInfo = newInfo;
     return newInfo;
   }
@@ -242,7 +247,8 @@ namespace Fsl::SimpleUIApp
       throw NotFoundException(fmt::format("Unknown material {}", spriteMaterialId.Value));
     }
 
-    SpriteMaterialInfo newInfo(spriteMaterialId, newExtentPx, itrFind->second.MaterialInfo.IsOpaque, itrFind->second.BasicMaterial);
+    SpriteMaterialInfo newInfo(spriteMaterialId, newExtentPx, itrFind->second.MaterialInfo.IsOpaque, itrFind->second.MaterialInfo.PrimitiveTopology,
+                               itrFind->second.BasicMaterial);
     itrFind->second.MaterialInfo = newInfo;
 
     DoPatchSpriteFontMaterial(bitmapFont, itrFind->second.BasicMaterial.get());
@@ -265,7 +271,7 @@ namespace Fsl::SimpleUIApp
           std::make_shared<BasicSpriteMaterial>(rRenderSystem.CloneMaterial(rMaterialEntry.second.BasicMaterial->Material, srcTexture));
 
         // Patch the material info with the new information
-        SpriteMaterialInfo spriteMaterialInfo(oldInfo.Id, srcExtentPx, oldInfo.IsOpaque, newMaterial);
+        SpriteMaterialInfo spriteMaterialInfo(oldInfo.Id, srcExtentPx, oldInfo.IsOpaque, oldInfo.PrimitiveTopology, newMaterial);
 
         rMaterialEntry.second.BasicMaterial = newMaterial;
         rMaterialEntry.second.MaterialInfo = spriteMaterialInfo;

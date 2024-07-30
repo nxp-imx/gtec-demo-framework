@@ -49,7 +49,9 @@ namespace Fsl
 
     class Utf8StrViewReader
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       const uint8_t* m_pStr;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       const uint8_t* const m_pStrEnd;
 
     public:
@@ -142,7 +144,7 @@ namespace Fsl
 
     void PadResult(Span<SpriteFontGlyphPosition> dst, const uint32_t dstIndex, const uint32_t endDstIndex)
     {
-      assert(endDstIndex <= dst.length());
+      assert(endDstIndex <= dst.size());
       uint32_t index = dstIndex;
       while (index < endDstIndex)
       {

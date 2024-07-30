@@ -40,7 +40,7 @@ namespace Fsl
   {
     uint32_t First{};
     uint32_t Second{};
-    PxValue AmountPx{};
+    PxValue AmountPx;
 
     constexpr BitmapFontKerning() = default;
 

@@ -53,7 +53,7 @@ TEST(TestSystem_HighResolutionTimerUtil, ToTimeSpan)
   Thread::SleepMilliseconds(2);
   auto endTime = timer.GetNativeTicks();
 
-  TimeSpan timeSpan = HighResolutionTimerUtil::ToTimeSpan(endTime - startTime, timer.GetNativeTickFrequency());
+  [[maybe_unused]] TimeSpan timeSpan = HighResolutionTimerUtil::ToTimeSpan(endTime - startTime, timer.GetNativeTickFrequency());
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------

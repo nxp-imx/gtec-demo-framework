@@ -46,6 +46,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class HDR04_HDRFramebuffer
     : public DemoAppGLES3
     , public UI::EventListener
@@ -67,7 +68,7 @@ namespace Fsl
     {
       GLint Exposure;
       TonemapProgramLocations()
-        : Exposure(GLES3::GLValues::INVALID_LOCATION)
+        : Exposure(GLES3::GLValues::InvalidLocation)
       {
       }
     };

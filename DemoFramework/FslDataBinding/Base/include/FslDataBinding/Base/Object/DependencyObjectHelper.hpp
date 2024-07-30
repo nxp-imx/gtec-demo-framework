@@ -1,7 +1,7 @@
 #ifndef FSLDATABINDING_BASE_OBJECT_DEPENDENCYOBJECTHELPER_HPP
 #define FSLDATABINDING_BASE_OBJECT_DEPENDENCYOBJECTHELPER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@
 #include <FslDataBinding/Base/Property/PropertySetBindingResult.hpp>
 #include <FslDataBinding/Base/Property/TypedDependencyProperty.hpp>
 #include <FslDataBinding/Base/Property/TypedObserverDependencyProperty.hpp>
+#include <FslDataBinding/Base/Property/TypedReadOnlyDependencyProperty.hpp>
 #include <memory>
 
 
@@ -99,6 +100,18 @@ namespace Fsl::DataBinding::DependencyObjectHelper
   template <typename TOwner, typename TPropertyValue>
   inline DataBindingInstanceHandle TryGetPropertyHandle(TOwner* pOwnerThis, ScopedDependencyObject& rThisDependencyObject,
                                                         const DependencyPropertyDefinition& sourceDef,
+                                                        PropLinkRefs<TypedReadOnlyDependencyProperty<TPropertyValue>> propertyRefs)
+  {
+    PropertySanityCheckGet<TOwner, TypedReadOnlyDependencyProperty<TPropertyValue>>(pOwnerThis, rThisDependencyObject, sourceDef, propertyRefs);
+    return sourceDef == propertyRefs.PropertyDef
+             ? propertyRefs.Property.GetInstanceHandleOnDemand(pOwnerThis, rThisDependencyObject, propertyRefs.PropertyDef)
+             : DataBindingInstanceHandle();
+  }
+
+
+  template <typename TOwner, typename TPropertyValue>
+  inline DataBindingInstanceHandle TryGetPropertyHandle(TOwner* pOwnerThis, ScopedDependencyObject& rThisDependencyObject,
+                                                        const DependencyPropertyDefinition& sourceDef,
                                                         PropLinkRefs<TypedObserverDependencyProperty<TPropertyValue>> propertyRefs)
   {
     PropertySanityCheckGet<TOwner, TypedObserverDependencyProperty<TPropertyValue>>(pOwnerThis, rThisDependencyObject, sourceDef, propertyRefs);
@@ -120,6 +133,18 @@ namespace Fsl::DataBinding::DependencyObjectHelper
                                                         PropLinkRefs<TypedDependencyProperty<TPropertyValue>> propertyRefs, Args... args)
   {
     PropertySanityCheckGet<TOwner, TypedDependencyProperty<TPropertyValue>>(pOwnerThis, rThisDependencyObject, sourceDef, propertyRefs);
+    return sourceDef == propertyRefs.PropertyDef
+             ? propertyRefs.Property.GetInstanceHandleOnDemand(pOwnerThis, rThisDependencyObject, propertyRefs.PropertyDef)
+             : TryGetPropertyHandle(pOwnerThis, rThisDependencyObject, sourceDef, args...);
+  }
+
+
+  template <typename TOwner, typename TPropertyValue, typename... Args>
+  inline DataBindingInstanceHandle TryGetPropertyHandle(TOwner* pOwnerThis, ScopedDependencyObject& rThisDependencyObject,
+                                                        const DependencyPropertyDefinition& sourceDef,
+                                                        PropLinkRefs<TypedReadOnlyDependencyProperty<TPropertyValue>> propertyRefs, Args... args)
+  {
+    PropertySanityCheckGet<TOwner, TypedReadOnlyDependencyProperty<TPropertyValue>>(pOwnerThis, rThisDependencyObject, sourceDef, propertyRefs);
     return sourceDef == propertyRefs.PropertyDef
              ? propertyRefs.Property.GetInstanceHandleOnDemand(pOwnerThis, rThisDependencyObject, propertyRefs.PropertyDef)
              : TryGetPropertyHandle(pOwnerThis, rThisDependencyObject, sourceDef, args...);
@@ -156,6 +181,15 @@ namespace Fsl::DataBinding::DependencyObjectHelper
 
   template <typename TOwner, typename TPropertyValue>
   inline PropertySetBindingResult TrySetBinding(TOwner* pOwnerThis, ScopedDependencyObject& rThisDependencyObject,
+                                                const DependencyPropertyDefinition& targetDef, [[maybe_unused]] const Binding& binding,
+                                                PropLinkRefs<TypedReadOnlyDependencyProperty<TPropertyValue>> propertyRefs)
+  {
+    PropertySanityCheckSet<TOwner, TypedReadOnlyDependencyProperty<TPropertyValue>>(pOwnerThis, rThisDependencyObject, targetDef, propertyRefs);
+    return targetDef == propertyRefs.PropertyDef ? PropertySetBindingResult::ReadOnly : PropertySetBindingResult::NotFound;
+  }
+
+  template <typename TOwner, typename TPropertyValue>
+  inline PropertySetBindingResult TrySetBinding(TOwner* pOwnerThis, ScopedDependencyObject& rThisDependencyObject,
                                                 const DependencyPropertyDefinition& targetDef, const Binding& binding,
                                                 PropLinkRefs<TypedObserverDependencyProperty<TPropertyValue>> propertyRefs)
   {
@@ -166,6 +200,12 @@ namespace Fsl::DataBinding::DependencyObjectHelper
                   : PropertySetBindingResult::Unchanged)
              : PropertySetBindingResult::NotFound;
   }
+
+  // Forward declare the handler for TypedReadOnlyDependencyProperty<TPropertyValue>
+  template <typename TOwner, typename TPropertyValue, typename... Args>
+  inline PropertySetBindingResult TrySetBinding(TOwner* pOwnerThis, ScopedDependencyObject& rThisDependencyObject,
+                                                const DependencyPropertyDefinition& targetDef, const Binding& binding,
+                                                PropLinkRefs<TypedReadOnlyDependencyProperty<TPropertyValue>> propertyRefs, Args... args);
 
   // Forward declare the handler for TypedObserverDependencyProperty<TPropertyValue>
   template <typename TOwner, typename TPropertyValue, typename... Args>
@@ -187,6 +227,15 @@ namespace Fsl::DataBinding::DependencyObjectHelper
              : TrySetBinding(pOwnerThis, rThisDependencyObject, targetDef, binding, args...);
   }
 
+  template <typename TOwner, typename TPropertyValue, typename... Args>
+  inline PropertySetBindingResult TrySetBinding(TOwner* pOwnerThis, ScopedDependencyObject& rThisDependencyObject,
+                                                const DependencyPropertyDefinition& targetDef, const Binding& binding,
+                                                PropLinkRefs<TypedReadOnlyDependencyProperty<TPropertyValue>> propertyRefs, Args... args)
+  {
+    PropertySanityCheckSet<TOwner, TypedReadOnlyDependencyProperty<TPropertyValue>>(pOwnerThis, rThisDependencyObject, targetDef, propertyRefs);
+    return targetDef == propertyRefs.PropertyDef ? PropertySetBindingResult::ReadOnly
+                                                 : TrySetBinding(pOwnerThis, rThisDependencyObject, targetDef, binding, args...);
+  }
 
   template <typename TOwner, typename TPropertyValue, typename... Args>
   inline PropertySetBindingResult TrySetBinding(TOwner* pOwnerThis, ScopedDependencyObject& rThisDependencyObject,

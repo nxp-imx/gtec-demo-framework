@@ -90,7 +90,7 @@ namespace Fsl
     }
   }
 
-  void MenuUI::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void MenuUI::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_cbMenuDrawNearPlaneMouse)
     {

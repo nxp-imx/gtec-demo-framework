@@ -30,7 +30,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDemoHost/Base/Service/AppInfo/AppInfoService.hpp>
 
 namespace Fsl
@@ -45,7 +44,7 @@ namespace Fsl
 
   StringViewLite AppInfoService::GetAppName() const
   {
-    return StringViewLiteUtil::AsStringViewLite(m_appName);
+    return std::string_view(m_appName);
   }
 
 
@@ -60,6 +59,6 @@ namespace Fsl
 
   void AppInfoService::SetAppName(const StringViewLite& name)
   {
-    StringViewLiteUtil::Set(m_appName, name);
+    m_appName = name;
   }
 }

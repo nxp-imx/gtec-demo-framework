@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,9 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/TypeConverter_Float.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
+#include <FslDataBinding/Base/Bind/ConverterBinding.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoService/CpuStats/ICpuStatsService.hpp>
@@ -43,31 +46,139 @@
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslSimpleUI/Base/Layout/ComplexStackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <FslSimpleUI/Base/Layout/UniformStackLayout.hpp>
+#include <FslSimpleUI/Base/Layout/UniformWrapLayout.hpp>
+#include <FslSimpleUI/Controls/Charts/AreaChart.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
+#include <Shared/Stats/ChartGridLinesCpu.hpp>
 #include <Shared/Stats/Shared.hpp>
-// #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
-
 #include <cassert>
 
 namespace Fsl
 {
-  using namespace UI;
-
   namespace
   {
-    // std::shared_ptr<Label> CreateLabel(const std::shared_ptr<WindowContext>& context, const std::string& text, const ItemAlignment alignX,
-    //                                   const ItemAlignment alignY, const std::shared_ptr<AtlasFont>& font)
-    //{
-    //  auto label = std::make_shared<Label>(context);
-    //  label->SetContent(text);
-    //  label->SetAlignmentX(alignX);
-    //  label->SetAlignmentY(alignY);
-    //  label->SetFont(font);
-    //  return label;
-    //}
+    namespace LocalConfig
+    {
+      constexpr uint32_t MaxDataEntries = 400;
+      constexpr auto ChartWidth = UI::DpLayoutSize1D::Create(200.0f);
+      constexpr auto ChartHeight = DpSize1DF::Create(100.0f);
+    }
+
+    struct AreaChartUI
+    {
+      std::shared_ptr<UI::BaseWindow> Main;
+      std::shared_ptr<UI::AreaChart> Chart;
+
+      AreaChartUI(std::shared_ptr<UI::BaseWindow> main, std::shared_ptr<UI::AreaChart> chart)
+        : Main(std::move(main))
+        , Chart(std::move(chart))
+      {
+      }
+    };
+
+    AreaChartUI CreateAreaChart(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::ChartData>& chartDataView,
+                                const std::shared_ptr<UI::BaseWindow>& caption)
+    {
+      const auto& context = uiFactory.GetContext();
+      const auto& resources = uiFactory.GetResources();
+
+      auto chart = std::make_shared<UI::AreaChart>(context);
+      chart->SetAlignmentX(UI::ItemAlignment::Stretch);
+      chart->SetAlignmentY(UI::ItemAlignment::Stretch);
+      chart->SetOpaqueFillSprite(resources.GetBasicFillSprite(true));
+      chart->SetTransparentFillSprite(resources.GetBasicFillSprite(false));
+      chart->SetFont(resources.GetDefaultSpriteFont());
+      chart->SetLabelBackground(resources.GetToolTipNineSliceSprite());
+      chart->SetWidth(LocalConfig::ChartWidth);
+      chart->SetMinHeight(LocalConfig::ChartHeight);
+      chart->SetDataView(chartDataView);
+
+      auto layout = std::make_shared<UI::ComplexStackLayout>(context);
+      layout->SetOrientation(UI::LayoutOrientation::Vertical);
+      layout->SetAlignmentX(UI::ItemAlignment::Stretch);
+      layout->SetAlignmentY(UI::ItemAlignment::Stretch);
+      if (caption)
+      {
+        layout->AddChild(caption, UI::LayoutLength(UI::LayoutUnitType::Auto));
+      }
+      layout->AddChild(chart, UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
+      return {layout, chart};
+    }
+
+    std::shared_ptr<UI::BaseWindow> CreateCpuAreaChart(UI::Theme::IThemeControlFactory& uiFactory,
+                                                       const std::shared_ptr<UI::ChartData>& chartDataView, const std::string& strCaption)
+    {
+      const auto& context = uiFactory.GetContext();
+
+      auto caption = uiFactory.CreateLabel(strCaption);
+
+      auto fmtValueLabel = uiFactory.CreateFmtValueLabel(0.0f, "{:.1f}");
+      fmtValueLabel->SetAlignmentX(UI::ItemAlignment::Far);
+
+      auto layout = std::make_shared<UI::ComplexStackLayout>(context);
+      layout->SetOrientation(UI::LayoutOrientation::Horizontal);
+      layout->SetAlignmentX(UI::ItemAlignment::Stretch);
+      layout->SetAlignmentY(UI::ItemAlignment::Stretch);
+      layout->AddChild(caption, UI::LayoutLength(UI::LayoutUnitType::Auto));
+      layout->AddChild(fmtValueLabel, UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
+
+      auto chartRecord = CreateAreaChart(uiFactory, chartDataView, layout);
+      chartRecord.Chart->SetGridLines(std::make_shared<ChartGridLinesCpu>());
+      chartRecord.Chart->SetRenderPolicy(UI::ChartRenderPolicy::Measure);
+
+      {
+        auto converterBinding = std::make_shared<Fsl::DataBinding::ConverterBinding<float, UI::ChartDataEntry>>(
+          [](const UI::ChartDataEntry value) { return static_cast<float>(value.Values[0]); });
+
+        fmtValueLabel->SetBinding(UI::FmtValueLabel<float>::PropertyContent,
+                                  DataBinding::Binding(converterBinding, chartDataView->GetPropertyHandle(UI::ChartData::PropertyLatestEntry)));
+      }
+
+      return uiFactory.CreateBackgroundWindow(UI::Theme::WindowType::DialogNormal, chartRecord.Main);
+    }
+
+    std::shared_ptr<UI::BaseWindow> CreateRamAreaChart(UI::Theme::IThemeControlFactory& uiFactory,
+                                                       const std::shared_ptr<UI::ChartData>& chartDataView, const std::string& strCaption)
+    {
+      const auto& context = uiFactory.GetContext();
+
+      auto caption = uiFactory.CreateLabel(strCaption);
+
+      auto fmtValueLabel = uiFactory.CreateFmtValueLabel(static_cast<uint64_t>(0), "{:10} KB");
+      fmtValueLabel->SetAlignmentX(UI::ItemAlignment::Far);
+
+      auto layout = std::make_shared<UI::ComplexStackLayout>(context);
+      layout->SetOrientation(UI::LayoutOrientation::Horizontal);
+      layout->SetAlignmentX(UI::ItemAlignment::Stretch);
+      layout->SetAlignmentY(UI::ItemAlignment::Stretch);
+      layout->AddChild(caption, UI::LayoutLength(UI::LayoutUnitType::Auto));
+      layout->AddChild(fmtValueLabel, UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
+
+      auto chartRecord = CreateAreaChart(uiFactory, chartDataView, layout);
+      chartRecord.Chart->SetRenderPolicy(UI::ChartRenderPolicy::FillAvailable);
+
+      {
+        auto converterBinding = std::make_shared<Fsl::DataBinding::ConverterBinding<uint64_t, UI::ChartDataEntry>>(
+          [](const UI::ChartDataEntry value) { return UncheckedNumericCast<uint64_t>(value.Values[0]); });
+
+        fmtValueLabel->SetBinding(UI::FmtValueLabel<uint64_t>::PropertyContent,
+                                  DataBinding::Binding(converterBinding, chartDataView->GetPropertyHandle(UI::ChartData::PropertyLatestEntry)));
+      }
+
+      auto win = uiFactory.CreateBackgroundWindow(UI::Theme::WindowType::DialogNormal, chartRecord.Main);
+      win->SetAlignmentX(UI::ItemAlignment::Stretch);
+      win->SetAlignmentY(UI::ItemAlignment::Stretch);
+      return win;
+    }
   }
 
 
@@ -77,132 +188,53 @@ namespace Fsl
         std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))    // Prepare the extension
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
     , m_cpuStats(config.DemoServiceProvider.TryGet<ICpuStatsService>())
+    , m_chartData(CreateChartData(m_uiExtension->GetDataBinding(), m_cpuStats.get()))
+    , m_ui(CreateUI(*UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension), m_chartData))
   {
-    auto contentManager = config.DemoServiceProvider.Get<IContentManager>();
-
-    auto windowContext = m_uiExtension->GetContext();
-
-    auto cpuCount = m_cpuStats ? m_cpuStats->GetCpuCount() : 0u;
-
-    // m_cpuStats->TryGetApplicationCpuUsage
-    // m_cpuStats->TryGetApplicationRamUsage
-    // m_cpuStats->TryGetCpuUsage()
-
-    m_cores.resize(cpuCount);
-
-    auto gridLayoutInfo = std::make_shared<GridLayout>(windowContext);
-    {
-      gridLayoutInfo->SetAlignmentX(ItemAlignment::Near);
-      gridLayoutInfo->SetAlignmentY(ItemAlignment::Near);
-      gridLayoutInfo->AddColumnDefinition(GridColumnDefinition(GridUnitType::Auto));
-      gridLayoutInfo->AddColumnDefinition(GridColumnDefinition(GridUnitType::Auto));
-
-      gridLayoutInfo->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
-      gridLayoutInfo->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
-
-      uint32_t yPos = 0;
-      auto label = std::make_shared<Label>(windowContext);
-      label->SetContent("App CPU:");
-      m_fmtValueLabelAppCPU = std::make_shared<UI::FmtValueLabel<float>>(windowContext);
-      m_fmtValueLabelAppCPU->SetFormatString("{:6.1f}%");
-      m_fmtValueLabelAppCPU->SetAlignmentX(ItemAlignment::Far);
-
-      gridLayoutInfo->AddChild(label);
-      gridLayoutInfo->AddChild(m_fmtValueLabelAppCPU);
-      gridLayoutInfo->Set(label, 0, yPos);
-      gridLayoutInfo->Set(m_fmtValueLabelAppCPU, 1, yPos);
-
-      ++yPos;
-      label = std::make_shared<Label>(windowContext);
-      label->SetContent("App Memory:");
-      m_fmtValueLabelAppMemory = std::make_shared<UI::FmtValueLabel<uint64_t>>(windowContext);
-      m_fmtValueLabelAppMemory->SetFormatString("{:10} KB");
-      m_fmtValueLabelAppMemory->SetAlignmentX(ItemAlignment::Far);
-
-      gridLayoutInfo->AddChild(label);
-      gridLayoutInfo->AddChild(m_fmtValueLabelAppMemory);
-      gridLayoutInfo->Set(label, 0, yPos);
-      gridLayoutInfo->Set(m_fmtValueLabelAppMemory, 1, yPos);
-    }
-
-
-    auto gridLayoutCores = std::make_shared<GridLayout>(windowContext);
-    {
-      gridLayoutCores->SetAlignmentX(ItemAlignment::Far);
-      gridLayoutCores->SetAlignmentY(ItemAlignment::Near);
-      gridLayoutCores->AddColumnDefinition(GridColumnDefinition(GridUnitType::Auto));
-      gridLayoutCores->AddColumnDefinition(GridColumnDefinition(GridUnitType::Fixed, 90));
-
-      for (uint32_t i = 0; i < cpuCount; ++i)
-      {
-        gridLayoutCores->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
-
-        auto label = std::make_shared<Label>(windowContext);
-        label->SetContent(fmt::format("CPU{}:", i));
-        auto fmtValueLabel = std::make_shared<UI::FmtValueLabel<float>>(windowContext);
-        fmtValueLabel->SetFormatString("{:.1f}");
-        fmtValueLabel->SetAlignmentX(ItemAlignment::Far);
-        m_cores[i] = fmtValueLabel;
-
-        gridLayoutCores->AddChild(label);
-        gridLayoutCores->AddChild(fmtValueLabel);
-        gridLayoutCores->Set(label, 0, i);
-        gridLayoutCores->Set(fmtValueLabel, 1, i);
-      }
-    }
-
-    // Create the root layout and add it to the window manager
-    m_rootLayout = std::make_shared<FillLayout>(windowContext);
-    m_rootLayout->AddChild(gridLayoutInfo);
-    m_rootLayout->AddChild(gridLayoutCores);
-
     // Register the root layout with the window manager
-    m_uiExtension->GetWindowManager()->Add(m_rootLayout);
+    m_uiExtension->GetWindowManager()->Add(m_ui.Main);
   }
 
 
   Shared::~Shared() = default;
 
 
-  void Shared::OnSelect(const RoutedEventArgs& /*args*/, const std::shared_ptr<WindowSelectEvent>& /*theEvent*/)
+  void Shared::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& /*theEvent*/)
   {
-    // if (theEvent->GetSource() == m_button1)
-    //{
-    //  FSLLOG3_INFO("Button1 selected");
-    //}
-    // else if (theEvent->GetSource() == m_button2)
-    //{
-    //  FSLLOG3_INFO("Button2 selected");
-    //}
-    // else if (theEvent->GetSource() == m_complexButton)
-    //{
-    //  FSLLOG3_INFO("Complex button selected");
-    //}
   }
 
   void Shared::Update()
   {
     if (m_cpuStats)
     {
-      for (uint32_t i = 0; i < m_cores.size(); ++i)
       {
-        float usagePercentage = 0.0f;
-        if (m_cpuStats->TryGetCpuUsage(usagePercentage, i))
+        uint32_t i = 0;
+        for (auto& rRecord : m_chartData.Cores)
         {
-          m_cores[i]->SetContent(usagePercentage);
+          CpuUsageRecord usage;
+          if (m_cpuStats->TryGetCpuUsage(usage, i) && usage != rRecord.LastUsage)
+          {
+            rRecord.LastUsage = usage;
+            rRecord.ChartData->Append(UI::ChartDataEntry(TypeConverter::ChangeTo<uint32_t>(usage.UsagePercentage)));
+          }
+          ++i;
         }
       }
-
-      float appCpuUsage = 0.0f;
-      if (m_cpuStats->TryGetApplicationCpuUsage(appCpuUsage))
       {
-        m_fmtValueLabelAppCPU->SetContent(appCpuUsage);
+        CpuUsageRecord appCpuUsage;
+        if (m_cpuStats->TryGetApplicationCpuUsage(appCpuUsage) && appCpuUsage != m_chartData.AppCpu.LastUsage)
+        {
+          m_chartData.AppCpu.LastUsage = appCpuUsage;
+          m_chartData.AppCpu.ChartData->Append(UI::ChartDataEntry(TypeConverter::ChangeTo<uint32_t>(appCpuUsage.UsagePercentage)));
+        }
       }
-
-      uint64_t appRamUsage = 0u;
-      if (m_cpuStats->TryGetApplicationRamUsage(appRamUsage))
       {
-        m_fmtValueLabelAppMemory->SetContent(appRamUsage / 1024);
+        uint64_t appRamUsage = 0u;
+        if (m_cpuStats->TryGetApplicationRamUsage(appRamUsage))
+        {
+          const auto ramUsage = UncheckedNumericCast<uint32_t>(appRamUsage / 1024);
+          m_chartData.AppRam->Append(UI::ChartDataEntry(ramUsage));
+        }
       }
     }
   }
@@ -210,5 +242,74 @@ namespace Fsl
   void Shared::Draw()
   {
     m_uiExtension->Draw();
+  }
+
+
+  Shared::ChartDataRecord Shared::CreateChartData(const std::shared_ptr<DataBinding::DataBindingService>& dataBinding,
+                                                  const ICpuStatsService* const pCpuStats)
+  {
+    auto appCpu = std::make_shared<UI::ChartData>(dataBinding, LocalConfig::MaxDataEntries, 1, UI::ChartData::Constraints(0, 100));
+    auto appRam = std::make_shared<UI::ChartData>(dataBinding, LocalConfig::MaxDataEntries, 1, UI::ChartData::Constraints());
+
+    const auto cpuCount = pCpuStats != nullptr ? pCpuStats->GetCpuCount() : 0u;
+    std::vector<ChardRecord> cores(cpuCount);
+    for (auto& rEntry : cores)
+    {
+      rEntry = ChardRecord(std::make_shared<UI::ChartData>(dataBinding, LocalConfig::MaxDataEntries, 1, UI::ChartData::Constraints(0, 100)));
+    }
+    return ChartDataRecord(ChardRecord(std::move(appCpu)), std::move(cores), std::move(appRam));
+  }
+
+
+  Shared::UIRecord Shared::CreateUI(UI::Theme::IThemeControlFactory& uiFactory, const ChartDataRecord& chartData)
+  {
+    const auto& context = uiFactory.GetContext();
+
+    auto appUsage = CreateAppUsageUI(uiFactory, chartData);
+    auto cpuUsage = CreateCpuUsageUI(uiFactory, chartData);
+
+    // Create the main layout
+    auto mainLayout = std::make_shared<UI::StackLayout>(context);
+    mainLayout->SetAlignmentX(UI::ItemAlignment::Stretch);
+    mainLayout->SetAlignmentY(UI::ItemAlignment::Stretch);
+    mainLayout->AddChild(appUsage);
+    mainLayout->AddChild(cpuUsage);
+
+    return Shared::UIRecord(std::move(mainLayout));
+  }
+
+  std::shared_ptr<UI::BaseWindow> Shared::CreateAppUsageUI(UI::Theme::IThemeControlFactory& uiFactory, const ChartDataRecord& chartData)
+  {
+    const auto& context = uiFactory.GetContext();
+
+    auto chartCpu = CreateCpuAreaChart(uiFactory, chartData.AppCpu.ChartData, "App CPU");
+    auto chartRam = CreateRamAreaChart(uiFactory, chartData.AppRam, "App RAM");
+
+    auto mainLayout = std::make_shared<UI::UniformStackLayout>(context);
+    mainLayout->SetAlignmentX(UI::ItemAlignment::Center);
+    mainLayout->SetOrientation(UI::LayoutOrientation::Horizontal);
+    mainLayout->AddChild(chartCpu);
+    mainLayout->AddChild(chartRam);
+
+    return mainLayout;
+  }
+
+
+  std::shared_ptr<UI::BaseWindow> Shared::CreateCpuUsageUI(UI::Theme::IThemeControlFactory& uiFactory, const ChartDataRecord& chartData)
+  {
+    const auto& context = uiFactory.GetContext();
+
+    auto mainLayout = std::make_shared<UI::UniformWrapLayout>(context);
+    mainLayout->SetOrientation(UI::LayoutOrientation::Horizontal);
+    mainLayout->SetAlignmentX(UI::ItemAlignment::Center);
+    mainLayout->SetAlignmentY(UI::ItemAlignment::Center);
+    std::size_t cpuIndex = 0;
+    for (const auto& cpuCoreEntry : chartData.Cores)
+    {
+      auto coreChart = CreateCpuAreaChart(uiFactory, cpuCoreEntry.ChartData, fmt::format("CPU{}:", cpuIndex));
+      mainLayout->AddChild(coreChart);
+      ++cpuIndex;
+    }
+    return mainLayout;
   }
 }

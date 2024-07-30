@@ -34,6 +34,7 @@
 
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Point2.hpp>
+#include <FslBase/Time/MillisecondTickCount32.hpp>
 #include <FslNativeWindow/Base/VirtualMouseButtonFlags.hpp>
 #include <FslNativeWindow/Platform/Adapter/PlatformNativeWindowAdapter.hpp>
 #include <vector>
@@ -61,12 +62,13 @@ namespace Fsl
 
     bool TryCaptureMouse(const bool enableCapture) override;
 
-    void OnDPIChanged(const Point2& value);
+    void OnDPIChanged(const MillisecondTickCount32 timestamp, const Point2 value);
 
-    void OnRawInput(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const LPARAM lParam);
-    void OnMouseMove(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const PxPoint2& position);
+    void OnRawInput(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp, const LPARAM lParam);
+    void OnMouseMove(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp, const PxPoint2 positionPx);
     void OnWindowCaptureChanged(const HWND newCaptureHwnd);
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void SYS_SetMouseCapture(const bool enableCapture);
 
     void ResolveMouseCapture();

@@ -38,9 +38,9 @@
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
+#include <utility>
 #include "DefaultValues.hpp"
 #include "FractalShaderMandelbrot.hpp"
-
 
 namespace Fsl
 {
@@ -58,6 +58,12 @@ namespace Fsl
       Resources& operator=(const Resources&) = delete;
       Resources(Resources&& other) noexcept = delete;
       Resources& operator=(Resources&& other) noexcept = delete;
+
+      Resources(std::shared_ptr<Vulkan::VMBufferManager> bufferManager, RapidVulkan::DescriptorPool descriptorPool)
+        : BufferManager(std::move(bufferManager))
+        , DescriptorPool(std::move(descriptorPool))
+      {
+      }
     };
 
     struct DependentResources
@@ -117,8 +123,8 @@ namespace Fsl
 
   protected:
     void OnKeyEvent(const KeyEvent& event) final;
-    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) final;
-    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) final;
+    void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) final;
+    void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) final;
     void Update(const DemoTime& demoTime) override;
     void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) override;
 

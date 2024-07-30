@@ -73,7 +73,7 @@ namespace Fsl
   }
 
 
-  std::optional<Texture> TextureService::TryGenerateMipMaps(const RawBitmap& src, const TextureMipMapFilter filter)
+  std::optional<Texture> TextureService::TryGenerateMipMaps(const ReadOnlyRawBitmap& src, const TextureMipMapFilter filter)
   {
     try
     {
@@ -87,7 +87,7 @@ namespace Fsl
   }
 
 
-  std::optional<Texture> TextureService::TryGenerateMipMaps(const RawTexture& src, const TextureMipMapFilter filter)
+  std::optional<Texture> TextureService::TryGenerateMipMaps(const ReadOnlyRawTexture& src, const TextureMipMapFilter filter)
   {
     try
     {
@@ -110,12 +110,12 @@ namespace Fsl
     return TextureMipMapUtil::GenerateMipMaps(src, filter);
   }
 
-  Texture TextureService::GenerateMipMaps(const RawBitmap& src, const TextureMipMapFilter filter)
+  Texture TextureService::GenerateMipMaps(const ReadOnlyRawBitmap& src, const TextureMipMapFilter filter)
   {
     return TextureMipMapUtil::GenerateMipMaps(src, filter);
   }
 
-  Texture TextureService::GenerateMipMaps(const RawTexture& src, const TextureMipMapFilter filter)
+  Texture TextureService::GenerateMipMaps(const ReadOnlyRawTexture& src, const TextureMipMapFilter filter)
   {
     return TextureMipMapUtil::GenerateMipMaps(src, filter);
   }

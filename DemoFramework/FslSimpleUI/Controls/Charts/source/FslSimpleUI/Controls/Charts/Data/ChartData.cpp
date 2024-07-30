@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,12 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
+#include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
+#include <FslDataBinding/Base/Object/ObservableDataSourceObjectHelper.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
+#include <FslSimpleUI/Base/UIColors.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/ChartData.hpp>
 #include <fmt/format.h>
 #include <algorithm>
@@ -41,7 +44,15 @@
 
 namespace Fsl::UI
 {
+  using TClass = ChartData;
+  using TDef = DataBinding::DependencyPropertyDefinition;
+  using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
 
+  TDef TClass::PropertyLatestEntry = TFactory::CreateReadOnly<ChartDataEntry, TClass, &TClass::GetLatestEntry>("LatestEntry");
+}
+
+namespace Fsl::UI
+{
   ChartData::ChartData(const std::shared_ptr<DataBinding::DataBindingService>& dataBinding, const uint32_t entries, const uint32_t dataChannelCount,
                        const Constraints constraints)
     : AChartData(dataBinding)
@@ -55,7 +66,7 @@ namespace Fsl::UI
     }
     for (auto& rEntry : m_channelMetaData)
     {
-      rEntry.PrimaryColor = Color::White();
+      rEntry.PrimaryColor = UIColors::White();
     }
     UpdateCachedValues({});
   }
@@ -169,15 +180,15 @@ namespace Fsl::UI
   void ChartData::SetChannelMetaData(const uint32_t channelIndex, const StringViewLite label)
   {
     auto& rEntry = m_channelMetaData.at(channelIndex);
-    bool changed = StringViewLiteUtil::AsStringViewLite(rEntry.Label) != label;
+    bool changed = StringViewLite(rEntry.Label) != label;
     if (changed)
     {
-      StringViewLiteUtil::Set(rEntry.Label, label);
+      rEntry.Label = label;
       MarkAsChanged();
     }
   }
 
-  void ChartData::SetChannelMetaData(const uint32_t channelIndex, const Color primaryColor)
+  void ChartData::SetChannelMetaData(const uint32_t channelIndex, const UIColor primaryColor)
   {
     auto& rEntry = m_channelMetaData.at(channelIndex);
     bool changed = rEntry.PrimaryColor != primaryColor;
@@ -304,7 +315,27 @@ namespace Fsl::UI
   ChartChannelMetaDataInfo ChartData::GetChannelMetaDataInfo(const uint32_t channelIndex) const
   {
     const auto& entry = m_channelMetaData.at(channelIndex);
-    return {StringViewLiteUtil::AsStringViewLite(entry.Label), entry.PrimaryColor};
+    return {StringViewLite(entry.Label), entry.PrimaryColor};
+  }
+
+
+  ChartDataEntry ChartData::GetLatestEntry() const noexcept
+  {
+    return m_propertyLatestEntry.Get();
+  }
+
+  DataBinding::DataBindingInstanceHandle ChartData::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
+  {
+    auto res = DataBinding::ObservableDataSourceObjectHelper::TryGetPropertyHandle(
+      this, ThisDataSourceObject(), sourceDef, DataBinding::PropLinkRefs(PropertyLatestEntry, m_propertyLatestEntry));
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
+  }
+
+
+  void ChartData::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
+  {
+    base_type::ExtractAllProperties(rProperties);
+    rProperties.push_back(PropertyLatestEntry);
   }
 
 
@@ -362,7 +393,7 @@ namespace Fsl::UI
       auto span = m_buffer.AsReadOnlySpan(segmentIndex);
       if (entriesLeft < span.size())
       {
-        span = span.unsafe_subspan(span.size() - entriesLeft, entriesLeft);
+        span = span.unchecked_subspan(span.size() - entriesLeft, entriesLeft);
       }
       assert(span.size() > 0);
       auto minMax = CalcSpanMinMax(span, m_dataChannelCount, min, max);
@@ -426,6 +457,15 @@ namespace Fsl::UI
   void ChartData::MarkAsChanged()
   {
     ++m_changeId;
+    if (!m_buffer.empty())
+    {
+      m_propertyLatestEntry.Set(ThisDataSourceObject(), m_buffer.back(), DataBinding::PropertyChangeReason::Modified);
+    }
+    else
+    {
+      m_propertyLatestEntry.Set(ThisDataSourceObject(), ChartDataEntry(), DataBinding::PropertyChangeReason::Modified);
+    }
+
     // Let the data binding system know that the content changed
     MarkAsChangedNow();
   }

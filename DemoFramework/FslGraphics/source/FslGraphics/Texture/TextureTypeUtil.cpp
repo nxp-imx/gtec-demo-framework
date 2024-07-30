@@ -36,7 +36,7 @@
 
 namespace Fsl::TextureTypeUtil
 {
-  uint32_t GetFaceCount(const TextureType textureType)
+  uint32_t GetFaceCount(const TextureType textureType) noexcept
   {
     return (textureType != TextureType::TexCube && textureType != TextureType::TexCubeArray) ? 1 : 6;
   }

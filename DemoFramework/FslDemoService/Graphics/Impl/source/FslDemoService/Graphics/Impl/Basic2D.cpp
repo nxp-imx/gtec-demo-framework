@@ -32,7 +32,6 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDemoService/Graphics/Impl/Basic2D.hpp>
 #include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
 #include <cstring>
@@ -96,7 +95,7 @@ namespace Fsl
 
   void Basic2D::DrawString(const std::string& str, const Vector2& dstPosition)
   {
-    DrawString(StringViewLiteUtil::AsStringViewLite(str), dstPosition);
+    DrawString(StringViewLite(str), dstPosition);
   }
 
 
@@ -122,7 +121,7 @@ namespace Fsl
 
   void Basic2D::DrawString(const std::string& str, const PxPoint2& dstPositionPx)
   {
-    DrawString(StringViewLiteUtil::AsStringViewLite(str), TypeConverter::UncheckedTo<Vector2>(dstPositionPx));
+    DrawString(StringViewLite(str), TypeConverter::UncheckedTo<Vector2>(dstPositionPx));
   }
 
   void Basic2D::DrawString(const StringViewLite& strView, const PxPoint2& dstPositionPx)

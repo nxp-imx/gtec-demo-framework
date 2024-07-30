@@ -31,8 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Transition/TransitionCache.hpp>
-#include <FslBase/Transition/TransitionValue.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/Service/Keyboard/IKeyboard.hpp>
 #include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
@@ -66,7 +64,6 @@ namespace Fsl
 
     DemoWindowMetrics m_windowMetrics;
 
-    TransitionCache m_transitionCache;
     std::vector<RenderRecord> m_render;
     uint32_t m_sceneRenderFlags = 0;
 
@@ -79,7 +76,7 @@ namespace Fsl
     }
 
     void OnKeyEvent(const KeyEvent& event);
-    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
+    void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
 
 
     void Update(const DemoTime& demoTime);

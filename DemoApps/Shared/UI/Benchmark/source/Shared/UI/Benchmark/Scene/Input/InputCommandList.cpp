@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "InputCommandList.hpp"
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 
 namespace Fsl
 {
@@ -38,8 +38,8 @@ namespace Fsl
   {
     namespace LocalConfig
     {
-      const uint32_t DefaultCapacity = 2048;
-      const uint32_t GrowBy = 2048;
+      constexpr uint32_t DefaultCapacity = 2048;
+      constexpr uint32_t GrowBy = 2048;
     }
   }
 
@@ -67,7 +67,7 @@ namespace Fsl
 
   ReadOnlySpan<InputCommandRecord> InputCommandList::GetCommandSpan() const
   {
-    return ReadOnlySpanUtil::AsSpan(m_input, 0, m_inputEntries);
+    return SpanUtil::AsReadOnlySpan(m_input, 0, m_inputEntries);
   }
 
   ReadOnlySpan<InputCommandRecord> InputCommandList::GetCommandSpanForFrame(const uint32_t frameIndex) const
@@ -91,7 +91,7 @@ namespace Fsl
     }
     assert(index >= firstIndex);
     assert(index <= m_inputEntries);
-    return ReadOnlySpanUtil::AsSpan(m_input, firstIndex, index - firstIndex);
+    return SpanUtil::AsReadOnlySpan(m_input, firstIndex, index - firstIndex);
   }
 
 

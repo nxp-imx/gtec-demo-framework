@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <FslSimpleUI/Declarative/ControlName.hpp>
@@ -40,6 +39,7 @@
 #include <FslSimpleUI/Declarative/ThemeProperties/ScopedThemePropertyParser.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <memory>
+#include <span>
 #include <string>
 #include <typeinfo>
 #include <vector>
@@ -79,7 +79,8 @@ namespace Fsl::UI::Declarative
       AddThemeProperty(std::make_unique<T>(), required);
     }
 
-    ReadOnlySpan<ControlPropertyRecord> Properties() const;
+
+    std::span<const ControlPropertyRecord> Properties() const;
 
     /// <summary>
     /// The name of the control

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Collections/TightHostedVector.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
+#include <FslBase/Span/SpanUtil_ValueCompare.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 using namespace Fsl;
@@ -212,8 +215,8 @@ TEST(TestCollections_TightHostedVector, PushBack_To0_H0H0)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t value0 = 42;
-  buffer.PushBack(HostedVectorIndex::First, value0);
+  constexpr uint32_t Value0 = 42;
+  buffer.PushBack(HostedVectorIndex::First, Value0);
 
   ASSERT_FALSE(buffer.Empty(HostedVectorIndex::First));
   ASSERT_TRUE(buffer.Empty(HostedVectorIndex::Second));
@@ -221,7 +224,7 @@ TEST(TestCollections_TightHostedVector, PushBack_To0_H0H0)
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(0u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(value0, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  ASSERT_EQ(Value0, buffer.UncheckedAt(HostedVectorIndex::First, 0));
 }
 
 
@@ -229,8 +232,8 @@ TEST(TestCollections_TightHostedVector, PushBack_To1_H0H0)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t value0 = 42;
-  buffer.PushBack(HostedVectorIndex::Second, value0);
+  constexpr uint32_t Value0 = 42;
+  buffer.PushBack(HostedVectorIndex::Second, Value0);
 
   ASSERT_TRUE(buffer.Empty(HostedVectorIndex::First));
   ASSERT_FALSE(buffer.Empty(HostedVectorIndex::Second));
@@ -238,7 +241,7 @@ TEST(TestCollections_TightHostedVector, PushBack_To1_H0H0)
   ASSERT_EQ(0u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(value0, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  ASSERT_EQ(Value0, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
 }
 
 
@@ -246,12 +249,12 @@ TEST(TestCollections_TightHostedVector, PushBack_To0_H0H1)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
   // Ensure we have one value in the back array
-  buffer.PushBack(HostedVectorIndex::Second, valueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueB);
   // Push to the first array
-  buffer.PushBack(HostedVectorIndex::First, valueA);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
 
   ASSERT_FALSE(buffer.Empty(HostedVectorIndex::First));
   ASSERT_FALSE(buffer.Empty(HostedVectorIndex::Second));
@@ -259,20 +262,20 @@ TEST(TestCollections_TightHostedVector, PushBack_To0_H0H1)
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
-  ASSERT_EQ(valueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  ASSERT_EQ(ValueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  ASSERT_EQ(ValueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
 }
 
 TEST(TestCollections_TightHostedVector, PushBack_To1_H1H0)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
   // Ensure we have one value in the first array
-  buffer.PushBack(HostedVectorIndex::First, valueA);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
   // Push to the last array
-  buffer.PushBack(HostedVectorIndex::Second, valueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueB);
 
   ASSERT_FALSE(buffer.Empty(HostedVectorIndex::First));
   ASSERT_FALSE(buffer.Empty(HostedVectorIndex::Second));
@@ -280,8 +283,8 @@ TEST(TestCollections_TightHostedVector, PushBack_To1_H1H0)
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
-  ASSERT_EQ(valueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  ASSERT_EQ(ValueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  ASSERT_EQ(ValueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
 }
 
 
@@ -289,13 +292,13 @@ TEST(TestCollections_TightHostedVector, PushBack_Push1Push1Push0)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
-  constexpr uint32_t valueC = 31;
-  buffer.PushBack(HostedVectorIndex::Second, valueB);
-  buffer.PushBack(HostedVectorIndex::Second, valueC);
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
+  constexpr uint32_t ValueC = 31;
+  buffer.PushBack(HostedVectorIndex::Second, ValueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueC);
   // Push to the first array
-  buffer.PushBack(HostedVectorIndex::First, valueA);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
 
   ASSERT_FALSE(buffer.Empty(HostedVectorIndex::First));
   ASSERT_FALSE(buffer.Empty(HostedVectorIndex::Second));
@@ -303,22 +306,22 @@ TEST(TestCollections_TightHostedVector, PushBack_Push1Push1Push0)
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(2u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
-  ASSERT_EQ(valueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
-  ASSERT_EQ(valueC, buffer.UncheckedAt(HostedVectorIndex::Second, 1));
+  ASSERT_EQ(ValueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  ASSERT_EQ(ValueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  ASSERT_EQ(ValueC, buffer.UncheckedAt(HostedVectorIndex::Second, 1));
 }
 
 TEST(TestCollections_TightHostedVector, PushBack_Push0Push0Push1)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
-  constexpr uint32_t valueC = 31;
-  buffer.PushBack(HostedVectorIndex::First, valueA);
-  buffer.PushBack(HostedVectorIndex::First, valueB);
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
+  constexpr uint32_t ValueC = 31;
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
+  buffer.PushBack(HostedVectorIndex::First, ValueB);
   // Push to the first array
-  buffer.PushBack(HostedVectorIndex::Second, valueC);
+  buffer.PushBack(HostedVectorIndex::Second, ValueC);
 
   ASSERT_FALSE(buffer.Empty(HostedVectorIndex::First));
   ASSERT_FALSE(buffer.Empty(HostedVectorIndex::Second));
@@ -326,9 +329,9 @@ TEST(TestCollections_TightHostedVector, PushBack_Push0Push0Push1)
   ASSERT_EQ(2u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
-  ASSERT_EQ(valueB, buffer.UncheckedAt(HostedVectorIndex::First, 1));
-  ASSERT_EQ(valueC, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  ASSERT_EQ(ValueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  ASSERT_EQ(ValueB, buffer.UncheckedAt(HostedVectorIndex::First, 1));
+  ASSERT_EQ(ValueC, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
 }
 
 
@@ -339,7 +342,7 @@ TEST(TestCollections_TightHostedVector, PushBack_Push0Push0Push1)
 TEST(TestCollections_TightHostedVector, PushBack_EmptySpan_To0_H0H0)
 {
   const std::array<uint32_t, 3> newValues = {};
-  const auto newValueSpan = ReadOnlySpanUtil::AsSpan(newValues);
+  const auto newValueSpan = SpanUtil::AsReadOnlySpan(newValues);
   TightHostedVector<uint32_t, 2> buffer;
 
   buffer.PushBack(HostedVectorIndex::First, newValueSpan);
@@ -350,14 +353,14 @@ TEST(TestCollections_TightHostedVector, PushBack_EmptySpan_To0_H0H0)
   ASSERT_EQ(newValueSpan.size(), buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(0u, buffer.Size(HostedVectorIndex::Second));
 
-  EXPECT_EQ(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::First));
+  EXPECT_TRUE(SpanUtil::ValueEquals(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::First)));
 }
 
 
 TEST(TestCollections_TightHostedVector, PushBack_EmptySpan_To1_H0H0)
 {
   const std::array<uint32_t, 3> newValues = {};
-  const auto newValueSpan = ReadOnlySpanUtil::AsSpan(newValues);
+  const auto newValueSpan = SpanUtil::AsReadOnlySpan(newValues);
   TightHostedVector<uint32_t, 2> buffer;
 
   buffer.PushBack(HostedVectorIndex::Second, newValueSpan);
@@ -368,20 +371,20 @@ TEST(TestCollections_TightHostedVector, PushBack_EmptySpan_To1_H0H0)
   ASSERT_EQ(0u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(newValueSpan.size(), buffer.Size(HostedVectorIndex::Second));
 
-  EXPECT_EQ(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::Second));
+  EXPECT_TRUE(SpanUtil::ValueEquals(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::Second)));
 }
 
 
 TEST(TestCollections_TightHostedVector, PushBack_EmptySpan_To0_H0H1)
 {
   const std::array<uint32_t, 3> newValues = {};
-  const auto newValueSpan = ReadOnlySpanUtil::AsSpan(newValues);
+  const auto newValueSpan = SpanUtil::AsReadOnlySpan(newValues);
 
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueB = 42;
+  constexpr uint32_t ValueB = 42;
   // Ensure we have one value in the back array
-  buffer.PushBack(HostedVectorIndex::Second, valueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueB);
   // Push to the first array
   buffer.PushBack(HostedVectorIndex::First, newValueSpan);
 
@@ -391,20 +394,20 @@ TEST(TestCollections_TightHostedVector, PushBack_EmptySpan_To0_H0H1)
   ASSERT_EQ(newValueSpan.size(), buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::Second));
 
-  EXPECT_EQ(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::First));
-  ASSERT_EQ(valueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  EXPECT_TRUE(SpanUtil::ValueEquals(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::First)));
+  ASSERT_EQ(ValueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
 }
 
 TEST(TestCollections_TightHostedVector, PushBack_EmptySpan_To1_H1H0)
 {
   const std::array<uint32_t, 3> newValues = {};
-  const auto newValueSpan = ReadOnlySpanUtil::AsSpan(newValues);
+  const auto newValueSpan = SpanUtil::AsReadOnlySpan(newValues);
 
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
+  constexpr uint32_t ValueA = 1337;
   // Ensure we have one value in the first array
-  buffer.PushBack(HostedVectorIndex::First, valueA);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
   // Push to the last array
   buffer.PushBack(HostedVectorIndex::Second, newValueSpan);
 
@@ -414,22 +417,22 @@ TEST(TestCollections_TightHostedVector, PushBack_EmptySpan_To1_H1H0)
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(newValueSpan.size(), buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
-  EXPECT_EQ(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::Second));
+  ASSERT_EQ(ValueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  EXPECT_TRUE(SpanUtil::ValueEquals(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::Second)));
 }
 
 
 TEST(TestCollections_TightHostedVector, PushBack_EmptySpan_Push1Push1Push0)
 {
   const std::array<uint32_t, 3> newValues = {};
-  const auto newValueSpan = ReadOnlySpanUtil::AsSpan(newValues);
+  const auto newValueSpan = SpanUtil::AsReadOnlySpan(newValues);
 
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueB = 42;
-  constexpr uint32_t valueC = 31;
-  buffer.PushBack(HostedVectorIndex::Second, valueB);
-  buffer.PushBack(HostedVectorIndex::Second, valueC);
+  constexpr uint32_t ValueB = 42;
+  constexpr uint32_t ValueC = 31;
+  buffer.PushBack(HostedVectorIndex::Second, ValueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueC);
   // Push to the first array
   buffer.PushBack(HostedVectorIndex::First, newValueSpan);
 
@@ -439,22 +442,22 @@ TEST(TestCollections_TightHostedVector, PushBack_EmptySpan_Push1Push1Push0)
   ASSERT_EQ(newValueSpan.size(), buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(2u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::First));
-  ASSERT_EQ(valueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
-  ASSERT_EQ(valueC, buffer.UncheckedAt(HostedVectorIndex::Second, 1));
+  ASSERT_TRUE(SpanUtil::ValueEquals(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::First)));
+  ASSERT_EQ(ValueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  ASSERT_EQ(ValueC, buffer.UncheckedAt(HostedVectorIndex::Second, 1));
 }
 
 TEST(TestCollections_TightHostedVector, PushBack_EmptySpan_Push0Push0Push1)
 {
   const std::array<uint32_t, 3> newValues = {};
-  const auto newValueSpan = ReadOnlySpanUtil::AsSpan(newValues);
+  const auto newValueSpan = SpanUtil::AsReadOnlySpan(newValues);
 
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
-  buffer.PushBack(HostedVectorIndex::First, valueA);
-  buffer.PushBack(HostedVectorIndex::First, valueB);
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
+  buffer.PushBack(HostedVectorIndex::First, ValueB);
   // Push to the first array
   buffer.PushBack(HostedVectorIndex::Second, newValueSpan);
 
@@ -464,9 +467,9 @@ TEST(TestCollections_TightHostedVector, PushBack_EmptySpan_Push0Push0Push1)
   ASSERT_EQ(2u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(newValueSpan.size(), buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
-  ASSERT_EQ(valueB, buffer.UncheckedAt(HostedVectorIndex::First, 1));
-  ASSERT_EQ(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::Second));
+  ASSERT_EQ(ValueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  ASSERT_EQ(ValueB, buffer.UncheckedAt(HostedVectorIndex::First, 1));
+  ASSERT_TRUE(SpanUtil::ValueEquals(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::Second)));
 }
 
 
@@ -477,7 +480,7 @@ TEST(TestCollections_TightHostedVector, PushBack_EmptySpan_Push0Push0Push1)
 TEST(TestCollections_TightHostedVector, PushBack_Span_To0_H0H0)
 {
   const std::array<uint32_t, 3> newValues = {901, 902, 903};
-  const auto newValueSpan = ReadOnlySpanUtil::AsSpan(newValues);
+  const auto newValueSpan = SpanUtil::AsReadOnlySpan(newValues);
   TightHostedVector<uint32_t, 2> buffer;
 
   buffer.PushBack(HostedVectorIndex::First, newValueSpan);
@@ -488,14 +491,14 @@ TEST(TestCollections_TightHostedVector, PushBack_Span_To0_H0H0)
   ASSERT_EQ(newValueSpan.size(), buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(0u, buffer.Size(HostedVectorIndex::Second));
 
-  EXPECT_EQ(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::First));
+  EXPECT_TRUE(SpanUtil::ValueEquals(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::First)));
 }
 
 
 TEST(TestCollections_TightHostedVector, PushBack_Span_To1_H0H0)
 {
   const std::array<uint32_t, 3> newValues = {901, 902, 903};
-  const auto newValueSpan = ReadOnlySpanUtil::AsSpan(newValues);
+  const auto newValueSpan = SpanUtil::AsReadOnlySpan(newValues);
   TightHostedVector<uint32_t, 2> buffer;
 
   buffer.PushBack(HostedVectorIndex::Second, newValueSpan);
@@ -506,20 +509,20 @@ TEST(TestCollections_TightHostedVector, PushBack_Span_To1_H0H0)
   ASSERT_EQ(0u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(newValueSpan.size(), buffer.Size(HostedVectorIndex::Second));
 
-  EXPECT_EQ(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::Second));
+  EXPECT_TRUE(SpanUtil::ValueEquals(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::Second)));
 }
 
 
 TEST(TestCollections_TightHostedVector, PushBack_Span_To0_H0H1)
 {
   const std::array<uint32_t, 3> newValues = {901, 902, 903};
-  const auto newValueSpan = ReadOnlySpanUtil::AsSpan(newValues);
+  const auto newValueSpan = SpanUtil::AsReadOnlySpan(newValues);
 
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueB = 42;
+  constexpr uint32_t ValueB = 42;
   // Ensure we have one value in the back array
-  buffer.PushBack(HostedVectorIndex::Second, valueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueB);
   // Push to the first array
   buffer.PushBack(HostedVectorIndex::First, newValueSpan);
 
@@ -529,20 +532,20 @@ TEST(TestCollections_TightHostedVector, PushBack_Span_To0_H0H1)
   ASSERT_EQ(newValueSpan.size(), buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::Second));
 
-  EXPECT_EQ(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::First));
-  ASSERT_EQ(valueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  EXPECT_TRUE(SpanUtil::ValueEquals(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::First)));
+  ASSERT_EQ(ValueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
 }
 
 TEST(TestCollections_TightHostedVector, PushBack_Span_To1_H1H0)
 {
   const std::array<uint32_t, 3> newValues = {901, 902, 903};
-  const auto newValueSpan = ReadOnlySpanUtil::AsSpan(newValues);
+  const auto newValueSpan = SpanUtil::AsReadOnlySpan(newValues);
 
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
+  constexpr uint32_t ValueA = 1337;
   // Ensure we have one value in the first array
-  buffer.PushBack(HostedVectorIndex::First, valueA);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
   // Push to the last array
   buffer.PushBack(HostedVectorIndex::Second, newValueSpan);
 
@@ -552,22 +555,22 @@ TEST(TestCollections_TightHostedVector, PushBack_Span_To1_H1H0)
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(newValueSpan.size(), buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
-  EXPECT_EQ(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::Second));
+  ASSERT_EQ(ValueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  EXPECT_TRUE(SpanUtil::ValueEquals(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::Second)));
 }
 
 
 TEST(TestCollections_TightHostedVector, PushBack_Span_Push1Push1Push0)
 {
   const std::array<uint32_t, 3> newValues = {901, 902, 903};
-  const auto newValueSpan = ReadOnlySpanUtil::AsSpan(newValues);
+  const auto newValueSpan = SpanUtil::AsReadOnlySpan(newValues);
 
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueB = 42;
-  constexpr uint32_t valueC = 31;
-  buffer.PushBack(HostedVectorIndex::Second, valueB);
-  buffer.PushBack(HostedVectorIndex::Second, valueC);
+  constexpr uint32_t ValueB = 42;
+  constexpr uint32_t ValueC = 31;
+  buffer.PushBack(HostedVectorIndex::Second, ValueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueC);
   // Push to the first array
   buffer.PushBack(HostedVectorIndex::First, newValueSpan);
 
@@ -577,22 +580,22 @@ TEST(TestCollections_TightHostedVector, PushBack_Span_Push1Push1Push0)
   ASSERT_EQ(newValueSpan.size(), buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(2u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::First));
-  ASSERT_EQ(valueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
-  ASSERT_EQ(valueC, buffer.UncheckedAt(HostedVectorIndex::Second, 1));
+  ASSERT_TRUE(SpanUtil::ValueEquals(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::First)));
+  ASSERT_EQ(ValueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  ASSERT_EQ(ValueC, buffer.UncheckedAt(HostedVectorIndex::Second, 1));
 }
 
 TEST(TestCollections_TightHostedVector, PushBack_Span_Push0Push0Push1)
 {
   const std::array<uint32_t, 3> newValues = {901, 902, 903};
-  const auto newValueSpan = ReadOnlySpanUtil::AsSpan(newValues);
+  const auto newValueSpan = SpanUtil::AsReadOnlySpan(newValues);
 
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
-  buffer.PushBack(HostedVectorIndex::First, valueA);
-  buffer.PushBack(HostedVectorIndex::First, valueB);
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
+  buffer.PushBack(HostedVectorIndex::First, ValueB);
   // Push to the first array
   buffer.PushBack(HostedVectorIndex::Second, newValueSpan);
 
@@ -602,9 +605,9 @@ TEST(TestCollections_TightHostedVector, PushBack_Span_Push0Push0Push1)
   ASSERT_EQ(2u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(newValueSpan.size(), buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
-  ASSERT_EQ(valueB, buffer.UncheckedAt(HostedVectorIndex::First, 1));
-  ASSERT_EQ(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::Second));
+  ASSERT_EQ(ValueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  ASSERT_EQ(ValueB, buffer.UncheckedAt(HostedVectorIndex::First, 1));
+  ASSERT_TRUE(SpanUtil::ValueEquals(newValueSpan, buffer.AsReadOnlySpan(HostedVectorIndex::Second)));
 }
 
 
@@ -616,13 +619,13 @@ TEST(TestCollections_TightHostedVector, UncheckedPopBack0_AB0C1)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
-  constexpr uint32_t valueC = 31;
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
+  constexpr uint32_t ValueC = 31;
 
-  buffer.PushBack(HostedVectorIndex::First, valueA);
-  buffer.PushBack(HostedVectorIndex::First, valueB);
-  buffer.PushBack(HostedVectorIndex::Second, valueC);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
+  buffer.PushBack(HostedVectorIndex::First, ValueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueC);
 
   buffer.UncheckedPopBack(0);
 
@@ -632,8 +635,8 @@ TEST(TestCollections_TightHostedVector, UncheckedPopBack0_AB0C1)
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
-  ASSERT_EQ(valueC, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  ASSERT_EQ(ValueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  ASSERT_EQ(ValueC, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
 }
 
 
@@ -641,13 +644,13 @@ TEST(TestCollections_TightHostedVector, UncheckedPopBack_0All_AB0C1)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
-  constexpr uint32_t valueC = 31;
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
+  constexpr uint32_t ValueC = 31;
 
-  buffer.PushBack(HostedVectorIndex::First, valueA);
-  buffer.PushBack(HostedVectorIndex::First, valueB);
-  buffer.PushBack(HostedVectorIndex::Second, valueC);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
+  buffer.PushBack(HostedVectorIndex::First, ValueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueC);
 
   buffer.UncheckedPopBack(0);
   buffer.UncheckedPopBack(0);
@@ -658,7 +661,7 @@ TEST(TestCollections_TightHostedVector, UncheckedPopBack_0All_AB0C1)
   ASSERT_EQ(0u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueC, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  ASSERT_EQ(ValueC, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
 }
 
 
@@ -666,13 +669,13 @@ TEST(TestCollections_TightHostedVector, UncheckedPopBack1_A0BC1)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
-  constexpr uint32_t valueC = 31;
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
+  constexpr uint32_t ValueC = 31;
 
-  buffer.PushBack(HostedVectorIndex::First, valueA);
-  buffer.PushBack(HostedVectorIndex::Second, valueB);
-  buffer.PushBack(HostedVectorIndex::Second, valueC);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
+  buffer.PushBack(HostedVectorIndex::Second, ValueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueC);
 
   buffer.UncheckedPopBack(1);
 
@@ -682,8 +685,8 @@ TEST(TestCollections_TightHostedVector, UncheckedPopBack1_A0BC1)
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
-  ASSERT_EQ(valueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  ASSERT_EQ(ValueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  ASSERT_EQ(ValueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
 }
 
 
@@ -691,13 +694,13 @@ TEST(TestCollections_TightHostedVector, UncheckedPopBack_1All_A0BC1)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
-  constexpr uint32_t valueC = 31;
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
+  constexpr uint32_t ValueC = 31;
 
-  buffer.PushBack(HostedVectorIndex::First, valueA);
-  buffer.PushBack(HostedVectorIndex::Second, valueB);
-  buffer.PushBack(HostedVectorIndex::Second, valueC);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
+  buffer.PushBack(HostedVectorIndex::Second, ValueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueC);
 
   buffer.UncheckedPopBack(1);
   buffer.UncheckedPopBack(1);
@@ -708,7 +711,7 @@ TEST(TestCollections_TightHostedVector, UncheckedPopBack_1All_A0BC1)
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(0u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  ASSERT_EQ(ValueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -719,13 +722,13 @@ TEST(TestCollections_TightHostedVector, UncheckedRemoveAt0_0_AB0C1)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
-  constexpr uint32_t valueC = 31;
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
+  constexpr uint32_t ValueC = 31;
 
-  buffer.PushBack(HostedVectorIndex::First, valueA);
-  buffer.PushBack(HostedVectorIndex::First, valueB);
-  buffer.PushBack(HostedVectorIndex::Second, valueC);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
+  buffer.PushBack(HostedVectorIndex::First, ValueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueC);
 
   buffer.UncheckedRemoveAt(HostedVectorIndex::First, 0);
 
@@ -735,8 +738,8 @@ TEST(TestCollections_TightHostedVector, UncheckedRemoveAt0_0_AB0C1)
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueB, buffer.UncheckedAt(HostedVectorIndex::First, 0));
-  ASSERT_EQ(valueC, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  ASSERT_EQ(ValueB, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  ASSERT_EQ(ValueC, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
 }
 
 
@@ -744,13 +747,13 @@ TEST(TestCollections_TightHostedVector, UncheckedRemoveAt0_1_AB0C1)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
-  constexpr uint32_t valueC = 31;
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
+  constexpr uint32_t ValueC = 31;
 
-  buffer.PushBack(HostedVectorIndex::First, valueA);
-  buffer.PushBack(HostedVectorIndex::First, valueB);
-  buffer.PushBack(HostedVectorIndex::Second, valueC);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
+  buffer.PushBack(HostedVectorIndex::First, ValueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueC);
 
   buffer.UncheckedRemoveAt(HostedVectorIndex::First, 1);
 
@@ -760,8 +763,8 @@ TEST(TestCollections_TightHostedVector, UncheckedRemoveAt0_1_AB0C1)
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
-  ASSERT_EQ(valueC, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  ASSERT_EQ(ValueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  ASSERT_EQ(ValueC, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
 }
 
 
@@ -769,13 +772,13 @@ TEST(TestCollections_TightHostedVector, UncheckedRemoveAt_0All_AB0C1)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
-  constexpr uint32_t valueC = 31;
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
+  constexpr uint32_t ValueC = 31;
 
-  buffer.PushBack(HostedVectorIndex::First, valueA);
-  buffer.PushBack(HostedVectorIndex::First, valueB);
-  buffer.PushBack(HostedVectorIndex::Second, valueC);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
+  buffer.PushBack(HostedVectorIndex::First, ValueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueC);
 
   buffer.UncheckedRemoveAt(HostedVectorIndex::First, 0);
   buffer.UncheckedRemoveAt(HostedVectorIndex::First, 0);
@@ -786,7 +789,7 @@ TEST(TestCollections_TightHostedVector, UncheckedRemoveAt_0All_AB0C1)
   ASSERT_EQ(0u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueC, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  ASSERT_EQ(ValueC, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
 }
 
 
@@ -794,13 +797,13 @@ TEST(TestCollections_TightHostedVector, UncheckedRemoveAt_0AllReversed_AB0C1)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
-  constexpr uint32_t valueC = 31;
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
+  constexpr uint32_t ValueC = 31;
 
-  buffer.PushBack(HostedVectorIndex::First, valueA);
-  buffer.PushBack(HostedVectorIndex::First, valueB);
-  buffer.PushBack(HostedVectorIndex::Second, valueC);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
+  buffer.PushBack(HostedVectorIndex::First, ValueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueC);
 
   buffer.UncheckedRemoveAt(HostedVectorIndex::First, 1);
   buffer.UncheckedRemoveAt(HostedVectorIndex::First, 0);
@@ -811,7 +814,7 @@ TEST(TestCollections_TightHostedVector, UncheckedRemoveAt_0AllReversed_AB0C1)
   ASSERT_EQ(0u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueC, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  ASSERT_EQ(ValueC, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
 }
 
 
@@ -819,13 +822,13 @@ TEST(TestCollections_TightHostedVector, UncheckedRemoveAt1_0_A0BC1)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
-  constexpr uint32_t valueC = 31;
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
+  constexpr uint32_t ValueC = 31;
 
-  buffer.PushBack(HostedVectorIndex::First, valueA);
-  buffer.PushBack(HostedVectorIndex::Second, valueB);
-  buffer.PushBack(HostedVectorIndex::Second, valueC);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
+  buffer.PushBack(HostedVectorIndex::Second, ValueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueC);
 
   buffer.UncheckedRemoveAt(HostedVectorIndex::Second, 0);
 
@@ -835,8 +838,8 @@ TEST(TestCollections_TightHostedVector, UncheckedRemoveAt1_0_A0BC1)
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
-  ASSERT_EQ(valueC, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  ASSERT_EQ(ValueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  ASSERT_EQ(ValueC, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
 }
 
 
@@ -844,13 +847,13 @@ TEST(TestCollections_TightHostedVector, UncheckedRemoveAt1_1_A0BC1)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
-  constexpr uint32_t valueC = 31;
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
+  constexpr uint32_t ValueC = 31;
 
-  buffer.PushBack(HostedVectorIndex::First, valueA);
-  buffer.PushBack(HostedVectorIndex::Second, valueB);
-  buffer.PushBack(HostedVectorIndex::Second, valueC);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
+  buffer.PushBack(HostedVectorIndex::Second, ValueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueC);
 
   buffer.UncheckedRemoveAt(HostedVectorIndex::Second, 1);
 
@@ -860,8 +863,8 @@ TEST(TestCollections_TightHostedVector, UncheckedRemoveAt1_1_A0BC1)
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
-  ASSERT_EQ(valueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
+  ASSERT_EQ(ValueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  ASSERT_EQ(ValueB, buffer.UncheckedAt(HostedVectorIndex::Second, 0));
 }
 
 
@@ -869,13 +872,13 @@ TEST(TestCollections_TightHostedVector, UncheckedRemoveAt_1All_A0BC1)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
-  constexpr uint32_t valueC = 31;
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
+  constexpr uint32_t ValueC = 31;
 
-  buffer.PushBack(HostedVectorIndex::First, valueA);
-  buffer.PushBack(HostedVectorIndex::Second, valueB);
-  buffer.PushBack(HostedVectorIndex::Second, valueC);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
+  buffer.PushBack(HostedVectorIndex::Second, ValueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueC);
 
   buffer.UncheckedRemoveAt(HostedVectorIndex::Second, 0);
   buffer.UncheckedRemoveAt(HostedVectorIndex::Second, 0);
@@ -886,7 +889,7 @@ TEST(TestCollections_TightHostedVector, UncheckedRemoveAt_1All_A0BC1)
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(0u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  ASSERT_EQ(ValueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
 }
 
 
@@ -894,13 +897,13 @@ TEST(TestCollections_TightHostedVector, UncheckedRemoveAt_1AllReversed_A0BC1)
 {
   TightHostedVector<uint32_t, 2> buffer;
 
-  constexpr uint32_t valueA = 1337;
-  constexpr uint32_t valueB = 42;
-  constexpr uint32_t valueC = 31;
+  constexpr uint32_t ValueA = 1337;
+  constexpr uint32_t ValueB = 42;
+  constexpr uint32_t ValueC = 31;
 
-  buffer.PushBack(HostedVectorIndex::First, valueA);
-  buffer.PushBack(HostedVectorIndex::Second, valueB);
-  buffer.PushBack(HostedVectorIndex::Second, valueC);
+  buffer.PushBack(HostedVectorIndex::First, ValueA);
+  buffer.PushBack(HostedVectorIndex::Second, ValueB);
+  buffer.PushBack(HostedVectorIndex::Second, ValueC);
 
   buffer.UncheckedRemoveAt(HostedVectorIndex::Second, 1);
   buffer.UncheckedRemoveAt(HostedVectorIndex::Second, 0);
@@ -911,7 +914,7 @@ TEST(TestCollections_TightHostedVector, UncheckedRemoveAt_1AllReversed_A0BC1)
   ASSERT_EQ(1u, buffer.Size(HostedVectorIndex::First));
   ASSERT_EQ(0u, buffer.Size(HostedVectorIndex::Second));
 
-  ASSERT_EQ(valueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
+  ASSERT_EQ(ValueA, buffer.UncheckedAt(HostedVectorIndex::First, 0));
 }
 
 

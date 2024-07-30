@@ -492,7 +492,19 @@ class GeneratorCMake(GeneratorBase):
         rootDirectory = GeneratorCMake._GetPackageRootPath(toolConfig, package)
         packageRelativePath = package.AbsolutePath[len(rootDirectory.ResolvedPathEx):]
         packageRelativePath = IOUtil.GetDirectoryName(packageRelativePath)
-        return IOUtil.Join(packageRelativePath, package.NameInfo.ShortName.Value)
+
+        # We can not just use the short name as dir names might include "." which is excluded from the short name
+        # We can also not just use the IOUtil.GetFileName(package.ResolvedPath.ResolvedPath) name as it dont include the flavor name
+        # We can also not just use package.Name.
+        packageShortName = package.NameInfo.ShortName.Value
+        packageDirName = packageShortName
+        if package.ResolvedPath is not None:
+            packageDirName = IOUtil.GetFileName(package.ResolvedPath.ResolvedPath)
+            variantNameStarIndex = packageShortName.find('___')
+            if variantNameStarIndex >= 0:
+                packageDirName = packageDirName + packageShortName[variantNameStarIndex:]
+
+        return IOUtil.Join(packageRelativePath, packageDirName)
 
     @staticmethod
     def _GetPackageBuildFileName(toolConfig: ToolConfig, cmakeBuildPackageDir: str, package: Package) -> str:

@@ -34,6 +34,7 @@
 #include <FslSimpleUI/Base/UnitTest/Layout/FillLayoutWindowTest.hpp>
 #include "TestUITree_Window.hpp"
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 class TestUITree_ActiveLayout : public TestUITree_Window
 {
 protected:

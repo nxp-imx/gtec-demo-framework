@@ -32,7 +32,6 @@
 #include <FslBase/Arguments/ArgumentParser.hpp>
 #include <FslBase/Arguments/EncodedCommands.hpp>
 #include <FslBase/Arguments/ParseErrorInfo.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <algorithm>
 #include <cassert>
@@ -317,8 +316,8 @@ namespace Fsl::Arguments
       case ArgParseMode::Identify:         // If we hit this the argument list contained a 'empty' string
       case ArgParseMode::ShortArgument:    // The start of a short argument but without any 'argument to lookup'
         return ArgParseResult::ArgumentFormatError;
-      case ArgParseMode::LongArgument:     // The start of a long argument but without any 'argument to lookup' so this is the unhandled arguments
-                                           // start indicator
+      case ArgParseMode::LongArgument:    // The start of a long argument but without any 'argument to lookup' so this is the unhandled arguments
+                                          // start indicator
         return ArgParseResult::UnhandledArgumentsStart;
       default:
         return ArgParseResult::InternalParseError;

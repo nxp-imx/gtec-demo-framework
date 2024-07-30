@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022-2023 NXP
+ * Copyright 2020, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,31 +52,31 @@ TEST(TestMathPixel_PxSize2DF, Construct_Default)
 
 TEST(TestMathPixel_PxSize2DF, Construct)
 {
-  constexpr const auto width = PxSize1DF::Create(3);
-  constexpr const auto height = PxSize1DF::Create(2);
-  PxSize2DF value(width, height);
+  constexpr const auto Width = PxSize1DF::Create(3);
+  constexpr const auto Height = PxSize1DF::Create(2);
+  PxSize2DF value(Width, Height);
 
-  EXPECT_EQ(width, value.Width());
-  EXPECT_EQ(height, value.Height());
+  EXPECT_EQ(Width, value.Width());
+  EXPECT_EQ(Height, value.Height());
 }
 
 TEST(TestMathPixel_PxSize2DF, Construct_NegativeWidth)
 {
-  constexpr const auto width = PxValueF::Create(-1);
-  constexpr const auto height = PxValueF::Create(2);
-  PxSize2DF value(width, height);
+  constexpr const auto Width = PxValueF::Create(-1);
+  constexpr const auto Height = PxValueF::Create(2);
+  PxSize2DF value(Width, Height);
 
   EXPECT_EQ(0, value.RawWidth());
-  EXPECT_EQ(height, value.Height());
+  EXPECT_EQ(Height, value.Height());
 }
 
 TEST(TestMathPixel_PxSize2DF, Construct_NegativeHeight)
 {
-  constexpr const auto width = PxValueF::Create(3);
-  constexpr const auto height = PxValueF::Create(-1);
-  PxSize2DF value(width, height);
+  constexpr const auto Width = PxValueF::Create(3);
+  constexpr const auto Height = PxValueF::Create(-1);
+  PxSize2DF value(Width, Height);
 
-  EXPECT_EQ(width, value.Width());
+  EXPECT_EQ(Width, value.Width());
   EXPECT_EQ(0, value.RawHeight());
 }
 

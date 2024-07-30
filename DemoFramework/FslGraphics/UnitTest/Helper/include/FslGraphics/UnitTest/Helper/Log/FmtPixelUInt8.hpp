@@ -41,15 +41,17 @@ namespace fmt
   struct formatter<Fsl::PixelTestUtil::R8G8B8::PixelUInt8>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::PixelTestUtil::R8G8B8::PixelUInt8& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{R={} G={} B={}}}", value.R, value.G, value.B);
+      return fmt::format_to(ctx.out(), "{{R={} G={} B={}}}", value.R, value.G, value.B);
     }
   };
 
@@ -57,15 +59,17 @@ namespace fmt
   struct formatter<Fsl::PixelTestUtil::R8G8B8A8::PixelUInt8>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::PixelTestUtil::R8G8B8A8::PixelUInt8& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{R={} G={} B={} A={}}}", value.R, value.G, value.B, value.A);
+      return fmt::format_to(ctx.out(), "{{R={} G={} B={} A={}}}", value.R, value.G, value.B, value.A);
     }
   };
 

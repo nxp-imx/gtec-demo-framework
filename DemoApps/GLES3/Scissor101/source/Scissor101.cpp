@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018, 2023 NXP
+ * Copyright 2018, 2023-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,81 +46,81 @@ namespace Fsl
 
   namespace
   {
-    const float SPEED = 0.8f;
+    constexpr float SPEED = 0.8f;
 
     // B D
     // |\|
     // A C
     // A = 1.0
-    const float CUBE_DIMENSIONS = 100.0f;
+    constexpr float CubeDimensions = 100.0f;
 
-    const float CUBE_CEILING = CUBE_DIMENSIONS;
-    const float CUBE_FLOOR = -CUBE_DIMENSIONS;
+    constexpr float CubeCeiling = CubeDimensions;
+    constexpr float CubeFloor = -CubeDimensions;
 
-    const float CUBE_LEFT = -CUBE_DIMENSIONS;
-    const float CUBE_RIGHT = CUBE_DIMENSIONS;
-    const float CUBE_BACK = CUBE_DIMENSIONS;      // zBack
-    const float CUBE_FRONT = -CUBE_DIMENSIONS;    // zFront
-    const float CUBE_U0 = 0.0f;
-    const float CUBE_U1 = 1.0f;
-    const float CUBE_V0 = 1.0f;
-    const float CUBE_V1 = 0.0f;
+    constexpr float CubeLeft = -CubeDimensions;
+    constexpr float CubeRight = CubeDimensions;
+    constexpr float CubeBack = CubeDimensions;      // zBack
+    constexpr float CubeFront = -CubeDimensions;    // zFront
+    constexpr float CubeU0 = 0.0f;
+    constexpr float CubeU1 = 1.0f;
+    constexpr float CubeV0 = 1.0f;
+    constexpr float CubeV1 = 0.0f;
 
 
     const std::array<VertexPositionTexture, 6 * 6> g_vertices = {
       // Floor
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),      // LB
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V1)),     // LF
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),    // RF
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeBack), Vector2(CubeU1, CubeV1)),      // LB
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeFront), Vector2(CubeU0, CubeV1)),     // LF
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeFront), Vector2(CubeU0, CubeV0)),    // RF
 
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),      // LB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),    // RF
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),     // RB
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeBack), Vector2(CubeU1, CubeV1)),      // LB
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeFront), Vector2(CubeU0, CubeV0)),    // RF
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeBack), Vector2(CubeU1, CubeV0)),     // RB
 
       // Ceiling
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V1)),     // LF
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),      // LB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),    // RF
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV1)),     // LF
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), Vector2(CubeU0, CubeV1)),      // LB
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV0)),    // RF
 
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),    // RF
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),      // LB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V0)),     // RB
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV0)),    // RF
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), Vector2(CubeU0, CubeV1)),      // LB
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeBack), Vector2(CubeU0, CubeV0)),     // RB
 
       // Back wall
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), Vector2(CubeU1, CubeV0)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeBack), Vector2(CubeU1, CubeV1)),
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeBack), Vector2(CubeU0, CubeV1)),
 
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V0)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), Vector2(CubeU1, CubeV0)),
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeBack), Vector2(CubeU0, CubeV1)),
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeBack), Vector2(CubeU0, CubeV0)),
 
       // Front wall
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V1)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V1)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), Vector2(CubeU0, CubeV0)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeFront), Vector2(CubeU0, CubeV1)),
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeFront), Vector2(CubeU1, CubeV1)),
 
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V1)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), Vector2(CubeU0, CubeV0)),
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeFront), Vector2(CubeU1, CubeV1)),
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV0)),
 
       //// Right wall
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),       // FB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V1)),      // FF
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),    // CF
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeBack), Vector2(CubeU1, CubeV1)),       // FB
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeFront), Vector2(CubeU0, CubeV1)),      // FF
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeFront), Vector2(CubeU0, CubeV0)),    // CF
 
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),       // FB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),    // CF
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),     // CB
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeBack), Vector2(CubeU1, CubeV1)),       // FB
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeFront), Vector2(CubeU0, CubeV0)),    // CF
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeBack), Vector2(CubeU1, CubeV0)),     // CB
 
       // Left wall
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V1)),      // FF
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),       // FB
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),    // CF
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeFront), Vector2(CubeU1, CubeV1)),      // FF
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeBack), Vector2(CubeU0, CubeV1)),       // FB
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV0)),    // CF
 
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),    // CF
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),       // FB
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V0)),     // CB
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV0)),    // CF
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeBack), Vector2(CubeU0, CubeV1)),       // FB
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), Vector2(CubeU0, CubeV0)),     // CB
     };
 
     float Clamp(const float value)
@@ -352,11 +352,11 @@ namespace Fsl
     // Prepare the vertex buffer
     info.VertexBuffer.Reset(g_vertices.data(), g_vertices.size(), GL_STATIC_DRAW);
 
-    constexpr auto vertexDecl = VertexPositionTexture::GetVertexDeclarationArray();
+    constexpr auto VertexDecl = VertexPositionTexture::GetVertexDeclarationArray();
     info.AttribLink[0] =
-      GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+      GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
     info.AttribLink[1] =
-      GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+      GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
     return info;
   }
 }

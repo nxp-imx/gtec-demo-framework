@@ -4,5 +4,6 @@
     <Dependency Name="FslGraphics2D.Procedural"/>
     <Dependency Name="FslGraphics3D.BasicRender"/>
     <Dependency Name="FslSimpleUI.Render.Base"/>
+    <Dependency Name="FslSimpleUI.Render.Builder"/>
   </Library>
 </FslBuildGen>

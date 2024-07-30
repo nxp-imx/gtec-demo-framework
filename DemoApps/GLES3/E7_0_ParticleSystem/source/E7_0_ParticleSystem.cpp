@@ -56,9 +56,9 @@ namespace Fsl
 
   namespace
   {
-    constexpr GLuint ATTRIBUTE_LIFETIME_LOCATION = 0;
-    constexpr GLuint ATTRIBUTE_STARTPOSITION_LOCATION = 1;
-    constexpr GLuint ATTRIBUTE_ENDPOSITION_LOCATION = 2;
+    constexpr GLuint AttributeLifetimeLocation = 0;
+    constexpr GLuint AttributeStartpositionLocation = 1;
+    constexpr GLuint AttributeEndpositionLocation = 2;
   }
 
 
@@ -74,15 +74,15 @@ namespace Fsl
     GL_CHECK(glUseProgram(hProgram));
 
     // Get the attribute locations
-    GL_CHECK(m_userData.lifetimeLoc = glGetAttribLocation(hProgram, "a_lifetime"));
-    GL_CHECK(m_userData.startPositionLoc = glGetAttribLocation(hProgram, "a_startPosition"));
-    GL_CHECK(m_userData.endPositionLoc = glGetAttribLocation(hProgram, "a_endPosition"));
+    GL_CHECK(m_userData.LifetimeLoc = glGetAttribLocation(hProgram, "a_lifetime"));
+    GL_CHECK(m_userData.StartPositionLoc = glGetAttribLocation(hProgram, "a_startPosition"));
+    GL_CHECK(m_userData.EndPositionLoc = glGetAttribLocation(hProgram, "a_endPosition"));
 
     // Get the uniform locations
-    GL_CHECK(m_userData.timeLoc = glGetUniformLocation(hProgram, "u_time"));
-    GL_CHECK(m_userData.centerPositionLoc = glGetUniformLocation(hProgram, "u_centerPosition"));
-    GL_CHECK(m_userData.colorLoc = glGetUniformLocation(hProgram, "u_color"));
-    GL_CHECK(m_userData.samplerLoc = glGetUniformLocation(hProgram, "s_texture"));
+    GL_CHECK(m_userData.TimeLoc = glGetUniformLocation(hProgram, "u_time"));
+    GL_CHECK(m_userData.CenterPositionLoc = glGetUniformLocation(hProgram, "u_centerPosition"));
+    GL_CHECK(m_userData.ColorLoc = glGetUniformLocation(hProgram, "u_color"));
+    GL_CHECK(m_userData.SamplerLoc = glGetUniformLocation(hProgram, "s_texture"));
 
     GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
 
@@ -120,21 +120,21 @@ namespace Fsl
 
   void E7_0_ParticleSystem::Update(const DemoTime& demoTime)
   {
-    m_userData.time += 1 / 4.0f * demoTime.DeltaTime;
+    m_userData.Time += 1 / 4.0f * demoTime.DeltaTime;
 
-    if (m_userData.time >= 1.0f)
+    if (m_userData.Time >= 1.0f)
     {
       std::array<float, 3> centerPos{};
       std::array<float, 4> color{};
 
-      m_userData.time = 0.0f;
+      m_userData.Time = 0.0f;
 
       // Pick a new start location and color
       centerPos[0] = (static_cast<float>(rand() % 10000) / 10000.0f) - 0.5f;
       centerPos[1] = (static_cast<float>(rand() % 10000) / 10000.0f) - 0.5f;
       centerPos[2] = (static_cast<float>(rand() % 10000) / 10000.0f) - 0.5f;
 
-      GL_CHECK(glUniform3fv(m_userData.centerPositionLoc, 1, centerPos.data()));
+      GL_CHECK(glUniform3fv(m_userData.CenterPositionLoc, 1, centerPos.data()));
 
       // Random color
       color[0] = (static_cast<float>(rand() % 10000) / 20000.0f) + 0.5f;
@@ -142,11 +142,11 @@ namespace Fsl
       color[2] = (static_cast<float>(rand() % 10000) / 20000.0f) + 0.5f;
       color[3] = 0.5;
 
-      GL_CHECK(glUniform4fv(m_userData.colorLoc, 1, color.data()));
+      GL_CHECK(glUniform4fv(m_userData.ColorLoc, 1, color.data()));
     }
 
     // Load uniform time variable
-    GL_CHECK(glUniform1f(m_userData.timeLoc, m_userData.time));
+    GL_CHECK(glUniform1f(m_userData.TimeLoc, m_userData.Time));
   }
 
 
@@ -160,13 +160,13 @@ namespace Fsl
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Load the vertex attributes
-    glVertexAttribPointer(ATTRIBUTE_LIFETIME_LOCATION, 1, GL_FLOAT, GL_FALSE, PARTICLE_SIZE * sizeof(GLfloat), m_userData.particleData);
-    glVertexAttribPointer(ATTRIBUTE_ENDPOSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, PARTICLE_SIZE * sizeof(GLfloat), &m_userData.particleData[1]);
-    glVertexAttribPointer(ATTRIBUTE_STARTPOSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, PARTICLE_SIZE * sizeof(GLfloat), &m_userData.particleData[4]);
+    glVertexAttribPointer(AttributeLifetimeLocation, 1, GL_FLOAT, GL_FALSE, PARTICLE_SIZE * sizeof(GLfloat), m_userData.particleData);
+    glVertexAttribPointer(AttributeEndpositionLocation, 3, GL_FLOAT, GL_FALSE, PARTICLE_SIZE * sizeof(GLfloat), &m_userData.particleData[1]);
+    glVertexAttribPointer(AttributeStartpositionLocation, 3, GL_FLOAT, GL_FALSE, PARTICLE_SIZE * sizeof(GLfloat), &m_userData.particleData[4]);
 
-    glEnableVertexAttribArray(ATTRIBUTE_LIFETIME_LOCATION);
-    glEnableVertexAttribArray(ATTRIBUTE_ENDPOSITION_LOCATION);
-    glEnableVertexAttribArray(ATTRIBUTE_STARTPOSITION_LOCATION);
+    glEnableVertexAttribArray(AttributeLifetimeLocation);
+    glEnableVertexAttribArray(AttributeEndpositionLocation);
+    glEnableVertexAttribArray(AttributeStartpositionLocation);
 
     // Blend particles
 
@@ -183,7 +183,7 @@ namespace Fsl
     glBindTexture(GL_TEXTURE_2D, m_userData.Texture.Get());
 
     // Set the sampler texture unit to 0
-    glUniform1i(m_userData.samplerLoc, 0);
+    glUniform1i(m_userData.SamplerLoc, 0);
 
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);
 

@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
 
 namespace Fsl
@@ -69,9 +70,15 @@ namespace Fsl
   AtlasTexture2D::~AtlasTexture2D() = default;
 
 
-  bool AtlasTexture2D::IsValid() const
+  bool AtlasTexture2D::IsValid() const noexcept
   {
     return m_atlas.IsValid();
+  }
+
+
+  PxSize2D AtlasTexture2D::GetSize() const noexcept
+  {
+    return TypeConverter::UncheckedTo<PxSize2D>(m_info.ExtentPx);
   }
 
 

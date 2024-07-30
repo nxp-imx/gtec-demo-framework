@@ -79,8 +79,8 @@ namespace Fsl
     : m_pBuf(nullptr)
     , Name(name)
   {
-    RawBitmap rawBitmap;
-    Bitmap::ScopedDirectAccess access(bitmap, rawBitmap);
+    const Bitmap::ScopedDirectReadAccess access(bitmap, rawBitmap);
+    const ReadOnlyRawBitmap access = access.AsRawBitmap();
 
     const int32_t minStride = PixelFormatUtil::CalcMinimumStride(rawBitmap.Width(), rawBitmap.GetPixelFormat(), StrideRequirement::Minimum);
     const int32_t bufferSize = minStride * rawBitmap.Height();
@@ -88,11 +88,11 @@ namespace Fsl
     std::memset(&m_surface, 0, sizeof(g2d_surface));
     m_surface.left = 0;
     m_surface.top = 0;
-    m_surface.right = rawBitmap.Width();
-    m_surface.bottom = rawBitmap.Height();
-    m_surface.stride = rawBitmap.Width();    // minStride;
-    m_surface.width = rawBitmap.Width();
-    m_surface.height = rawBitmap.Height();
+    m_surface.right = rawBitmap.RawUnsignedWidth();
+    m_surface.bottom = rawBitmap.RawUnsignedHeight();
+    m_surface.stride = rawBitmap.RawUnsignedWidth();    // minStride;
+    m_surface.width = rawBitmap.RawUnsignedWidth();
+    m_surface.height = rawBitmap.RawUnsignedHeight();
     m_surface.rot = G2D_ROTATION_0;
     m_surface.format = Convert(rawBitmap.GetPixelFormat(), isOpaque);
     // FIX: blend func

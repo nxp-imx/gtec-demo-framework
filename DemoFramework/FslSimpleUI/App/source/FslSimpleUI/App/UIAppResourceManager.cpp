@@ -182,7 +182,7 @@ namespace Fsl
   }
 
   void UIAppResourceManager::AddSpriteMaterial(const SpriteMaterialId& spriteMaterialId, const UIAppTextureHandle& hTexture,
-                                               const BlendState blendState)
+                                               const BlendState blendState, const BasicPrimitiveTopology primitiveTopology)
   {
     auto renderSystem = m_renderSystem.lock();
     if (!renderSystem)
@@ -195,7 +195,7 @@ namespace Fsl
       throw std::invalid_argument("invalid texture handle");
     }
     SimpleUIApp::UIAppTextureInfo textureInfo = m_textureManager.GetTextureInfo(hTexture);
-    m_materialManager.AddMaterial(*renderSystem, spriteMaterialId, hTexture, textureInfo, blendState);
+    m_materialManager.AddMaterial(*renderSystem, spriteMaterialId, hTexture, textureInfo, blendState, primitiveTopology);
   }
 
   // --- platform independent custom texture sprites
@@ -226,7 +226,8 @@ namespace Fsl
       // long as the material is registered in the manager. This is ok since we use the sprite object to keep track of the
       // lifetime requirements of it. So once the sprite is deleted we can garbage collect the 'custom' sprite
       SimpleUIApp::UIAppTextureInfo textureInfo = m_textureManager.GetTextureInfo(hTexture);
-      dynmamicSpriteMaterialId = m_materialManager.AddMaterial(*renderSystem, hTexture, textureInfo, blendState);
+      dynmamicSpriteMaterialId =
+        m_materialManager.AddMaterial(*renderSystem, hTexture, textureInfo, blendState, BasicPrimitiveTopology::TriangleList);
 
       // Finally create a custom texture record which we store a weak pointer to
       const auto materialInfo = m_materialManager.GetMaterialInfo(dynmamicSpriteMaterialId);

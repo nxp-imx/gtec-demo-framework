@@ -34,6 +34,7 @@
 #include <FslBase/Log/Math/FmtPoint2.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxSize2D.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/System/Threading/Thread.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics3D/Procedural/MeshBuilder.hpp>
@@ -118,7 +119,9 @@ namespace Fsl
     {
       // Create the fur 'density' bitmap
       const std::vector<uint8_t> furBitmapContent = FurTexture::Generate(furTextureDim, furTextureDim, hairDensity, layerCount);
-      const RawBitmap furBitmap(furBitmapContent.data(), furTextureDim, furTextureDim, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
+      const ReadOnlyRawBitmap furBitmap(ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(furBitmapContent),
+                                                                  PxSize2D::Create(furTextureDim, furTextureDim), PixelFormat::R8G8B8A8_UNORM,
+                                                                  BitmapOrigin::LowerLeft));
       return CreateTexture(device, deviceQueue, furBitmap, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT);
     }
 
@@ -278,7 +281,7 @@ namespace Fsl
     const auto vulkanClipMatrix = Vulkan::MatrixUtil::GetClipMatrix();
 
     m_perspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), GetWindowAspectRatio(), 1, 100.0f) * vulkanClipMatrix;
-    m_MVP = m_world * m_view * m_perspective;
+    m_mvp = m_world * m_view * m_perspective;
 
     // m_xAngle += 10;
     // m_yAngle += 5;
@@ -428,7 +431,7 @@ namespace Fsl
       {
         auto& rRender = m_resources.MeshStuff->RenderNormals;
 
-        rRender.SetWorldViewProjection(m_MVP);
+        rRender.SetWorldViewProjection(m_mvp);
 
         rRender.Bind(hCmdBuffer, frameIndex);
         rRender.Draw(hCmdBuffer);

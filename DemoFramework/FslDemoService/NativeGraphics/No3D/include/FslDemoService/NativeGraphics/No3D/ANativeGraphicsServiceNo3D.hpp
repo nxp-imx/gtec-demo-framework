@@ -58,9 +58,9 @@ namespace Fsl
     ~ANativeGraphicsServiceNo3D() override;
 
     // INativeGraphicsService
-    std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+    std::shared_ptr<INativeTexture2D> CreateTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                       const TextureFlags textureFlags) final;
-    std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+    std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                                     const TextureFlags textureFlags) final;
     std::shared_ptr<INativeBatch2D> CreateNativeBatch2D(const PxExtent2D& extentPx) final;
     std::shared_ptr<IBasicRenderSystem> GetBasicRenderSystem() final;

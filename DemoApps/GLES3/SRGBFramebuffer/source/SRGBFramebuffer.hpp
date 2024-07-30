@@ -31,16 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Transition/TransitionCache.hpp>
 #include <FslBase/Transition/TransitionValue.hpp>
 #include <FslDemoApp/Base/Service/Keyboard/IKeyboard.hpp>
 #include <FslDemoApp/Base/Service/Mouse/IMouse.hpp>
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
-#include <FslGraphics/ColorSpace.hpp>
 #include <FslGraphics3D/Camera/FirstPersonCamera.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
+#include <FslSimpleUI/Base/UIColorSpace.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <FslUtil/OpenGLES3/GLVertexArray.hpp>
@@ -61,7 +60,7 @@ namespace Fsl
     };
 
     bool m_hasSRGBFramebuffer;
-    ColorSpace m_colorSpace;
+    UI::UIColorSpace m_colorSpace;
 
     // The UI event listener is responsible for forwarding events to this classes implementation of the UI::EventListener (while its still alive).
     UI::CallbackEventListenerScope m_uiEventListener;
@@ -95,7 +94,6 @@ namespace Fsl
     std::vector<Vector3> m_lightColors;
 
     State m_state;
-    TransitionCache m_transitionCache;
     TransitionValue m_splitX;
     TransitionValue m_splitSceneWidthL;
     TransitionValue m_splitSceneWidthR;
@@ -111,7 +109,7 @@ namespace Fsl
     explicit SRGBFramebuffer(const DemoAppConfig& config);
     ~SRGBFramebuffer() final;
 
-    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) final;
+    void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) final;
 
   protected:
     void OnKeyEvent(const KeyEvent& event) final;

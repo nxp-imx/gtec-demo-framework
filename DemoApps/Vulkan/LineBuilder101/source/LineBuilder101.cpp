@@ -42,7 +42,7 @@ namespace Fsl
 {
   namespace
   {
-    constexpr uint32_t INITIAL_LINE_CAPACITY = 4096u;
+    constexpr uint32_t InitialLineCapacity = 4096u;
   }
 
 
@@ -58,7 +58,7 @@ namespace Fsl
       std::make_shared<Vulkan::VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex);
 
     const uint32_t maxFramesInFlight = GetRenderConfig().MaxFramesInFlight;
-    m_resources.LineDraw.Reset(m_device, m_resources.BufferManager, maxFramesInFlight, sizeof(VertexUBOData), INITIAL_LINE_CAPACITY);
+    m_resources.LineDraw.Reset(m_device, m_resources.BufferManager, maxFramesInFlight, sizeof(VertexUBOData), InitialLineCapacity);
   }
 
 

@@ -1,7 +1,7 @@
 #ifndef FSLDATABINDING_BASE_OBJECT_OBSERVABLEDATASOURCEOBJECT_HPP
 #define FSLDATABINDING_BASE_OBJECT_OBSERVABLEDATASOURCEOBJECT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,8 @@
 
 namespace Fsl::DataBinding
 {
+  class DependencyPropertyDefinitionVector;
+
   class ObservableDataSourceObject : public DataBinding::IObservableObject
   {
     mutable DataBinding::ScopedDataSourceObject m_dataSourceObject;
@@ -56,8 +58,22 @@ namespace Fsl::DataBinding
 
     DataBinding::DataBindingInstanceHandle GetSourceInstanceHandle() const final;
 
+    DataBindingInstanceHandle GetPropertyHandle(const DependencyPropertyDefinition& sourceDef);
+    void ExtractProperties(DependencyPropertyDefinitionVector& rProperties);
+
   protected:
     bool MarkAsChangedNow();
+
+    virtual DataBindingInstanceHandle TryGetPropertyHandleNow(const DependencyPropertyDefinition& sourceDef)
+    {
+      FSL_PARAM_NOT_USED(sourceDef);
+      return {};
+    }
+
+    virtual void ExtractAllProperties(DependencyPropertyDefinitionVector& rProperties)
+    {
+      FSL_PARAM_NOT_USED(rProperties);
+    }
   };
 }
 

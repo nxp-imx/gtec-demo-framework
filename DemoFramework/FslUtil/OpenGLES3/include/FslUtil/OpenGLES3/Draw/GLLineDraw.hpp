@@ -47,14 +47,14 @@ namespace Fsl::GLES3
   class GLLineDraw
   {
   public:
-    static constexpr const uint32_t VERTICES_PER_LINE = 2;
-    static constexpr const uint32_t DEFAULT_CAPACITY = 4096;
+    static constexpr const uint32_t VerticesPerLine = 2;
+    static constexpr const uint32_t DefaultCapacity = 4096;
 
     //! Direct access to the line vertex buffer, to be able to query it, but its not intended for modifications
     GLVertexBuffer LineVertexBuffer;
 
     GLLineDraw()
-      : GLLineDraw(DEFAULT_CAPACITY)
+      : GLLineDraw(DefaultCapacity)
     {
     }
 

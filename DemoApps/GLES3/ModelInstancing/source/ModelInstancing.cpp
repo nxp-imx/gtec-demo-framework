@@ -131,15 +131,15 @@ namespace Fsl
       m_resources.LocLightColor = m_resources.Program.GetUniformLocation("LightColor");
       m_resources.LocAmbientColor = m_resources.Program.GetUniformLocation("AmbientColor");
 
-      constexpr auto vertexDecl = MeshUtil::DemoMesh::vertex_type::GetVertexDeclarationArray();
+      constexpr auto VertexDecl = MeshUtil::DemoMesh::vertex_type::GetVertexDeclarationArray();
       m_resources.AttribLink[0] = GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexPosition"),
-                                                     vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+                                                     VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
       m_resources.AttribLink[1] =
-        GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
+        GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexColor"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
       m_resources.AttribLink[2] =
-        GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
+        GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexNormal"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
       m_resources.AttribLink[3] = GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexTexCoord"),
-                                                     vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+                                                     VertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
       // Instanced data
       m_resources.InstanceAttribLink[0] = GLVertexAttribLink(m_resources.Program.GetAttribLocation("InstanceModelMatrix"), 0);
     }
@@ -245,14 +245,14 @@ namespace Fsl
       // glBindBuffer(m_resources.InstanceBuffer.GetTarget(), m_resources.InstanceBuffer.Get());
       glBindBuffer(GL_ARRAY_BUFFER, m_resources.InstanceBuffer.Get());
 
-      constexpr auto matrixStride = sizeof(MeshInstanceData);
-      glVertexAttribPointer(m_resources.InstanceAttribLink[0].AttribIndex + 0, 4, GL_FLOAT, GL_FALSE, matrixStride,
+      constexpr auto MatrixStride = sizeof(MeshInstanceData);
+      glVertexAttribPointer(m_resources.InstanceAttribLink[0].AttribIndex + 0, 4, GL_FLOAT, GL_FALSE, MatrixStride,
                             reinterpret_cast<GLvoid*>(0 * 4 * 4));
-      glVertexAttribPointer(m_resources.InstanceAttribLink[0].AttribIndex + 1, 4, GL_FLOAT, GL_FALSE, matrixStride,
+      glVertexAttribPointer(m_resources.InstanceAttribLink[0].AttribIndex + 1, 4, GL_FLOAT, GL_FALSE, MatrixStride,
                             reinterpret_cast<GLvoid*>(1 * 4 * 4));
-      glVertexAttribPointer(m_resources.InstanceAttribLink[0].AttribIndex + 2, 4, GL_FLOAT, GL_FALSE, matrixStride,
+      glVertexAttribPointer(m_resources.InstanceAttribLink[0].AttribIndex + 2, 4, GL_FLOAT, GL_FALSE, MatrixStride,
                             reinterpret_cast<GLvoid*>(2 * 4 * 4));
-      glVertexAttribPointer(m_resources.InstanceAttribLink[0].AttribIndex + 3, 4, GL_FLOAT, GL_FALSE, matrixStride,
+      glVertexAttribPointer(m_resources.InstanceAttribLink[0].AttribIndex + 3, 4, GL_FLOAT, GL_FALSE, MatrixStride,
                             reinterpret_cast<GLvoid*>(3 * 4 * 4));
 
       // Turn on instancing by setting the attribute to instanced mode

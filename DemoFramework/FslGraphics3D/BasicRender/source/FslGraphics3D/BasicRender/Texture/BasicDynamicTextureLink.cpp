@@ -39,12 +39,12 @@
 
 namespace Fsl
 {
-  class RawTexture;
+  class ReadOnlyRawTexture;
   namespace Graphics3D
   {
     BasicDynamicTextureLink::BasicDynamicTextureLink(const uint32_t maxFramesInFlight, std::shared_ptr<INativeTextureFactory> factory,
-                                                     const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags,
-                                                     const bool setDataSupported)
+                                                     const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
+                                                     const TextureFlags textureFlags, const bool setDataSupported)
       : m_factory(std::move(factory))
       , m_textures(std::max(maxFramesInFlight, 2u))
       , m_setDataSupported(setDataSupported)
@@ -143,7 +143,7 @@ namespace Fsl
     //    ABC
 
 
-    void BasicDynamicTextureLink::SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+    void BasicDynamicTextureLink::SetData(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
     {
       if (m_isDestroyed)
       {
@@ -187,7 +187,7 @@ namespace Fsl
       FSLLOG3_VERBOSE5("DynamicNativeTextureLink: InternalTexture at #{} marked as active", m_activeIndex);
     }
 
-    void BasicDynamicTextureLink::SetData(Record& rRecord, INativeTextureFactory& textureFactory, const RawTexture& texture,
+    void BasicDynamicTextureLink::SetData(Record& rRecord, INativeTextureFactory& textureFactory, const ReadOnlyRawTexture& texture,
                                           const Texture2DFilterHint filterHint, const TextureFlags textureFlags, const bool setDataSupported)
     {
       if (!rRecord.NativeHandle.IsValid())

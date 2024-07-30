@@ -3,13 +3,13 @@
     "Version": "1",
     "Content.SyncList": [
       {
-        "SourcePath" : "${ProjectRoot}/Resources/Source",
+        "SourcePath" : "${ProjectRoot}/Resources/Source/BasicUI/Gen/NonLinear",
         "Content": [
-          "BasicUI/Font/SdfAtlas/FontAtlas.bta",
-          "BasicUI/Font/SdfAtlas/FontAtlas.png",
-          "BasicUI/Font/SdfAtlas/FontAtlas_Font.fbk",
-          "BasicUI/Font/SdfAtlas/FontAtlas_Font.nbf",
-          "BasicUI/Font/SdfAtlas/License.json"
+          "Font/SdfAtlas/FontAtlas.png",
+          "Font/SdfAtlas/FontAtlas_Font.fbk",
+          "Font/SdfAtlas/FontAtlas.bta",
+          "Font/SdfAtlas/FontAtlas_Font.nbf",
+          "Font/SdfAtlas/License.json"
         ]
       },
       {

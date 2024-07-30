@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019, 2022-2023 NXP
+ * Copyright 2019, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 #include "FurShellRendering.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Color.hpp>
@@ -60,7 +61,7 @@ namespace Fsl
 {
   namespace
   {
-    const auto VERTEX_BUFFER_BIND_ID = 0;
+    constexpr auto VertexBufferBindId = 0;
 
 
     enum class ProceduralPrimitive
@@ -162,17 +163,21 @@ namespace Fsl
 
     //! Create the fur 'density' bitmap
     Vulkan::VUTexture CreateFurDensityTexture(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue, const int demoId,
-                                              const Point2& furTextureDim, const float hairDensity, const int layerCount)
+                                              const PxSize2D furTextureSize, const float hairDensity, const int layerCount)
     {
       // if (furTextureDim.X != 1024 || furTextureDim.Y != 512)
       if (demoId != 2)
       {
-        const std::vector<uint8_t> furBitmapContent = FurTexture::GenerateSmooth(furTextureDim.X, furTextureDim.Y, hairDensity, layerCount);
-        const RawBitmap furBitmap(&furBitmapContent[0], furTextureDim.X, furTextureDim.Y, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
+        const std::vector<uint8_t> furBitmapContent =
+          FurTexture::GenerateSmooth(furTextureSize.RawWidth(), furTextureSize.RawHeight(), hairDensity, layerCount);
+        const ReadOnlyRawBitmap furBitmap(ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(furBitmapContent), furTextureSize,
+                                                                    PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft));
         return CreateTexture(device, deviceQueue, furBitmap, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT);
       }
-      const std::vector<uint8_t> furBitmapContent = FurTexture::GenerateWave(furTextureDim.X, furTextureDim.Y, hairDensity, layerCount);
-      const RawBitmap furBitmap(&furBitmapContent[0], furTextureDim.X, furTextureDim.Y, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
+      const std::vector<uint8_t> furBitmapContent =
+        FurTexture::GenerateWave(furTextureSize.RawWidth(), furTextureSize.RawHeight(), hairDensity, layerCount);
+      const ReadOnlyRawBitmap furBitmap(
+        ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(furBitmapContent), furTextureSize, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft));
       return CreateTexture(device, deviceQueue, furBitmap, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT);
 
       // std::string strPath("Density2.png");
@@ -499,7 +504,7 @@ namespace Fsl
     , m_enableDepthTest(true)
     , m_enableForce(false)
   {
-    const Point2 furTextureDim = m_config.GetFurTextureDimensions();
+    const PxSize2D furTextureSize = m_config.GetFurTextureSize();
     const float hairDensity = m_config.GetHairDensity();
     float hairLength = m_config.GetHairLength();
     const int layerCount = m_config.GetLayerCount();
@@ -510,7 +515,7 @@ namespace Fsl
     auto contentManager = GetContentManager();
 
     m_resources.Tex1 = CreateMainTexture(contentManager, m_device, m_deviceQueue, m_config.GetDemoId());
-    m_resources.Tex2 = CreateFurDensityTexture(m_device, m_deviceQueue, m_config.GetDemoId(), furTextureDim, hairDensity, layerCount);
+    m_resources.Tex2 = CreateFurDensityTexture(m_device, m_deviceQueue, m_config.GetDemoId(), furTextureSize, hairDensity, layerCount);
 
     const uint32_t maxFramesInFlight = GetRenderConfig().MaxFramesInFlight;
     m_resources.MainDescriptorPool = CreateDescriptorPool(m_device, 5, 9, 6, maxFramesInFlight);
@@ -714,7 +719,7 @@ namespace Fsl
 
     const auto aspectRatio = GetWindowAspectRatio();
     m_perspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectRatio, 1, m_perspectiveZ) * vulkanClipMatrix;
-    m_MVP = m_world * m_view * m_perspective;
+    m_mvp = m_world * m_view * m_perspective;
 
     m_radians += 1.00f * demoTime.DeltaTime;
     m_xAngle += m_xSpeed * demoTime.DeltaTime;
@@ -814,7 +819,7 @@ namespace Fsl
     {
       auto& rRender = m_resources.MeshStuff->RenderNormals;
 
-      rRender.SetWorldViewProjection(m_MVP);
+      rRender.SetWorldViewProjection(m_mvp);
 
       rRender.Bind(hCmdBuffer, frameIndex);
       rRender.Draw(hCmdBuffer);
@@ -828,7 +833,7 @@ namespace Fsl
 
 
       VkDeviceSize offsets = 0;
-      vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.VBDescription.VertexBuffer.GetBufferPointer(), &offsets);
+      vkCmdBindVertexBuffers(hCmdBuffer, VertexBufferBindId, 1, m_resources.VBDescription.VertexBuffer.GetBufferPointer(), &offsets);
       vkCmdDraw(hCmdBuffer, m_resources.VBDescription.VertexBuffer.GetVertexCount(), 1, 0, 0);
     }
   }

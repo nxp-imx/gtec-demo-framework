@@ -39,10 +39,10 @@
 namespace Fsl
 {
   // Basic events must be exactly the same size as a BasicEvent (so they can have no member variables).
-  class MouseMoveEvent : public BasicEvent
+  class MouseMoveEvent final : public BasicEvent
   {
   public:
-    explicit MouseMoveEvent(const BasicEvent& encodedEvent)
+    explicit constexpr MouseMoveEvent(const BasicEvent& encodedEvent)
       : BasicEvent(encodedEvent)
     {
       if (m_type != EventType::MouseMove)
@@ -51,10 +51,11 @@ namespace Fsl
       }
     }
 
-    MouseMoveEvent(const PxPoint2& position, const VirtualMouseButtonFlags& mouseButtonFlags, const bool isTouch);
+    MouseMoveEvent(const MillisecondTickCount32 timestamp, const PxPoint2 position, const VirtualMouseButtonFlags mouseButtonFlags,
+                   const bool isTouch) noexcept;
 
     //! @brief Get the current position
-    PxPoint2 GetPosition() const;
+    PxPoint2 GetPosition() const noexcept;
 
     bool IsTouch() const noexcept
     {
@@ -62,7 +63,7 @@ namespace Fsl
     }
 
     //! @brief Get the mouse button flags
-    VirtualMouseButtonFlags GetMouseButtonFlags() const;
+    VirtualMouseButtonFlags GetMouseButtonFlags() const noexcept;
   };
 }
 

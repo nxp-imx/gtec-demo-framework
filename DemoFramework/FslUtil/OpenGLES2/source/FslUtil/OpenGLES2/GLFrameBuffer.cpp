@@ -54,7 +54,7 @@ namespace Fsl::GLES2
       m_texture = std::move(other.m_texture);
 
       // Remove the data from other
-      other.m_handle = GLValues::INVALID_HANDLE;
+      other.m_handle = GLValues::InvalidHandle;
       other.m_size = {};
     }
     return *this;
@@ -70,13 +70,13 @@ namespace Fsl::GLES2
     , m_texture(std::move(other.m_texture))
   {
     // Remove the data from other
-    other.m_handle = GLValues::INVALID_HANDLE;
+    other.m_handle = GLValues::InvalidHandle;
     other.m_size = {};
   }
 
 
   GLFrameBuffer::GLFrameBuffer()
-    : m_handle(GLValues::INVALID_HANDLE)
+    : m_handle(GLValues::InvalidHandle)
   {
   }
 
@@ -120,10 +120,10 @@ namespace Fsl::GLES2
 
   void GLFrameBuffer::Reset() noexcept
   {
-    if (m_handle != GLValues::INVALID_HANDLE)
+    if (m_handle != GLValues::InvalidHandle)
     {
       glDeleteFramebuffers(1, &m_handle);
-      m_handle = GLValues::INVALID_HANDLE;
+      m_handle = GLValues::InvalidHandle;
       m_size = {};
       m_depthRenderBuffer.Reset();
       m_stencilRenderBuffer.Reset();
@@ -156,7 +156,7 @@ namespace Fsl::GLES2
   void GLFrameBuffer::Reset(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
                             const GLenum depthBufferFormat, const GLenum stencilBufferFormat, const Flags::type bufferFlags)
   {
-    if (m_handle != GLValues::INVALID_HANDLE)
+    if (m_handle != GLValues::InvalidHandle)
     {
       Reset();
     }

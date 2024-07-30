@@ -48,7 +48,6 @@ namespace Fsl::UI
 
 
   public:
-    //! @param complexDataEntries the number of entries in ChartComplexDataEntry that are valid
     explicit ChartGridLinesFps();
 
     // From IChartGridLines

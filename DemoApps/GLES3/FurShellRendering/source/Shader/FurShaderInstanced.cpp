@@ -42,7 +42,7 @@ namespace Fsl
   FurShaderInstanced::FurShaderInstanced(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& shaderPath,
                                          const bool useHighPrecision, const int lightCount)
     : FurShaderBase(contentManager, shaderPath, useHighPrecision, lightCount)
-    , m_locInstanceMul(GLValues::INVALID_LOCATION)
+    , m_locInstanceMul(GLValues::InvalidLocation)
   {
     const GLuint hProgram = Get();
 
@@ -60,7 +60,7 @@ namespace Fsl
   FurShaderInstanced::FurShaderInstanced(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& vertShaderPath,
                                          const IO::Path& fragShaderPath, const int lightCount)
     : FurShaderBase(contentManager, vertShaderPath, fragShaderPath, lightCount)
-    , m_locInstanceMul(GLValues::INVALID_LOCATION)
+    , m_locInstanceMul(GLValues::InvalidLocation)
   {
     const GLuint hProgram = Get();
 

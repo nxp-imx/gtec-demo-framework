@@ -12,23 +12,24 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class E2_1_CopyBuffer : public DemoAppGLES3
   {
     struct UserData
     {
       // VertexBufferObject Ids
-      std::array<GLuint, 2> vboIds{};
+      std::array<GLuint, 2> VboIds{};
       // VertexBufferObject Ids to copy
-      std::array<GLuint, 2> copyVboIds{};
+      std::array<GLuint, 2> CopyVboIds{};
       // x-offset uniform location
-      GLuint offsetLoc{0};
+      GLuint OffsetLoc{0};
 
       UserData()
       {
-        vboIds[0] = GLES3::GLValues::INVALID_HANDLE;
-        vboIds[1] = GLES3::GLValues::INVALID_HANDLE;
-        copyVboIds[0] = GLES3::GLValues::INVALID_HANDLE;
-        copyVboIds[1] = GLES3::GLValues::INVALID_HANDLE;
+        VboIds[0] = GLES3::GLValues::InvalidHandle;
+        VboIds[1] = GLES3::GLValues::InvalidHandle;
+        CopyVboIds[0] = GLES3::GLValues::InvalidHandle;
+        CopyVboIds[1] = GLES3::GLValues::InvalidHandle;
       }
     };
 

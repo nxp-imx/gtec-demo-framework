@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017, 2022 NXP
+ * Copyright 2017, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,9 +41,12 @@ namespace Fsl::Vulkan
 {
   namespace
   {
-    const uint32_t BUCKET_SIZE = 256;
-    const uint32_t ARRAY_START_SIZE = BUCKET_SIZE;
-    const uint32_t ARRAY_EXPAND_ENTRIES = BUCKET_SIZE;
+    namespace LocalConfig
+    {
+      constexpr uint32_t BucketSize = 256;
+      constexpr uint32_t ArrayStartSize = BucketSize;
+      constexpr uint32_t ArrayExpandEntries = BucketSize;
+    }
   }
 
 
@@ -145,10 +148,10 @@ namespace Fsl::Vulkan
     {
       m_device = device;
       m_descriptorSetLayoutTexture = descriptorSetLayout;
-      m_activeSets.resize(ARRAY_START_SIZE);
+      m_activeSets.resize(LocalConfig::ArrayStartSize);
 
       // Allocate the initial bucket
-      m_buckets.emplace_back(device, m_descriptorSetLayoutTexture, BUCKET_SIZE);
+      m_buckets.emplace_back(device, m_descriptorSetLayoutTexture, LocalConfig::BucketSize);
     }
     catch (const std::exception&)
     {
@@ -176,13 +179,13 @@ namespace Fsl::Vulkan
 
     const uint32_t currentIndex = m_activeCount;
 
-    const uint32_t currentBucketIndex = m_activeCount / BUCKET_SIZE;
+    const uint32_t currentBucketIndex = m_activeCount / LocalConfig::BucketSize;
 
     // Check if we need to allocate another bucket
     assert(currentBucketIndex <= m_buckets.size());
     if (currentBucketIndex >= m_buckets.size())
     {
-      m_buckets.emplace_back(m_device, m_descriptorSetLayoutTexture, BUCKET_SIZE);
+      m_buckets.emplace_back(m_device, m_descriptorSetLayoutTexture, LocalConfig::BucketSize);
     }
 
     // take the next available command buffer
@@ -192,7 +195,7 @@ namespace Fsl::Vulkan
     // ensure we have enough capacity to hold all active buffers in one array
     if (m_activeCount >= m_activeSets.size())
     {
-      m_activeSets.resize(m_activeSets.size() + ARRAY_EXPAND_ENTRIES);
+      m_activeSets.resize(m_activeSets.size() + LocalConfig::ArrayExpandEntries);
     }
 
     m_activeSets[currentIndex] = descriptorSet;

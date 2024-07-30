@@ -35,7 +35,7 @@
 #include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <algorithm>
 #include <cmath>

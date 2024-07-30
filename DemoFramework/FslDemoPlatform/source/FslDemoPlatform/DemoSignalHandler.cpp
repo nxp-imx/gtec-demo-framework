@@ -40,20 +40,20 @@
 
 namespace
 {
-  volatile sig_atomic_t gTerminationRequested = 0;
+  volatile sig_atomic_t g_terminationRequested = 0;
 }
 
 namespace Fsl::DemoFramework
 {
   bool HasExitRequest()
   {
-    return gTerminationRequested != 0;
+    return g_terminationRequested != 0;
   }
 
 
   void SetExitRequest()
   {
-    gTerminationRequested = 1;
+    g_terminationRequested = 1;
   }
 }
 
@@ -116,5 +116,5 @@ extern "C" void DemoFrameworkSignalHandler(int /*signum*/)
 {
   // WARNING: code inside this should more or less behave as if you are creating a interrupt handler
   //          so be EXTREMELY careful here!!!
-  gTerminationRequested = 1;
+  g_terminationRequested = 1;
 }

@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
+#include <FslBase/Time/MillisecondTickCount32.hpp>
 #include <Shared/UI/Benchmark/Persistence/Input/InputCommandId.hpp>
 #include <Shared/UI/Benchmark/Persistence/Window/CustomWindowId.hpp>
 
@@ -65,6 +66,12 @@ namespace Fsl
       , MousePositionPx(mousePosition)
       , IsTouch(isTouch)
     {
+    }
+
+    MillisecondTickCount32 GetTimestamp() const noexcept
+    {
+      // For now we dont store the timestamp
+      return {};
     }
   };
 }

@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
+#include <FslBase/BasicTypes.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -41,6 +41,7 @@ namespace Fsl
   {
     using vertex_type = TVertex;
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const vertex_type* pVertices{nullptr};
     uint32_t VertexCount{0};
 

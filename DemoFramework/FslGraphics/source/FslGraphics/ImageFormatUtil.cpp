@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/ImageFormatUtil.hpp>
 #include <array>
@@ -104,7 +103,7 @@ namespace Fsl::ImageFormatUtil
 
   ImageFormat TryDetectImageFormat(const std::string& extension)
   {
-    return TryDetectImageFormat(StringViewLiteUtil::AsStringViewLite(extension));
+    return TryDetectImageFormat(StringViewLite(extension));
   }
 
 

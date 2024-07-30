@@ -52,11 +52,11 @@ TEST(TestBitmap_RawCubeBitmapEx, Construct_Default)
   EXPECT_EQ(PxExtent2D(), bitmap.GetExtent());
   EXPECT_EQ(PixelFormat::Undefined, bitmap.GetPixelFormat());
   EXPECT_EQ(BitmapOrigin::UpperLeft, bitmap.GetOrigin());
-  EXPECT_EQ(RawBitmap(), bitmap.GetPosX());
-  EXPECT_EQ(RawBitmap(), bitmap.GetNegX());
-  EXPECT_EQ(RawBitmap(), bitmap.GetPosY());
-  EXPECT_EQ(RawBitmap(), bitmap.GetNegY());
-  EXPECT_EQ(RawBitmap(), bitmap.GetPosZ());
-  EXPECT_EQ(RawBitmap(), bitmap.GetNegZ());
+  EXPECT_EQ(ReadOnlyRawBitmap(), bitmap.GetPosX());
+  EXPECT_EQ(ReadOnlyRawBitmap(), bitmap.GetNegX());
+  EXPECT_EQ(ReadOnlyRawBitmap(), bitmap.GetPosY());
+  EXPECT_EQ(ReadOnlyRawBitmap(), bitmap.GetNegY());
+  EXPECT_EQ(ReadOnlyRawBitmap(), bitmap.GetPosZ());
+  EXPECT_EQ(ReadOnlyRawBitmap(), bitmap.GetNegZ());
   EXPECT_EQ(0u, bitmap.GetByteSize());
 }

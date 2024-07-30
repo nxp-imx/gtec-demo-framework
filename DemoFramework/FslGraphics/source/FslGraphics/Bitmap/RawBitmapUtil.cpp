@@ -71,10 +71,10 @@ namespace Fsl
   }
 
 
-  void RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(const RawBitmap& rawBitmap, const uint32_t alignment)
+  void RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(const ReadOnlyRawBitmap& rawBitmap, const uint32_t alignment)
   {
     const uint32_t bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(rawBitmap.GetPixelFormat());
-    const uint32_t actualMinStride = rawBitmap.Width() * bytesPerPixel;
+    const uint32_t actualMinStride = rawBitmap.RawUnsignedWidth() * bytesPerPixel;
     const uint32_t stride = rawBitmap.Stride();
 
     uint32_t minStride = 0;
@@ -153,7 +153,7 @@ namespace Fsl
   void RawBitmapUtil::Swizzle32To24(RawBitmapEx& rBitmap, const PixelFormat dstPixelFormat, const uint32_t dstStride, const uint32_t srcIdx0,
                                     const uint32_t srcIdx1, const uint32_t srcIdx2)
   {
-    RawBitmap srcBitmap(rBitmap);    // NOLINT(cppcoreguidelines-slicing)
+    ReadOnlyRawBitmap srcBitmap(rBitmap);    // NOLINT(cppcoreguidelines-slicing)
     rBitmap.SetStride(dstStride);
     rBitmap.SetPixelFormat(dstPixelFormat);
 
@@ -190,8 +190,8 @@ namespace Fsl
     assert(PixelFormatUtil::GetBytesPerPixel(rBitmap.GetPixelFormat()) == 4);
 
     // Generic slow swizzle for 32bpp to 8bpp
-    const uint32_t width = rBitmap.Width();
-    const uint32_t height = rBitmap.Height();
+    const uint32_t width = rBitmap.RawUnsignedWidth();
+    const uint32_t height = rBitmap.RawUnsignedHeight();
     const uint32_t srcStride = rBitmap.Stride();
     auto* pDstBitmap = static_cast<uint8_t*>(rBitmap.Content());
     const uint8_t* const pDstBitmapEnd = pDstBitmap + (height * dstStride);
@@ -212,7 +212,7 @@ namespace Fsl
   void RawBitmapUtil::Average24To8(RawBitmapEx& rBitmap, const PixelFormat dstPixelFormat, const uint32_t dstStride, const uint32_t srcIdx0,
                                    const uint32_t srcIdx1, const uint32_t srcIdx2)
   {
-    RawBitmap srcBitmap(rBitmap);    // NOLINT(cppcoreguidelines-slicing)
+    ReadOnlyRawBitmap srcBitmap(rBitmap);    // NOLINT(cppcoreguidelines-slicing)
     rBitmap.SetStride(dstStride);
     rBitmap.SetPixelFormat(dstPixelFormat);
 
@@ -223,7 +223,7 @@ namespace Fsl
   void RawBitmapUtil::Average32To8(RawBitmapEx& rBitmap, const PixelFormat dstPixelFormat, const uint32_t dstStride, const uint32_t srcIdx0,
                                    const uint32_t srcIdx1, const uint32_t srcIdx2)
   {
-    RawBitmap srcBitmap(rBitmap);    // NOLINT(cppcoreguidelines-slicing)
+    ReadOnlyRawBitmap srcBitmap(rBitmap);    // NOLINT(cppcoreguidelines-slicing)
     rBitmap.SetStride(dstStride);
     rBitmap.SetPixelFormat(dstPixelFormat);
     Average32To8(rBitmap, srcBitmap, srcIdx0, srcIdx1, srcIdx2);
@@ -245,7 +245,7 @@ namespace Fsl
     if (paddingSize > 0)
     {
       auto* pDst = static_cast<uint8_t*>(rBitmap.Content());
-      const uint8_t* const pDstEnd = pDst + (rBitmap.Height() * stride);
+      const uint8_t* const pDstEnd = pDst + (rBitmap.RawUnsignedHeight() * stride);
 
       // Move to the padding area
       pDst += minimumStride;
@@ -278,9 +278,9 @@ namespace Fsl
 
     const uint32_t dstStride = rBitmap.Stride();
     auto* pDst = static_cast<uint8_t*>(rBitmap.Content());
-    const uint8_t* const pDstEnd = pDst + (dstStride * (rBitmap.Height() / 2));
+    const uint8_t* const pDstEnd = pDst + (dstStride * (rBitmap.RawUnsignedHeight() / 2));
 
-    uint8_t* pSrc = pDst + (dstStride * (rBitmap.Height() - 1));
+    uint8_t* pSrc = pDst + (dstStride * (rBitmap.RawUnsignedHeight() - 1));
 
     uint8_t tmp = 0;
 
@@ -317,7 +317,7 @@ namespace Fsl
   }
 
 
-  void RawBitmapUtil::MemoryCopy(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap)
+  void RawBitmapUtil::MemoryCopy(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap)
   {
     if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
     {
@@ -348,7 +348,7 @@ namespace Fsl
       throw UsageErrorException("MemoryCopy does not support overlapping buffers");
     }
 
-    const std::size_t bytesPerLine = srcBitmap.Width() * bytesPerPixel;
+    const std::size_t bytesPerLine = srcBitmap.RawUnsignedWidth() * bytesPerPixel;
 
     const std::size_t srcStride = srcBitmap.Stride();
     const std::size_t dstStride = rDstBitmap.Stride();
@@ -367,7 +367,7 @@ namespace Fsl
     }
     else
     {
-      const std::size_t totalBytes = srcStride * srcBitmap.Height();
+      const std::size_t totalBytes = srcStride * srcBitmap.RawUnsignedHeight();
       assert(totalBytes == srcBitmap.GetByteSize());
       assert(totalBytes == rDstBitmap.GetByteSize());
       std::memcpy(pDst, pSrc, totalBytes);
@@ -375,7 +375,7 @@ namespace Fsl
   }
 
 
-  void RawBitmapUtil::Swizzle24From012To210(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap)
+  void RawBitmapUtil::Swizzle24From012To210(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap)
   {
     if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
     {
@@ -410,8 +410,8 @@ namespace Fsl
     }
 
     // Generic slow swizzle for 24bpp formats
-    const uint32_t srcWidthM3 = srcBitmap.Width() * 3;
-    const uint32_t srcHeight = srcBitmap.Height();
+    const uint32_t srcWidthM3 = srcBitmap.RawUnsignedWidth() * 3;
+    const uint32_t srcHeight = srcBitmap.RawUnsignedHeight();
 
     for (uint32_t y = 0; y < srcHeight; ++y)
     {
@@ -430,7 +430,7 @@ namespace Fsl
     }
   }
 
-  void RawBitmapUtil::Swizzle24(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
+  void RawBitmapUtil::Swizzle24(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
                                 const uint32_t srcIdx2)
   {
     if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
@@ -472,8 +472,8 @@ namespace Fsl
 
     // Generic slow swizzle for 24bpp formats
 
-    const uint32_t srcWidth = srcBitmap.Width();
-    const uint32_t srcHeight = srcBitmap.Height();
+    const uint32_t srcWidth = srcBitmap.RawUnsignedWidth();
+    const uint32_t srcHeight = srcBitmap.RawUnsignedHeight();
 
     for (uint32_t y = 0; y < srcHeight; ++y)
     {
@@ -492,7 +492,7 @@ namespace Fsl
   }
 
 
-  void RawBitmapUtil::Swizzle32(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
+  void RawBitmapUtil::Swizzle32(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
                                 const uint32_t srcIdx2, const uint32_t srcIdx3)
   {
     if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
@@ -532,8 +532,8 @@ namespace Fsl
     }
 
     // Generic slow swizzle for 32bpp formats
-    const uint32_t srcWidth = srcBitmap.Width();
-    const uint32_t srcHeight = srcBitmap.Height();
+    const uint32_t srcWidth = srcBitmap.RawUnsignedWidth();
+    const uint32_t srcHeight = srcBitmap.RawUnsignedHeight();
 
     for (uint32_t y = 0; y < srcHeight; ++y)
     {
@@ -554,7 +554,7 @@ namespace Fsl
   }
 
 
-  void RawBitmapUtil::Swizzle32To24(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
+  void RawBitmapUtil::Swizzle32To24(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
                                     const uint32_t srcIdx2)
   {
     if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
@@ -594,7 +594,7 @@ namespace Fsl
     }
 
     // Generic slow swizzle for 32bpp to 24bpp formats
-    const uint32_t width = srcBitmap.Width();
+    const uint32_t width = srcBitmap.RawUnsignedWidth();
     while (pDst < pDstEnd)
     {
       for (uint32_t x = 0; x < width; ++x)
@@ -612,7 +612,7 @@ namespace Fsl
   }
 
 
-  void RawBitmapUtil::Swizzle24To32(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap, const uint32_t dstIdx0, const uint32_t dstIdx1,
+  void RawBitmapUtil::Swizzle24To32(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap, const uint32_t dstIdx0, const uint32_t dstIdx1,
                                     const uint32_t dstIdx2, const uint32_t dstIdx3, const uint8_t value3)
   {
     if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
@@ -652,7 +652,7 @@ namespace Fsl
     }
 
     // Generic slow swizzle for 24bpp to 32bpp formats
-    const int32_t width = static_cast<int32_t>(srcBitmap.Width()) - 1;
+    const int32_t width = srcBitmap.RawWidth() - 1;
     while (pDst < pDstEnd)
     {
       for (int32_t x = width; x >= 0; --x)
@@ -670,7 +670,7 @@ namespace Fsl
     }
   }
 
-  void RawBitmapUtil::Average24To8(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
+  void RawBitmapUtil::Average24To8(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
                                    const uint32_t srcIdx2)
   {
     if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
@@ -710,7 +710,7 @@ namespace Fsl
     }
 
     // Generic slow average for 24bpp three channel to 8bpp one channel
-    const uint32_t width = srcBitmap.Width();
+    const uint32_t width = srcBitmap.RawUnsignedWidth();
     while (pDst < pDstEnd)
     {
       for (uint32_t x = 0; x < width; ++x)
@@ -726,7 +726,7 @@ namespace Fsl
   }
 
 
-  void RawBitmapUtil::Average32To8(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
+  void RawBitmapUtil::Average32To8(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
                                    const uint32_t srcIdx2)
   {
     if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
@@ -767,7 +767,7 @@ namespace Fsl
 
 
     // Generic slow average for 32bpp three channel to 8bpp one channel
-    const uint32_t width = srcBitmap.Width();
+    const uint32_t width = srcBitmap.RawUnsignedWidth();
     while (pDst < pDstEnd)
     {
       for (uint32_t x = 0; x < width; ++x)
@@ -782,7 +782,7 @@ namespace Fsl
     }
   }
 
-  void RawBitmapUtil::Expand1ByteToNBytes(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap)
+  void RawBitmapUtil::Expand1ByteToNBytes(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap)
   {
     if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
     {
@@ -817,8 +817,8 @@ namespace Fsl
       throw UsageErrorException("Swizzle32 does not support overlapping buffers");
     }
 
-    const uint32_t srcWidth = srcBitmap.Width();
-    const uint32_t srcHeight = srcBitmap.Height();
+    const uint32_t srcWidth = srcBitmap.RawUnsignedWidth();
+    const uint32_t srcHeight = srcBitmap.RawUnsignedHeight();
 
     for (uint32_t y = 0; y < srcHeight; ++y)
     {
@@ -835,7 +835,7 @@ namespace Fsl
     }
   }
 
-  void RawBitmapUtil::DownscaleNearest(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap)
+  void RawBitmapUtil::DownscaleNearest(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap)
   {
     if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
     {
@@ -849,7 +849,7 @@ namespace Fsl
     {
       throw std::invalid_argument("DownscaleNearest requires that the origin and pixel format matches");
     }
-    if (rDstBitmap.Width() <= 0 || rDstBitmap.Height() <= 0)
+    if (rDstBitmap.RawWidth() <= 0 || rDstBitmap.RawHeight() <= 0)
     {
       return;
     }
@@ -865,7 +865,7 @@ namespace Fsl
   }
 
 
-  void RawBitmapUtil::DownscaleNearest32(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap)
+  void RawBitmapUtil::DownscaleNearest32(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap)
   {
     if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
     {
@@ -887,37 +887,37 @@ namespace Fsl
     {
       throw NotSupportedException("DownscaleNearest32 requires that the src and dst bitmap is 32bit aligned");
     }
-    if (srcBitmap.Width() > 0xFFFF || srcBitmap.Height() > 0xFFFF)
+    if (srcBitmap.RawWidth() > 0xFFFF || srcBitmap.RawHeight() > 0xFFFF)
     {
       throw NotSupportedException("DownscaleNearest32 can only downscale sizes of 0xFFFF or less");
     }
-    if (rDstBitmap.Width() <= 0 || rDstBitmap.Height() <= 0)
+    if (rDstBitmap.RawWidth() <= 0 || rDstBitmap.RawHeight() <= 0)
     {
       return;
     }
 
     const auto* const pSrcStart = static_cast<const uint32_t*>(srcBitmap.Content());
     const uint32_t srcStride = srcBitmap.Stride() / 4;
-    const uint32_t srcXAdd = (srcBitmap.Width() << 16) / rDstBitmap.Width();
-    const uint32_t srcYAdd = (srcBitmap.Height() << 16) / rDstBitmap.Height();
+    const uint32_t srcXAdd = (srcBitmap.RawUnsignedWidth() << 16) / rDstBitmap.RawUnsignedWidth();
+    const uint32_t srcYAdd = (srcBitmap.RawUnsignedHeight() << 16) / rDstBitmap.RawUnsignedHeight();
 
     auto* pDst = static_cast<uint32_t*>(rDstBitmap.Content());
     const uint32_t* const pDstEnd = pDst + (rDstBitmap.GetByteSize() / 4);
     const uint32_t dstStride = rDstBitmap.Stride() / 4;
-    const uint32_t dstWidth = rDstBitmap.Width();
+    const uint32_t dstWidth = rDstBitmap.RawUnsignedWidth();
     assert(dstStride >= dstWidth);
     const uint32_t dstStrideAdd = dstStride - dstWidth;
 
     uint64_t srcY = 1 << 15;
     while (pDst < pDstEnd)
     {
-      assert((srcY >> 16) < srcBitmap.Height());
+      assert((srcY >> 16) < srcBitmap.RawUnsignedHeight());
       const uint32_t* const pSrc = pSrcStart + ((srcY >> 16) * srcStride);
       uint32_t srcX = 1 << 15;
       const uint32_t* const pDstEndX = (pDst + dstWidth);
       while (pDst < pDstEndX)
       {
-        assert((srcX >> 16) < srcBitmap.Width());
+        assert((srcX >> 16) < srcBitmap.RawUnsignedWidth());
         *pDst = pSrc[srcX >> 16];
         srcX += srcXAdd;
         ++pDst;
@@ -927,7 +927,7 @@ namespace Fsl
     }
   }
 
-  void RawBitmapUtil::DownscaleBoxFilter(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap)
+  void RawBitmapUtil::DownscaleBoxFilter(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap)
   {
     if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
     {
@@ -941,9 +941,9 @@ namespace Fsl
     {
       throw std::invalid_argument("DownscaleBoxFilter unsupported pixel format");
     }
-    if ((rDstBitmap.Width() * 2) != srcBitmap.Width() || (rDstBitmap.Height() * 2) != srcBitmap.Height())
+    if ((rDstBitmap.RawUnsignedWidth() * 2) != srcBitmap.RawUnsignedWidth() || (rDstBitmap.RawUnsignedHeight() * 2) != srcBitmap.RawUnsignedHeight())
     {
-      if (rDstBitmap.Width() <= 0 || rDstBitmap.Height() <= 0)
+      if (rDstBitmap.RawUnsignedWidth() <= 0 || rDstBitmap.RawUnsignedHeight() <= 0)
       {
         return;
       }
@@ -963,7 +963,7 @@ namespace Fsl
   // MIPMAPPING hints
   // http://number-none.com/product/Mipmapping,%20Part%201/index.html
   // WARNING this does not take into account the gamma encoding during the averaging.
-  void RawBitmapUtil::DownscaleBoxFilter32(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap)
+  void RawBitmapUtil::DownscaleBoxFilter32(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap)
   {
     if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
     {
@@ -981,9 +981,9 @@ namespace Fsl
     {
       throw NotSupportedException("DownscaleBoxFilter32 requires that the src and dst bitmap is 32bit aligned");
     }
-    if ((rDstBitmap.Width() * 2) != srcBitmap.Width() || (rDstBitmap.Height() * 2) != srcBitmap.Height())
+    if ((rDstBitmap.RawUnsignedWidth() * 2) != srcBitmap.RawUnsignedWidth() || (rDstBitmap.RawUnsignedHeight() * 2) != srcBitmap.RawUnsignedHeight())
     {
-      if (rDstBitmap.Width() <= 0 || rDstBitmap.Height() <= 0)
+      if (rDstBitmap.RawUnsignedWidth() <= 0 || rDstBitmap.RawUnsignedHeight() <= 0)
       {
         return;
       }
@@ -992,13 +992,13 @@ namespace Fsl
 
     const auto* pSrc = static_cast<const uint32_t*>(srcBitmap.Content());
     const uint32_t srcStride = srcBitmap.Stride() / 4;
-    const uint32_t* const pSrcEnd = pSrc + (srcStride * (srcBitmap.Height() - 1));
-    const uint32_t srcWidth = srcBitmap.Width();
+    const uint32_t* const pSrcEnd = pSrc + (srcStride * (srcBitmap.RawUnsignedHeight() - 1));
+    const uint32_t srcWidth = srcBitmap.RawUnsignedWidth();
     const uint32_t srcStrideAdd = (srcStride * 2) - srcWidth;
 
     auto* pDst = static_cast<uint32_t*>(rDstBitmap.Content());
     const uint32_t dstStride = rDstBitmap.Stride() / 4;
-    const uint32_t dstWidth = rDstBitmap.Width();
+    const uint32_t dstWidth = rDstBitmap.RawUnsignedWidth();
     assert(dstStride >= dstWidth);
     const uint32_t dstStrideAdd = dstStride - dstWidth;
 

@@ -52,7 +52,7 @@ namespace
   public:
     TestUIManager()
       : m_dataBindingService(std::make_shared<Fsl::DataBinding::DataBindingService>())
-      , m_manager(m_dataBindingService, std::make_unique<UI::RenderStub::RenderSystem>(), false,
+      , m_manager(m_dataBindingService, std::make_unique<UI::RenderStub::RenderSystem>(), UI::UIColorSpace::SRGBNonLinear, false,
                   BasicWindowMetrics(PxExtent2D::Create(800, 600), Vector2(160, 160), 160))
     {
     }
@@ -88,7 +88,7 @@ TEST_F(TestUIManager, GetEventSender)
 
 TEST_F(TestUIManager, SendMouseButtonEventEmpty)
 {
-  auto isHandled = m_manager.SendMouseButtonEvent(PxPoint2::Create(0, 0), true, false);
+  auto isHandled = m_manager.SendMouseButtonEvent(MillisecondTickCount32(), PxPoint2::Create(0, 0), true, false);
 
   ASSERT_FALSE(isHandled);
 }
@@ -97,7 +97,7 @@ TEST_F(TestUIManager, SendMouseButtonEventEmpty)
 TEST_F(TestUIManager, SendMouseMoveEventEmpty)
 {
   auto pos = PxPoint2::Create(0, 0);
-  auto isHandled = m_manager.SendMouseMoveEvent(pos, false);
+  auto isHandled = m_manager.SendMouseMoveEvent(MillisecondTickCount32(), pos, false);
 
   ASSERT_FALSE(isHandled);
 }

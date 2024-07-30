@@ -31,9 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Color.hpp>
 #include <FslSimpleUI/Base/Control/ButtonBase.hpp>
 #include <FslSimpleUI/Base/Mesh/SimpleSpriteFontMesh.hpp>
+#include <FslSimpleUI/Base/Property/DependencyPropertyUIColor.hpp>
+#include <FslSimpleUI/Base/UIColor.hpp>
 #include <string>
 
 namespace Fsl
@@ -51,18 +52,22 @@ namespace Fsl
       PxSize2D m_cachedMeasureMinimalFontSizePx;
 
     protected:
+      // NOLINTNEXTLINE(readability-identifier-naming)
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
       SimpleSpriteFontMesh m_fontMesh;
 
-      DataBinding::TypedDependencyProperty<Color> m_propertyColorUp{DefaultColor::Button::Up};
-      DataBinding::TypedDependencyProperty<Color> m_propertyColorDown{DefaultColor::Button::Down};
+      DependencyPropertyUIColor m_propertyColorUp;
+      DependencyPropertyUIColor m_propertyColorDown;
       DataBinding::TypedDependencyProperty<StringViewLite> m_propertyContent;
 
     public:
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyColorUp;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyColorDown;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyContent;
 
       explicit LabelButton(const std::shared_ptr<WindowContext>& context);
@@ -85,20 +90,20 @@ namespace Fsl
       void SetFont(const std::shared_ptr<SpriteFont>& value);
 
 
-      Color GetColorUp() const noexcept
+      UIColor GetColorUp() const noexcept
       {
         return m_propertyColorUp.Get();
       }
 
-      bool SetColorUp(const Color value);
+      bool SetColorUp(const UIColor value);
 
 
-      Color GetColorDown() const noexcept
+      UIColor GetColorDown() const noexcept
       {
         return m_propertyColorDown.Get();
       }
 
-      bool SetColorDown(const Color value);
+      bool SetColorDown(const UIColor value);
 
       void WinDraw(const UIDrawContext& context) override;
 

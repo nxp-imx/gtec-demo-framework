@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2023 NXP
+ * Copyright 2021-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@
 #include <FslDemoService/CpuStats/ICpuStatsService.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslDemoService/Profiler/IProfilerService.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/App/UISpriteToTextureUtil.hpp>
@@ -49,6 +50,7 @@
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/UniformStackLayout.hpp>
+#include <FslSimpleUI/Base/UIColors.hpp>
 #include <FslSimpleUI/Controls/Charts/AreaChart.hpp>
 #include <FslSimpleUI/Controls/Charts/Common/ChartGridLinesFps.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/ChartData.hpp>
@@ -90,7 +92,7 @@ namespace Fsl
       constexpr uint32_t FastAnimFramesPerSecond = 10;
       constexpr uint32_t SlowAnimFramesPerSecond = 1;
 
-      constexpr Color ChartColor(0xFF3488A7);    // light blue
+      constexpr UI::UIColor ChartColor(PackedColor32(0xFF3488A7));    // light blue
 
       constexpr bool DefaultValueAnimate = false;
       constexpr ConstrainedValue<uint32_t> AnimationExpectedFps(60, 1, 1000);
@@ -99,8 +101,8 @@ namespace Fsl
 
     namespace IdleColor
     {
-      constexpr Color Idle = Color::Green();
-      constexpr Color Busy = Color::Red();
+      constexpr UI::UIColor Idle = UI::UIColors::Green();
+      constexpr UI::UIColor Busy = UI::UIColors::Red();
     }
 
     void SetContent(UI::FmtValueLabel<float>* pTarget, const double value)
@@ -226,7 +228,7 @@ namespace Fsl
   }
 
 
-  void Shared::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void Shared::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_ui.BtnDefault)
     {
@@ -243,9 +245,8 @@ namespace Fsl
   }
 
 
-  void Shared::OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void Shared::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
     if (theEvent->GetSource() == m_ui.SliderIdleFrameInterval)
     {
       m_onDemandRendering.IdleFrameInterval = m_ui.SliderIdleFrameInterval->GetValue();
@@ -342,7 +343,7 @@ namespace Fsl
 
 
     // If we dont want to show the system UI idle/busy state we force the systemUIIdle to true
-    const Color idleColor = m_cachedState.WasUIIdle ? IdleColor::Idle : IdleColor::Busy;
+    const UI::UIColor idleColor = m_cachedState.WasUIIdle ? IdleColor::Idle : IdleColor::Busy;
     m_ui.Stats.ImageIdle->SetContentColor(idleColor);
     m_ui.Stats.LabelFramerate->SetContent(m_profilerService->GetLastFrameTime().GetFramePerSecond());
     m_ui.Stats.LabelAverageFramerate->SetContent(m_profilerService->GetAverageFrameTime().GetFramePerSecond());
@@ -391,31 +392,31 @@ namespace Fsl
                         const JankDetector::AnimationRecord0& record0, const JankDetector::AnimationRecord1& record1,
                         const ReadOnlySpan<JankDetector::TimingRecords> timingRecords, const JankDetector::AnimationRecord1& record2)
   {
-    constexpr PxSize1D size1Px = PxSize1D::Create(1);
-    constexpr PxSize1D size2Px = PxSize1D::Create(2);
-    constexpr PxSize1D size4Px = PxSize1D::Create(4);
-    constexpr PxSize1D demoBlockSize = PxSize1D::Create(40);
-    constexpr PxSize1D demoBlockSpace = demoBlockSize / size4Px;
-    constexpr PxSize1D smallDemoBlockSize = PxSize1D::Create(32);
-    constexpr PxSize1D smallDemoBlockSpace = smallDemoBlockSize / size4Px;
+    constexpr PxSize1D Size1Px = PxSize1D::Create(1);
+    constexpr PxSize1D Size2Px = PxSize1D::Create(2);
+    constexpr PxSize1D Size4Px = PxSize1D::Create(4);
+    constexpr PxSize1D DemoBlockSize = PxSize1D::Create(40);
+    constexpr PxSize1D DemoBlockSpace = DemoBlockSize / Size4Px;
+    constexpr PxSize1D SmallDemoBlockSize = PxSize1D::Create(32);
+    constexpr PxSize1D SmallDemoBlockSpace = SmallDemoBlockSize / Size4Px;
     const auto sizePx = windowMetrics.GetSizePx();
-    const PxValue offsetPx = (sizePx.Width() - demoBlockSize) / size2Px;
-    const PxValue lineOffset0Px = offsetPx - size1Px;
-    const PxValue lineOffset1Px = offsetPx + demoBlockSize;
+    const PxValue offsetPx = (sizePx.Width() - DemoBlockSize) / Size2Px;
+    const PxValue lineOffset0Px = offsetPx - Size1Px;
+    const PxValue lineOffset1Px = offsetPx + DemoBlockSize;
     const PxSize1D lineWidthPx = sizePx.Width();
-    const PxSize1D lineHeightPx = (demoBlockSize * size4Px) + (demoBlockSpace * PxSize1D::Create(5));
+    const PxSize1D lineHeightPx = (DemoBlockSize * Size4Px) + (DemoBlockSpace * PxSize1D::Create(5));
 
-    const PxSize1D boxYAdd = demoBlockSize + demoBlockSpace;
-    const PxSize1D smallBoxYAdd = smallDemoBlockSize + smallDemoBlockSpace;
+    const PxSize1D boxYAdd = DemoBlockSize + DemoBlockSpace;
+    const PxSize1D smallBoxYAdd = SmallDemoBlockSize + SmallDemoBlockSpace;
 
-    const PxSize1D smallStartPos = lineHeightPx + smallDemoBlockSpace;
-    const PxSize1D smallStartPos2 = smallStartPos + smallBoxYAdd * size4Px;
-    PxSize1D yPos = demoBlockSpace;
+    const PxSize1D smallStartPos = lineHeightPx + SmallDemoBlockSpace;
+    const PxSize1D smallStartPos2 = smallStartPos + smallBoxYAdd * Size4Px;
+    PxSize1D yPos = DemoBlockSpace;
 
-    constexpr Color color(Color::Black());
-    constexpr Color lineColor(Color::White());
+    constexpr Color ColorFill(Colors::Black());
+    constexpr Color LineColor(Colors::White());
 
-    const PxValue secondLineYPx = smallStartPos2 - (smallDemoBlockSpace / size2Px);
+    const PxValue secondLineYPx = smallStartPos2 - (SmallDemoBlockSpace / Size2Px);
 
     batch.Begin();
     {
@@ -425,23 +426,23 @@ namespace Fsl
         const PxValue box2Position = offsetPx + record0.Box2Position - record0.CameraPosition;
         const PxValue box3Position = offsetPx + record0.Box3Position - record0.CameraPosition;
 
-        batch.DebugDrawLine(fillTexture, PxPoint2(lineOffset0Px, PxValue(0)), PxPoint2(lineOffset0Px, lineHeightPx), lineColor);
-        batch.DebugDrawLine(fillTexture, PxPoint2(lineOffset1Px, PxValue(0)), PxPoint2(lineOffset1Px, lineHeightPx), lineColor);
-        batch.DebugDrawLine(fillTexture, PxPoint2(PxValue(0), lineHeightPx), PxPoint2(lineWidthPx, lineHeightPx), lineColor);
-        batch.DebugDrawLine(fillTexture, PxPoint2(PxValue(0), secondLineYPx), PxPoint2(lineWidthPx, secondLineYPx), lineColor);
-        batch.Draw(fillTexture, PxRectangle(box0Position, yPos, demoBlockSize, demoBlockSize), color);
+        batch.DebugDrawLine(fillTexture, PxPoint2(lineOffset0Px, PxValue(0)), PxPoint2(lineOffset0Px, lineHeightPx), LineColor);
+        batch.DebugDrawLine(fillTexture, PxPoint2(lineOffset1Px, PxValue(0)), PxPoint2(lineOffset1Px, lineHeightPx), LineColor);
+        batch.DebugDrawLine(fillTexture, PxPoint2(PxValue(0), lineHeightPx), PxPoint2(lineWidthPx, lineHeightPx), LineColor);
+        batch.DebugDrawLine(fillTexture, PxPoint2(PxValue(0), secondLineYPx), PxPoint2(lineWidthPx, secondLineYPx), LineColor);
+        batch.Draw(fillTexture, PxRectangle(box0Position, yPos, DemoBlockSize, DemoBlockSize), ColorFill);
         yPos += boxYAdd;
-        batch.Draw(fillTexture, PxRectangle(box1Position, yPos, demoBlockSize, demoBlockSize), color);
+        batch.Draw(fillTexture, PxRectangle(box1Position, yPos, DemoBlockSize, DemoBlockSize), ColorFill);
         yPos += boxYAdd;
-        batch.Draw(fillTexture, PxRectangle(box2Position, yPos, demoBlockSize, demoBlockSize), color);
+        batch.Draw(fillTexture, PxRectangle(box2Position, yPos, DemoBlockSize, DemoBlockSize), ColorFill);
         yPos += boxYAdd;
-        batch.Draw(fillTexture, PxRectangle(box3Position, yPos, demoBlockSize, demoBlockSize), color);
+        batch.Draw(fillTexture, PxRectangle(box3Position, yPos, DemoBlockSize, DemoBlockSize), ColorFill);
       }
 
-      constexpr Color lineColor0(Color::Red());
-      constexpr Color lineColor1(Color::Green());
-      constexpr Color lineColor2(Color::Blue());
-      constexpr Color lineColor3(Color::Cyan());
+      constexpr Color LineColor0(Colors::Red());
+      constexpr Color LineColor1(Colors::Green());
+      constexpr Color LineColor2(Colors::Blue());
+      constexpr Color LineColor3(Colors::Cyan());
       {
         const PxValue smallBox0Position = record1.Box0Position;
         const PxValue smallBox1Position = record1.Box1Position;
@@ -449,28 +450,28 @@ namespace Fsl
         const PxValue smallBox3Position = record1.Box3Position;
 
         const PxSize1D lineStart = smallStartPos;
-        const PxSize1D lineEnd = lineStart + (smallBoxYAdd * PxSize1D::Create(3)) + smallDemoBlockSize;
+        const PxSize1D lineEnd = lineStart + (smallBoxYAdd * PxSize1D::Create(3)) + SmallDemoBlockSize;
         for (std::size_t i = 0; i < timingRecords.size(); ++i)
         {
           const auto& entry = timingRecords[i];
           yPos = lineStart;
-          batch.DebugDrawLine(fillTexture, PxPoint2(entry.Box0Position, yPos), PxPoint2(entry.Box0Position, lineEnd), lineColor0);
+          batch.DebugDrawLine(fillTexture, PxPoint2(entry.Box0Position, yPos), PxPoint2(entry.Box0Position, lineEnd), LineColor0);
           yPos += smallBoxYAdd;
-          batch.DebugDrawLine(fillTexture, PxPoint2(entry.Box1Position, yPos), PxPoint2(entry.Box1Position, lineEnd), lineColor1);
+          batch.DebugDrawLine(fillTexture, PxPoint2(entry.Box1Position, yPos), PxPoint2(entry.Box1Position, lineEnd), LineColor1);
           yPos += smallBoxYAdd;
-          batch.DebugDrawLine(fillTexture, PxPoint2(entry.Box2Position, yPos), PxPoint2(entry.Box2Position, lineEnd), lineColor2);
+          batch.DebugDrawLine(fillTexture, PxPoint2(entry.Box2Position, yPos), PxPoint2(entry.Box2Position, lineEnd), LineColor2);
           yPos += smallBoxYAdd;
-          batch.DebugDrawLine(fillTexture, PxPoint2(entry.Box3Position, yPos), PxPoint2(entry.Box3Position, lineEnd), lineColor3);
+          batch.DebugDrawLine(fillTexture, PxPoint2(entry.Box3Position, yPos), PxPoint2(entry.Box3Position, lineEnd), LineColor3);
         }
 
         yPos = smallStartPos;
-        batch.Draw(fillTexture, PxRectangle(smallBox0Position, yPos, smallDemoBlockSize, smallDemoBlockSize), color);
+        batch.Draw(fillTexture, PxRectangle(smallBox0Position, yPos, SmallDemoBlockSize, SmallDemoBlockSize), ColorFill);
         yPos += smallBoxYAdd;
-        batch.Draw(fillTexture, PxRectangle(smallBox1Position, yPos, smallDemoBlockSize, smallDemoBlockSize), color);
+        batch.Draw(fillTexture, PxRectangle(smallBox1Position, yPos, SmallDemoBlockSize, SmallDemoBlockSize), ColorFill);
         yPos += smallBoxYAdd;
-        batch.Draw(fillTexture, PxRectangle(smallBox2Position, yPos, smallDemoBlockSize, smallDemoBlockSize), color);
+        batch.Draw(fillTexture, PxRectangle(smallBox2Position, yPos, SmallDemoBlockSize, SmallDemoBlockSize), ColorFill);
         yPos += smallBoxYAdd;
-        batch.Draw(fillTexture, PxRectangle(smallBox3Position, yPos, smallDemoBlockSize, smallDemoBlockSize), color);
+        batch.Draw(fillTexture, PxRectangle(smallBox3Position, yPos, SmallDemoBlockSize, SmallDemoBlockSize), ColorFill);
       }
       {
         const PxValue slowBox0Position = record2.Box0Position;
@@ -480,33 +481,33 @@ namespace Fsl
 
         yPos = smallStartPos2;
         PxSize1D lineStart = yPos;
-        const PxSize1D lineEnd = lineStart + (smallBoxYAdd * PxSize1D::Create(3)) + smallDemoBlockSize;
+        const PxSize1D lineEnd = lineStart + (smallBoxYAdd * PxSize1D::Create(3)) + SmallDemoBlockSize;
         {
           const PxValue lineX1 = slowBox0Position - PxSize1D::Create(1);
-          const PxValue lineX2 = slowBox0Position + smallDemoBlockSize;
-          batch.DebugDrawLine(fillTexture, PxPoint2(lineX1, lineStart - size2Px), PxPoint2(lineX1, lineEnd + size2Px), lineColor);
-          constexpr PxSize1D size6Px = PxSize1D::Create(6);
-          batch.DebugDrawLine(fillTexture, PxPoint2(lineX2, lineStart - size2Px), PxPoint2(lineX2, lineEnd + size2Px), lineColor);
-          batch.DebugDrawLine(fillTexture, PxPoint2(slowBox0Position - size6Px, lineStart), PxPoint2(slowBox0Position - size6Px, lineEnd),
-                              lineColor0);
+          const PxValue lineX2 = slowBox0Position + SmallDemoBlockSize;
+          batch.DebugDrawLine(fillTexture, PxPoint2(lineX1, lineStart - Size2Px), PxPoint2(lineX1, lineEnd + Size2Px), LineColor);
+          constexpr PxSize1D Size6Px = PxSize1D::Create(6);
+          batch.DebugDrawLine(fillTexture, PxPoint2(lineX2, lineStart - Size2Px), PxPoint2(lineX2, lineEnd + Size2Px), LineColor);
+          batch.DebugDrawLine(fillTexture, PxPoint2(slowBox0Position - Size6Px, lineStart), PxPoint2(slowBox0Position - Size6Px, lineEnd),
+                              LineColor0);
           lineStart += smallBoxYAdd;
-          batch.DebugDrawLine(fillTexture, PxPoint2(slowBox1Position - size6Px, lineStart), PxPoint2(slowBox1Position - size6Px, lineEnd),
-                              lineColor1);
+          batch.DebugDrawLine(fillTexture, PxPoint2(slowBox1Position - Size6Px, lineStart), PxPoint2(slowBox1Position - Size6Px, lineEnd),
+                              LineColor1);
           lineStart += smallBoxYAdd;
-          batch.DebugDrawLine(fillTexture, PxPoint2(slowBox2Position - size6Px, lineStart), PxPoint2(slowBox2Position - size6Px, lineEnd),
-                              lineColor2);
+          batch.DebugDrawLine(fillTexture, PxPoint2(slowBox2Position - Size6Px, lineStart), PxPoint2(slowBox2Position - Size6Px, lineEnd),
+                              LineColor2);
           lineStart += smallBoxYAdd;
-          batch.DebugDrawLine(fillTexture, PxPoint2(slowBox3Position - size6Px, lineStart), PxPoint2(slowBox3Position - size6Px, lineEnd),
-                              lineColor3);
+          batch.DebugDrawLine(fillTexture, PxPoint2(slowBox3Position - Size6Px, lineStart), PxPoint2(slowBox3Position - Size6Px, lineEnd),
+                              LineColor3);
         }
 
-        batch.Draw(fillTexture, PxRectangle(slowBox0Position, yPos, smallDemoBlockSize, smallDemoBlockSize), color);
+        batch.Draw(fillTexture, PxRectangle(slowBox0Position, yPos, SmallDemoBlockSize, SmallDemoBlockSize), ColorFill);
         yPos += smallBoxYAdd;
-        batch.Draw(fillTexture, PxRectangle(slowBox1Position, yPos, smallDemoBlockSize, smallDemoBlockSize), color);
+        batch.Draw(fillTexture, PxRectangle(slowBox1Position, yPos, SmallDemoBlockSize, SmallDemoBlockSize), ColorFill);
         yPos += smallBoxYAdd;
-        batch.Draw(fillTexture, PxRectangle(slowBox2Position, yPos, smallDemoBlockSize, smallDemoBlockSize), color);
+        batch.Draw(fillTexture, PxRectangle(slowBox2Position, yPos, SmallDemoBlockSize, SmallDemoBlockSize), ColorFill);
         yPos += smallBoxYAdd;
-        batch.Draw(fillTexture, PxRectangle(slowBox3Position, yPos, smallDemoBlockSize, smallDemoBlockSize), color);
+        batch.Draw(fillTexture, PxRectangle(slowBox3Position, yPos, SmallDemoBlockSize, SmallDemoBlockSize), ColorFill);
       }
     }
     batch.End();
@@ -640,7 +641,7 @@ namespace Fsl
     btnClearChart->SetAlignmentY(UI::ItemAlignment::Near);
 
     auto updateLabel = uiFactory.CreateLabel("Update delta-time");
-    auto updateFmtLabel = uiFactory.CreateFmtValueLabel(0.0f, u8"{:.0f}\u03BCs");
+    auto updateFmtLabel = uiFactory.CreateFmtValueLabel(0.0f, reinterpret_cast<const char*>(u8"{:.0f}\u03BCs"));
     updateFmtLabel->SetAlignmentX(UI::ItemAlignment::Far);
     updateFmtLabel->SetAlignmentY(UI::ItemAlignment::Far);
 
@@ -659,7 +660,7 @@ namespace Fsl
     }
 
     auto drawLabel = uiFactory.CreateLabel("Draw delta-time");
-    auto drawFmtLabel = uiFactory.CreateFmtValueLabel(0.0f, u8"{:.0f}\u03BCs");
+    auto drawFmtLabel = uiFactory.CreateFmtValueLabel(0.0f, reinterpret_cast<const char*>(u8"{:.0f}\u03BCs"));
     drawFmtLabel->SetAlignmentX(UI::ItemAlignment::Far);
     drawFmtLabel->SetAlignmentY(UI::ItemAlignment::Far);
     auto drawChart = std::make_shared<UI::AreaChart>(context);

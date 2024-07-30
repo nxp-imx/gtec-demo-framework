@@ -63,6 +63,7 @@ namespace Fsl::Vulkan
     MultiViewport,
     SamplerAnisotropy,
     TextureCompressionETC2,
+    // NOLINTNEXTLINE(readability-identifier-naming)
     TextureCompressionASTC_LDR,
     TextureCompressionBC,
     OcclusionQueryPrecise,

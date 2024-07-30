@@ -33,9 +33,9 @@
 #include <FslGraphics/PrimitiveTypeUtil.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::PrimitiveTypeUtil
 {
-  int32_t PrimitiveTypeUtil::CalcPrimitiveCount(const int32_t indexCount, const PrimitiveType primitiveType)
+  int32_t CalcPrimitiveCount(const int32_t indexCount, const PrimitiveType primitiveType)
   {
     switch (primitiveType)
     {
@@ -53,7 +53,7 @@ namespace Fsl
     }
   }
 
-  uint32_t PrimitiveTypeUtil::CalcPrimitiveCount(const uint32_t indexCount, const PrimitiveType primitiveType)
+  uint32_t CalcPrimitiveCount(const uint32_t indexCount, const PrimitiveType primitiveType)
   {
     switch (primitiveType)
     {

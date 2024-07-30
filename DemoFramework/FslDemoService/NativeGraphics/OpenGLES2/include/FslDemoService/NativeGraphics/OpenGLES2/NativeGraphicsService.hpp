@@ -49,7 +49,7 @@ namespace Fsl::GLES2
 
     // From INativeGraphicsService
     bool IsSupported(const DemoHostFeature& activeAPI) const final;
-    void Capture(Bitmap& rBitmap, const Rectangle& srcRectangle) final;
+    void Capture(Bitmap& rBitmap, const PxRectangle& srcRectanglePx) final;
     std::shared_ptr<INativeGraphicsBasic2D> CreateBasic2D(const PxExtent2D& extentPx) final;
     std::shared_ptr<INativeBatch2D> CreateNativeBatch2D(const PxExtent2D& extentPx) final;
 

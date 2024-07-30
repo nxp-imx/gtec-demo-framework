@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Transition/TransitionCache.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <FslGraphics/Transition/TransitionColor.hpp>
@@ -60,8 +59,7 @@ TEST(TestTransition_TransitionColor, Construct_Default)
 
 TEST(TestTransition_TransitionColor, Construct_CacheAndTimespan)
 {
-  TransitionCache cache;
-  TransitionColor transitionValue(cache, TimeSpan(10));
+  TransitionColor transitionValue(TimeSpan(10));
 
   EXPECT_TRUE(transitionValue.IsCompleted());
   EXPECT_EQ(TimeSpan(0), transitionValue.GetStartDelay());
@@ -73,7 +71,6 @@ TEST(TestTransition_TransitionColor, Construct_CacheAndTimespan)
 
 TEST(TestTransition_TransitionColor, SetTransitionTime)
 {
-  TransitionCache cache;
   TransitionColor transitionValue;
 
   EXPECT_TRUE(transitionValue.IsCompleted());
@@ -82,7 +79,7 @@ TEST(TestTransition_TransitionColor, SetTransitionTime)
   EXPECT_EQ(Color(), transitionValue.GetActualValue());
   EXPECT_EQ(TimeSpan(0), transitionValue.GetTransitionTime());
 
-  transitionValue.SetTransitionTime(cache, TimeSpan(10));
+  transitionValue.SetTransitionTime(TimeSpan(10));
 
   EXPECT_TRUE(transitionValue.IsCompleted());
   EXPECT_EQ(TimeSpan(0), transitionValue.GetStartDelay());
@@ -93,8 +90,7 @@ TEST(TestTransition_TransitionColor, SetTransitionTime)
 
 TEST(TestTransition_TransitionColor, SetValue)
 {
-  TransitionCache cache;
-  TransitionColor transitionValue(cache, TimeSpan(2), TransitionType::Linear);
+  TransitionColor transitionValue(TimeSpan(2), TransitionType::Linear);
 
   const Color value(42, 20, 255, 0);
 
@@ -107,10 +103,10 @@ TEST(TestTransition_TransitionColor, SetValue)
 
   transitionValue.Update(TimeSpan(1));
   EXPECT_FALSE(transitionValue.IsCompleted());
-  EXPECT_EQ(uint8_t(std::round(value.R() * 0.4999999f)), transitionValue.GetValue().R());
-  EXPECT_EQ(uint8_t(std::round(value.G() * 0.4999999f)), transitionValue.GetValue().G());
-  EXPECT_EQ(uint8_t(std::round(value.B() * 0.4999999f)), transitionValue.GetValue().B());
-  EXPECT_EQ(uint8_t(std::round(value.A() * 0.4999999f)), transitionValue.GetValue().A());
+  EXPECT_EQ(uint8_t(std::round(value.RawR() * 0.5f)), transitionValue.GetValue().RawR());
+  EXPECT_EQ(uint8_t(std::round(value.RawG() * 0.5f)), transitionValue.GetValue().RawG());
+  EXPECT_EQ(uint8_t(std::round(value.RawB() * 0.5f)), transitionValue.GetValue().RawB());
+  EXPECT_EQ(uint8_t(std::round(value.RawA() * 0.5f)), transitionValue.GetValue().RawA());
   EXPECT_EQ(value, transitionValue.GetActualValue());
 
   transitionValue.Update(TimeSpan(1));
@@ -130,8 +126,7 @@ TEST(TestTransition_TransitionColor, SetValue)
 
 TEST(TestTransition_TransitionColor, SetActualValue)
 {
-  TransitionCache cache;
-  TransitionColor transitionValue(cache, TimeSpan(2), TransitionType::Linear);
+  TransitionColor transitionValue(TimeSpan(2), TransitionType::Linear);
 
   const Color value(42, 20, 255, 0);
   const Color overrideValue(80, 40, 0, 255);
@@ -145,10 +140,10 @@ TEST(TestTransition_TransitionColor, SetActualValue)
 
   transitionValue.Update(TimeSpan(1));
   EXPECT_FALSE(transitionValue.IsCompleted());
-  EXPECT_EQ(uint8_t(std::round(value.R() * 0.4999999f)), transitionValue.GetValue().R());
-  EXPECT_EQ(uint8_t(std::round(value.G() * 0.4999999f)), transitionValue.GetValue().G());
-  EXPECT_EQ(uint8_t(std::round(value.B() * 0.4999999f)), transitionValue.GetValue().B());
-  EXPECT_EQ(uint8_t(std::round(value.A() * 0.4999999f)), transitionValue.GetValue().A());
+  EXPECT_EQ(uint8_t(std::round(value.RawR() * 0.5f)), transitionValue.GetValue().RawR());
+  EXPECT_EQ(uint8_t(std::round(value.RawG() * 0.5f)), transitionValue.GetValue().RawG());
+  EXPECT_EQ(uint8_t(std::round(value.RawB() * 0.5f)), transitionValue.GetValue().RawB());
+  EXPECT_EQ(uint8_t(std::round(value.RawA() * 0.5f)), transitionValue.GetValue().RawA());
   EXPECT_EQ(value, transitionValue.GetActualValue());
 
   // Override the transition by forcing the actual value
@@ -162,8 +157,7 @@ TEST(TestTransition_TransitionColor, SetActualValue)
 
 TEST(TestTransition_TransitionColor, SetStartDelay)
 {
-  TransitionCache cache;
-  TransitionColor transitionValue(cache, TimeSpan(2), TransitionType::Linear);
+  TransitionColor transitionValue(TimeSpan(2), TransitionType::Linear);
 
   const Color value(42, 20, 255, 0);
 
@@ -190,10 +184,10 @@ TEST(TestTransition_TransitionColor, SetStartDelay)
 
   transitionValue.Update(TimeSpan(1));
   EXPECT_FALSE(transitionValue.IsCompleted());
-  EXPECT_EQ(uint8_t(std::round(value.R() * 0.4999999f)), transitionValue.GetValue().R());
-  EXPECT_EQ(uint8_t(std::round(value.G() * 0.4999999f)), transitionValue.GetValue().G());
-  EXPECT_EQ(uint8_t(std::round(value.B() * 0.4999999f)), transitionValue.GetValue().B());
-  EXPECT_EQ(uint8_t(std::round(value.A() * 0.4999999f)), transitionValue.GetValue().A());
+  EXPECT_EQ(uint8_t(std::round(value.RawR() * 0.5f)), transitionValue.GetValue().RawR());
+  EXPECT_EQ(uint8_t(std::round(value.RawG() * 0.5f)), transitionValue.GetValue().RawG());
+  EXPECT_EQ(uint8_t(std::round(value.RawB() * 0.5f)), transitionValue.GetValue().RawB());
+  EXPECT_EQ(uint8_t(std::round(value.RawA() * 0.5f)), transitionValue.GetValue().RawA());
   EXPECT_EQ(value, transitionValue.GetActualValue());
 
   transitionValue.Update(TimeSpan(1));

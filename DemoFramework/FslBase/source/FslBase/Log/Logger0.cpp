@@ -56,10 +56,10 @@
 namespace
 {
   template <typename... Args>
-  inline void IdeLog(const char* const pszFormat, const Args&... args)
+  inline void IdeLog(fmt::format_string<Args...> formatString, const Args&... args)
   {
     fmt::memory_buffer buf;
-    fmt::format_to(std::back_inserter(buf), pszFormat, args...);
+    fmt::vformat_to(std::back_inserter(buf), formatString, fmt::make_format_args(args...));
     buf.push_back(0);
     OutputDebugStringA(buf.data());
   }
@@ -183,13 +183,13 @@ namespace Fsl
         switch (logType)
         {
         case LogType::Warning:
-          IDE_LOG("{}({}): WARNING: {}\n", location.pszFile, location.line, psz);
+          IDE_LOG("{}({}): WARNING: {}\n", location.pszFile, location.Line, psz);
           break;
         case LogType::Error:
-          IDE_LOG("{}({}): ERROR: {}\n", location.pszFile, location.line, psz);
+          IDE_LOG("{}({}): ERROR: {}\n", location.pszFile, location.Line, psz);
           break;
         default:
-          IDE_LOG("{}({}): {}\n", location.pszFile, location.line, psz);
+          IDE_LOG("{}({}): {}\n", location.pszFile, location.Line, psz);
           break;
         }
 #endif

@@ -40,18 +40,20 @@ namespace fmt
   struct formatter<Fsl::Matrix>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::Matrix& value, FormatContext& ctx)
     {
       const auto* pMatrix = value.DirectAccess();
-      return format_to(ctx.out(), "{{{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12}, {13}, {14}, {15}}}", pMatrix[0], pMatrix[1],
-                       pMatrix[2], pMatrix[3], pMatrix[4], pMatrix[5], pMatrix[6], pMatrix[7], pMatrix[8], pMatrix[9], pMatrix[10], pMatrix[11],
-                       pMatrix[12], pMatrix[13], pMatrix[14], pMatrix[15]);
+      return fmt::format_to(ctx.out(), "{{{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12}, {13}, {14}, {15}}}", pMatrix[0],
+                            pMatrix[1], pMatrix[2], pMatrix[3], pMatrix[4], pMatrix[5], pMatrix[6], pMatrix[7], pMatrix[8], pMatrix[9], pMatrix[10],
+                            pMatrix[11], pMatrix[12], pMatrix[13], pMatrix[14], pMatrix[15]);
     }
   };
 }

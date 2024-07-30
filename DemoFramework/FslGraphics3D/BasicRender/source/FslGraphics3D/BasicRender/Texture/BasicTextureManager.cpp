@@ -117,7 +117,7 @@ namespace Fsl::Graphics3D
   }
 
 
-  std::shared_ptr<INativeTexture2D> BasicTextureManager::CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+  std::shared_ptr<INativeTexture2D> BasicTextureManager::CreateTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                                          const TextureFlags textureFlags)
   {
     assert(m_factory);
@@ -135,8 +135,9 @@ namespace Fsl::Graphics3D
   }
 
 
-  std::shared_ptr<IDynamicNativeTexture2D>
-    BasicTextureManager::CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+  std::shared_ptr<IDynamicNativeTexture2D> BasicTextureManager::CreateDynamicTexture2D(const ReadOnlyRawTexture& texture,
+                                                                                       const Texture2DFilterHint filterHint,
+                                                                                       const TextureFlags textureFlags)
   {
     assert(m_factory);
 

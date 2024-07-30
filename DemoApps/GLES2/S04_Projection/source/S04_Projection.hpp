@@ -18,6 +18,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class S04_Projection : public DemoAppGLES2
   {
     GLES2::GLProgram m_program;

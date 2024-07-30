@@ -1138,3 +1138,427 @@ TEST(TestCollections_HandleVector0, RemoveBySwapAt_LastAtCapacity)
 
   EXPECT_EQ(3u, vector.Capacity());
 }
+
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestCollections_HandleVector0, RemoveRange_3_0_0)
+{
+  HandleVector<std::string> vector(10);
+
+  const std::string val1 = "A";
+  const std::string val2 = "B";
+  const std::string val3 = "C";
+
+  auto item1 = vector.Add(val1);
+  auto item2 = vector.Add(val2);
+  auto item3 = vector.Add(val3);
+
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(3u, vector.Count());
+
+  vector.RemoveRange(0, 0);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(3u, vector.Count());
+
+  EXPECT_EQ(val1, vector.Get(item1));
+  EXPECT_EQ(val2, vector.Get(item2));
+  EXPECT_EQ(val3, vector.Get(item3));
+
+  EXPECT_EQ(val1, vector[0]);
+  EXPECT_EQ(val2, vector[1]);
+  EXPECT_EQ(val3, vector[2]);
+
+  ASSERT_NO_THROW(vector.DEBUG_SanityCheck());
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestCollections_HandleVector0, RemoveRange_3_0_1)
+{
+  HandleVector<std::string> vector(10);
+
+  const std::string val1 = "A";
+  const std::string val2 = "B";
+  const std::string val3 = "C";
+
+  auto item1 = vector.Add(val1);
+  auto item2 = vector.Add(val2);
+  auto item3 = vector.Add(val3);
+
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(3u, vector.Count());
+
+  vector.RemoveRange(0, 1);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(2u, vector.Count());
+
+  EXPECT_EQ(val2, vector.Get(item2));
+  EXPECT_EQ(val3, vector.Get(item3));
+
+  EXPECT_EQ(val2, vector[0]);
+  EXPECT_EQ(val3, vector[1]);
+
+  ASSERT_NO_THROW(vector.DEBUG_SanityCheck());
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestCollections_HandleVector0, RemoveRange_3_1_1)
+{
+  HandleVector<std::string> vector(10);
+
+  const std::string val1 = "A";
+  const std::string val2 = "B";
+  const std::string val3 = "C";
+
+  auto item1 = vector.Add(val1);
+  auto item2 = vector.Add(val2);
+  auto item3 = vector.Add(val3);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(3u, vector.Count());
+
+  vector.RemoveRange(1, 1);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(2u, vector.Count());
+
+  EXPECT_EQ(val1, vector.Get(item1));
+  EXPECT_EQ(val3, vector.Get(item3));
+
+  EXPECT_EQ(val1, vector[0]);
+  EXPECT_EQ(val3, vector[1]);
+
+  ASSERT_NO_THROW(vector.DEBUG_SanityCheck());
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestCollections_HandleVector0, RemoveRange_3_2_1)
+{
+  HandleVector<std::string> vector(10);
+
+  const std::string val1 = "A";
+  const std::string val2 = "B";
+  const std::string val3 = "C";
+
+  auto item1 = vector.Add(val1);
+  auto item2 = vector.Add(val2);
+  auto item3 = vector.Add(val3);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(3u, vector.Count());
+
+  vector.RemoveRange(2, 1);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(2u, vector.Count());
+
+  EXPECT_EQ(val1, vector.Get(item1));
+  EXPECT_EQ(val2, vector.Get(item2));
+
+  EXPECT_EQ(val1, vector[0]);
+  EXPECT_EQ(val2, vector[1]);
+
+  ASSERT_NO_THROW(vector.DEBUG_SanityCheck());
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestCollections_HandleVector0, RemoveRange_4_OutOfBoundsStartIndex)
+{
+  HandleVector<std::string> vector(10);
+
+  const std::string val1 = "A";
+  const std::string val2 = "B";
+  const std::string val3 = "C";
+  const std::string val4 = "D";
+
+  auto item1 = vector.Add(val1);
+  auto item2 = vector.Add(val2);
+  auto item3 = vector.Add(val3);
+  auto item4 = vector.Add(val4);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(4u, vector.Count());
+
+  EXPECT_THROW(vector.RemoveRange(4, 2), std::invalid_argument);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(4u, vector.Count());
+
+  EXPECT_EQ(val1, vector.Get(item1));
+  EXPECT_EQ(val2, vector.Get(item2));
+  EXPECT_EQ(val3, vector.Get(item3));
+  EXPECT_EQ(val4, vector.Get(item4));
+
+  EXPECT_EQ(val1, vector[0]);
+  EXPECT_EQ(val2, vector[1]);
+  EXPECT_EQ(val3, vector[2]);
+  EXPECT_EQ(val4, vector[3]);
+
+  ASSERT_NO_THROW(vector.DEBUG_SanityCheck());
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestCollections_HandleVector0, RemoveRange_4_OutOfBoundsLength)
+{
+  HandleVector<std::string> vector(10);
+
+  const std::string val1 = "A";
+  const std::string val2 = "B";
+  const std::string val3 = "C";
+  const std::string val4 = "D";
+
+  auto item1 = vector.Add(val1);
+  auto item2 = vector.Add(val2);
+  auto item3 = vector.Add(val3);
+  auto item4 = vector.Add(val4);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(4u, vector.Count());
+
+  EXPECT_THROW(vector.RemoveRange(0, 5), std::invalid_argument);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(4u, vector.Count());
+
+  EXPECT_EQ(val1, vector.Get(item1));
+  EXPECT_EQ(val2, vector.Get(item2));
+  EXPECT_EQ(val3, vector.Get(item3));
+  EXPECT_EQ(val4, vector.Get(item4));
+
+  EXPECT_EQ(val1, vector[0]);
+  EXPECT_EQ(val2, vector[1]);
+  EXPECT_EQ(val3, vector[2]);
+  EXPECT_EQ(val4, vector[3]);
+
+  ASSERT_NO_THROW(vector.DEBUG_SanityCheck());
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestCollections_HandleVector0, RemoveRange_4_0_2)
+{
+  HandleVector<std::string> vector(10);
+
+  const std::string val1 = "A";
+  const std::string val2 = "B";
+  const std::string val3 = "C";
+  const std::string val4 = "D";
+
+  auto item1 = vector.Add(val1);
+  auto item2 = vector.Add(val2);
+  auto item3 = vector.Add(val3);
+  auto item4 = vector.Add(val4);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(4u, vector.Count());
+
+  vector.RemoveRange(0, 2);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(2u, vector.Count());
+
+  EXPECT_EQ(val3, vector.Get(item3));
+  EXPECT_EQ(val4, vector.Get(item4));
+
+  EXPECT_EQ(val3, vector[0]);
+  EXPECT_EQ(val4, vector[1]);
+
+  ASSERT_NO_THROW(vector.DEBUG_SanityCheck());
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestCollections_HandleVector0, RemoveRange_4_1_2)
+{
+  HandleVector<std::string> vector(10);
+
+  const std::string val1 = "A";
+  const std::string val2 = "B";
+  const std::string val3 = "C";
+  const std::string val4 = "D";
+
+  auto item1 = vector.Add(val1);
+  auto item2 = vector.Add(val2);
+  auto item3 = vector.Add(val3);
+  auto item4 = vector.Add(val4);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(4u, vector.Count());
+
+  vector.RemoveRange(1, 2);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(2u, vector.Count());
+
+  EXPECT_EQ(val1, vector.Get(item1));
+  EXPECT_EQ(val4, vector.Get(item4));
+
+  EXPECT_EQ(val1, vector[0]);
+  EXPECT_EQ(val4, vector[1]);
+
+  ASSERT_NO_THROW(vector.DEBUG_SanityCheck());
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestCollections_HandleVector0, RemoveRange_4_2_2)
+{
+  HandleVector<std::string> vector(10);
+
+  const std::string val1 = "A";
+  const std::string val2 = "B";
+  const std::string val3 = "C";
+  const std::string val4 = "D";
+
+  auto item1 = vector.Add(val1);
+  auto item2 = vector.Add(val2);
+  auto item3 = vector.Add(val3);
+  auto item4 = vector.Add(val4);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(4u, vector.Count());
+
+  vector.RemoveRange(2, 2);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(2u, vector.Count());
+
+  EXPECT_EQ(val1, vector.Get(item1));
+  EXPECT_EQ(val2, vector.Get(item2));
+
+  EXPECT_EQ(val1, vector[0]);
+  EXPECT_EQ(val2, vector[1]);
+
+  ASSERT_NO_THROW(vector.DEBUG_SanityCheck());
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestCollections_HandleVector0, RemoveRange_5_0_2)
+{
+  HandleVector<std::string> vector(10);
+
+  const std::string val1 = "A";
+  const std::string val2 = "B";
+  const std::string val3 = "C";
+  const std::string val4 = "D";
+  const std::string val5 = "E";
+
+  auto item1 = vector.Add(val1);
+  auto item2 = vector.Add(val2);
+  auto item3 = vector.Add(val3);
+  auto item4 = vector.Add(val4);
+  auto item5 = vector.Add(val5);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(5u, vector.Count());
+
+  vector.RemoveRange(0, 2);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(3u, vector.Count());
+
+  EXPECT_EQ(val3, vector.Get(item3));
+  EXPECT_EQ(val4, vector.Get(item4));
+  EXPECT_EQ(val5, vector.Get(item5));
+
+  EXPECT_EQ(val3, vector[0]);
+  EXPECT_EQ(val4, vector[1]);
+  EXPECT_EQ(val5, vector[2]);
+
+  ASSERT_NO_THROW(vector.DEBUG_SanityCheck());
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestCollections_HandleVector0, RemoveRange_5_1_2)
+{
+  HandleVector<std::string> vector(10);
+
+  const std::string val1 = "A";
+  const std::string val2 = "B";
+  const std::string val3 = "C";
+  const std::string val4 = "D";
+  const std::string val5 = "E";
+
+  auto item1 = vector.Add(val1);
+  auto item2 = vector.Add(val2);
+  auto item3 = vector.Add(val3);
+  auto item4 = vector.Add(val4);
+  auto item5 = vector.Add(val5);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(5u, vector.Count());
+
+  vector.RemoveRange(1, 2);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(3u, vector.Count());
+
+  EXPECT_EQ(val1, vector.Get(item1));
+  EXPECT_EQ(val4, vector.Get(item4));
+  EXPECT_EQ(val5, vector.Get(item5));
+
+  EXPECT_EQ(val1, vector[0]);
+  EXPECT_EQ(val4, vector[1]);
+  EXPECT_EQ(val5, vector[2]);
+
+  ASSERT_NO_THROW(vector.DEBUG_SanityCheck());
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestCollections_HandleVector0, RemoveRange_5_2_2)
+{
+  HandleVector<std::string> vector(10);
+
+  const std::string val1 = "A";
+  const std::string val2 = "B";
+  const std::string val3 = "C";
+  const std::string val4 = "D";
+  const std::string val5 = "E";
+
+  auto item1 = vector.Add(val1);
+  auto item2 = vector.Add(val2);
+  auto item3 = vector.Add(val3);
+  auto item4 = vector.Add(val4);
+  auto item5 = vector.Add(val5);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(5u, vector.Count());
+
+  vector.RemoveRange(2, 2);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(3u, vector.Count());
+
+  EXPECT_EQ(val1, vector.Get(item1));
+  EXPECT_EQ(val2, vector.Get(item2));
+  EXPECT_EQ(val5, vector.Get(item5));
+
+  EXPECT_EQ(val1, vector[0]);
+  EXPECT_EQ(val2, vector[1]);
+  EXPECT_EQ(val5, vector[2]);
+
+  ASSERT_NO_THROW(vector.DEBUG_SanityCheck());
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestCollections_HandleVector0, RemoveRange_5_3_2)
+{
+  HandleVector<std::string> vector(10);
+
+  const std::string val1 = "A";
+  const std::string val2 = "B";
+  const std::string val3 = "C";
+  const std::string val4 = "D";
+  const std::string val5 = "E";
+
+  auto item1 = vector.Add(val1);
+  auto item2 = vector.Add(val2);
+  auto item3 = vector.Add(val3);
+  auto item4 = vector.Add(val4);
+  auto item5 = vector.Add(val5);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(5u, vector.Count());
+
+  vector.RemoveRange(3, 2);
+  EXPECT_TRUE(vector.DEBUG_IsValid());
+  EXPECT_EQ(3u, vector.Count());
+
+  EXPECT_EQ(val1, vector.Get(item1));
+  EXPECT_EQ(val2, vector.Get(item2));
+  EXPECT_EQ(val3, vector.Get(item3));
+
+  EXPECT_EQ(val1, vector[0]);
+  EXPECT_EQ(val2, vector[1]);
+  EXPECT_EQ(val3, vector[2]);
+
+  ASSERT_NO_THROW(vector.DEBUG_SanityCheck());
+}

@@ -4,5 +4,7 @@
     <Dependency Name="FslDemoApp.Base"/>
     <Dependency Name="FslDemoService.CpuStats"/>
     <Dependency Name="FslSimpleUI.App"/>
+    <Dependency Name="FslSimpleUI.Controls.Charts.Common"/>
+    <Dependency Name="FslSimpleUI.App.Theme" Access="Private"/>
   </Library>
 </FslBuildGen>

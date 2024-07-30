@@ -32,8 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxRectangle2D.hpp>
-#include <FslBase/Transition/TransitionCache.hpp>
-#include <FslBase/Transition/TransitionValue.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
@@ -83,7 +81,7 @@ namespace Fsl
     float FontScale{};
 
     float OutlineDistance{};
-    Vector2 ShadowOffset{};
+    Vector2 ShadowOffset;
     float ShadowSmoothing{};
   };
 
@@ -136,8 +134,8 @@ namespace Fsl
     }
 
     // From EventListener
-    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
-    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
+    void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
+    void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
 
     void OnKeyEvent(const KeyEvent& event);
     void OnConfigurationChanged(const DemoWindowMetrics& windowMetrics);

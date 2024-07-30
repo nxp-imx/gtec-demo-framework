@@ -94,30 +94,30 @@ namespace Fsl::UI
   }
 
 
-  void RootWindow::OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+  void RootWindow::OnClickInputPreview(const std::shared_ptr<WindowInputClickEvent>& theEvent)
   {
-    auto lambda = [&args, &theEvent](std::shared_ptr<IEventListener>& listener) { listener->OnClickInputPreview(args, theEvent); };
+    auto lambda = [&theEvent](std::shared_ptr<IEventListener>& listener) { listener->OnClickInputPreview(theEvent); };
     m_eventListenerManager.Call(lambda);
   }
 
 
-  void RootWindow::OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+  void RootWindow::OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent)
   {
-    auto lambda = [&args, &theEvent](std::shared_ptr<IEventListener>& listener) { listener->OnClickInput(args, theEvent); };
+    auto lambda = [&theEvent](std::shared_ptr<IEventListener>& listener) { listener->OnClickInput(theEvent); };
     m_eventListenerManager.Call(lambda);
   }
 
 
-  void RootWindow::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  void RootWindow::OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent)
   {
-    auto lambda = [&args, &theEvent](std::shared_ptr<IEventListener>& listener) { listener->OnSelect(args, theEvent); };
+    auto lambda = [&theEvent](std::shared_ptr<IEventListener>& listener) { listener->OnSelect(theEvent); };
     m_eventListenerManager.Call(lambda);
   }
 
 
-  void RootWindow::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
+  void RootWindow::OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent)
   {
-    auto lambda = [&args, &theEvent](std::shared_ptr<IEventListener>& listener) { listener->OnContentChanged(args, theEvent); };
+    auto lambda = [&theEvent](std::shared_ptr<IEventListener>& listener) { listener->OnContentChanged(theEvent); };
     m_eventListenerManager.Call(lambda);
   }
 }

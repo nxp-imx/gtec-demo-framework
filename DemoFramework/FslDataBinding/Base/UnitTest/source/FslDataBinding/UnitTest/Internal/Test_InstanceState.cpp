@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,31 +54,31 @@ TEST(Test_DataBinding, Create)
 
 TEST(Test_DataBinding, CreateWithType)
 {
-  constexpr auto type = DataBinding::DataBindingInstanceType::DependencyObserverProperty;
-  constexpr auto implType = DataBinding::Internal::PropertyMethodsImplType::ATypedDependencyProperty;
-  DataBinding::Internal::InstanceState state(type, implType);
+  constexpr auto Type = DataBinding::DataBindingInstanceType::DependencyObserverProperty;
+  constexpr auto ImplType = DataBinding::Internal::PropertyMethodsImplType::ATypedDependencyProperty;
+  DataBinding::Internal::InstanceState state(Type, ImplType);
 
   EXPECT_FALSE(state.IsObservable());
   EXPECT_FALSE(state.HasPendingChanges());
   EXPECT_EQ(DataBinding::DataBindingInstanceState::Alive, state.GetState());
-  EXPECT_EQ(type, state.GetType());
-  EXPECT_EQ(implType, state.GetPropertyMethodsImplType());
+  EXPECT_EQ(Type, state.GetType());
+  EXPECT_EQ(ImplType, state.GetPropertyMethodsImplType());
 }
 
 
 TEST(Test_DataBinding, CreateWithTypeAndFlags)
 {
-  constexpr auto type = DataBinding::DataBindingInstanceType::DependencyObserverProperty;
-  constexpr auto implType = DataBinding::Internal::PropertyMethodsImplType::ATypedDependencyProperty;
-  constexpr auto flag = DataBinding::Internal::InstanceState::Flags::Observable;
-  DataBinding::Internal::InstanceState state(type, implType, flag);
+  constexpr auto Type = DataBinding::DataBindingInstanceType::DependencyObserverProperty;
+  constexpr auto ImplType = DataBinding::Internal::PropertyMethodsImplType::ATypedDependencyProperty;
+  constexpr auto Flag = DataBinding::Internal::InstanceState::Flags::Observable;
+  DataBinding::Internal::InstanceState state(Type, ImplType, Flag);
 
   EXPECT_TRUE(state.IsObservable());
   EXPECT_FALSE(state.HasPendingChanges());
   EXPECT_EQ(DataBinding::DataBindingInstanceState::Alive, state.GetState());
-  EXPECT_EQ(type, state.GetType());
-  EXPECT_EQ(implType, state.GetPropertyMethodsImplType());
-  EXPECT_TRUE(state.IsEnabled(flag));
+  EXPECT_EQ(Type, state.GetType());
+  EXPECT_EQ(ImplType, state.GetPropertyMethodsImplType());
+  EXPECT_TRUE(state.IsEnabled(Flag));
 }
 
 

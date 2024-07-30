@@ -31,8 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-// Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslBase/Math/Rectangle.hpp>
+#include <FslBase/Math/Pixel/PxRectangle.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <FslUtil/OpenVG/Common.hpp>
 
@@ -56,7 +55,7 @@ namespace Fsl
       //! @param rBitmap will be resized to the srcRectangle dimensions.
       //! @param pixelFormat the desired pixel format (R8G8B8A8_UINT or B8G8R8A8_UINT)
       //! @note  Throws a exception if rBitmap has a unsupported bitmap format
-      static void Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const Rectangle& srcRectangle);
+      static void Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const PxRectangle& srcRectanglePx);
     };
   }
 }

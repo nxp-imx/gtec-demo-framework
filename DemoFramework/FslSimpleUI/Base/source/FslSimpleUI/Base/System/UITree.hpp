@@ -36,6 +36,7 @@
 #include <FslBase/Math/Rect.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/ItemVisibility.hpp>
+#include <FslSimpleUI/Base/System/Event/IEventHandler.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/UIStats.hpp>
 #include <deque>
@@ -45,7 +46,6 @@
 #include <utility>
 #include <vector>
 #include "Event/EventRoute.hpp"
-#include "Event/IEventHandler.hpp"
 #include "Event/WindowEventQueueRecord.hpp"
 #include "ITreeContextInfo.hpp"
 #include "ITreeNodeBasicInfo.hpp"
@@ -75,6 +75,7 @@ namespace Fsl
     struct UITreeDrawRecord
     {
       TreeNodeDrawContext DrawContext;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BaseWindow* pWindow{nullptr};
 
       UITreeDrawRecord() noexcept = default;
@@ -127,9 +128,12 @@ namespace Fsl
 
       State m_state = State::WaitForInit;
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       const std::shared_ptr<ModuleCallbackRegistry> m_moduleCallbackRegistry;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       const std::shared_ptr<WindowEventPool> m_eventPool;
       //! the command queue that ensure we are able to modify the tree at all times without causing conflicts
+      // NOLINTNEXTLINE(readability-identifier-naming)
       const std::shared_ptr<WindowEventQueueEx> m_eventQueue;
       std::unique_ptr<std::deque<WindowEventQueueRecord>> m_eventRecordQueue;
       EventRoute m_eventRoute;

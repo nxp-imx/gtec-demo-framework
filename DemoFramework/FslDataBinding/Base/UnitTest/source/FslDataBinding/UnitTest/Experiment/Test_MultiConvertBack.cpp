@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <FslDataBinding/Base/Internal/PropertySetInfo.hpp>
 #include <FslDataBinding/Base/Internal/TypedPropertyMethodsUtil.hpp>
@@ -60,16 +60,16 @@ namespace
   }
 
 
-  template <size_t I, typename... TSetType>
+  template <size_t TI, typename... TSetType>
   void CallSetters(const std::tuple<TSetType...>& values, const ReadOnlySpan<DataBinding::Internal::PropertySetInfo> setters)
   {
-    if constexpr (I < sizeof...(TSetType))
+    if constexpr (TI < sizeof...(TSetType))
     {
       // Call DoCallSet for the I-th element of the tuple and corresponding setter
-      DoCallSet(setters[I], std::get<I>(values));
+      DoCallSet(setters[TI], std::get<TI>(values));
 
       // Recursively call CallSetters for the next element
-      CallSetters<I + 1, TSetType...>(values, setters);
+      CallSetters<TI + 1, TSetType...>(values, setters);
     }
   }
 
@@ -116,7 +116,7 @@ TEST(Test_MultiConvertBack, Construct)
 {
   std::array<DataBinding::Internal::PropertySetInfo, 4> setters{};
 
-  TestConvertBackHelper(0x10203040u, ReadOnlySpanUtil::AsSpan(setters));
-  auto result = TestConvertBackHelper2(0x10203040u, ReadOnlySpanUtil::AsSpan(setters));
+  TestConvertBackHelper(0x10203040u, SpanUtil::AsReadOnlySpan(setters));
+  auto result = TestConvertBackHelper2(0x10203040u, SpanUtil::AsReadOnlySpan(setters));
   ASSERT_EQ(result.size(), 10u);
 }

@@ -40,15 +40,17 @@ namespace fmt
   struct formatter<Fsl::SpanRange<T>>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::SpanRange<T>& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{Start={} Length={}}}", value.Start, value.Length);
+      return fmt::format_to(ctx.out(), "{{Start={} Length={}}}", value.Start, value.Length);
     }
   };
 }

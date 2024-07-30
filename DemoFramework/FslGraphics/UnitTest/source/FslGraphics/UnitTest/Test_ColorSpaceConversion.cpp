@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,6 +82,50 @@ TEST(Test_ColorSpaceConversion, ConvertLinearToSRGBUInt8_LinearUInt16_RoundTrip)
     const uint16_t linearValue = ColorSpaceConversion::ConvertSRGBToLinearUInt16(static_cast<uint8_t>(i));
     const uint8_t returnedValue = ColorSpaceConversion::ConvertLinearToSRGBUInt8(linearValue);
     EXPECT_EQ(i, static_cast<uint16_t>(returnedValue));
+  }
+}
+
+
+TEST(Test_ColorSpaceConversion, ConvertLinearUInt8ToLinearFloat)
+{
+  for (uint32_t i = 0; i <= 0xFF; ++i)
+  {
+    const float linearValue = ColorSpaceConversion::ConvertLinearUInt8ToLinearFloat(static_cast<uint8_t>(i));
+    const float expectedValue = static_cast<float>(i) / 255.0f;
+    ASSERT_FLOAT_EQ(expectedValue, linearValue);
+  }
+}
+
+TEST(Test_ColorSpaceConversion, ConvertLinearFloatToLinearUInt8)
+{
+  for (uint32_t i = 0; i <= 0xFFFF; ++i)
+  {
+    const auto valueFloat = static_cast<float>(i) / static_cast<float>(0xFFFF);
+    const uint8_t linearValue = ColorSpaceConversion::ConvertLinearFloatToLinearUInt8(valueFloat);
+    const auto expectedValue = static_cast<int64_t>(std::round(valueFloat * 255.0f));
+    ASSERT_EQ(expectedValue, linearValue);
+  }
+}
+
+
+TEST(Test_ColorSpaceConversion, ConvertLinearUInt16ToLinearUInt8)
+{
+  for (uint32_t i = 0; i <= 0xFFFF; ++i)
+  {
+    const uint8_t linearValue = ColorSpaceConversion::ConvertLinearUInt16ToLinearUInt8(static_cast<uint16_t>(i));
+    const auto expectedValue = static_cast<int64_t>(std::round(static_cast<double>(i) / 257.0));
+    ASSERT_EQ(expectedValue, linearValue);
+  }
+}
+
+
+TEST(Test_ColorSpaceConversion, ConvertLinearUInt8ToLinearUInt16)
+{
+  for (uint32_t i = 0; i <= 0xFF; ++i)
+  {
+    const uint16_t linearValue = ColorSpaceConversion::ConvertLinearUInt8ToLinearUInt16(static_cast<uint8_t>(i));
+    const auto expectedValue = static_cast<int64_t>(std::round(static_cast<double>(i) * 257.0));
+    ASSERT_EQ(expectedValue, linearValue);
   }
 }
 

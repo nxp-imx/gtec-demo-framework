@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDataBinding/Base/DataBindingService.hpp>
+#include <FslDataBinding/Base/Internal/IDependencyPropertyMethods.hpp>
 #include <FslDataBinding/Base/ScopedDataSourceObject.hpp>
 #include <utility>
 
@@ -84,5 +85,31 @@ namespace Fsl::DataBinding
       changed = m_dataBinding->Changed(m_hInstance, PropertyChangeReason::Modified);
     }
     return changed;
+  }
+
+
+  DataBindingInstanceHandle ScopedDataSourceObject::CreateReadOnlyProperty(const DependencyPropertyDefinition& propertyDefinition,
+                                                                           std::unique_ptr<DataBinding::Internal::IDependencyPropertyMethods> methods)
+  {
+    auto hInstance = GetInstanceHandleOnDemand();
+    return m_dataBinding->CreateReadOnlyDependencyObjectProperty(hInstance, propertyDefinition, std::move(methods));
+  }
+
+
+  bool ScopedDataSourceObject::PropertyChanged(const DataBindingInstanceHandle hInstance, const PropertyChangeReason changeReason)
+  {
+    return m_dataBinding->Changed(hInstance, changeReason);
+  }
+
+
+  bool ScopedDataSourceObject::IsPropertyReadOnly(const DataBindingInstanceHandle hInstance) const noexcept
+  {
+    return m_dataBinding->IsPropertyReadOnly(hInstance);
+  }
+
+
+  bool ScopedDataSourceObject::DestroyProperty(const DataBindingInstanceHandle hInstance) noexcept
+  {
+    return m_dataBinding->DestroyProperty(hInstance);
   }
 }

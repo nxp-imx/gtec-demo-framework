@@ -41,11 +41,14 @@
 
 namespace Fsl::Vulkan
 {
-  constexpr uint32_t VERTICES_PER_LINE = 2u;
-  constexpr uint32_t VERTEX_BUFFER_BIND_ID = 0;
-
   namespace
   {
+    namespace LocalConfig
+    {
+      constexpr uint32_t VerticesPerLine = 2u;
+      constexpr uint32_t VertexBufferBindId = 0;
+    }
+
     RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const VUDevice& device)
     {
       std::array<VkDescriptorSetLayoutBinding, 1> setLayoutBindings{};
@@ -320,7 +323,8 @@ namespace Fsl::Vulkan
         rFrame.VertUboBuffer = CreateUBO(device, sizeOfVertexUBOData);
         rFrame.DescriptorSet = CreateDescriptorSet(m_resources.MainDescriptorPool, m_resources.MainDescriptorSetLayout);
         // Prepare a dynamic vertex buffer that can hold LINE_CAPACITY lines
-        rFrame.LineVertBuffer.Reset(bufferManager, VERTICES_PER_LINE * initialLineCapacity, VertexPositionColor::AsVertexDeclarationSpan());
+        rFrame.LineVertBuffer.Reset(bufferManager, LocalConfig::VerticesPerLine * initialLineCapacity,
+                                    VertexPositionColor::AsVertexDeclarationSpan());
         UpdateDescriptorSet(device.Get(), rFrame.DescriptorSet, rFrame.VertUboBuffer);
       }
       m_resources.MainPipelineLayout = CreatePipelineLayout(m_resources.MainDescriptorSetLayout);
@@ -415,7 +419,7 @@ namespace Fsl::Vulkan
     {
       throw std::invalid_argument("pVertices can not be null");
     }
-    if ((vertexCount % VERTICES_PER_LINE) != 0u)
+    if ((vertexCount % LocalConfig::VerticesPerLine) != 0u)
     {
       throw std::invalid_argument("vertexCount did not match a exact number of lines");
     }
@@ -449,7 +453,7 @@ namespace Fsl::Vulkan
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.PipelineRender.Get());
 
     std::array<VkDeviceSize, 1> offsets = {0};
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, UncheckedNumericCast<uint32_t>(offsets.size()),
+    vkCmdBindVertexBuffers(commandBuffer, LocalConfig::VertexBufferBindId, UncheckedNumericCast<uint32_t>(offsets.size()),
                            rFrame.LineVertBuffer.GetBufferPointer(), offsets.data());
 
     assert(vertexCount <= std::numeric_limits<uint32_t>::max());

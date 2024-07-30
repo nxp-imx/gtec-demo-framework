@@ -32,21 +32,29 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslGraphics/Bitmap/SupportedConversion.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 
 namespace Fsl
 {
-  class RawBitmap;
+  class ReadOnlyRawBitmap;
   class RawBitmapEx;
   //! Early access
   class RawBitmapConverter
   {
   public:
+    //! @return GetSupportedConversionsInplace will be a subset of GetSupportedConversionsNonOverlapping
+    static ReadOnlySpan<SupportedConversion> GetSupportedConversionsInplace() noexcept;
+
+    //! @return GetSupportedConversionsInplace will be a subset of GetSupportedConversionsNonOverlapping
+    static ReadOnlySpan<SupportedConversion> GetSupportedConversionsNonOverlapping() noexcept;
+
     //! @brief Try a in-place pixel format conversion
     static bool TryConvert(RawBitmapEx& rDstBitmap, const PixelFormat desiredPixelFormat);
 
     //! @brief Try a non overlapping bitmap to bitmap conversion
-    static bool TryConvert(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap);
+    static bool TryConvert(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap);
   };
 }
 

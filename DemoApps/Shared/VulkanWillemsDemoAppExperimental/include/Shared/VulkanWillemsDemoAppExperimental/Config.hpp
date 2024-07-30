@@ -36,8 +36,10 @@
 
 namespace Fsl::Willems::Config
 {
-  const uint64_t DEFAULT_FENCE_TIMEOUT = 100000000000;
-  const VkFlags FLAGS_NONE = 0;
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  constexpr uint64_t DEFAULT_FENCE_TIMEOUT = 100000000000;
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  constexpr VkFlags FLAGS_NONE = 0;
 }
 
 #endif

@@ -34,7 +34,6 @@
 #include <FslBase/ExceptionMessageFormatter.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/ITag.hpp>
-#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslDemoApp/Base/ADemoOptionParser.hpp>
 #include <FslDemoApp/Base/CustomDemoAppConfig.hpp>
@@ -69,11 +68,7 @@ namespace Fsl
                   const DemoWindowMetrics& windowMetrics, const ServiceProvider& serviceProvider, CustomDemoAppConfig customConfig);
     ~DemoAppConfig();
 
-    void UpdateWindowMetrics(const DemoWindowMetrics& windowMetrics)
-    {
-      WindowMetrics = windowMetrics;
-      ScreenResolution = TypeConverter::To<Point2>(windowMetrics.ExtentPx);
-    }
+    void UpdateWindowMetrics(const DemoWindowMetrics& windowMetrics);
 
     //! Get the option parser if its available
     template <typename T>
@@ -82,10 +77,17 @@ namespace Fsl
       const std::shared_ptr<T> ptr = std::dynamic_pointer_cast<T>(m_optionParser);
       if (!ptr)
       {
-        throw UnknownTypeException(typeid(T).name());
+        if (m_optionParser)
+        {
+          throw UnknownTypeException(GetGetOptionsErrorMessage(typeid(T).name()));
+        }
+        throw UnknownTypeException("GetOptions() called but no option parser has been registered");
       }
       return ptr;
     }
+
+  private:
+    static std::string GetGetOptionsErrorMessage(const std::string_view str);
   };
 }
 

@@ -167,10 +167,8 @@ namespace Fsl
     }
   }
 
-  void ShaderClock::OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void ShaderClock::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
-
     if (theEvent->GetSource() == m_ui.SliderHeatmap)
     {
       m_scene.SetHeatmapScale(static_cast<float>(m_ui.SliderHeatmap->GetValue()));
@@ -185,7 +183,7 @@ namespace Fsl
     }
   }
 
-  void ShaderClock::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void ShaderClock::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_ui.BtnDefault)
     {

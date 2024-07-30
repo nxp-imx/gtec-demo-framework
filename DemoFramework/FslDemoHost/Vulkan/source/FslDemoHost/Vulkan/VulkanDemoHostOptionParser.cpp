@@ -74,7 +74,7 @@ namespace Fsl
     };
 
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-    constexpr const PresentMode g_presentModes[] = {
+    constexpr const PresentMode PresentModes[] = {
       PresentMode(VK_PRESENT_MODE_IMMEDIATE_KHR, "VK_PRESENT_MODE_IMMEDIATE_KHR"),
       PresentMode(VK_PRESENT_MODE_MAILBOX_KHR, "VK_PRESENT_MODE_MAILBOX_KHR"),
       PresentMode(VK_PRESENT_MODE_FIFO_KHR, "VK_PRESENT_MODE_FIFO_KHR"),
@@ -84,16 +84,16 @@ namespace Fsl
       PresentMode(VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR, "VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR"),
 #endif
     };
-    constexpr auto g_presentModeCount = sizeof(g_presentModes) / sizeof(PresentMode);
+    constexpr auto PresentModeCount = sizeof(PresentModes) / sizeof(PresentMode);
 
 
     std::string GetPresentModesString()
     {
       fmt::memory_buffer buf;
-      fmt::format_to(std::back_inserter(buf), "{} ({})", g_presentModes[0].StrMode, static_cast<int64_t>(g_presentModes[0].Mode));
-      for (std::size_t i = 1; i < g_presentModeCount; ++i)
+      fmt::format_to(std::back_inserter(buf), "{} ({})", PresentModes[0].StrMode, static_cast<int64_t>(PresentModes[0].Mode));
+      for (std::size_t i = 1; i < PresentModeCount; ++i)
       {
-        fmt::format_to(std::back_inserter(buf), ", {} ({})", g_presentModes[i].StrMode, static_cast<int64_t>(g_presentModes[i].Mode));
+        fmt::format_to(std::back_inserter(buf), ", {} ({})", PresentModes[i].StrMode, static_cast<int64_t>(PresentModes[i].Mode));
       }
       return fmt::to_string(buf);
     }
@@ -101,11 +101,11 @@ namespace Fsl
     bool TryParseAsString(VkPresentModeKHR& rPresentMode, const StringViewLite& strOptArg)
     {
       // Try to see if we can find a string match
-      for (std::size_t i = 0; i < g_presentModeCount; ++i)
+      for (std::size_t i = 0; i < PresentModeCount; ++i)
       {
-        if (strOptArg == g_presentModes[i].StrMode)
+        if (strOptArg == PresentModes[i].StrMode)
         {
-          rPresentMode = g_presentModes[i].Mode;
+          rPresentMode = PresentModes[i].Mode;
           return true;
         }
       }
@@ -126,11 +126,11 @@ namespace Fsl
       {
         return false;
       }
-      for (std::size_t i = 0; i < g_presentModeCount; ++i)
+      for (std::size_t i = 0; i < PresentModeCount; ++i)
       {
-        if (value == g_presentModes[i].Mode)
+        if (value == PresentModes[i].Mode)
         {
-          rPresentMode = g_presentModes[i].Mode;
+          rPresentMode = PresentModes[i].Mode;
           return true;
         }
       }

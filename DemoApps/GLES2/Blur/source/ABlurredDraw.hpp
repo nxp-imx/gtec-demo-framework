@@ -37,6 +37,7 @@ namespace Fsl
 {
   class ABlurredDraw
   {
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const char* const m_pszName;
 
   public:

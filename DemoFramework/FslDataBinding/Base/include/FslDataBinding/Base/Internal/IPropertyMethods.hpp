@@ -51,6 +51,8 @@ namespace Fsl::DataBinding::Internal
 
     virtual ~IPropertyMethods() = default;
 
+    virtual bool IsReadOnly() const noexcept = 0;
+
     virtual std::type_index GetType() const = 0;
 
     virtual PropertyMethodsImplType GetImplType() const noexcept = 0;

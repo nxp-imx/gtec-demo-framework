@@ -159,7 +159,7 @@ namespace Fsl
       return {};
     }
 
-    std::optional<VirtualMouseButton::Enum> TryConvertMouseButton(const Uint8 button)
+    std::optional<VirtualMouseButton> TryConvertMouseButton(const Uint8 button)
     {
       switch (button)
       {

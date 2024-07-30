@@ -37,8 +37,8 @@
 namespace Fsl
 {
   class Bitmap;
-  class RawBitmap;
-  class RawTexture;
+  class ReadOnlyRawBitmap;
+  class ReadOnlyRawTexture;
 
   namespace TextureMipMapUtil
   {
@@ -53,10 +53,10 @@ namespace Fsl
     extern Texture GenerateMipMaps(const Texture& src, const TextureMipMapFilter filter);
 
     //! @brief Generate a new texture with mip maps based on the src
-    extern Texture GenerateMipMaps(const RawBitmap& src, const TextureMipMapFilter filter);
+    extern Texture GenerateMipMaps(const ReadOnlyRawBitmap& src, const TextureMipMapFilter filter);
 
     //! @brief Generate a new texture with mip maps based on the src
-    extern Texture GenerateMipMaps(const RawTexture& src, const TextureMipMapFilter filter);
+    extern Texture GenerateMipMaps(const ReadOnlyRawTexture& src, const TextureMipMapFilter filter);
   };
 }
 

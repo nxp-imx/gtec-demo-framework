@@ -58,13 +58,13 @@ namespace Fsl::UI
       return DstSizePx;
     }
 
-    constexpr Color GetDstColor() const noexcept
+    constexpr UIRenderColor GetDstColor() const noexcept
     {
       return DstColor;
     }
 
     inline constexpr static EncodedCommand Encode(const MeshHandle hMesh, const PxVector2& dstPositionPxf, const PxSize2D dstSizePx,
-                                                  const Color& dstColor) noexcept
+                                                  const UIRenderColor dstColor) noexcept
     {
       return {DrawCommandType::DrawAtOffsetAndSize, hMesh, dstPositionPxf, dstSizePx, dstColor, 0};
     }

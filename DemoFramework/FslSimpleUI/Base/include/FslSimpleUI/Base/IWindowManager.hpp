@@ -113,6 +113,7 @@ namespace Fsl::UI
 
 
     //! @brief Set the event source of this event
+    // NOLINTNEXTLINE(readability-identifier-naming)
     virtual void SYS_SetEventSource(WindowEvent* const pEvent, const IWindowId* const pSource) = 0;
   };
 }

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,18 @@
  ****************************************************************************************************************************************************/
 
 #include "UTObservableCollection.hpp"
+#include <FslDataBinding/Base/Object/ObservableDataSourceObjectHelper.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
+
+namespace Fsl
+{
+  using TClass = UTObservableCollection;
+  using TDef = DataBinding::DependencyPropertyDefinition;
+  using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
+
+  TDef TClass::Property0 = TFactory::CreateReadOnly<TClass::prop0_type, TClass, &TClass::GetProperty0Value>("Property0");
+  TDef TClass::Property1 = TFactory::CreateReadOnly<TClass::prop1_type, TClass, &TClass::GetProperty1Value>("Property1");
+}
 
 namespace Fsl
 {
@@ -42,4 +54,24 @@ namespace Fsl
   {
     return MarkAsChangedNow();
   }
+
+  bool UTObservableCollection::SetProperty0Value(const uint32_t value)
+  {
+    return m_property0.Set(ThisDataSourceObject(), value, DataBinding::PropertyChangeReason::Modified);
+  }
+
+
+  bool UTObservableCollection::SetProperty1Value(const float value)
+  {
+    return m_property1.Set(ThisDataSourceObject(), value, DataBinding::PropertyChangeReason::Modified);
+  }
+
+  DataBinding::DataBindingInstanceHandle UTObservableCollection::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
+  {
+    using namespace DataBinding;
+    auto res = ObservableDataSourceObjectHelper::TryGetPropertyHandle(this, ThisDataSourceObject(), sourceDef, PropLinkRefs(Property0, m_property0),
+                                                                      PropLinkRefs(Property1, m_property1));
+    return res.IsValid() ? res : ObservableDataSourceObject::TryGetPropertyHandleNow(sourceDef);
+  }
+
 }

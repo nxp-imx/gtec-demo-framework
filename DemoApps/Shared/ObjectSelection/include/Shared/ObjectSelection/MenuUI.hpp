@@ -82,7 +82,7 @@ namespace Fsl
 
     void OnKeyEvent(const KeyEvent& event);
 
-    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
+    void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
 
     bool IsDrawNearPlaneMouseEnabled() const
     {

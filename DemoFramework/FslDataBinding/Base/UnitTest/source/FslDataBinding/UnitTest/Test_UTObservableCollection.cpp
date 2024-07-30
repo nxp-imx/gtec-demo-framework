@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -461,4 +461,54 @@ TEST(Test_UTObservableCollection, ChangeSource_TypedObserverDependencyProperty_T
   // Both values are now the same
   EXPECT_EQ(std::shared_ptr<DataBinding::IObservableObject>(), t1.GetProperty5Value());
   EXPECT_EQ(std::shared_ptr<DataBinding::IObservableObject>(), t2.GetProperty5Value());
+}
+
+TEST(Test_UTObservableCollection, OnDemandInstancesBind)
+{
+  auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
+
+  UTObservableCollection t0(dataBindingService);
+  UTDependencyObject t1(dataBindingService);
+
+  EXPECT_EQ(0u, dataBindingService->InstanceCount());
+  EXPECT_EQ(0u, dataBindingService->PendingChanges());
+
+  t1.SetBinding(UTDependencyObject::Property0, t0.GetPropertyHandle(UTObservableCollection::Property0));
+
+  EXPECT_EQ(4u, dataBindingService->InstanceCount());
+  EXPECT_EQ(1u, dataBindingService->PendingChanges());
+}
+
+
+TEST(Test_UTObservableCollection, SetBinding_OneWay_DepProperty_DepProperty)
+{
+  auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
+
+  UTObservableCollection t0(dataBindingService);
+  UTDependencyObject t1(dataBindingService);
+
+  const uint32_t defaultValue = 0;
+  const uint32_t newValue1 = 100;
+
+  EXPECT_EQ(defaultValue, t0.GetProperty0Value());
+  EXPECT_EQ(defaultValue, t1.GetProperty0Value());
+
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
+  EXPECT_EQ(newValue1, t0.GetProperty0Value());
+  EXPECT_EQ(defaultValue, t1.GetProperty0Value());
+
+  // Binding will change the target to match the source on the next execute
+  t1.SetBinding(UTDependencyObject::Property0, t0.GetPropertyHandle(UTObservableCollection::Property0));
+
+  // Binding by itself does not set the value right away
+  EXPECT_EQ(1u, dataBindingService->PendingChanges());
+  EXPECT_EQ(newValue1, t0.GetProperty0Value());
+  EXPECT_EQ(defaultValue, t1.GetProperty0Value());
+
+  // Execute all pending changes
+  dataBindingService->ExecuteChanges();
+
+  EXPECT_EQ(0u, dataBindingService->PendingChanges());
+  EXPECT_EQ(newValue1, t0.GetProperty0Value());
+  EXPECT_EQ(newValue1, t1.GetProperty0Value());
 }

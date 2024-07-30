@@ -37,13 +37,13 @@
 namespace Fsl::GLES3
 {
   GLVertexArray::GLVertexArray()
-    : m_handle(GLValues::INVALID_HANDLE)
+    : m_handle(GLValues::InvalidHandle)
   {
   }
 
 
   GLVertexArray::GLVertexArray(const bool bInitialize)
-    : m_handle(GLValues::INVALID_HANDLE)
+    : m_handle(GLValues::InvalidHandle)
   {
     Reset(bInitialize);
   }
@@ -57,10 +57,10 @@ namespace Fsl::GLES3
 
   void GLVertexArray::Reset() noexcept
   {
-    if (m_handle != GLValues::INVALID_HANDLE)
+    if (m_handle != GLValues::InvalidHandle)
     {
       glDeleteVertexArrays(1, &m_handle);
-      m_handle = GLValues::INVALID_HANDLE;
+      m_handle = GLValues::InvalidHandle;
     }
   }
 

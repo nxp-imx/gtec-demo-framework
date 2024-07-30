@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/Span/TypedFlexSpan.hpp>
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeShaderCreateInfo.hpp>
 #include <FslGraphics3D/BasicRender/Shader/BasicShaderManager.hpp>
@@ -59,28 +58,48 @@ namespace Fsl::Graphics3D
 
       if (createInfo.Flag == BasicShaderStageFlag::Vertex)
       {
-        if (createInfo.VertexAttributeDescSpan.Count() < 3)
+        if (createInfo.VertexAttributeDescSpan.Count() < 2)
         {
           throw InternalErrorException("A predefined shader did not contain the expected amount of vertex attributes.");
         }
-        const int32_t indexPos = createInfo.VertexAttributeDescSpan.VertexAttributeIndexOf(VertexElementUsage::Position, 0);
-        const int32_t indexColor = createInfo.VertexAttributeDescSpan.VertexAttributeIndexOf(VertexElementUsage::Color, 0);
-        const int32_t indexTexture = createInfo.VertexAttributeDescSpan.VertexAttributeIndexOf(VertexElementUsage::TextureCoordinate, 0);
-        if (indexPos < 0 || indexColor < 0 || indexTexture < 0)
+        if (createInfo.VertexAttributeDescSpan.Count() < 3)
         {
-          throw InternalErrorException("A basic shader did not contain the expected position, color and texture coordinate entries.");
+          const int32_t indexPos = createInfo.VertexAttributeDescSpan.VertexAttributeIndexOf(VertexElementUsage::Position, 0);
+          const int32_t indexColor = createInfo.VertexAttributeDescSpan.VertexAttributeIndexOf(VertexElementUsage::Color, 0);
+          if (indexPos < 0 || indexColor < 0)
+          {
+            throw InternalErrorException("A basic shader did not contain the expected position, color and texture coordinate entries.");
+          }
+          if (createInfo.VertexAttributeDescSpan[indexPos].Format != VertexElementFormat::Vector3)
+          {
+            throw InternalErrorException("A basic shader vertex position was not of the Vector3 format");
+          }
+          if (createInfo.VertexAttributeDescSpan[indexColor].Format != VertexElementFormat::Vector4)
+          {
+            throw InternalErrorException("A basic shader vertex color was not of the Vector4 format");
+          }
         }
-        if (createInfo.VertexAttributeDescSpan[indexPos].Format != VertexElementFormat::Vector3)
+        else
         {
-          throw InternalErrorException("A basic shader vertex position was not of the Vector3 format");
-        }
-        if (createInfo.VertexAttributeDescSpan[indexColor].Format != VertexElementFormat::Vector4)
-        {
-          throw InternalErrorException("A basic shader vertex color was not of the Vector4 format");
-        }
-        if (createInfo.VertexAttributeDescSpan[indexTexture].Format != VertexElementFormat::Vector2)
-        {
-          throw InternalErrorException("A basic shader vertex texture-coordinate was not of the Vector2 format");
+          const int32_t indexPos = createInfo.VertexAttributeDescSpan.VertexAttributeIndexOf(VertexElementUsage::Position, 0);
+          const int32_t indexColor = createInfo.VertexAttributeDescSpan.VertexAttributeIndexOf(VertexElementUsage::Color, 0);
+          const int32_t indexTexture = createInfo.VertexAttributeDescSpan.VertexAttributeIndexOf(VertexElementUsage::TextureCoordinate, 0);
+          if (indexPos < 0 || indexColor < 0 || indexTexture < 0)
+          {
+            throw InternalErrorException("A basic shader did not contain the expected position, color and texture coordinate entries.");
+          }
+          if (createInfo.VertexAttributeDescSpan[indexPos].Format != VertexElementFormat::Vector3)
+          {
+            throw InternalErrorException("A basic shader vertex position was not of the Vector3 format");
+          }
+          if (createInfo.VertexAttributeDescSpan[indexColor].Format != VertexElementFormat::Vector4)
+          {
+            throw InternalErrorException("A basic shader vertex color was not of the Vector4 format");
+          }
+          if (createInfo.VertexAttributeDescSpan[indexTexture].Format != VertexElementFormat::Vector2)
+          {
+            throw InternalErrorException("A basic shader vertex texture-coordinate was not of the Vector2 format");
+          }
         }
       }
       else if (createInfo.Flag == BasicShaderStageFlag::Fragment)
@@ -94,7 +113,7 @@ namespace Fsl::Graphics3D
 
     void ValidatePredefinedShaders(const ReadOnlySpan<BasicNativeShaderCreateInfo> predefinedShaders)
     {
-      if (predefinedShaders.size() != 3u)
+      if (predefinedShaders.size() != 5u)
       {
         throw InternalErrorException("The supplied adapter did not return the expected predefined shader count.");
       }
@@ -104,11 +123,19 @@ namespace Fsl::Graphics3D
       }
       if (predefinedShaders[1].Flag != BasicShaderStageFlag::Fragment)
       {
-        throw InternalErrorException("The supplied adapter did not supply a vertex shader at index 0.");
+        throw InternalErrorException("The supplied adapter did not supply a vertex shader at index 1.");
       }
       if (predefinedShaders[2].Flag != BasicShaderStageFlag::Fragment)
       {
-        throw InternalErrorException("The supplied adapter did not supply a vertex shader at index 0.");
+        throw InternalErrorException("The supplied adapter did not supply a vertex shader at index 2.");
+      }
+      if (predefinedShaders[3].Flag != BasicShaderStageFlag::Vertex)
+      {
+        throw InternalErrorException("The supplied adapter did not supply a vertex shader at index 3.");
+      }
+      if (predefinedShaders[4].Flag != BasicShaderStageFlag::Fragment)
+      {
+        throw InternalErrorException("The supplied adapter did not supply a vertex shader at index 4.");
       }
     }
   }

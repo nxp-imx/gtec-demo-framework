@@ -43,20 +43,28 @@ namespace Fsl::UI
     std::shared_ptr<ITag> m_payload;
 
   public:
-    WindowSelectEvent();
+    WindowSelectEvent() noexcept;
 
-    uint32_t GetContentId() const;
-    const std::shared_ptr<ITag>& GetPayload() const;
+    uint32_t GetContentId() const noexcept
+    {
+      return m_contentId;
+    }
+
+    const std::shared_ptr<ITag>& GetPayload() const noexcept
+    {
+      return m_payload;
+    }
 
   protected:
-    void SYS_Construct(const uint32_t contentId, const std::shared_ptr<ITag>& payload)
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    void SYS_Construct(const uint32_t contentId, const std::shared_ptr<ITag>& payload) noexcept
     {
       WindowEvent::SYS_DoConstruct();
       m_contentId = contentId;
       m_payload = payload;
     }
 
-    void SYS_Destruct() override
+    void SYS_Destruct() noexcept override
     {
       m_contentId = 0;
       m_payload.reset();

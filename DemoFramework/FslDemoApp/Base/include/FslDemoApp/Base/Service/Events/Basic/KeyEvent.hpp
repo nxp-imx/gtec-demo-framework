@@ -38,10 +38,10 @@
 namespace Fsl
 {
   // Basic events must be exactly the same size as a BasicEvent (so they can have no member variables).
-  class KeyEvent : public BasicEvent
+  class KeyEvent final : public BasicEvent
   {
   public:
-    explicit KeyEvent(const BasicEvent& encodedEvent)
+    explicit constexpr KeyEvent(const BasicEvent& encodedEvent)
       : BasicEvent(encodedEvent)
     {
       if (m_type != EventType::KeyPressed)
@@ -50,25 +50,25 @@ namespace Fsl
       }
     }
 
-    KeyEvent(const VirtualKey::Enum key, const bool isPressed, const uint32_t deviceId)
-      : BasicEvent(EventType::KeyPressed, key, isPressed ? 1 : 0, static_cast<int32_t>(deviceId))
+    constexpr KeyEvent(const MillisecondTickCount32 timestamp, const VirtualKey::Enum key, const bool isPressed, const uint32_t deviceId) noexcept
+      : BasicEvent(EventType::KeyPressed, timestamp, key, isPressed ? 1 : 0, static_cast<int32_t>(deviceId))
     {
     }
 
     //! @brief Get the key
-    VirtualKey::Enum GetKey() const
+    constexpr VirtualKey::Enum GetKey() const noexcept
     {
       return static_cast<VirtualKey::Enum>(m_arg1);
     }
 
     //! @brief Check if the key is considered pressed
-    bool IsPressed() const
+    constexpr bool IsPressed() const noexcept
     {
       return m_arg2 != 0;
     }
 
     //! @brief get the associated device id
-    uint32_t GetDeviceId() const
+    constexpr uint32_t GetDeviceId() const noexcept
     {
       return static_cast<uint32_t>(m_arg3);
     }

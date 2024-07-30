@@ -176,7 +176,7 @@ namespace Fsl
     for (uint32_t level = 0; level < m_textureInfo.Levels; ++level)
     {
       const PxExtent3D currentExtent = GetExtent(level);
-      const std::size_t stride = PixelFormatUtil::CalcMinimumStride(currentExtent.Width.Value, bytesPerPixel);
+      const std::size_t stride = PixelFormatUtil::CalcMinimumStride(currentExtent.Width, bytesPerPixel);
       const std::size_t blobSize = (stride * currentExtent.Height.Value) * currentExtent.Depth.Value;
       // uint32_t texel2 = (currentExtent.Width * currentExtent.Height * currentExtent.Depth).Value;
       for (uint32_t layer = 0; layer < m_textureInfo.Layers; ++layer)

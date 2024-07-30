@@ -53,10 +53,10 @@ namespace Fsl
 {
   namespace
   {
-    const auto VERTEX_BUFFER_BIND_ID = 0;
+    constexpr auto VertexBufferBindId = 0;
 
-    const Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 0.0f);
-    const Vector3 DEFAULT_CAMERA_TARGET(0.0f, 0.0f, -4.0f);
+    constexpr Vector3 DefaultCameraPosition(0.0f, 0.0f, 0.0f);
+    constexpr Vector3 DefaultCameraTarget(0.0f, 0.0f, -4.0f);
 
 
     VulkanBasic::DemoAppVulkanSetup CreateSetup()
@@ -177,7 +177,7 @@ namespace Fsl
     : DemoAppVulkanBasic(config, CreateSetup())
     , m_bufferManager(
         std::make_shared<Vulkan::VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
-    , m_menuUI(config, ColorSpace::SRGBNonLinear)
+    , m_menuUI(config, UI::UIColorSpace::SRGBNonLinear)
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
@@ -185,7 +185,7 @@ namespace Fsl
   {
     RegisterExtension(m_menuUI.GetUIDemoAppExtension());
 
-    m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+    m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
 
     const auto contentManager = GetContentManager();
 
@@ -249,7 +249,7 @@ namespace Fsl
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
-        m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+        m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
         event.Handled();
       }
       break;
@@ -435,7 +435,7 @@ namespace Fsl
     FSL_PARAM_NOT_USED(frame);
 
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MeshTunnel.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(commandBuffer, VertexBufferBindId, 1, m_resources.MeshTunnel.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(commandBuffer, m_resources.MeshTunnel.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 

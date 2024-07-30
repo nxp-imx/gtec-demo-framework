@@ -75,6 +75,7 @@ namespace Fsl
 
       const BasicSpriteRecord FillSprite;
       const BasicSpriteRecord MiniFillSprite;
+      const BasicSpriteRecord LineListSprite;
       const BasicSpriteRecord TestSprite;
 
       const std::shared_ptr<ImageSprite> OpaqueFillSprite;
@@ -173,7 +174,6 @@ namespace Fsl
         }
       }
 
-
       const std::shared_ptr<BasicImageSprite>& GetBasicFillSprite(const bool opaque) const final
       {
         return opaque ? FillSprite.Opaque : FillSprite.Transparent;
@@ -187,6 +187,12 @@ namespace Fsl
       const std::shared_ptr<BasicImageSprite>& GetBasicTestSprite(const bool opaque = true) const final
       {
         return opaque ? TestSprite.Opaque : TestSprite.Transparent;
+      }
+
+
+      const std::shared_ptr<BasicImageSprite>& GetLineListSprite(const bool opaque) const final
+      {
+        return opaque ? LineListSprite.Opaque : LineListSprite.Transparent;
       }
 
 

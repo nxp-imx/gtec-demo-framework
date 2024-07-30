@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -294,16 +294,16 @@ TEST(TestMath_Rect, GetCenter)
 TEST(TestMath_Rect, IntersectsSelf)
 {
   {
-    constexpr Rect rectA(1, 2, 5, 4);
-    constexpr Rect rectB(7, 1, 7, 6);
-    constexpr Rect rectC(6, 1, 7, 6);
-    constexpr Rect rectD(5, 1, 7, 6);
+    constexpr Rect RectA(1, 2, 5, 4);
+    constexpr Rect RectB(7, 1, 7, 6);
+    constexpr Rect RectC(6, 1, 7, 6);
+    constexpr Rect RectD(5, 1, 7, 6);
     // constexpr Rect rectE(4, 1, 7, 6);
 
-    EXPECT_TRUE(rectA.Intersects(rectA));
-    EXPECT_TRUE(rectB.Intersects(rectB));
-    EXPECT_TRUE(rectC.Intersects(rectC));
-    EXPECT_TRUE(rectD.Intersects(rectD));
+    EXPECT_TRUE(RectA.Intersects(RectA));
+    EXPECT_TRUE(RectB.Intersects(RectB));
+    EXPECT_TRUE(RectC.Intersects(RectC));
+    EXPECT_TRUE(RectD.Intersects(RectD));
   }
 }
 
@@ -335,7 +335,7 @@ TEST(TestMath_Rect, Intersects_BruteForce)
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 8
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 9
     };
-    constexpr Rect rectB(4, 3, 6, 5);
+    constexpr Rect RectB(4, 3, 6, 5);
 
     for (int32_t y = 0; y < 10; ++y)
     {
@@ -343,8 +343,8 @@ TEST(TestMath_Rect, Intersects_BruteForce)
       for (int32_t x = 0; x < 11; ++x)
       {
         Rect rectA(static_cast<float>(x), static_cast<float>(y), 4, 3);
-        EXPECT_EQ(result[x + yOffset] != 0u, rectA.Intersects(rectB));
-        EXPECT_EQ(result[x + yOffset] != 0u, rectB.Intersects(rectA));
+        EXPECT_EQ(result[x + yOffset] != 0u, rectA.Intersects(RectB));
+        EXPECT_EQ(result[x + yOffset] != 0u, RectB.Intersects(rectA));
       }
     }
   }
@@ -378,7 +378,7 @@ TEST(TestMath_Rect, Intersect_BruteForce)
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 8
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 9
     };
-    constexpr Rect rectB(4, 3, 6, 5);
+    constexpr Rect RectB(4, 3, 6, 5);
 
     for (int32_t y = 0; y < 10; ++y)
     {
@@ -387,8 +387,8 @@ TEST(TestMath_Rect, Intersect_BruteForce)
       {
         Rect rectA(static_cast<float>(x), static_cast<float>(y), 4, 3);
 
-        auto res1 = Rect::Intersect(rectA, rectB);
-        auto res2 = Rect::Intersect(rectB, rectA);
+        auto res1 = Rect::Intersect(rectA, RectB);
+        auto res2 = Rect::Intersect(RectB, rectA);
         EXPECT_EQ(res1, res2);
         // check for intersection
         EXPECT_EQ(result[x + yOffset] != 0u, !res1.IsEmpty());
@@ -397,10 +397,10 @@ TEST(TestMath_Rect, Intersect_BruteForce)
         // check result
         if (result[x + yOffset] != 0u)
         {
-          EXPECT_EQ(std::max(rectA.Left(), rectB.Left()), res1.Left());
-          EXPECT_EQ(std::max(rectA.Top(), rectB.Top()), res1.Top());
-          EXPECT_EQ(std::min(rectA.Right(), rectB.Right()), res1.Right());
-          EXPECT_EQ(std::min(rectA.Bottom(), rectB.Bottom()), res1.Bottom());
+          EXPECT_EQ(std::max(rectA.Left(), RectB.Left()), res1.Left());
+          EXPECT_EQ(std::max(rectA.Top(), RectB.Top()), res1.Top());
+          EXPECT_EQ(std::min(rectA.Right(), RectB.Right()), res1.Right());
+          EXPECT_EQ(std::min(rectA.Bottom(), RectB.Bottom()), res1.Bottom());
         }
       }
     }
@@ -409,7 +409,7 @@ TEST(TestMath_Rect, Intersect_BruteForce)
 
 TEST(TestMath_Rect, Union_BruteForce)
 {
-  constexpr Rect rectB(4, 3, 6, 5);
+  constexpr Rect RectB(4, 3, 6, 5);
 
   for (int32_t y = 0; y < 10; ++y)
   {
@@ -417,14 +417,14 @@ TEST(TestMath_Rect, Union_BruteForce)
     {
       Rect rectA(static_cast<float>(x), static_cast<float>(y), 4, 3);
 
-      auto res1 = Rect::Union(rectA, rectB);
-      auto res2 = Rect::Union(rectB, rectA);
+      auto res1 = Rect::Union(rectA, RectB);
+      auto res2 = Rect::Union(RectB, rectA);
       EXPECT_EQ(res1, res2);
 
-      EXPECT_EQ(std::min(rectA.Left(), rectB.Left()), res1.Left());
-      EXPECT_EQ(std::min(rectA.Top(), rectB.Top()), res1.Top());
-      EXPECT_EQ(std::max(rectA.Right(), rectB.Right()), res1.Right());
-      EXPECT_EQ(std::max(rectA.Bottom(), rectB.Bottom()), res1.Bottom());
+      EXPECT_EQ(std::min(rectA.Left(), RectB.Left()), res1.Left());
+      EXPECT_EQ(std::min(rectA.Top(), RectB.Top()), res1.Top());
+      EXPECT_EQ(std::max(rectA.Right(), RectB.Right()), res1.Right());
+      EXPECT_EQ(std::max(rectA.Bottom(), RectB.Bottom()), res1.Bottom());
     }
   }
 }

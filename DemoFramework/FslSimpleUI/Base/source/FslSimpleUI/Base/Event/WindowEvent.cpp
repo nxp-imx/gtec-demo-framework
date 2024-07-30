@@ -36,63 +36,63 @@
 
 namespace Fsl::UI
 {
-  WindowEvent::~WindowEvent() = default;
+  WindowEvent::~WindowEvent() noexcept = default;
 
 
-  bool WindowEvent::IsOriginalSource(const IWindowId* const pWindowId) const
+  bool WindowEvent::IsOriginalSource(const IWindowId* const pWindowId) const noexcept
   {
     return GetOriginalSource().get() == pWindowId;
   }
 
 
-  bool WindowEvent::IsSource(const IWindowId* const pWindowId) const
+  bool WindowEvent::IsSource(const IWindowId* const pWindowId) const noexcept
   {
     return GetSource().get() == pWindowId;
   }
 
 
-  const std::shared_ptr<IWindowId>& WindowEvent::GetOriginalSource() const
+  const std::shared_ptr<IWindowId>& WindowEvent::GetOriginalSource() const noexcept
   {
     assert(!IsDisposed());
     return m_originalSource;
   }
 
 
-  const std::shared_ptr<IWindowId>& WindowEvent::GetSource() const
+  const std::shared_ptr<IWindowId>& WindowEvent::GetSource() const noexcept
   {
     assert(!IsDisposed());
     return m_source;
   }
 
 
-  bool WindowEvent::IsHandled() const
+  bool WindowEvent::IsHandled() const noexcept
   {
     assert(!IsDisposed());
     return m_isHandled;
   }
 
 
-  void WindowEvent::Handled()
+  void WindowEvent::Handled() noexcept
   {
     assert(!IsDisposed());
     m_isHandled = true;
   }
 
 
-  void WindowEvent::SYS_SetSource(const std::shared_ptr<IWindowId>& value)
+  void WindowEvent::SYS_SetSource(const std::shared_ptr<IWindowId>& value) noexcept
   {
     m_source = value;
   }
 
 
-  void WindowEvent::SYS_SetOriginalSource(const std::shared_ptr<IWindowId>& value)
+  void WindowEvent::SYS_SetOriginalSource(const std::shared_ptr<IWindowId>& value) noexcept
   {
     m_originalSource = value;
     m_source = value;
   }
 
 
-  WindowEvent::WindowEvent(const EventTypeId typeId, EventDescription eventDescription)
+  WindowEvent::WindowEvent(const EventTypeId typeId, EventDescription eventDescription) noexcept
     : m_eventTypeId(typeId)
     , m_eventDescription(std::move(eventDescription))
     , m_isHandled(false)
@@ -101,14 +101,14 @@ namespace Fsl::UI
   }
 
 
-  void WindowEvent::SYS_DoConstruct()
+  void WindowEvent::SYS_DoConstruct() noexcept
   {
     assert(!m_isInitialized);
     m_isInitialized = true;
   }
 
 
-  void WindowEvent::SYS_Destruct()
+  void WindowEvent::SYS_Destruct() noexcept
   {
     assert(m_isInitialized);
     m_originalSource.reset();

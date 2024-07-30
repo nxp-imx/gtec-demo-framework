@@ -122,23 +122,23 @@ namespace Fsl
         assert(startCellX <= endCellX);
         assert(startCellY <= endCellY);
 
-        const constexpr uint32_t chunkSizeX = TMaxEntriesPerChunk;
-        const uint32_t gridStride = (m_gridCellCountX * chunkSizeX);
+        const constexpr uint32_t ChunkSizeX = TMaxEntriesPerChunk;
+        const uint32_t gridStride = (m_gridCellCountX * ChunkSizeX);
         const uint32_t startOffsetY = static_cast<uint32_t>(startCellY) * gridStride;
         const uint32_t endOffsetY = static_cast<uint32_t>(endCellY) * gridStride;
-        const uint32_t startOffsetX = static_cast<uint32_t>(startCellX) * chunkSizeX;
-        const uint32_t endOffsetX = static_cast<uint32_t>(endCellX) * chunkSizeX;
+        const uint32_t startOffsetX = static_cast<uint32_t>(startCellX) * ChunkSizeX;
+        const uint32_t endOffsetX = static_cast<uint32_t>(endCellX) * ChunkSizeX;
 
         for (uint32_t y = startOffsetY; y < endOffsetY; y += gridStride)
         {
-          for (uint32_t x = startOffsetX; x < endOffsetX; x += chunkSizeX)
+          for (uint32_t x = startOffsetX; x < endOffsetX; x += ChunkSizeX)
           {
             // The first entry in the main chunk is the count
             uint32_t& rEntryCount = m_grid[y + x].Id;
             // We foolishly assume that there will be no overflow (and with this controlled data we are actually sure)
             assert(rEntryCount <= 0xFFFFFFFE);
             ++rEntryCount;
-            if (rEntryCount < chunkSizeX)
+            if (rEntryCount < ChunkSizeX)
             {
               assert((x + y + rEntryCount) <= m_grid.size());
               m_grid[y + x + rEntryCount].Id = id;

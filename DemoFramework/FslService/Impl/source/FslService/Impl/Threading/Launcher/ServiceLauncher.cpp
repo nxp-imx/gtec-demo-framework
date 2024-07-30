@@ -167,7 +167,7 @@ namespace Fsl
             serviceDeque = itrFind->second;
           }
 
-          serviceDeque->push_back(ServiceLaunchRecord(record.Id, ServiceLaunchType::Instance, service));
+          serviceDeque->emplace_back(record.Id, ServiceLaunchType::Instance, service);
         }
 
         ++itr;

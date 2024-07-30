@@ -39,14 +39,15 @@
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
-#include <FslGraphics/Render/AtlasTexture2D.hpp>
-#include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
+#include <FslGraphics/Sprite/Font/SpriteFontConfig.hpp>
 #include <FslGraphics/Sprite/ISpriteResourceManager.hpp>
 #include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslGraphics/Sprite/NineSliceSprite.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
+#include <FslSimpleUI/App/UIAppConfig.hpp>
+#include <FslSimpleUI/App/UIAppTextureResourceCreationInfo.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Button.hpp>
 #include <FslSimpleUI/Base/Control/CheckBox.hpp>
@@ -67,6 +68,11 @@ namespace Fsl
 {
   namespace
   {
+    namespace LocalConfig
+    {
+      constexpr SpriteMaterialId CustomSpriteAtlasMaterialId(UIAppConfig::MaterialId::CustomSpriteOffset);
+    }
+
     std::shared_ptr<UI::Label> CreateLabel(const std::shared_ptr<UI::WindowContext>& context, const std::string& text, const UI::ItemAlignment alignX,
                                            const UI::ItemAlignment alignY, const std::shared_ptr<SpriteFont>& font)
     {
@@ -83,27 +89,30 @@ namespace Fsl
   Shared::Shared(const DemoAppConfig& config)
     : m_uiEventListener(this)
     , m_uiExtension(
-        std::make_shared<UIDemoAppLegacyExtension>(config, m_uiEventListener.GetListener(), "TextureAtlas/MainAtlas"))    // Prepare the extension
+        std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "TextureAtlas/MainAtlas"))    // Prepare the extension
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
   {
+    //
     auto contentManager = config.DemoServiceProvider.Get<IContentManager>();
 
-    auto atlasTexture = m_uiExtension->GetAtlasTexture();
     auto windowContext = m_uiExtension->GetContext();
+    const UIAppTextureHandle hTexture = m_uiExtension->GetAtlasTextureHandle();
+
+    constexpr auto CustomMaterialId = LocalConfig::CustomSpriteAtlasMaterialId;
+
+    m_uiExtension->AddSpriteMaterial(CustomMaterialId, hTexture, BlendState::AlphaBlend);
 
     auto& rSpriteManager = m_uiExtension->GetSpriteResourceManager();
-    const auto defaultMaterialId = m_uiExtension->GetDefaultMaterialId();
-    std::shared_ptr<ImageSprite> sprite1 = rSpriteManager.CreateImageSprite(defaultMaterialId, "RectTex");
-
-
-    auto fontSmall = m_uiExtension->CreateLegacySpriteFont("TextureAtlas/MainAtlasSmallFont.fbk");
+    std::shared_ptr<ImageSprite> sprite1 = rSpriteManager.CreateImageSprite(CustomMaterialId, "RectTex");
+    auto fontDefault = rSpriteManager.CreateSpriteFont(CustomMaterialId, "Font.nbf", SpriteFontConfig(true));
+    auto fontSmall = rSpriteManager.CreateSpriteFont(CustomMaterialId, "SmallFont.nbf", SpriteFontConfig(true));
 
     auto stackLayout1 = CreateStack1(windowContext, fontSmall, sprite1);
     auto stackLayout2 = CreateStack2(windowContext, sprite1);
-    auto stackLayout3 = CreateStack3(windowContext, atlasTexture);
-    auto stackLayout4 = CreateStack4(windowContext, atlasTexture);
+    auto stackLayout3 = CreateStack3(windowContext, CustomMaterialId, fontDefault);
+    auto stackLayout4 = CreateStack4(windowContext, CustomMaterialId);
 
-    std::shared_ptr<NineSliceSprite> ninesliceBackgroundSprite = rSpriteManager.CreateNineSliceSprite(defaultMaterialId, "Background9R");
+    std::shared_ptr<NineSliceSprite> ninesliceBackgroundSprite = rSpriteManager.CreateNineSliceSprite(CustomMaterialId, "Background9R");
 
     auto background = std::make_shared<UI::Background>(windowContext);
     background->SetContent(stackLayout2);
@@ -154,7 +163,7 @@ namespace Fsl
   Shared::~Shared() = default;
 
 
-  void Shared::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void Shared::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_button1)
     {
@@ -288,15 +297,15 @@ namespace Fsl
   }
 
 
-  std::shared_ptr<UI::BaseWindow> Shared::CreateStack3(const std::shared_ptr<UI::WindowContext>& context, const BaseTexture2D& /*atlasTexture*/)
+  std::shared_ptr<UI::BaseWindow> Shared::CreateStack3(const std::shared_ptr<UI::WindowContext>& context,
+                                                       const SpriteMaterialId customSpriteMaterialId, const std::shared_ptr<SpriteFont>& fontDefault)
   {
     auto& rSpriteManager = m_uiExtension->GetSpriteResourceManager();
-    const auto defaultMaterialId = m_uiExtension->GetDefaultMaterialId();
-    std::shared_ptr<NineSliceSprite> trackbarSprite = rSpriteManager.CreateNineSliceSprite(defaultMaterialId, "Slider");
-    std::shared_ptr<ImageSprite> trackbarCursorSprite = rSpriteManager.CreateImageSprite(defaultMaterialId, "SliderCursor");
+    std::shared_ptr<NineSliceSprite> trackbarSprite = rSpriteManager.CreateNineSliceSprite(customSpriteMaterialId, "Slider");
+    std::shared_ptr<ImageSprite> trackbarCursorSprite = rSpriteManager.CreateImageSprite(customSpriteMaterialId, "SliderCursor");
 
-    constexpr auto cursorSizeDp = DpSize2D::Create(18, 50);
-    constexpr auto cursorOriginDp = DpPoint2::Create(16, 32);
+    constexpr auto CursorSizeDp = DpSize2D::Create(18, 50);
+    constexpr auto CursorOriginDp = DpPoint2::Create(16, 32);
 
     auto labelSliders = std::make_shared<UI::Label>(context);
     labelSliders->SetContent("Sliders:");
@@ -307,55 +316,56 @@ namespace Fsl
     m_slider1->SetAlignmentY(UI::ItemAlignment::Center);
     m_slider1->SetBackgroundSprite(trackbarSprite);
     m_slider1->SetCursorSprite(trackbarCursorSprite);
-    m_slider1->SetCursorSize(cursorSizeDp);
-    m_slider1->SetCursorOrigin(cursorOriginDp);
+    m_slider1->SetCursorSize(CursorSizeDp);
+    m_slider1->SetCursorOrigin(CursorOriginDp);
 
     m_slider2 = std::make_shared<UI::Slider<int32_t>>(context);
     m_slider2->SetAlignmentX(UI::ItemAlignment::Stretch);
     m_slider2->SetAlignmentY(UI::ItemAlignment::Center);
     m_slider2->SetBackgroundSprite(trackbarSprite);
     m_slider2->SetCursorSprite(trackbarCursorSprite);
-    m_slider2->SetCursorSize(cursorSizeDp);
-    m_slider2->SetCursorOrigin(cursorOriginDp);
+    m_slider2->SetCursorSize(CursorSizeDp);
+    m_slider2->SetCursorOrigin(CursorOriginDp);
 
     auto slider3 = std::make_shared<UI::SliderAndFmtValueLabel<int32_t>>(context);
+    slider3->SetFont(fontDefault);
     slider3->SetAlignmentX(UI::ItemAlignment::Stretch);
     slider3->SetBackgroundSprite(trackbarSprite);
     slider3->SetCursorSprite(trackbarCursorSprite);
-    slider3->SetCursorSize(cursorSizeDp);
-    slider3->SetCursorOrigin(cursorOriginDp);
+    slider3->SetCursorSize(CursorSizeDp);
+    slider3->SetCursorOrigin(CursorOriginDp);
 
     auto slider4 = std::make_shared<UI::Slider<uint32_t>>(context);
     slider4->SetAlignmentX(UI::ItemAlignment::Stretch);
     slider4->SetBackgroundSprite(trackbarSprite);
     slider4->SetCursorSprite(trackbarCursorSprite);
     slider4->SetRange(0, 5);
-    slider4->SetCursorSize(cursorSizeDp);
-    slider4->SetCursorOrigin(cursorOriginDp);
+    slider4->SetCursorSize(CursorSizeDp);
+    slider4->SetCursorOrigin(CursorOriginDp);
 
     auto slider5 = std::make_shared<UI::SliderAndFmtValueLabel<int32_t>>(context);
     slider5->SetAlignmentX(UI::ItemAlignment::Stretch);
     slider5->SetBackgroundSprite(trackbarSprite);
     slider5->SetCursorSprite(trackbarCursorSprite);
     slider5->SetRange(0, 5);
-    slider5->SetCursorSize(cursorSizeDp);
-    slider5->SetCursorOrigin(cursorOriginDp);
+    slider5->SetCursorSize(CursorSizeDp);
+    slider5->SetCursorOrigin(CursorOriginDp);
 
     auto slider6 = std::make_shared<UI::Slider<float>>(context);
     slider6->SetAlignmentX(UI::ItemAlignment::Stretch);
     slider6->SetBackgroundSprite(trackbarSprite);
     slider6->SetCursorSprite(trackbarCursorSprite);
     slider6->SetRange(0.0f, 5.0f);
-    slider6->SetCursorSize(cursorSizeDp);
-    slider6->SetCursorOrigin(cursorOriginDp);
+    slider6->SetCursorSize(CursorSizeDp);
+    slider6->SetCursorOrigin(CursorOriginDp);
 
     auto slider7 = std::make_shared<UI::SliderAndFmtValueLabel<float>>(context);
     slider7->SetAlignmentX(UI::ItemAlignment::Stretch);
     slider7->SetBackgroundSprite(trackbarSprite);
     slider7->SetCursorSprite(trackbarCursorSprite);
     slider7->SetRange(0.0f, 5.0f);
-    slider7->SetCursorSize(cursorSizeDp);
-    slider7->SetCursorOrigin(cursorOriginDp);
+    slider7->SetCursorSize(CursorSizeDp);
+    slider7->SetCursorOrigin(CursorOriginDp);
 
     // Create a stack layout and add various items to it
     auto stackLayout = std::make_shared<UI::StackLayout>(context);
@@ -372,14 +382,14 @@ namespace Fsl
   }
 
 
-  std::shared_ptr<UI::BaseWindow> Shared::CreateStack4(const std::shared_ptr<UI::WindowContext>& context, const BaseTexture2D& /*atlasTexture*/)
+  std::shared_ptr<UI::BaseWindow> Shared::CreateStack4(const std::shared_ptr<UI::WindowContext>& context,
+                                                       const SpriteMaterialId customSpriteMaterialId)
   {
     auto& rSpriteManager = m_uiExtension->GetSpriteResourceManager();
-    const auto defaultMaterialId = m_uiExtension->GetDefaultMaterialId();
-    std::shared_ptr<ImageSprite> texCheckBox1C = rSpriteManager.CreateImageSprite(defaultMaterialId, "CheckBox1C");
-    std::shared_ptr<ImageSprite> texCheckBox1U = rSpriteManager.CreateImageSprite(defaultMaterialId, "CheckBox1U");
-    std::shared_ptr<ImageSprite> texCheckBox2C = rSpriteManager.CreateImageSprite(defaultMaterialId, "CheckBox2C");
-    std::shared_ptr<ImageSprite> texCheckBox2U = rSpriteManager.CreateImageSprite(defaultMaterialId, "CheckBox2U");
+    std::shared_ptr<ImageSprite> texCheckBox1C = rSpriteManager.CreateImageSprite(customSpriteMaterialId, "CheckBox1C");
+    std::shared_ptr<ImageSprite> texCheckBox1U = rSpriteManager.CreateImageSprite(customSpriteMaterialId, "CheckBox1U");
+    std::shared_ptr<ImageSprite> texCheckBox2C = rSpriteManager.CreateImageSprite(customSpriteMaterialId, "CheckBox2C");
+    std::shared_ptr<ImageSprite> texCheckBox2U = rSpriteManager.CreateImageSprite(customSpriteMaterialId, "CheckBox2U");
 
     auto labelSliders = std::make_shared<UI::Label>(context);
     labelSliders->SetContent("CheckBox:");

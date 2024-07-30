@@ -31,7 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
+#include <FslGraphics/Bitmap/SupportedConversion.hpp>
 
 namespace Fsl
 {
@@ -40,6 +42,8 @@ namespace Fsl
   class BitmapUtil
   {
   public:
+    static ReadOnlySpan<SupportedConversion> GetSupportedConversions() noexcept;
+
     //! @brief Convert the bitmap to the desired pixel format else return false.
     static bool TryConvert(Bitmap& rBitmap, const PixelFormat desiredPixelFormat);
 

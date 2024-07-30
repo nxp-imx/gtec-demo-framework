@@ -66,6 +66,9 @@ namespace Fsl
       case VertexElementFormat::X8Y8Z8W8_UNORM:
       case VertexElementFormat::X8Y8Z8W8_UINT:
         return sizeof(uint8_t) * 4;
+      case VertexElementFormat::X16Y16Z16W16_UNORM:
+      case VertexElementFormat::X16Y16Z16W16_UINT:
+        return sizeof(uint16_t) * 4;
       default:
         return -1;
       }
@@ -76,27 +79,25 @@ namespace Fsl
       switch (format)
       {
       case VertexElementFormat::Single:
-        return 1;
-      case VertexElementFormat::Vector2:
-        return 2;
-      case VertexElementFormat::Vector3:
-        return 3;
-      case VertexElementFormat::Vector4:
-        return 4;
-      case VertexElementFormat::Matrix4x4:
-        return 4 * 4;
       case VertexElementFormat::X8_UNORM:
       case VertexElementFormat::X8_UINT:
         return 1;
+      case VertexElementFormat::Vector2:
       case VertexElementFormat::X8Y8_UNORM:
       case VertexElementFormat::X8Y8_UINT:
         return 2;
+      case VertexElementFormat::Vector3:
       case VertexElementFormat::X8Y8Z8_UNORM:
       case VertexElementFormat::X8Y8Z8_UINT:
         return 3;
+      case VertexElementFormat::Vector4:
       case VertexElementFormat::X8Y8Z8W8_UNORM:
       case VertexElementFormat::X8Y8Z8W8_UINT:
+      case VertexElementFormat::X16Y16Z16W16_UNORM:
+      case VertexElementFormat::X16Y16Z16W16_UINT:
         return 4;
+      case VertexElementFormat::Matrix4x4:
+        return 4 * 4;
       default:
         return -1;
       }

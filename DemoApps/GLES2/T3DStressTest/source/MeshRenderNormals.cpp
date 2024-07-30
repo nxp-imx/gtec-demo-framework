@@ -54,7 +54,7 @@ namespace Fsl
   void MeshRenderNormals::Bind(const ShaderBase& shader)
   {
     const ShaderVertexConfig shaderConfig = shader.GetShaderConfig();
-    assert(shaderConfig.Position != GLValues::INVALID_LOCATION);
+    assert(shaderConfig.Position != GLValues::InvalidLocation);
 
     glVertexAttribPointer(shaderConfig.Position, 3, GL_FLOAT, GL_FALSE, 0, m_vertices.data());
     glEnableVertexAttribArray(shaderConfig.Position);

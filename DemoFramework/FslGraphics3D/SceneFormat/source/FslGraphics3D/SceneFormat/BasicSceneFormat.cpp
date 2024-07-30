@@ -145,17 +145,17 @@ namespace Fsl::SceneFormat
   namespace
   {
     // FSF
-    const uint32_t FORMAT_MAGIC = 0x00465346;
-    const uint32_t FORMAT_CURRENT_VERSION = 0;
+    constexpr uint32_t FormatMagic = 0x00465346;
+    constexpr uint32_t FormatCurrentVersion = 0;
 
-    const uint16_t CHUNK_VERSION_VertexDeclaration = 0;
-    const uint16_t CHUNK_VERSION_Meshes = 0;
-    const uint16_t CHUNK_VERSION_Nodes = 0;
+    constexpr uint16_t ChunkVersionVertexDeclaration = 0;
+    constexpr uint16_t ChunkVersionMeshes = 0;
+    constexpr uint16_t ChunkVersionNodes = 0;
 
 
-    const uint32_t FORMATHEADER_OFFSET_Magic = 0;
-    const uint32_t FORMATHEADER_OFFSET_Version = FORMATHEADER_OFFSET_Magic + sizeof(uint32_t);
-    const uint32_t SIZE_OF_FORMATHEADER = FORMATHEADER_OFFSET_Version + sizeof(uint32_t);
+    constexpr uint32_t FormatheaderOffsetMagic = 0;
+    constexpr uint32_t FormatheaderOffsetVersion = FormatheaderOffsetMagic + sizeof(uint32_t);
+    constexpr uint32_t SizeOfFormatheader = FormatheaderOffsetVersion + sizeof(uint32_t);
 
     // Basic format header
     struct FormatHeader
@@ -164,8 +164,8 @@ namespace Fsl::SceneFormat
       uint32_t Version;
 
       FormatHeader()
-        : Magic(FORMAT_MAGIC)
-        , Version(FORMAT_CURRENT_VERSION)
+        : Magic(FormatMagic)
+        , Version(FormatCurrentVersion)
       {
       }
 
@@ -176,11 +176,11 @@ namespace Fsl::SceneFormat
       }
     };
 
-    const uint32_t CHUNKHEADER_OFFSET_ByteSize = 0;
-    const uint32_t CHUNKHEADER_OFFSET_Type = CHUNKHEADER_OFFSET_ByteSize + sizeof(uint32_t);
-    const uint32_t CHUNKHEADER_OFFSET_Reserved = CHUNKHEADER_OFFSET_Type + sizeof(uint8_t);
-    const uint32_t CHUNKHEADER_OFFSET_Version = CHUNKHEADER_OFFSET_Reserved + sizeof(uint8_t);
-    const uint32_t SIZE_OF_CHUNKHEADER = CHUNKHEADER_OFFSET_Version + sizeof(uint16_t);
+    constexpr uint32_t ChunkheaderOffsetByteSize = 0;
+    constexpr uint32_t ChunkheaderOffsetType = ChunkheaderOffsetByteSize + sizeof(uint32_t);
+    constexpr uint32_t ChunkheaderOffsetReserved = ChunkheaderOffsetType + sizeof(uint8_t);
+    constexpr uint32_t ChunkheaderOffsetVersion = ChunkheaderOffsetReserved + sizeof(uint8_t);
+    constexpr uint32_t SizeOfChunkheader = ChunkheaderOffsetVersion + sizeof(uint16_t);
 
     struct ChunkHeader
     {
@@ -206,30 +206,29 @@ namespace Fsl::SceneFormat
     // VertexElementUsage Usage;
     // int32_t UsageIndex;
 
-    const uint32_t SIZEOF_VERTEX_DECLARATION_LIST_HEADER = 4;
+    constexpr uint32_t SizeofVertexDeclarationListHeader = 4;
 
     // struct VertexDeclarations
     //{
     //  uint32_t Entries;
     //};
 
-    const uint32_t SIZEOF_VERTEX_DECLARATION_HEADER = 2;
+    constexpr uint32_t SizeofVertexDeclarationHeader = 2;
 
     // struct VertexDeclaration
     //{
     //  uint16_t ElementCount;
     //};
 
-    const uint32_t VERTEXELEMENT_OFFSET_Format = 0;
-    const uint32_t VERTEXELEMENT_OFFSET_Usage = VERTEXELEMENT_OFFSET_Format + sizeof(uint8_t);
-    const uint32_t VERTEXELEMENT_OFFSET_UsageIndex = VERTEXELEMENT_OFFSET_Usage + sizeof(uint8_t);
-    const uint32_t SIZE_OF_VERTEXELEMENT = VERTEXELEMENT_OFFSET_UsageIndex + sizeof(uint8_t);
+    constexpr uint32_t VertexelementOffsetFormat = 0;
+    constexpr uint32_t VertexelementOffsetUsage = VertexelementOffsetFormat + sizeof(uint8_t);
+    constexpr uint32_t VertexelementOffsetUsageIndex = VertexelementOffsetUsage + sizeof(uint8_t);
+    constexpr uint32_t SizeOfVertexelement = VertexelementOffsetUsageIndex + sizeof(uint8_t);
 
-    const uint32_t BUFFER_ENTRY_SIZE_1 = SIZEOF_VERTEX_DECLARATION_LIST_HEADER >= SIZEOF_VERTEX_DECLARATION_HEADER
-                                           ? SIZEOF_VERTEX_DECLARATION_LIST_HEADER
-                                           : SIZEOF_VERTEX_DECLARATION_HEADER;
-    const uint32_t BUFFER_ENTRY_SIZE_2 = BUFFER_ENTRY_SIZE_1 >= SIZE_OF_VERTEXELEMENT ? BUFFER_ENTRY_SIZE_1 : SIZE_OF_VERTEXELEMENT;
-    const uint32_t BUFFER_ENTRY_SIZE = BUFFER_ENTRY_SIZE_2;
+    constexpr uint32_t BufferEntrySize1 =
+      SizeofVertexDeclarationListHeader >= SizeofVertexDeclarationHeader ? SizeofVertexDeclarationListHeader : SizeofVertexDeclarationHeader;
+    constexpr uint32_t BufferEntrySize2 = BufferEntrySize1 >= SizeOfVertexelement ? BufferEntrySize1 : SizeOfVertexelement;
+    constexpr uint32_t BufferEntrySize = BufferEntrySize2;
     // struct ChunkVertexElement
     //{
     //  uint8_t Format;         // FS3::VertexElementFormat
@@ -237,23 +236,23 @@ namespace Fsl::SceneFormat
     //  uint8_t UsageIndex;
     //};
 
-    const uint32_t SIZEOF_MESH_LIST_HEADER = 4;
+    constexpr uint32_t SizeofMeshListHeader = 4;
 
     // struct MeshList
     //{
     //  uint32_t Entries;
     //};
 
-    const uint32_t MESH_OFFSET_MaterialIndex = 0;
-    const uint32_t MESH_OFFSET_VertexCount = MESH_OFFSET_MaterialIndex + sizeof(uint32_t);
-    const uint32_t MESH_OFFSET_IndexCount = MESH_OFFSET_VertexCount + sizeof(uint32_t);
-    const uint32_t MESH_OFFSET_NameLength = MESH_OFFSET_IndexCount + sizeof(uint32_t);
-    const uint32_t MESH_OFFSET_PrimitiveType = MESH_OFFSET_NameLength + sizeof(uint32_t);
-    const uint32_t MESH_OFFSET_VertexDeclarationIndex = MESH_OFFSET_PrimitiveType + sizeof(uint8_t);
-    const uint32_t MESH_OFFSET_IndexByteSize = MESH_OFFSET_VertexDeclarationIndex + sizeof(uint8_t);
-    const uint32_t SIZEOF_MESH_HEADER = MESH_OFFSET_IndexByteSize + sizeof(uint8_t);
+    constexpr uint32_t MeshOffsetMaterialIndex = 0;
+    constexpr uint32_t MeshOffsetVertexCount = MeshOffsetMaterialIndex + sizeof(uint32_t);
+    constexpr uint32_t MeshOffsetIndexCount = MeshOffsetVertexCount + sizeof(uint32_t);
+    constexpr uint32_t MeshOffsetNameLength = MeshOffsetIndexCount + sizeof(uint32_t);
+    constexpr uint32_t MeshOffsetPrimitiveType = MeshOffsetNameLength + sizeof(uint32_t);
+    constexpr uint32_t MeshOffsetVertexDeclarationIndex = MeshOffsetPrimitiveType + sizeof(uint8_t);
+    constexpr uint32_t MeshOffsetIndexByteSize = MeshOffsetVertexDeclarationIndex + sizeof(uint8_t);
+    constexpr uint32_t SizeofMeshHeader = MeshOffsetIndexByteSize + sizeof(uint8_t);
 
-    const uint32_t MESH_HEADERS = (SIZEOF_MESH_HEADER > SIZEOF_MESH_LIST_HEADER ? SIZEOF_MESH_HEADER : SIZEOF_MESH_LIST_HEADER);
+    constexpr uint32_t MeshHeaders = (SizeofMeshHeader > SizeofMeshListHeader ? SizeofMeshHeader : SizeofMeshListHeader);
 
     // struct ChunkMeshHeader
     //{
@@ -266,13 +265,13 @@ namespace Fsl::SceneFormat
     //  uint8_t IndexByteSize;
     //};
 
-    const uint32_t SIZEOF_NODELIST_HEADER = sizeof(uint32_t);
+    constexpr uint32_t SizeofNodelistHeader = sizeof(uint32_t);
 
-    const uint16_t NODE_OFFSET_Transformation = 0;
-    const uint16_t NODE_OFFSET_NameLength = NODE_OFFSET_Transformation + (4 * 4 * 4);
-    const uint16_t NODE_OFFSET_MeshCount = NODE_OFFSET_NameLength + sizeof(uint16_t);
-    const uint16_t NODE_OFFSET_ChildCount = NODE_OFFSET_MeshCount + sizeof(uint8_t);
-    const uint16_t SIZEOF_NODE_HEADER = NODE_OFFSET_ChildCount + sizeof(uint8_t);
+    constexpr uint16_t NodeOffsetTransformation = 0;
+    constexpr uint16_t NodeOffsetNameLength = NodeOffsetTransformation + (4 * 4 * 4);
+    constexpr uint16_t NodeOffsetMeshCount = NodeOffsetNameLength + sizeof(uint16_t);
+    constexpr uint16_t NodeOffsetChildCount = NodeOffsetMeshCount + sizeof(uint8_t);
+    constexpr uint16_t SizeofNodeHeader = NodeOffsetChildCount + sizeof(uint8_t);
 
     // struct ChunkNodeHeader
     //{
@@ -285,17 +284,17 @@ namespace Fsl::SceneFormat
 
     FormatHeader ReadHeader(std::ifstream& rStream)
     {
-      std::array<uint8_t, SIZE_OF_FORMATHEADER> buffer{};
-      rStream.read(reinterpret_cast<char*>(buffer.data()), SIZE_OF_FORMATHEADER);
+      std::array<uint8_t, SizeOfFormatheader> buffer{};
+      rStream.read(reinterpret_cast<char*>(buffer.data()), SizeOfFormatheader);
       if (!rStream.good())
       {
         throw FormatException("Failed to read the expected data");
       }
 
-      const uint32_t magic = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), FORMATHEADER_OFFSET_Magic);
-      const uint32_t version = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), FORMATHEADER_OFFSET_Version);
+      const uint32_t magic = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), FormatheaderOffsetMagic);
+      const uint32_t version = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), FormatheaderOffsetVersion);
 
-      if (magic != FORMAT_MAGIC || version != FORMAT_CURRENT_VERSION)
+      if (magic != FormatMagic || version != FormatCurrentVersion)
       {
         throw NotSupportedException("File format not supported");
       }
@@ -305,37 +304,37 @@ namespace Fsl::SceneFormat
 
     void WriteHeader(std::ofstream& rStream, const FormatHeader& header)
     {
-      std::array<uint8_t, SIZE_OF_FORMATHEADER> buffer{};
-      ByteArrayUtil::WriteUInt32LE(buffer.data(), buffer.size(), FORMATHEADER_OFFSET_Magic, header.Magic);
-      ByteArrayUtil::WriteUInt32LE(buffer.data(), buffer.size(), FORMATHEADER_OFFSET_Version, header.Version);
+      std::array<uint8_t, SizeOfFormatheader> buffer{};
+      ByteArrayUtil::WriteUInt32LE(buffer.data(), buffer.size(), FormatheaderOffsetMagic, header.Magic);
+      ByteArrayUtil::WriteUInt32LE(buffer.data(), buffer.size(), FormatheaderOffsetVersion, header.Version);
       rStream.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
     }
 
 
     ChunkHeader ReadChunkHeader(std::ifstream& rStream)
     {
-      std::array<uint8_t, SIZE_OF_CHUNKHEADER> buffer{};
+      std::array<uint8_t, SizeOfChunkheader> buffer{};
       rStream.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
       if (!rStream.good())
       {
         throw FormatException("Failed to read the expected data");
       }
 
-      const uint32_t byteSize = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), CHUNKHEADER_OFFSET_ByteSize);
-      const uint8_t chunkType = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), CHUNKHEADER_OFFSET_Type);
+      const uint32_t byteSize = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), ChunkheaderOffsetByteSize);
+      const uint8_t chunkType = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), ChunkheaderOffsetType);
       // const uint8_t reserved = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), CHUNKHEADER_OFFSET_Reserved);
-      const uint16_t version = ByteArrayUtil::ReadUInt16LE(buffer.data(), buffer.size(), CHUNKHEADER_OFFSET_Version);
+      const uint16_t version = ByteArrayUtil::ReadUInt16LE(buffer.data(), buffer.size(), ChunkheaderOffsetVersion);
       return {byteSize, static_cast<ChunkType>(chunkType), version};
     }
 
 
     void WriteChunkHeader(std::ofstream& rStream, const ChunkHeader& header)
     {
-      std::array<uint8_t, SIZE_OF_CHUNKHEADER> buffer{};
-      ByteArrayUtil::WriteUInt32LE(buffer.data(), buffer.size(), CHUNKHEADER_OFFSET_ByteSize, header.ByteSize);
-      ByteArrayUtil::WriteUInt8LE(buffer.data(), buffer.size(), CHUNKHEADER_OFFSET_Type, static_cast<uint8_t>(header.Type));
-      ByteArrayUtil::WriteUInt8LE(buffer.data(), buffer.size(), CHUNKHEADER_OFFSET_Reserved, header.Reserved);
-      ByteArrayUtil::WriteUInt16LE(buffer.data(), buffer.size(), CHUNKHEADER_OFFSET_Version, header.Version);
+      std::array<uint8_t, SizeOfChunkheader> buffer{};
+      ByteArrayUtil::WriteUInt32LE(buffer.data(), buffer.size(), ChunkheaderOffsetByteSize, header.ByteSize);
+      ByteArrayUtil::WriteUInt8LE(buffer.data(), buffer.size(), ChunkheaderOffsetType, static_cast<uint8_t>(header.Type));
+      ByteArrayUtil::WriteUInt8LE(buffer.data(), buffer.size(), ChunkheaderOffsetReserved, header.Reserved);
+      ByteArrayUtil::WriteUInt16LE(buffer.data(), buffer.size(), ChunkheaderOffsetVersion, header.Version);
       rStream.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
     }
 
@@ -372,7 +371,7 @@ namespace Fsl::SceneFormat
 
     uint32_t CalcByteSize(const std::deque<InternalVertexDeclaration>& vertexDeclarations)
     {
-      uint32_t size = SIZEOF_VERTEX_DECLARATION_LIST_HEADER;
+      uint32_t size = SizeofVertexDeclarationListHeader;
 
       auto itrDecl = vertexDeclarations.begin();
       while (itrDecl != vertexDeclarations.end())
@@ -380,7 +379,7 @@ namespace Fsl::SceneFormat
         // Write the vertex element count
         assert(itrDecl->Elements.size() <= std::numeric_limits<uint16_t>::max());
         const auto elementCount = static_cast<uint16_t>(itrDecl->Elements.size());
-        size += SIZEOF_VERTEX_DECLARATION_HEADER + (elementCount * SIZE_OF_VERTEXELEMENT);
+        size += SizeofVertexDeclarationHeader + (elementCount * SizeOfVertexelement);
         ++itrDecl;
       }
       return size;
@@ -425,7 +424,7 @@ namespace Fsl::SceneFormat
       {
         throw NotSupportedException("format not correct");
       }
-      if (header.Version != CHUNK_VERSION_VertexDeclaration)
+      if (header.Version != ChunkVersionVertexDeclaration)
       {
         throw FormatException("Unsupported vertex declaration chunk version");
       }
@@ -433,8 +432,8 @@ namespace Fsl::SceneFormat
       const auto startPos = rStream.tellg();
 
       // Read the vertex declarations
-      std::array<uint8_t, BUFFER_ENTRY_SIZE> buffer{};
-      rStream.read(reinterpret_cast<char*>(buffer.data()), SIZEOF_VERTEX_DECLARATION_LIST_HEADER);
+      std::array<uint8_t, BufferEntrySize> buffer{};
+      rStream.read(reinterpret_cast<char*>(buffer.data()), SizeofVertexDeclarationListHeader);
       if (!rStream.good())
       {
         throw FormatException("Failed to read the expected data");
@@ -447,7 +446,7 @@ namespace Fsl::SceneFormat
       {
         SFVertexDeclaration vertexDecl;
 
-        rStream.read(reinterpret_cast<char*>(buffer.data()), SIZEOF_VERTEX_DECLARATION_HEADER);
+        rStream.read(reinterpret_cast<char*>(buffer.data()), SizeofVertexDeclarationHeader);
         if (!rStream.good())
         {
           throw FormatException("Failed to read the expected data");
@@ -456,15 +455,15 @@ namespace Fsl::SceneFormat
         const uint16_t elementCount = ByteArrayUtil::ReadUInt16LE(buffer.data(), buffer.size(), 0);
         for (uint16_t elementIndex = 0; elementIndex < elementCount; ++elementIndex)
         {
-          rStream.read(reinterpret_cast<char*>(buffer.data()), SIZE_OF_VERTEXELEMENT);
+          rStream.read(reinterpret_cast<char*>(buffer.data()), SizeOfVertexelement);
           if (!rStream.good())
           {
             throw FormatException("Failed to read the expected data");
           }
 
-          const uint8_t format = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), VERTEXELEMENT_OFFSET_Format);
-          const uint8_t usage = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), VERTEXELEMENT_OFFSET_Usage);
-          const uint8_t usageIndex = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), VERTEXELEMENT_OFFSET_UsageIndex);
+          const uint8_t format = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), VertexelementOffsetFormat);
+          const uint8_t usage = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), VertexelementOffsetUsage);
+          const uint8_t usageIndex = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), VertexelementOffsetUsageIndex);
 
           vertexDecl.Elements.emplace_back(ConvertToFormat(format), ConvertToUsage(usage), usageIndex);
         }
@@ -491,14 +490,14 @@ namespace Fsl::SceneFormat
 
       const uint32_t cbContent = CalcByteSize(uniqueEntries);
 
-      ChunkHeader header(cbContent, ChunkType::VertexDeclarations, CHUNK_VERSION_VertexDeclaration);
+      ChunkHeader header(cbContent, ChunkType::VertexDeclarations, ChunkVersionVertexDeclaration);
       WriteChunkHeader(rStream, header);
 
       // Write the vertex declarations
-      std::array<uint8_t, BUFFER_ENTRY_SIZE> buffer{};
+      std::array<uint8_t, BufferEntrySize> buffer{};
       // Write the number of vertex declarations
       ByteArrayUtil::WriteUInt32LE(buffer.data(), buffer.size(), 0, static_cast<uint32_t>(uniqueEntries.size()));
-      rStream.write(reinterpret_cast<const char*>(buffer.data()), SIZEOF_VERTEX_DECLARATION_LIST_HEADER);
+      rStream.write(reinterpret_cast<const char*>(buffer.data()), SizeofVertexDeclarationListHeader);
 
       auto itrDecl = uniqueEntries.begin();
       while (itrDecl != uniqueEntries.end())
@@ -507,7 +506,7 @@ namespace Fsl::SceneFormat
         assert(itrDecl->Elements.size() <= std::numeric_limits<uint16_t>::max());
         const auto elementCount = static_cast<uint16_t>(itrDecl->Elements.size());
         ByteArrayUtil::WriteUInt16LE(buffer.data(), buffer.size(), 0, elementCount);
-        rStream.write(reinterpret_cast<const char*>(buffer.data()), SIZEOF_VERTEX_DECLARATION_HEADER);
+        rStream.write(reinterpret_cast<const char*>(buffer.data()), SizeofVertexDeclarationHeader);
 
         for (std::size_t i = 0; i < elementCount; ++i)
         {
@@ -519,10 +518,10 @@ namespace Fsl::SceneFormat
           const auto usage = static_cast<uint8_t>(itrDecl->Elements[i].Usage);
           const uint8_t usageIndex = itrDecl->Elements[i].UsageIndex;
 
-          ByteArrayUtil::WriteUInt8LE(buffer.data(), buffer.size(), VERTEXELEMENT_OFFSET_Format, format);
-          ByteArrayUtil::WriteUInt8LE(buffer.data(), buffer.size(), VERTEXELEMENT_OFFSET_Usage, usage);
-          ByteArrayUtil::WriteUInt8LE(buffer.data(), buffer.size(), VERTEXELEMENT_OFFSET_UsageIndex, usageIndex);
-          rStream.write(reinterpret_cast<const char*>(buffer.data()), SIZE_OF_VERTEXELEMENT);
+          ByteArrayUtil::WriteUInt8LE(buffer.data(), buffer.size(), VertexelementOffsetFormat, format);
+          ByteArrayUtil::WriteUInt8LE(buffer.data(), buffer.size(), VertexelementOffsetUsage, usage);
+          ByteArrayUtil::WriteUInt8LE(buffer.data(), buffer.size(), VertexelementOffsetUsageIndex, usageIndex);
+          rStream.write(reinterpret_cast<const char*>(buffer.data()), SizeOfVertexelement);
         }
 
         ++itrDecl;
@@ -535,7 +534,7 @@ namespace Fsl::SceneFormat
     //! @brief Examine the meshes in the scene and calculate the exact byte size needed to store the mesh chunk (without the chunk header)
     uint32_t CalcMeshesSize(const InternalSceneRecord& scene)
     {
-      uint32_t cbMeshes = SIZEOF_MESH_LIST_HEADER;
+      uint32_t cbMeshes = SizeofMeshListHeader;
 
       const auto& vertexDeclarations = scene.VertexDeclarations;
       const auto& meshes = scene.Meshes;
@@ -544,7 +543,7 @@ namespace Fsl::SceneFormat
       {
         assert(itr->SourceMesh);
         const auto& mesh = itr->SourceMesh;
-        cbMeshes += SIZEOF_MESH_HEADER;
+        cbMeshes += SizeofMeshHeader;
         cbMeshes += vertexDeclarations[itr->VertexDeclarationIndex].VertexByteSize * mesh->GetVertexCount();
         cbMeshes += itr->IndexByteSize * mesh->GetIndexCount();
         cbMeshes += mesh->GetName().GetByteSize() + 1;    // +1 because we write the terminating zero as well
@@ -1019,21 +1018,21 @@ namespace Fsl::SceneFormat
       {
         throw FormatException("Did not find the expected mesh chunk");
       }
-      if (header.Version != CHUNK_VERSION_Meshes)
+      if (header.Version != ChunkVersionMeshes)
       {
         throw FormatException("Unsupported mesh chunk version");
       }
 
       const auto startPos = rStream.tellg();
 
-      std::array<uint8_t, MESH_HEADERS> buffer{};
-      rStream.read(reinterpret_cast<char*>(buffer.data()), SIZEOF_MESH_LIST_HEADER);
+      std::array<uint8_t, MeshHeaders> buffer{};
+      rStream.read(reinterpret_cast<char*>(buffer.data()), SizeofMeshListHeader);
       if (!rStream.good())
       {
         throw FormatException("Failed to read the expected data");
       }
 
-      const uint32_t meshCount = ByteArrayUtil::ReadUInt32LE(buffer.data(), SIZEOF_MESH_LIST_HEADER, 0);
+      const uint32_t meshCount = ByteArrayUtil::ReadUInt32LE(buffer.data(), SizeofMeshListHeader, 0);
 
       // Create the scene
       std::shared_ptr<Scene> scene = sceneAllocator(meshCount);
@@ -1041,19 +1040,19 @@ namespace Fsl::SceneFormat
 
       for (uint32_t meshIndex = 0; meshIndex < meshCount; ++meshIndex)
       {
-        rStream.read(reinterpret_cast<char*>(buffer.data()), SIZEOF_MESH_HEADER);
+        rStream.read(reinterpret_cast<char*>(buffer.data()), SizeofMeshHeader);
         if (!rStream.good())
         {
           throw FormatException("Failed to read the expected data");
         }
 
-        const uint32_t materialIndex = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), MESH_OFFSET_MaterialIndex);
-        const uint32_t vertexCount = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), MESH_OFFSET_VertexCount);
-        const uint32_t indexCount = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), MESH_OFFSET_IndexCount);
-        const uint32_t nameLength = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), MESH_OFFSET_NameLength);
-        const auto primitiveType = ConvertToPrimitiveType(ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), MESH_OFFSET_PrimitiveType));
-        const uint8_t vertexDeclarationIndex = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), MESH_OFFSET_VertexDeclarationIndex);
-        const uint8_t indexByteSize = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), MESH_OFFSET_IndexByteSize);
+        const uint32_t materialIndex = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), MeshOffsetMaterialIndex);
+        const uint32_t vertexCount = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), MeshOffsetVertexCount);
+        const uint32_t indexCount = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), MeshOffsetIndexCount);
+        const uint32_t nameLength = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), MeshOffsetNameLength);
+        const auto primitiveType = ConvertToPrimitiveType(ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), MeshOffsetPrimitiveType));
+        const uint8_t vertexDeclarationIndex = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), MeshOffsetVertexDeclarationIndex);
+        const uint8_t indexByteSize = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), MeshOffsetIndexByteSize);
 
         if (vertexDeclarationIndex >= vertexDeclarations.size())
         {
@@ -1129,7 +1128,7 @@ namespace Fsl::SceneFormat
     void WriteMeshesChunk(std::ofstream& rStream, const InternalSceneRecord& scene)
     {
       const uint32_t cbMeshes = CalcMeshesSize(scene);
-      ChunkHeader header(cbMeshes, ChunkType::Meshes, CHUNK_VERSION_Meshes);
+      ChunkHeader header(cbMeshes, ChunkType::Meshes, ChunkVersionMeshes);
       WriteChunkHeader(rStream, header);
 
       const auto& vertexDeclarations = scene.VertexDeclarations;
@@ -1167,19 +1166,19 @@ namespace Fsl::SceneFormat
         }
 
         // Write the mesh header
-        assert((dstIndex - dstStartIndex) == (MESH_OFFSET_MaterialIndex));
+        assert((dstIndex - dstStartIndex) == (MeshOffsetMaterialIndex));
         dstIndex += ByteArrayUtil::WriteUInt32LE(content.data(), content.size(), dstIndex, materialIndex);
-        assert((dstIndex - dstStartIndex) == (MESH_OFFSET_VertexCount));
+        assert((dstIndex - dstStartIndex) == (MeshOffsetVertexCount));
         dstIndex += ByteArrayUtil::WriteUInt32LE(content.data(), content.size(), dstIndex, vertexCount);
-        assert((dstIndex - dstStartIndex) == (MESH_OFFSET_IndexCount));
+        assert((dstIndex - dstStartIndex) == (MeshOffsetIndexCount));
         dstIndex += ByteArrayUtil::WriteUInt32LE(content.data(), content.size(), dstIndex, indexCount);
-        assert((dstIndex - dstStartIndex) == (MESH_OFFSET_NameLength));
+        assert((dstIndex - dstStartIndex) == (MeshOffsetNameLength));
         dstIndex += ByteArrayUtil::WriteUInt32LE(content.data(), content.size(), dstIndex, UncheckedNumericCast<uint32_t>(nameLength));
-        assert((dstIndex - dstStartIndex) == (MESH_OFFSET_PrimitiveType));
+        assert((dstIndex - dstStartIndex) == (MeshOffsetPrimitiveType));
         dstIndex += ByteArrayUtil::WriteUInt8LE(content.data(), content.size(), dstIndex, UncheckedNumericCast<uint8_t>(primitiveType));
-        assert((dstIndex - dstStartIndex) == (MESH_OFFSET_VertexDeclarationIndex));
+        assert((dstIndex - dstStartIndex) == (MeshOffsetVertexDeclarationIndex));
         dstIndex += ByteArrayUtil::WriteUInt8LE(content.data(), content.size(), dstIndex, vertexDeclarationIndex);
-        assert((dstIndex - dstStartIndex) == (MESH_OFFSET_IndexByteSize));
+        assert((dstIndex - dstStartIndex) == (MeshOffsetIndexByteSize));
         dstIndex += ByteArrayUtil::WriteUInt8LE(content.data(), content.size(), dstIndex, indexType);
 
         // write vertex data
@@ -1238,7 +1237,7 @@ namespace Fsl::SceneFormat
       auto* pTransform = reinterpret_cast<uint32_t*>(transform.DirectAccess());
 
       std::size_t srcIndex = srcOffset;
-      assert((srcIndex - srcOffset) == NODE_OFFSET_Transformation);
+      assert((srcIndex - srcOffset) == NodeOffsetTransformation);
       // Read the transform matrix
       pTransform[0 + (4 * 0)] = ByteArrayUtil::ReadUInt32LE(srcBuffer.data(), srcBuffer.size(), srcIndex + (4 * 0));
       pTransform[1 + (4 * 0)] = ByteArrayUtil::ReadUInt32LE(srcBuffer.data(), srcBuffer.size(), srcIndex + (4 * 1));
@@ -1257,16 +1256,16 @@ namespace Fsl::SceneFormat
       pTransform[2 + (4 * 3)] = ByteArrayUtil::ReadUInt32LE(srcBuffer.data(), srcBuffer.size(), srcIndex + (4 * 14));
       pTransform[3 + (4 * 3)] = ByteArrayUtil::ReadUInt32LE(srcBuffer.data(), srcBuffer.size(), srcIndex + (4 * 15));
       srcIndex += (4 * 16);
-      assert((srcIndex - srcOffset) == NODE_OFFSET_NameLength);
+      assert((srcIndex - srcOffset) == NodeOffsetNameLength);
       const uint16_t nameLength = ByteArrayUtil::ReadUInt16LE(srcBuffer.data(), srcBuffer.size(), srcIndex);
       srcIndex += sizeof(uint16_t);
-      assert((srcIndex - srcOffset) == NODE_OFFSET_MeshCount);
+      assert((srcIndex - srcOffset) == NodeOffsetMeshCount);
       const uint8_t nodeMeshCount = ByteArrayUtil::ReadUInt8LE(srcBuffer.data(), srcBuffer.size(), srcIndex);
       srcIndex += sizeof(uint8_t);
-      assert((srcIndex - srcOffset) == NODE_OFFSET_ChildCount);
+      assert((srcIndex - srcOffset) == NodeOffsetChildCount);
       const uint8_t nodeChildCount = ByteArrayUtil::ReadUInt8LE(srcBuffer.data(), srcBuffer.size(), srcIndex);
       srcIndex += sizeof(uint8_t);
-      assert((srcIndex - srcOffset) == SIZEOF_NODE_HEADER);
+      assert((srcIndex - srcOffset) == SizeofNodeHeader);
 
       if (nameLength == 0)
       {
@@ -1335,7 +1334,7 @@ namespace Fsl::SceneFormat
       const auto* pTransform = reinterpret_cast<const uint32_t*>(transform.DirectAccess());
 
       std::size_t dstIndex = 0;
-      assert(dstIndex == NODE_OFFSET_Transformation);
+      assert(dstIndex == NodeOffsetTransformation);
       dstIndex += ByteArrayUtil::WriteUInt32LE(rContent.data(), rContent.size(), dstIndex, pTransform[0 + (4 * 0)]);
       dstIndex += ByteArrayUtil::WriteUInt32LE(rContent.data(), rContent.size(), dstIndex, pTransform[1 + (4 * 0)]);
       dstIndex += ByteArrayUtil::WriteUInt32LE(rContent.data(), rContent.size(), dstIndex, pTransform[2 + (4 * 0)]);
@@ -1352,13 +1351,13 @@ namespace Fsl::SceneFormat
       dstIndex += ByteArrayUtil::WriteUInt32LE(rContent.data(), rContent.size(), dstIndex, pTransform[1 + (4 * 3)]);
       dstIndex += ByteArrayUtil::WriteUInt32LE(rContent.data(), rContent.size(), dstIndex, pTransform[2 + (4 * 3)]);
       dstIndex += ByteArrayUtil::WriteUInt32LE(rContent.data(), rContent.size(), dstIndex, pTransform[3 + (4 * 3)]);
-      assert(dstIndex == NODE_OFFSET_NameLength);
+      assert(dstIndex == NodeOffsetNameLength);
       dstIndex += ByteArrayUtil::WriteUInt16LE(rContent.data(), rContent.size(), dstIndex, static_cast<uint16_t>(nameLength));
-      assert(dstIndex == NODE_OFFSET_MeshCount);
+      assert(dstIndex == NodeOffsetMeshCount);
       dstIndex += ByteArrayUtil::WriteUInt8LE(rContent.data(), rContent.size(), dstIndex, static_cast<uint8_t>(nodeMeshCount));
-      assert(dstIndex == NODE_OFFSET_ChildCount);
+      assert(dstIndex == NodeOffsetChildCount);
       dstIndex += ByteArrayUtil::WriteUInt8LE(rContent.data(), rContent.size(), dstIndex, static_cast<uint8_t>(nodeChildCount));
-      assert(dstIndex == SIZEOF_NODE_HEADER);
+      assert(dstIndex == SizeofNodeHeader);
 
       // write mesh indices
       for (int32_t i = 0; i < nodeMeshCount; ++i)
@@ -1400,7 +1399,7 @@ namespace Fsl::SceneFormat
       {
         throw FormatException("Did not find the expected nodes chunk");
       }
-      if (header.Version != CHUNK_VERSION_Nodes)
+      if (header.Version != ChunkVersionNodes)
       {
         throw FormatException("Unsupported node chunk version");
       }
@@ -1414,11 +1413,11 @@ namespace Fsl::SceneFormat
         throw FormatException("Failed to read the expected data");
       }
 
-      const uint32_t nodeCount = ByteArrayUtil::ReadUInt32LE(buffer.data(), SIZEOF_NODELIST_HEADER, 0);
+      const uint32_t nodeCount = ByteArrayUtil::ReadUInt32LE(buffer.data(), SizeofNodelistHeader, 0);
 
       const auto sceneMeshCount = static_cast<uint32_t>(rScene.GetMeshCount());
       std::deque<std::shared_ptr<SceneNode>> nodes;
-      std::size_t srcOffset = SIZEOF_NODELIST_HEADER;
+      std::size_t srcOffset = SizeofNodelistHeader;
       for (uint32_t childIndex = 0; childIndex < nodeCount; ++childIndex)
       {
         srcOffset += ReadNode(rStream, nodes, buffer, srcOffset, sceneMeshCount, hostIsLittleEndian);
@@ -1467,7 +1466,7 @@ namespace Fsl::SceneFormat
       }
 
 
-      std::size_t nodeByteSize = SIZEOF_NODE_HEADER;
+      std::size_t nodeByteSize = SizeofNodeHeader;
       nodeByteSize += nodeMeshCount * sizeof(uint32_t);
       nodeByteSize += nodeChildCount * sizeof(uint32_t);
       nodeByteSize += node->GetName().GetByteSize() + 1;    // +1 to write the terminating zero as well
@@ -1492,15 +1491,15 @@ namespace Fsl::SceneFormat
       std::deque<NodeInfo> allNodes;
       NodesInfo nodesInfo = ExamineNodes(allNodes, scene.GetRootNode());
 
-      assert(nodesInfo.TotalByteSize <= (std::numeric_limits<uint32_t>::max() - SIZEOF_NODELIST_HEADER));
-      ChunkHeader header(static_cast<uint32_t>(SIZEOF_NODELIST_HEADER + nodesInfo.TotalByteSize), ChunkType::Nodes, CHUNK_VERSION_Nodes);
+      assert(nodesInfo.TotalByteSize <= (std::numeric_limits<uint32_t>::max() - SizeofNodelistHeader));
+      ChunkHeader header(static_cast<uint32_t>(SizeofNodelistHeader + nodesInfo.TotalByteSize), ChunkType::Nodes, ChunkVersionNodes);
       WriteChunkHeader(rStream, header);
 
       std::vector<uint8_t> content(nodesInfo.MaxNodeByteSize);
       // Write the total node count
       assert(allNodes.size() <= std::numeric_limits<uint32_t>::max());
       ByteArrayUtil::WriteUInt32LE(content.data(), content.size(), 0, static_cast<uint32_t>(allNodes.size()));
-      rStream.write(reinterpret_cast<const char*>(content.data()), SIZEOF_NODELIST_HEADER);
+      rStream.write(reinterpret_cast<const char*>(content.data()), SizeofNodelistHeader);
 
       for (auto itr = allNodes.begin(); itr != allNodes.end(); ++itr)
       {
@@ -1609,7 +1608,7 @@ namespace Fsl::SceneFormat
       ExtractUniqueVertexDeclarations(*m_sceneScratchpad, scene);
 
       // Write the scene content
-      FormatHeader header(FORMAT_MAGIC, FORMAT_CURRENT_VERSION);
+      FormatHeader header(FormatMagic, FormatCurrentVersion);
       WriteHeader(rStream, header);
       WriteVertexDeclarationsChunk(rStream, m_sceneScratchpad->VertexDeclarations);
       WriteMeshesChunk(rStream, *m_sceneScratchpad);

@@ -99,8 +99,8 @@ namespace Fsl
     explicit SpringBackground(const DemoAppConfig& config);
     ~SpringBackground() override;
 
-    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
-    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
+    void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
+    void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
 
     void OnKeyEvent(const KeyEvent& event) override;
     void OnMouseButtonEvent(const MouseButtonEvent& event) override;

@@ -62,7 +62,9 @@ namespace Fsl::UI
     PxSize2D m_elementUniformSizePx;
 
   public:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static DataBinding::DependencyPropertyDefinition PropertyOrientation;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static DataBinding::DependencyPropertyDefinition PropertySpacing;
 
     explicit UniformWrapLayout(const std::shared_ptr<BaseWindowContext>& context);

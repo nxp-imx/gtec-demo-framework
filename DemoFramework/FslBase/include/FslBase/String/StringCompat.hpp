@@ -41,6 +41,7 @@ namespace Fsl::StringCompat
   //! @note While snprintf is standard it is also more complex to simulate so we 'emulate' sprintf_S behavior instead
   //!       Use a variadic template to allow us to forward the argument list
   template <class... Args>
+  // NOLINTNEXTLINE(readability-identifier-naming)
   int sprintf_s(char* s, const std::size_t n, const char* const pszFormat, Args&&... args)
   {
 #ifdef _WIN32

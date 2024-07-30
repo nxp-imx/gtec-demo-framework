@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_LOG_FMTALL_HPP
 #define FSLUTIL_VULKAN1_0_LOG_FMTALL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,18 +48,20 @@ namespace fmt
   struct formatter<Fsl::Vulkan::EncodedVulkanVersion>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::Vulkan::EncodedVulkanVersion& value, FormatContext& ctx)
     {
       uint32_t major = (value.Value >> 22) & ((1 << 10) - 1);
       uint32_t minor = (value.Value >> 12) & ((1 << 10) - 1);
       uint32_t patch = value.Value & ((1 << 12) - 1);
-      return format_to(ctx.out(), "{}.{}.{}", major, minor, patch);
+      return fmt::format_to(ctx.out(), "{}.{}.{}", major, minor, patch);
     }
   };
 
@@ -67,15 +69,17 @@ namespace fmt
   struct formatter<VkExtent2D>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const VkExtent2D& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{width={} height={}}}", value.width, value.height);
+      return fmt::format_to(ctx.out(), "{{width={} height={}}}", value.width, value.height);
     }
   };
 
@@ -83,15 +87,17 @@ namespace fmt
   struct formatter<VkExtent3D>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const VkExtent3D& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{width={} height={} depth={}}}", value.width, value.height, value.depth);
+      return fmt::format_to(ctx.out(), "{{width={} height={} depth={}}}", value.width, value.height, value.depth);
     }
   };
 
@@ -99,20 +105,22 @@ namespace fmt
   struct formatter<VkFormat>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const VkFormat& value, FormatContext& ctx)
     {
       const auto* psz = RapidVulkan::Debug::TryToString(value);
       if (psz != nullptr)
       {
-        return format_to(ctx.out(), psz);
+        return fmt::format_to(ctx.out(), "{}", psz);
       }
-      return format_to(ctx.out(), "0x{:x}", static_cast<uint32_t>(value));
+      return fmt::format_to(ctx.out(), "0x{:x}", static_cast<uint32_t>(value));
     }
   };
 }

@@ -58,7 +58,7 @@ namespace Fsl
       constexpr uint32_t AverageEntries = 20;
       constexpr uint32_t MaxProfileDataEntries = 1;
 
-      constexpr Color ChartColor(0xFF3488A7);    // light blue
+      constexpr UI::UIColor ChartColor(PackedColor32(0xFF3488A7));    // light blue
     }
 
     void SetContent(UI::FmtValueLabel<float>* pTarget, const double value)
@@ -68,7 +68,7 @@ namespace Fsl
         if (value <= 10000.0)
         {
           // pTarget->SetFormatString("{:.0f}us");
-          pTarget->SetFormatString(u8"{:.0f}\u03BCs");
+          pTarget->SetFormatString(reinterpret_cast<const char*>(u8"{:.0f}\u03BCs"));
           pTarget->SetContent(static_cast<float>(value));
         }
         else
@@ -115,9 +115,8 @@ namespace Fsl
   }
 
 
-  void Shared::OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void Shared::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
     if (theEvent->GetSource() == m_ui.BtnDefault)
     {
       SetDefaultValues();
@@ -128,9 +127,8 @@ namespace Fsl
     }
   }
 
-  void Shared::OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void Shared::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
     FSL_PARAM_NOT_USED(theEvent);
   }
 

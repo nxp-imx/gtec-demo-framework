@@ -107,7 +107,7 @@ namespace Fsl
 
     void Update(const DemoTime& demoTime, const Matrix& cameraViewMatrix, const Matrix& cameraRotation, const Vector3& rotation,
                 const PxSize2D& windowSizePx) final;
-    void PreDraw(const uint32_t /*frameIndex*/, const VkCommandBuffer /*hCmdBuffer*/) final{};
+    void PreDraw(const uint32_t /*frameIndex*/, const VkCommandBuffer /*hCmdBuffer*/) final {};
     void Draw(const uint32_t frameIndex, const VkCommandBuffer hCmdBuffer) final;
   };
 }

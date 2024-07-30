@@ -75,8 +75,8 @@ namespace Fsl::UI
                            const ReadOnlySpan<RenderMethodInfo> renderRecordSpan);
 
 
-    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final;
-    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final;
+    void OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent) final;
+    void OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent) final;
     void OnKeyEvent(const KeyEvent& theEvent) final;
 
   private:

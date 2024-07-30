@@ -30,7 +30,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslSimpleUI/Base/Control/Logic/RadioGroup.hpp>
 #include <FslSimpleUI/Base/Control/RadioButton.hpp>
 
@@ -98,13 +97,13 @@ namespace Fsl::UI
 
 
   RadioGroup::RadioGroup(const StringViewLite& name)
-    : m_name(StringViewLiteUtil::ToString(name))
+    : m_name(std::string(name))
   {
   }
 
   StringViewLite RadioGroup::GetName() const
   {
-    return StringViewLiteUtil::AsStringViewLite(m_name);
+    return std::string_view(m_name);
   }
 
   void RadioGroup::Add(const std::shared_ptr<RadioButton>& entry)

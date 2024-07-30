@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Span/SpanUtil_Array.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Log/LogPixelFormat.hpp>
@@ -62,16 +64,32 @@ TEST(TestBitmap_RawBitmapUtil, CalcAlignment_Bitmap)
 {
   std::array<uint8_t, 400 * 2> tmp{};
 
-  EXPECT_EQ(1, RawBitmapUtil::CalcAlignment(RawBitmap(tmp.data(), 1, 1, PixelFormat::R8_UNORM, BitmapOrigin::UpperLeft), 1u));
-  EXPECT_EQ(1, RawBitmapUtil::CalcAlignment(RawBitmap(tmp.data(), 1, 2, PixelFormat::R8_UNORM, BitmapOrigin::UpperLeft), 1u));
-  EXPECT_EQ(2, RawBitmapUtil::CalcAlignment(RawBitmap(tmp.data(), 2, 1, PixelFormat::R8_UNORM, BitmapOrigin::UpperLeft), 1u));
+  EXPECT_EQ(1,
+            RawBitmapUtil::CalcAlignment(
+              ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(1, 1), PixelFormat::R8_UNORM, BitmapOrigin::UpperLeft), 1u));
+  EXPECT_EQ(1,
+            RawBitmapUtil::CalcAlignment(
+              ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(1, 2), PixelFormat::R8_UNORM, BitmapOrigin::UpperLeft), 1u));
+  EXPECT_EQ(2,
+            RawBitmapUtil::CalcAlignment(
+              ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(2, 1), PixelFormat::R8_UNORM, BitmapOrigin::UpperLeft), 1u));
 
-  EXPECT_EQ(2, RawBitmapUtil::CalcAlignment(RawBitmap(tmp.data(), 1, 1, PixelFormat::R8G8_UNORM, BitmapOrigin::UpperLeft), 2u));
-  EXPECT_EQ(4, RawBitmapUtil::CalcAlignment(RawBitmap(tmp.data(), 2, 1, PixelFormat::R8G8_UNORM, BitmapOrigin::UpperLeft), 2u));
+  EXPECT_EQ(
+    2, RawBitmapUtil::CalcAlignment(
+         ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(1, 1), PixelFormat::R8G8_UNORM, BitmapOrigin::UpperLeft), 2u));
+  EXPECT_EQ(
+    4, RawBitmapUtil::CalcAlignment(
+         ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(2, 1), PixelFormat::R8G8_UNORM, BitmapOrigin::UpperLeft), 2u));
 
-  EXPECT_EQ(4, RawBitmapUtil::CalcAlignment(RawBitmap(tmp.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft), 4u));
-  EXPECT_EQ(8, RawBitmapUtil::CalcAlignment(RawBitmap(tmp.data(), 2, 1, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft), 4u));
-  EXPECT_EQ(8, RawBitmapUtil::CalcAlignment(RawBitmap(tmp.data(), 100, 2, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft), 4u));
+  EXPECT_EQ(
+    4, RawBitmapUtil::CalcAlignment(
+         ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(1, 1), PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft), 4u));
+  EXPECT_EQ(
+    8, RawBitmapUtil::CalcAlignment(
+         ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(2, 1), PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft), 4u));
+  EXPECT_EQ(8, RawBitmapUtil::CalcAlignment(ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(100, 2),
+                                                                      PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft),
+                                            4u));
 }
 
 
@@ -79,26 +97,26 @@ TEST(TestBitmap_RawBitmapUtil, CheckIsUsingMinimumStrideForAlignment)
 {
   std::array<uint8_t, 400 * 2> tmp{};
 
-  EXPECT_NO_THROW(
-    RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(RawBitmap(tmp.data(), 1, 1, PixelFormat::R8_UNORM, BitmapOrigin::UpperLeft), 1u));
-  EXPECT_NO_THROW(
-    RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(RawBitmap(tmp.data(), 1, 1, PixelFormat::R8_UNORM, 8u, BitmapOrigin::UpperLeft), 8u));
-  EXPECT_NO_THROW(
-    RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(RawBitmap(tmp.data(), 1, 2, PixelFormat::R8_UNORM, BitmapOrigin::UpperLeft), 1u));
-  EXPECT_NO_THROW(
-    RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(RawBitmap(tmp.data(), 2, 1, PixelFormat::R8_UNORM, BitmapOrigin::UpperLeft), 2u));
+  EXPECT_NO_THROW(RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(1, 1), PixelFormat::R8_UNORM, BitmapOrigin::UpperLeft), 1u));
+  EXPECT_NO_THROW(RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(1, 1), PixelFormat::R8_UNORM, 8u, BitmapOrigin::UpperLeft), 8u));
+  EXPECT_NO_THROW(RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(1, 2), PixelFormat::R8_UNORM, BitmapOrigin::UpperLeft), 1u));
+  EXPECT_NO_THROW(RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(2, 1), PixelFormat::R8_UNORM, BitmapOrigin::UpperLeft), 2u));
 
-  EXPECT_NO_THROW(
-    RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(RawBitmap(tmp.data(), 1, 1, PixelFormat::R8G8_UNORM, BitmapOrigin::UpperLeft), 2u));
-  EXPECT_NO_THROW(
-    RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(RawBitmap(tmp.data(), 2, 1, PixelFormat::R8G8_UNORM, BitmapOrigin::UpperLeft), 4u));
+  EXPECT_NO_THROW(RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(1, 1), PixelFormat::R8G8_UNORM, BitmapOrigin::UpperLeft), 2u));
+  EXPECT_NO_THROW(RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(2, 1), PixelFormat::R8G8_UNORM, BitmapOrigin::UpperLeft), 4u));
 
-  EXPECT_NO_THROW(
-    RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(RawBitmap(tmp.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft), 4u));
-  EXPECT_NO_THROW(
-    RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(RawBitmap(tmp.data(), 2, 1, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft), 8u));
-  EXPECT_NO_THROW(
-    RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(RawBitmap(tmp.data(), 100, 2, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft), 8u));
+  EXPECT_NO_THROW(RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(1, 1), PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft), 4u));
+  EXPECT_NO_THROW(RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(2, 1), PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft), 8u));
+  EXPECT_NO_THROW(RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(100, 2), PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft), 8u));
 }
 
 
@@ -107,7 +125,8 @@ TEST(TestBitmap_RawBitmapUtil, CheckIsUsingMinimumStrideForAlignment_Unsupported
   std::array<uint8_t, 100> tmp{};
 
   EXPECT_THROW(
-    RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(RawBitmap(tmp.data(), 1, 1, PixelFormat::R8_UNORM, 10u, BitmapOrigin::UpperLeft), 10u),
+    RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(
+      ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(1, 1), PixelFormat::R8_UNORM, 10u, BitmapOrigin::UpperLeft), 10u),
     UnsupportedAlignmentException);
 }
 
@@ -117,7 +136,8 @@ TEST(TestBitmap_RawBitmapUtil, CheckIsUsingMinimumStrideForAlignment_NotMin)
   std::array<uint8_t, 100> tmp{};
 
   EXPECT_THROW(
-    RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(RawBitmap(tmp.data(), 1, 1, PixelFormat::R8_UNORM, 2u, BitmapOrigin::UpperLeft), 1u),
+    RawBitmapUtil::CheckIsUsingMinimumStrideForAlignment(
+      ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(tmp), PxSize2D::Create(1, 1), PixelFormat::R8_UNORM, 2u, BitmapOrigin::UpperLeft), 1u),
     UnsupportedStrideException);
 }
 
@@ -129,7 +149,7 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle_InPlace_24_012To210)
   std::array<uint8_t, 2 * (3 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8};
   //----------------------------------------------A, A, A, X, B, B, B, X
   const std::array<uint8_t, 2 * (3 + 1)> expected{3, 2, 1, 4, 7, 6, 5, 8};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle(rawBitmap, 2u, 1u, 0u, 0u);
 
@@ -144,7 +164,7 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle_InPlace_24_012To120)
   std::array<uint8_t, 2 * (3 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8};
   //----------------------------------------------A, A, A, X, B, B, B, X
   const std::array<uint8_t, 2 * (3 + 1)> expected{2, 3, 1, 4, 6, 7, 5, 8};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle(rawBitmap, 1u, 2u, 0u, 0u);
 
@@ -159,7 +179,7 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle_InPlace_24_012To201)
   std::array<uint8_t, 2 * (3 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8};
   //----------------------------------------------A, A, A, X, B, B, B, X
   const std::array<uint8_t, 2 * (3 + 1)> expected{3, 1, 2, 4, 7, 5, 6, 8};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle(rawBitmap, 2u, 0u, 01u, 0u);
 
@@ -174,7 +194,8 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle_InPlace_32_0123To1230)
   std::array<uint8_t, 2 * (4 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------A, A, A, A, X, B, B, B, B, X
   const std::array<uint8_t, 2 * (4 + 1)> expected{2, 3, 4, 1, 5, 7, 8, 9, 6, 10};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle(rawBitmap, 1u, 2u, 3u, 0u);
 
@@ -189,7 +210,8 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle_InPlace_32_0123To2103)
   std::array<uint8_t, 2 * (4 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------A, A, A, A, X, B, B, B, B, X
   const std::array<uint8_t, 2 * (4 + 1)> expected{3, 2, 1, 4, 5, 8, 7, 6, 9, 10};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle(rawBitmap, 2u, 1u, 0u, 3u);
 
@@ -204,7 +226,7 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle24From012To210_InPLace)
   std::array<uint8_t, 2 * (3 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8};
   //----------------------------------------------A, A, A, X, B, B, B, X
   const std::array<uint8_t, 2 * (3 + 1)> expected{3, 2, 1, 4, 7, 6, 5, 8};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle24From012To210(rawBitmap);
 
@@ -219,7 +241,7 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle24_InPlace_012To210)
   std::array<uint8_t, 2 * (3 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8};
   //----------------------------------------------A, A, A, X, B, B, B, X
   const std::array<uint8_t, 2 * (3 + 1)> expected{3, 2, 1, 4, 7, 6, 5, 8};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle24(rawBitmap, 2u, 1u, 0u);
 
@@ -234,7 +256,7 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle24_InPlace_012To120)
   std::array<uint8_t, 2 * (3 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8};
   //----------------------------------------------A, A, A, X, B, B, B, X
   const std::array<uint8_t, 2 * (3 + 1)> expected{2, 3, 1, 4, 6, 7, 5, 8};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle24(rawBitmap, 1u, 2u, 0u);
 
@@ -254,7 +276,8 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle32To8_InPlace_0)
   std::array<uint8_t, 2 * (4 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------A, X, B, X
   const std::array<uint8_t, 2 * (4 + 1)> expected{1, 2, 6, 7};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle32To8(rawBitmap, PixelFormat::R8_UNORM, 2u, 0);
 
@@ -271,7 +294,8 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle32To8_InPlace_1)
   std::array<uint8_t, 2 * (4 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------A, X, B, X
   const std::array<uint8_t, 2 * (4 + 1)> expected{2, 2, 7, 7};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle32To8(rawBitmap, PixelFormat::R8_UNORM, 2u, 1);
 
@@ -288,7 +312,8 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle32To8_InPlace_2)
   std::array<uint8_t, 2 * (4 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------A, X, B, X
   const std::array<uint8_t, 2 * (4 + 1)> expected{3, 2, 8, 7};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle32To8(rawBitmap, PixelFormat::R8_UNORM, 2u, 2);
 
@@ -305,7 +330,8 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle32To8_InPlace_3)
   std::array<uint8_t, 2 * (4 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------A, X, B, X
   const std::array<uint8_t, 2 * (4 + 1)> expected{4, 2, 9, 7};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle32To8(rawBitmap, PixelFormat::R8_UNORM, 2u, 3);
 
@@ -322,7 +348,8 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle32To24_InPlace_012)
   std::array<uint8_t, 2 * (4 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------A, A, A, X, B, B, B, X
   const std::array<uint8_t, 2 * (4 + 1)> expected{1, 2, 3, 0, 6, 7, 8, 0};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle32To24(rawBitmap, PixelFormat::R8G8B8_UNORM, 4u, 0, 1, 2);
 
@@ -339,7 +366,8 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle32To24_InPlace_120)
   std::array<uint8_t, 2 * (4 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------A, A, A, X, B, B, B
   const std::array<uint8_t, 2 * (4 + 1)> expected{2, 3, 1, 0, 7, 8, 6};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle32To24(rawBitmap, PixelFormat::R8G8B8_UNORM, 4u, 1, 2, 0);
 
@@ -356,7 +384,7 @@ TEST(TestBitmap_RawBitmapUtil, Average24To8_InPlace_000)
   std::array<uint8_t, 2 * (3 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8};
   //----------------------------------------------A, X, B
   const std::array<uint8_t, 2 * (3 + 1)> expected{1, 0, 5};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Average24To8(rawBitmap, PixelFormat::R8_UNORM, 2u, 0, 0, 0);
 
@@ -373,7 +401,7 @@ TEST(TestBitmap_RawBitmapUtil, Average24To8_InPlace_111)
   std::array<uint8_t, 2 * (3 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8};
   //----------------------------------------------A, X, B
   const std::array<uint8_t, 2 * (3 + 1)> expected{2, 0, 6};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Average24To8(rawBitmap, PixelFormat::R8_UNORM, 2u, 1, 1, 1);
 
@@ -390,7 +418,7 @@ TEST(TestBitmap_RawBitmapUtil, Average24To8_InPlace_222)
   std::array<uint8_t, 2 * (3 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8};
   //----------------------------------------------A, X, B
   const std::array<uint8_t, 2 * (3 + 1)> expected{3, 0, 7};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Average24To8(rawBitmap, PixelFormat::R8_UNORM, 2u, 2, 2, 2);
 
@@ -407,7 +435,7 @@ TEST(TestBitmap_RawBitmapUtil, Average24To8_InPlace_012)
   std::array<uint8_t, 2 * (3 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8};
   //----------------------------------------------A, X, B
   const std::array<uint8_t, 2 * (3 + 1)> expected{2, 0, 6};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Average24To8(rawBitmap, PixelFormat::R8_UNORM, 2u, 0, 1, 2);
 
@@ -424,7 +452,8 @@ TEST(TestBitmap_RawBitmapUtil, Average32To8_InPlace_000)
   std::array<uint8_t, 2 * (4 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------A, X, B
   const std::array<uint8_t, 2 * (4 + 1)> expected{1, 0, 6};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Average32To8(rawBitmap, PixelFormat::R8_UNORM, 2u, 0, 0, 0);
 
@@ -441,7 +470,8 @@ TEST(TestBitmap_RawBitmapUtil, Average32To8_InPlace_111)
   std::array<uint8_t, 2 * (4 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------A, X, B
   const std::array<uint8_t, 2 * (4 + 1)> expected{2, 0, 7};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Average32To8(rawBitmap, PixelFormat::R8_UNORM, 2u, 1, 1, 1);
 
@@ -458,7 +488,8 @@ TEST(TestBitmap_RawBitmapUtil, Average32To8_InPlace_222)
   std::array<uint8_t, 2 * (4 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------A, X, B
   const std::array<uint8_t, 2 * (4 + 1)> expected{3, 0, 8};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Average32To8(rawBitmap, PixelFormat::R8_UNORM, 2u, 2, 2, 2);
 
@@ -475,7 +506,8 @@ TEST(TestBitmap_RawBitmapUtil, Average32To8_InPlace_333)
   std::array<uint8_t, 2 * (4 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------A, X, B
   const std::array<uint8_t, 2 * (4 + 1)> expected{4, 0, 9};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Average32To8(rawBitmap, PixelFormat::R8_UNORM, 2u, 3, 3, 3);
 
@@ -492,7 +524,8 @@ TEST(TestBitmap_RawBitmapUtil, Average32To8_InPlace_012)
   std::array<uint8_t, 2 * (4 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------A, X, B
   const std::array<uint8_t, 2 * (4 + 1)> expected{2, 0, 7};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Average32To8(rawBitmap, PixelFormat::R8_UNORM, 2u, 0, 1, 2);
 
@@ -509,7 +542,8 @@ TEST(TestBitmap_RawBitmapUtil, ClearPadding)
   std::array<uint8_t, 2 * (4 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------A, A, A, A, X, B, B, B, B, X
   const std::array<uint8_t, 2 * (4 + 1)> expected{1, 2, 3, 4, 0, 6, 7, 8, 9, 0};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::ClearPadding(rawBitmap);
 
@@ -524,7 +558,8 @@ TEST(TestBitmap_RawBitmapUtil, FlipHorizontal)
   std::array<uint8_t, 2 * (4 + 1)> data{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------B, B, B, B, X, A, A, A, A, X
   const std::array<uint8_t, 2 * (4 + 1)> expected{6, 7, 8, 9, 5, 1, 2, 3, 4, 10};
-  RawBitmapEx rawBitmap(data.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx rawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(data), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::FlipHorizontal(rawBitmap);
 
@@ -537,10 +572,12 @@ TEST(TestBitmap_RawBitmapUtil, MemoryCopy_32_SameStride)
   // 1X2 with one byte skipped in stride
   //-----------------------------------------A, A, A, A, X, B, B, B, B, X
   const std::array<uint8_t, 2 * (4 + 1)> src{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-  const RawBitmap srcRawBitmap(src.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   std::array<uint8_t, 2 * (4 + 1)> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::MemoryCopy(dstRawBitmap, srcRawBitmap);
 
@@ -556,10 +593,12 @@ TEST(TestBitmap_RawBitmapUtil, MemoryCopy_32_DifferentStride)
   // 1X2 with one byte skipped in stride
   //-----------------------------------------A, A, A, A, X, B, B, B, B, X
   const std::array<uint8_t, 2 * (4 + 1)> src{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-  const RawBitmap srcRawBitmap(src.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   std::array<uint8_t, 2 * 4> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::MemoryCopy(dstRawBitmap, srcRawBitmap);
 
@@ -577,10 +616,12 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle24From012To210_SrcToDst_SameStride)
   const std::array<uint8_t, 2 * (3 + 1)> src{1, 2, 3, 4, 5, 6, 7, 8};
   //----------------------------------------------A, A, A, X, B, B, B, X
   const std::array<uint8_t, 2 * (3 + 1)> expected{3, 2, 1, 0, 7, 6, 5, 0};
-  RawBitmap rawBitmap(src.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  ReadOnlyRawBitmap rawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   std::array<uint8_t, 2 * (3 + 1)> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle24From012To210(dstRawBitmap, rawBitmap);
 
@@ -595,10 +636,12 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle24From012To210_SrcToDst_DifferentStride)
   const std::array<uint8_t, 2 * (3 + 1)> src{1, 2, 3, 4, 5, 6, 7, 8};
   //----------------------------------------A, A, A, B, B, B
   const std::array<uint8_t, 2 * 3> expected{3, 2, 1, 7, 6, 5};
-  RawBitmap rawBitmap(src.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  ReadOnlyRawBitmap rawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   std::array<uint8_t, 2 * 3> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 3u, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 3u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle24From012To210(dstRawBitmap, rawBitmap);
 
@@ -623,10 +666,12 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle32To24_SrcToDst_012)
   const std::array<uint8_t, 2 * (4 + 1)> src{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------A, A, A, X, B, B, B, X
   const std::array<uint8_t, 2 * (4 + 1)> expected{1, 2, 3, 0, 6, 7, 8, 0};
-  const RawBitmap srcRawBitmap(src.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   std::array<uint8_t, 2 * (4 + 1)> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle32To24(dstRawBitmap, srcRawBitmap, 0, 1, 2);
 
@@ -641,10 +686,12 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle32To24_SrcToDst_120)
   const std::array<uint8_t, 2 * (4 + 1)> src{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   //----------------------------------------------A, A, A, X, B, B, B, X
   const std::array<uint8_t, 2 * (4 + 1)> expected{2, 3, 1, 0, 7, 8, 6, 0};
-  const RawBitmap srcRawBitmap(src.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   std::array<uint8_t, 2 * (4 + 1)> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle32To24(dstRawBitmap, srcRawBitmap, 1, 2, 0);
 
@@ -659,10 +706,12 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle24To32_SrcToDst_012)
   const std::array<uint8_t, 2 * (3 + 1)> src{1, 2, 3, 4, 5, 6, 7, 8};
   //----------------------------------------------A, A, A, A,  X, B, B, B, B,  X
   const std::array<uint8_t, 2 * (4 + 1)> expected{1, 2, 3, 10, 0, 5, 6, 7, 10, 0};
-  const RawBitmap srcRawBitmap(src.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   std::array<uint8_t, 2 * (4 + 1)> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle24To32(dstRawBitmap, srcRawBitmap, 0, 1, 2, 3, 10u);
 
@@ -677,10 +726,12 @@ TEST(TestBitmap_RawBitmapUtil, Swizzle24To32_SrcToDst_1230)
   const std::array<uint8_t, 2 * (3 + 1)> src{1, 2, 3, 4, 5, 6, 7, 8};
   //----------------------------------------------A, A, A, A,  X, B, B, B, B,  X
   const std::array<uint8_t, 2 * (4 + 1)> expected{10, 1, 2, 3, 0, 10, 5, 6, 7, 0};
-  const RawBitmap srcRawBitmap(src.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   std::array<uint8_t, 2 * (4 + 1)> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Swizzle24To32(dstRawBitmap, srcRawBitmap, 1, 2, 3, 0, 10u);
 
@@ -695,10 +746,11 @@ TEST(TestBitmap_RawBitmapUtil, Average24To8_SrcToDst_000)
   const std::array<uint8_t, 2 * (3 + 1)> src{1, 2, 3, 4, 5, 6, 7, 8};
   //----------------------------------------------A, X, B
   const std::array<uint8_t, 2 * (3 + 1)> expected{1, 0, 5};
-  const RawBitmap srcRawBitmap(src.data(), 1, 2, PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(1, 2), PixelFormat::R8G8B8_UNORM, 4u, BitmapOrigin::UpperLeft));
 
   std::array<uint8_t, 2 * (3 + 1)> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 1, 2, PixelFormat::R8_UNORM, 2u, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 2), PixelFormat::R8_UNORM, 2u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Average24To8(dstRawBitmap, srcRawBitmap, 0, 0, 0);
 
@@ -713,10 +765,12 @@ TEST(TestBitmap_RawBitmapUtil, Expand1ByteToNBytes_SrcToDst)
   const std::array<uint8_t, 2 * (1 + 1)> src{1, 2, 3, 4};
   //----------------------------------------------A, A, A, A, X, B, B, B, B, X
   const std::array<uint8_t, 2 * (4 + 1)> expected{1, 1, 1, 1, 0, 3, 3, 3, 3, 0};
-  const RawBitmap srcRawBitmap(src.data(), 1, 2, PixelFormat::R8_UNORM, 2u, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(1, 2), PixelFormat::R8_UNORM, 2u, BitmapOrigin::UpperLeft));
 
   std::array<uint8_t, 2 * (4 + 1)> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 5u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::Expand1ByteToNBytes(dstRawBitmap, srcRawBitmap);
 
@@ -739,10 +793,12 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleNearest_Scale_16x1)
     0x20, 0x21, 0x22, 0x23, 0x28, 0x29, 0x2a, 0x2b, 0x30, 0x31, 0x32, 0x33, 0x38, 0x39, 0x3a, 0x3b,
   };
 
-  const RawBitmap srcRawBitmap(src.data(), 16, 1, PixelFormat::R8G8B8A8_UNORM, 16 * 4, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(16, 1), PixelFormat::R8G8B8A8_UNORM, 16 * 4, BitmapOrigin::UpperLeft));
 
   std::array<uint8_t, 8 * 4> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 8, 1, PixelFormat::R8G8B8A8_UNORM, 8 * 4, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(8, 1), PixelFormat::R8G8B8A8_UNORM, 8 * 4, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::DownscaleNearest(dstRawBitmap, srcRawBitmap);
 
@@ -757,10 +813,12 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_NoScale_1x2)
 
   //----------------------------------------------A, A, A, A, X, X, X, X, B, B,  B,  B,  X, X, X, X
   const std::array<uint8_t, 2 * (4 + 4)> expected{1, 2, 3, 4, 0, 0, 0, 0, 9, 10, 11, 12, 0, 0, 0, 0};
-  const RawBitmap srcRawBitmap(src.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 8u, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 8u, BitmapOrigin::UpperLeft));
 
   std::array<uint8_t, 2 * (4 + 4)> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 8u, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 8u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap);
 
@@ -785,10 +843,12 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_NoScale_4x4)
     0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
   };
 
-  const RawBitmap srcRawBitmap(src.data(), 4, 4, PixelFormat::R8G8B8A8_UNORM, 16u, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(4, 4), PixelFormat::R8G8B8A8_UNORM, 16u, BitmapOrigin::UpperLeft));
 
   std::array<uint8_t, 16 * 4> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 4, 4, PixelFormat::R8G8B8A8_UNORM, 16u, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(4, 4), PixelFormat::R8G8B8A8_UNORM, 16u, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap);
 
@@ -812,10 +872,12 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_Scale_16x1)
     0x20, 0x21, 0x22, 0x23, 0x28, 0x29, 0x2a, 0x2b, 0x30, 0x31, 0x32, 0x33, 0x38, 0x39, 0x3a, 0x3b,
   };
 
-  const RawBitmap srcRawBitmap(src.data(), 16, 1, PixelFormat::R8G8B8A8_UNORM, 16 * 4, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(16, 1), PixelFormat::R8G8B8A8_UNORM, 16 * 4, BitmapOrigin::UpperLeft));
 
   std::array<uint8_t, 8 * 4> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 8, 1, PixelFormat::R8G8B8A8_UNORM, 8 * 4, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(8, 1), PixelFormat::R8G8B8A8_UNORM, 8 * 4, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap);
 
@@ -839,10 +901,12 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_Scale_1x16)
     0x20, 0x21, 0x22, 0x23, 0x28, 0x29, 0x2a, 0x2b, 0x30, 0x31, 0x32, 0x33, 0x38, 0x39, 0x3a, 0x3b,
   };
 
-  const RawBitmap srcRawBitmap(src.data(), 1, 16, PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(1, 16), PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft));
 
   std::array<uint8_t, 8 * 4> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 1, 8, PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 8), PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap);
 
@@ -866,10 +930,12 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_Scale_4x4)
     0x00, 0x01, 0x02, 0x03, 0x08, 0x09, 0x0a, 0x0b, 0x20, 0x21, 0x22, 0x23, 0x28, 0x29, 0x2a, 0x2b,
   };
 
-  const RawBitmap srcRawBitmap(src.data(), 4, 4, PixelFormat::R8G8B8A8_UNORM, 4 * 4, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(4, 4), PixelFormat::R8G8B8A8_UNORM, 4 * 4, BitmapOrigin::UpperLeft));
 
   std::array<uint8_t, (2 * 2) * 4> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 2, 2, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(2, 2), PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap);
 
@@ -889,11 +955,13 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_Scale_4x4ToZero)
   //----------------------------------------------A, A, A, A, X, X, X, X, B, B,  B,  B,  X, X, X, X
   const std::array<uint8_t, 1> expected{};
 
-  const RawBitmap srcRawBitmap(src.data(), 4, 4, PixelFormat::R8G8B8A8_UNORM, 4 * 4, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(4, 4), PixelFormat::R8G8B8A8_UNORM, 4 * 4, BitmapOrigin::UpperLeft));
 
   // We use size 1 arrays here to ensure that we dont get a null ptr from data()
   std::array<uint8_t, 1> dst{};
-  RawBitmapEx dstRawBitmap(dst.data(), 0, 0, PixelFormat::R8G8B8A8_UNORM, 0, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(0, 0), PixelFormat::R8G8B8A8_UNORM, 0, BitmapOrigin::UpperLeft));
 
   RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap);
 
@@ -905,30 +973,36 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_Unsupported)
   // 1X2 with four bytes skipped in stride
   const std::array<uint8_t, 1 * 4> src{};
 
-  const RawBitmap srcRawBitmap(src.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(1, 1), PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft));
 
   // We use size 1 arrays here to ensure that we dont get a null ptr from data()
   std::array<uint8_t, (4 * 4) * 4> dst{};
 
   {    // Upscale X
-    RawBitmapEx dstRawBitmap(dst.data(), 2, 1, PixelFormat::R8G8B8A8_UNORM, 8, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(2, 1), PixelFormat::R8G8B8A8_UNORM, 8, BitmapOrigin::UpperLeft));
     EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
   }
   {    // Upscale Y
-    RawBitmapEx dstRawBitmap(dst.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft));
     EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
   }
   {    // Mismatched origin
-    RawBitmapEx dstRawBitmap(dst.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::LowerLeft);
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 1), PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::LowerLeft));
     EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
   }
   {    // Mismatched pixel format
-    RawBitmapEx dstRawBitmap(dst.data(), 1, 1, PixelFormat::R8G8B8_UNORM, 4, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 1), PixelFormat::R8G8B8_UNORM, 4, BitmapOrigin::UpperLeft));
     EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
   }
   {    // invalid src
-    RawBitmap srcRawBitmapInvalid;
-    RawBitmapEx dstRawBitmap(dst.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 8, BitmapOrigin::UpperLeft);
+    ReadOnlyRawBitmap srcRawBitmapInvalid;
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 1), PixelFormat::R8G8B8A8_UNORM, 8, BitmapOrigin::UpperLeft));
     EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmapInvalid), std::invalid_argument);
   }
   {    // invalid dst
@@ -936,12 +1010,15 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_Unsupported)
     EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
   }
   {    // invalid dst stride
-    RawBitmapEx dstRawBitmap(dst.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 5, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 1), PixelFormat::R8G8B8A8_UNORM, 5, BitmapOrigin::UpperLeft));
     EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap), NotSupportedException);
   }
   {    // invalid src stride
-    RawBitmapEx srcRawBitmapInvalid(dst.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 5, BitmapOrigin::UpperLeft);
-    RawBitmapEx dstRawBitmap(dst.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft);
+    RawBitmapEx srcRawBitmapInvalid(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 1), PixelFormat::R8G8B8A8_UNORM, 5, BitmapOrigin::UpperLeft));
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 1), PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft));
     EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmapInvalid), NotSupportedException);
   }
 }
@@ -950,12 +1027,14 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_WidthExceeded)
 {
   const std::vector<uint8_t> src(0x10000 * 4);
 
-  const RawBitmap srcRawBitmap(src.data(), 0x10000, 1, PixelFormat::R8G8B8A8_UNORM, 0x10000 * 4, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(0x10000, 1),
+                                                                 PixelFormat::R8G8B8A8_UNORM, 0x10000 * 4, BitmapOrigin::UpperLeft));
 
   // We use size 1 arrays here to ensure that we dont get a null ptr from data()
   std::vector<uint8_t> dst(0x10000 * 4);
 
-  RawBitmapEx dstRawBitmap(dst.data(), 0x10000, 1, PixelFormat::R8G8B8A8_UNORM, 0x10000 * 4, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(0x10000, 1), PixelFormat::R8G8B8A8_UNORM, 0x10000 * 4, BitmapOrigin::UpperLeft));
   EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap), NotSupportedException);
 }
 
@@ -963,12 +1042,14 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_HeightExceeded)
 {
   const std::vector<uint8_t> src(0x10000 * 4);
 
-  const RawBitmap srcRawBitmap(src.data(), 1, 0x10000, PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(1, 0x10000), PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft));
 
   // We use size 1 arrays here to ensure that we dont get a null ptr from data()
   std::vector<uint8_t> dst(0x10000 * 4);
 
-  RawBitmapEx dstRawBitmap(dst.data(), 1, 0x10000, PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft);
+  RawBitmapEx dstRawBitmap(
+    RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 0x10000), PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft));
   EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap), NotSupportedException);
 }
 
@@ -977,42 +1058,57 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleBoxFilter32_Unsupported)
 {
   // 1X2 with four bytes skipped in stride
   const std::array<uint8_t, (4 * 4) * 4> src{};
+  const std::array<uint8_t, (5 * 4) * 4> src5x4{};
+  const std::array<uint8_t, (100) * 4> srcLarge{};
 
-  const RawBitmap srcRawBitmap(src.data(), 4, 4, PixelFormat::R8G8B8A8_UNORM, 4 * 4, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(4, 4), PixelFormat::R8G8B8A8_UNORM, 4 * 4, BitmapOrigin::UpperLeft));
 
   // We use size 1 arrays here to ensure that we dont get a null ptr from data()
   std::array<uint8_t, (2 * 2) * 4> dst{};
+  std::array<uint8_t, (3 * 2) * 4> dst3x2{};
+  std::array<uint8_t, (2 * 3) * 4> dst2x3{};
+  std::array<uint8_t, (100) * 4> dstLarge{};
 
   {    // Invalid src width
-    const RawBitmap srcRawBitmap2(src.data(), 5, 4, PixelFormat::R8G8B8A8_UNORM, 5 * 4, BitmapOrigin::UpperLeft);
-    RawBitmapEx dstRawBitmap(dst.data(), 2, 2, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+    const ReadOnlyRawBitmap srcRawBitmap2(ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src5x4), PxSize2D::Create(5, 4),
+                                                                    PixelFormat::R8G8B8A8_UNORM, 5 * 4, BitmapOrigin::UpperLeft));
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(2, 2), PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft));
     EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap2), std::invalid_argument);
   }
 
   {    // Invalid width
-    RawBitmapEx dstRawBitmap(dst.data(), 3, 2, PixelFormat::R8G8B8A8_UNORM, 3 * 4, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst3x2), PxSize2D::Create(3, 2), PixelFormat::R8G8B8A8_UNORM, 3 * 4, BitmapOrigin::UpperLeft));
     EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
   }
   {    // Invalid Height
-    RawBitmapEx dstRawBitmap(dst.data(), 2, 3, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst2x3), PxSize2D::Create(2, 3), PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft));
     EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
   }
   {    // Mismatched origin
-    RawBitmapEx dstRawBitmap(dst.data(), 2, 2, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::LowerLeft);
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(2, 2), PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::LowerLeft));
     EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
   }
   {    // Mismatched pixel format
-    RawBitmapEx dstRawBitmap(dst.data(), 2, 2, PixelFormat::R8G8B8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(2, 2), PixelFormat::R8G8B8_UNORM, 2 * 4, BitmapOrigin::UpperLeft));
     EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
   }
   {    // Mismatched pixel channels
-    const RawBitmap srcRawBitmap2(src.data(), 4, 4, PixelFormat::R16G16_SFLOAT, 4 * 4, BitmapOrigin::UpperLeft);
-    RawBitmapEx dstRawBitmap(dst.data(), 2, 2, PixelFormat::R16G16_SFLOAT, 2 * 4, BitmapOrigin::UpperLeft);
+    const ReadOnlyRawBitmap srcRawBitmap2(
+      ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(4, 4), PixelFormat::R16G16_SFLOAT, 4 * 4, BitmapOrigin::UpperLeft));
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(2, 2), PixelFormat::R16G16_SFLOAT, 2 * 4, BitmapOrigin::UpperLeft));
     EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap2), std::invalid_argument);
   }
   {    // invalid src
-    RawBitmap srcRawBitmapInvalid;
-    RawBitmapEx dstRawBitmap(dst.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft);
+    ReadOnlyRawBitmap srcRawBitmapInvalid;
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 1), PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft));
     EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmapInvalid), std::invalid_argument);
   }
   {    // invalid dst
@@ -1020,12 +1116,15 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleBoxFilter32_Unsupported)
     EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
   }
   {    // invalid dst stride
-    RawBitmapEx dstRawBitmap(dst.data(), 2, 2, PixelFormat::R8G8B8A8_UNORM, (2 * 4) + 1, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dstLarge), PxSize2D::Create(2, 2), PixelFormat::R8G8B8A8_UNORM, (2 * 4) + 1, BitmapOrigin::UpperLeft));
     EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap), NotSupportedException);
   }
   {    // invalid src stride
-    RawBitmapEx srcRawBitmapInvalid(dst.data(), 4, 4, PixelFormat::R8G8B8A8_UNORM, (4 * 4) + 1, BitmapOrigin::UpperLeft);
-    RawBitmapEx dstRawBitmap(dst.data(), 2, 2, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+    ReadOnlyRawBitmap srcRawBitmapInvalid(ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(srcLarge), PxSize2D::Create(4, 4),
+                                                                    PixelFormat::R8G8B8A8_UNORM, (4 * 4) + 1, BitmapOrigin::UpperLeft));
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dstLarge), PxSize2D::Create(2, 2), PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft));
     EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmapInvalid), NotSupportedException);
   }
 }
@@ -1034,13 +1133,15 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleBoxFilter32_From1x1)
 {
   const std::array<uint8_t, (1 * 1) * 4> src{0x80, 0x60, 0x40, 0x20};
 
-  const RawBitmap srcRawBitmap(src.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(1, 1), PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft));
 
   // We use size 1 arrays here to ensure that we dont get a null ptr from data()
   std::array<uint8_t, (1 * 1) * 4> dst{};
 
   {
-    RawBitmapEx dstRawBitmap(dst.data(), 0, 0, PixelFormat::R8G8B8A8_UNORM, 0 * 4, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(0, 0), PixelFormat::R8G8B8A8_UNORM, 0 * 4, BitmapOrigin::UpperLeft));
     RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap);
   }
 }
@@ -1051,13 +1152,15 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleBoxFilter32_From2x2A)
   //                                            A,    A,    A,    A,    B,    B,    B,    B,    C,    C,    C,    C,    D,    D,    D,    D
   const std::array<uint8_t, (2 * 2) * 4> src{0xFF, 0x00, 0x00, 0x00, 0x00, 0xEF, 0x00, 0x00, 0x00, 0x00, 0xDF, 0x00, 0x00, 0x00, 0x00, 0xCF};
 
-  const RawBitmap srcRawBitmap(src.data(), 2, 2, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(2, 2), PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft));
 
   // We use size 1 arrays here to ensure that we dont get a null ptr from data()
   std::array<uint8_t, (1 * 1) * 4> dst{};
 
   {
-    RawBitmapEx dstRawBitmap(dst.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 1), PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft));
     RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap);
 
     //                                                 A,    A,    A,    A
@@ -1072,13 +1175,15 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleBoxFilter32_From2x2B)
   //                                            A,    A,    A,    A,    B,    B,    B,    B,    C,    C,    C,    C,    D,    D,    D,    D
   const std::array<uint8_t, (2 * 2) * 4> src{0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0xA0, 0xB0, 0xC0, 0xD0, 0xE0, 0xF0};
 
-  const RawBitmap srcRawBitmap(src.data(), 2, 2, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(2, 2), PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft));
 
   // We use size 1 arrays here to ensure that we dont get a null ptr from data()
   std::array<uint8_t, (1 * 1) * 4> dst{};
 
   {
-    RawBitmapEx dstRawBitmap(dst.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 1), PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft));
     RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap);
 
     const std::array<uint8_t, (1 * 1) * 4> expected{(0x00 + 0x40 + 0x80 + 0xC0) / 4, (0x10 + 0x50 + 0x90 + 0xD0) / 4, (0x20 + 0x60 + 0xA0 + 0xE0) / 4,
@@ -1095,13 +1200,15 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleBoxFilter32_From4x2)
   const std::array<uint8_t, (4 * 2) * 4> src{0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0xA0, 0xB0, 0xC0, 0xD0, 0xE0, 0xF0,
                                              0xE8, 0xD8, 0xC8, 0xB8, 0xA8, 0x98, 0x88, 0x78, 0x68, 0x58, 0x48, 0x38, 0x28, 0x18, 0x08, 0x03};
 
-  const RawBitmap srcRawBitmap(src.data(), 4, 2, PixelFormat::R8G8B8A8_UNORM, 4 * 4, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(4, 2), PixelFormat::R8G8B8A8_UNORM, 4 * 4, BitmapOrigin::UpperLeft));
 
   // We use size 1 arrays here to ensure that we dont get a null ptr from data()
   std::array<uint8_t, (2 * 1) * 4> dst{};
 
   {
-    RawBitmapEx dstRawBitmap(dst.data(), 2, 1, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(2, 1), PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft));
     RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap);
 
     const std::array<uint8_t, (2 * 1) * 4> expected{(0x00 + 0x40 + 0xE8 + 0xA8) / 4, (0x10 + 0x50 + 0xD8 + 0x98) / 4, (0x20 + 0x60 + 0xC8 + 0x88) / 4,
@@ -1119,13 +1226,15 @@ TEST(TestBitmap_RawBitmapUtil, DownscaleBoxFilter32_From2x4)
   const std::array<uint8_t, (2 * 4) * 4> src{0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0xA0, 0xB0, 0xC0, 0xD0, 0xE0, 0xF0,
                                              0xE8, 0xD8, 0xC8, 0xB8, 0xA8, 0x98, 0x88, 0x78, 0x68, 0x58, 0x48, 0x38, 0x28, 0x18, 0x08, 0x03};
 
-  const RawBitmap srcRawBitmap(src.data(), 2, 4, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+  const ReadOnlyRawBitmap srcRawBitmap(
+    ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(src), PxSize2D::Create(2, 4), PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft));
 
   // We use size 1 arrays here to ensure that we dont get a null ptr from data()
   std::array<uint8_t, (1 * 2) * 4> dst{};
 
   {
-    RawBitmapEx dstRawBitmap(dst.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(
+      RawBitmapEx::Create(SpanUtil::AsSpan(dst), PxSize2D::Create(1, 2), PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft));
     RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap);
 
     const std::array<uint8_t, (1 * 2) * 4> expected{(0x00 + 0x40 + 0x80 + 0xC0) / 4, (0x10 + 0x50 + 0x90 + 0xD0) / 4, (0x20 + 0x60 + 0xA0 + 0xE0) / 4,

@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Collections/HandleVector.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslDataBinding/Base/BindingMode.hpp>
 #include <FslDataBinding/Base/DataBindingInstanceHandle.hpp>
 #include <FslDataBinding/Base/DataSourceFlags.hpp>
@@ -199,12 +198,21 @@ namespace Fsl::DataBinding
     //! @note  This is used for any dependency object currently being tracked and bind-able.
     DataBindingInstanceHandle CreateDependencyObject();
 
+
     //! @brief Create a dependency object property
     //! @param hDependencyObject the DependencyObject to create the property on.
     //! @note  This creates a actual 'bindable' property
     DataBindingInstanceHandle CreateDependencyObjectProperty(DataBindingInstanceHandle hDependencyObject,
                                                              const DependencyPropertyDefinition& propertyDefinition,
                                                              std::unique_ptr<Internal::IDependencyPropertyMethods> methods);
+
+    //! @brief Create a dependency object property
+    //! @param hDependencyObject the DependencyObject to create the property on.
+    //! @note  This creates a actual 'bindable' property
+    DataBindingInstanceHandle CreateReadOnlyDependencyObjectProperty(DataBindingInstanceHandle hDependencyObject,
+                                                                     const DependencyPropertyDefinition& propertyDefinition,
+                                                                     std::unique_ptr<Internal::IDependencyPropertyMethods> methods);
+
     //! @brief Create a dependency object observer property
     DataBindingInstanceHandle CreateDependencyObjectObserverProperty(const DataBindingInstanceHandle hOwner,
                                                                      const DependencyPropertyDefinition& propertyDefinition,

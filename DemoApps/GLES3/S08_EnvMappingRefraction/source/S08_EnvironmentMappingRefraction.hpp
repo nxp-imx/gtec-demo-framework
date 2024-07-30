@@ -42,6 +42,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class S08_EnvironmentMappingRefraction : public DemoAppGLES3
   {
     EnvState m_renderState;

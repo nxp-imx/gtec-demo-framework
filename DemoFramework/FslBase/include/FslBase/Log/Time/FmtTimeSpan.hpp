@@ -1,7 +1,7 @@
 #ifndef FSLBASE_LOG_TIME_FMTTIMESPAN_HPP
 #define FSLBASE_LOG_TIME_FMTTIMESPAN_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Time/TimeSpan.hpp>
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 namespace fmt
 {
@@ -40,15 +40,27 @@ namespace fmt
   struct formatter<Fsl::TimeSpan>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::TimeSpan& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{}0ns", value.Ticks());
+      const int64_t ticksLessThanSeconds = (value.Ticks() % Fsl::TimeSpan::TicksPerSecond);
+      if (value.Days() > 0)
+      {
+        return ticksLessThanSeconds <= 0
+                 ? fmt::format_to(ctx.out(), "{}.{:02}:{:02}:{:02}", value.Days(), value.Hours(), value.Minutes(), value.Seconds())
+                 : fmt::format_to(ctx.out(), "{}.{:02}:{:02}:{:02}.{:07}", value.Days(), value.Hours(), value.Minutes(), value.Seconds(),
+                                  ticksLessThanSeconds);
+      }
+      return ticksLessThanSeconds <= 0
+               ? fmt::format_to(ctx.out(), "{:02}:{:02}:{:02}", value.Hours(), value.Minutes(), value.Seconds())
+               : fmt::format_to(ctx.out(), "{:02}:{:02}:{:02}.{:07}", value.Hours(), value.Minutes(), value.Seconds(), ticksLessThanSeconds);
     }
   };
 }

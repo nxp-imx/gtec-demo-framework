@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/ITag.hpp>
+#include <FslDemoService/Graphics/ColorSpaceType.hpp>
 #include <memory>
 #include <utility>
 
@@ -46,12 +47,14 @@ namespace Fsl
     ConfigurationChanged = (Resize | DpiChange),
   };
 
-  constexpr inline CustomDemoAppConfigRestartFlags operator|(const CustomDemoAppConfigRestartFlags lhs, const CustomDemoAppConfigRestartFlags rhs)
+  constexpr inline CustomDemoAppConfigRestartFlags operator|(const CustomDemoAppConfigRestartFlags lhs,
+                                                             const CustomDemoAppConfigRestartFlags rhs) noexcept
   {
     return static_cast<CustomDemoAppConfigRestartFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
   }
 
-  constexpr inline CustomDemoAppConfigRestartFlags operator&(const CustomDemoAppConfigRestartFlags lhs, const CustomDemoAppConfigRestartFlags rhs)
+  constexpr inline CustomDemoAppConfigRestartFlags operator&(const CustomDemoAppConfigRestartFlags lhs,
+                                                             const CustomDemoAppConfigRestartFlags rhs) noexcept
   {
     return static_cast<CustomDemoAppConfigRestartFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
   }
@@ -59,7 +62,7 @@ namespace Fsl
 
   namespace CustomDemoAppConfigRestartFlagsUtil
   {
-    constexpr inline bool IsFlagged(const CustomDemoAppConfigRestartFlags src, const CustomDemoAppConfigRestartFlags flag)
+    constexpr inline bool IsFlagged(const CustomDemoAppConfigRestartFlags src, const CustomDemoAppConfigRestartFlags flag) noexcept
     {
       return (src & flag) == flag;
     }
@@ -71,6 +74,9 @@ namespace Fsl
     CustomDemoAppConfigRestartFlags RestartFlags{CustomDemoAppConfigRestartFlags::ConfigurationChanged};
     uint32_t MaxFramesInFlight{2};
     std::shared_ptr<ITag> AppRegistrationUserTag;
+    //! Set this to true if this app is
+    ColorSpaceType AppColorSpaceType{ColorSpaceType::Gamma};
+    bool HDREnabled{false};
 
     CustomDemoAppConfig() = default;
 

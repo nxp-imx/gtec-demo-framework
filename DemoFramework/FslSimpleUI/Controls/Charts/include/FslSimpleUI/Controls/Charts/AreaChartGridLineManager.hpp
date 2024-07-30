@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_CONTROLS_CHARTS_AREACHARTGRIDLINEMANAGER_HPP
 #define FSLSIMPLEUI_CONTROLS_CHARTS_AREACHARTGRIDLINEMANAGER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@
 #include <FslSimpleUI/Controls/Charts/Grid/ChartGridConfig.hpp>
 #include <FslSimpleUI/Controls/Charts/Grid/ChartGridLineInfo.hpp>
 #include <FslSimpleUI/Controls/Charts/Render/RenderAreaChartConfig.hpp>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -49,7 +50,6 @@ namespace Fsl
 {
   class NineSliceSprite;
   class SpriteFont;
-  class TransitionCache;
 
   namespace UI
   {
@@ -65,11 +65,14 @@ namespace Fsl
     {
       struct ViewRecord
       {
+        // NOLINTNEXTLINE(readability-identifier-naming)
         TransitionValue m_animatedViewMin;
+        // NOLINTNEXTLINE(readability-identifier-naming)
         TransitionValue m_animatedViewMax;
+        // NOLINTNEXTLINE(readability-identifier-naming)
         MinMax<uint32_t> m_actualMinMax;
 
-        ViewRecord(TransitionCache& rTransitionCache, const TimeSpan transitionTime);
+        explicit ViewRecord(const TimeSpan transitionTime);
         bool SetViewMinMax(const MinMax<uint32_t> minMax);
         uint32_t ViewMin() const;
         uint32_t ViewMax() const;
@@ -88,22 +91,24 @@ namespace Fsl
       struct GridLineRecord
       {
         bool Suggested{false};
+        // NOLINTNEXTLINE(readability-identifier-naming)
         TransitionValue m_animatedAlpha;
-        uint8_t m_actualAlpha{0};
+        // NOLINTNEXTLINE(readability-identifier-naming)
+        ColorChannelValueU16 m_actualAlpha;
         uint32_t RawDataPosition{0};
         std::string Label;
 
         GridLineRecord() = default;
-        GridLineRecord(TransitionCache& rTransitionCache, const TimeSpan transitionTime);
+        explicit GridLineRecord(const TimeSpan transitionTime);
 
-        void SetAlpha(const uint8_t alpha);
-        uint8_t GetAlpha() const;
+        void SetAlpha(const ColorChannelValueU16 alpha);
+        ColorChannelValueU16 GetAlpha() const;
 
         void Clear()
         {
           Suggested = false;
           m_animatedAlpha.SetActualValue(0.0f);
-          m_actualAlpha = 0;
+          m_actualAlpha = {};
           RawDataPosition = 0;
         }
         bool Update(const TimeSpan& timespan);
@@ -124,8 +129,8 @@ namespace Fsl
       std::shared_ptr<ChartDataView> m_dataView;
 
     public:
-      AreaChartGridLineManager(TransitionCache& rTransitionCache, const TimeSpan transitionTime, const TimeSpan transitionTimespanLabels,
-                               const PxSize1D chartEntryWidthPx, const PxSize1D chartLabelSpacingPx);
+      AreaChartGridLineManager(const TimeSpan transitionTime, const TimeSpan transitionTimespanLabels, const PxSize1D chartEntryWidthPx,
+                               const PxSize1D chartLabelSpacingPx);
 
 
       const std::shared_ptr<ChartDataView>& GetDataView() const

@@ -11,20 +11,21 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class E4_0_PRestart : public DemoAppGLES3
   {
     struct UserData
     {
       // VertexBufferObject Ids
-      GLuint vboIds[2]{};    // NOLINT(modernize-avoid-c-arrays)
+      GLuint VboIds[2]{};    // NOLINT(modernize-avoid-c-arrays)
       // VertexArrayObject Id
-      GLuint vaoId[1]{};    // NOLINT(modernize-avoid-c-arrays)
+      GLuint VaoId[1]{};    // NOLINT(modernize-avoid-c-arrays)
 
       UserData()
       {
-        vboIds[0] = GLES3::GLValues::INVALID_HANDLE;
-        vboIds[1] = GLES3::GLValues::INVALID_HANDLE;
-        vaoId[0] = GLES3::GLValues::INVALID_HANDLE;
+        VboIds[0] = GLES3::GLValues::InvalidHandle;
+        VboIds[1] = GLES3::GLValues::InvalidHandle;
+        VaoId[0] = GLES3::GLValues::InvalidHandle;
       }
     };
 

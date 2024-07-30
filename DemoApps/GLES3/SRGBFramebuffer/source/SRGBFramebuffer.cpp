@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,8 +57,8 @@ namespace Fsl
 
   namespace
   {
-    constexpr Vector3 DEFAULT_CAMERA_POSITION(4.0f, 1.0f, 7.0f);
-    constexpr Vector3 DEFAULT_CAMERA_TARGET(0.0f, 0.0f, 0.0f);
+    constexpr Vector3 DefaultCameraPosition(4.0f, 1.0f, 7.0f);
+    constexpr Vector3 DefaultCameraTarget(0.0f, 0.0f, 0.0f);
 
     bool IsSRGBFrameBuffer(const std::shared_ptr<ITag>& tag)
     {
@@ -66,33 +66,39 @@ namespace Fsl
       return userTagEx && userTagEx->SRGBFramebufferEnabled;
     }
 
+
+    IO::Path GetAtlasName(const bool hasSRGBFramebuffer, const IO::PathView path)
+    {
+      return IO::Path::Combine(hasSRGBFramebuffer ? "Linear" : "NonLinear", path);
+    }
   }
 
 
   SRGBFramebuffer::SRGBFramebuffer(const DemoAppConfig& config)
     : DemoAppGLES3(config)
     , m_hasSRGBFramebuffer(IsSRGBFrameBuffer(config.CustomConfig.AppRegistrationUserTag))
-    , m_colorSpace(!m_hasSRGBFramebuffer ? ColorSpace::SRGBNonLinear : ColorSpace::SRGBLinear)
+    , m_colorSpace(!m_hasSRGBFramebuffer ? UI::UIColorSpace::SRGBNonLinear : UI::UIColorSpace::SRGBLinear)
     , m_uiEventListener(this)    // The UI listener forwards call to 'this' object
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi",
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(),
+                                                         GetAtlasName(m_hasSRGBFramebuffer, IO::PathView("UIAtlas/UIAtlas_160dpi")),
                                                          UIDemoAppExtension::CreateConfig(m_colorSpace)))    // Prepare the extension
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
     , m_mouseCaptureEnabled(false)
-    , m_hModelViewMatrixLoc(GLValues::INVALID_LOCATION)
-    , m_hProjMatrixLoc(GLValues::INVALID_LOCATION)
-    , m_hLightPositions(GLValues::INVALID_LOCATION)
-    , m_hLightColors(GLValues::INVALID_LOCATION)
-    , m_hViewPos(GLValues::INVALID_LOCATION)
+    , m_hModelViewMatrixLoc(GLValues::InvalidLocation)
+    , m_hProjMatrixLoc(GLValues::InvalidLocation)
+    , m_hLightPositions(GLValues::InvalidLocation)
+    , m_hLightColors(GLValues::InvalidLocation)
+    , m_hViewPos(GLValues::InvalidLocation)
     , m_state(State::Split2)
-    , m_splitX(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
-    , m_splitSceneWidthL(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
-    , m_splitSceneWidthR(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
-    , m_splitSceneAlphaL(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
-    , m_splitSceneAlphaR(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
+    , m_splitX(TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_splitSceneWidthL(TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_splitSceneWidthR(TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_splitSceneAlphaL(TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
+    , m_splitSceneAlphaR(TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
   {
-    m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+    m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
 
     const auto contentManager = GetContentManager();
 
@@ -116,7 +122,7 @@ namespace Fsl
   SRGBFramebuffer::~SRGBFramebuffer() = default;
 
 
-  void SRGBFramebuffer::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void SRGBFramebuffer::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_leftCB || theEvent->GetSource() == m_rightCB)
     {
@@ -197,7 +203,7 @@ namespace Fsl
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
-        m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+        m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
         event.Handled();
       }
       break;
@@ -325,8 +331,8 @@ namespace Fsl
 
     const float alphaL = m_splitSceneAlphaL.GetValue();
     const float alphaR = m_splitSceneAlphaR.GetValue();
-    m_labelLeft->SetFontColor(Color(alphaL, alphaL, alphaL, alphaL));
-    m_labelRight->SetFontColor(Color(alphaR, alphaR, alphaR, alphaR));
+    m_labelLeft->SetFontColor(UI::UIColor(alphaL, alphaL, alphaL, alphaL));
+    m_labelRight->SetFontColor(UI::UIColor(alphaR, alphaR, alphaR, alphaR));
   }
 
 
@@ -338,11 +344,11 @@ namespace Fsl
     glUseProgram(m_program.Get());
 
     // Load the matrices
-    assert(m_hModelViewMatrixLoc != GLValues::INVALID_HANDLE);
-    assert(m_hProjMatrixLoc != GLValues::INVALID_HANDLE);
-    assert(m_hLightPositions != GLValues::INVALID_HANDLE);
-    assert(m_hLightColors != GLValues::INVALID_HANDLE);
-    assert(m_hViewPos != GLValues::INVALID_HANDLE);
+    assert(m_hModelViewMatrixLoc != GLValues::InvalidHandle);
+    assert(m_hProjMatrixLoc != GLValues::InvalidHandle);
+    assert(m_hLightPositions != GLValues::InvalidHandle);
+    assert(m_hLightColors != GLValues::InvalidHandle);
+    assert(m_hViewPos != GLValues::InvalidHandle);
 
     glUniformMatrix4fv(m_hModelViewMatrixLoc, 1, 0, m_matrixWorldViewL.DirectAccess());
     glUniformMatrix4fv(m_hProjMatrixLoc, 1, 0, m_matrixProjectionL.DirectAccess());
@@ -461,13 +467,13 @@ namespace Fsl
       VertexPositionNormalTexture(Vector3(x1, y, z0), normal, Vector2(u1, v0)),
     };
 
-    constexpr auto vertexDecl = VertexPositionNormalTexture::GetVertexDeclarationArray();
+    constexpr auto VertexDecl = VertexPositionNormalTexture::GetVertexDeclarationArray();
     std::vector<GLES3::GLVertexAttribLink> attribLink(3);
     attribLink[0] =
-      GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
-    attribLink[1] = GLVertexAttribLink(program.GetAttribLocation("VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
+      GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+    attribLink[1] = GLVertexAttribLink(program.GetAttribLocation("VertexNormal"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
     attribLink[2] =
-      GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+      GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
 
 
     m_vertexBuffer.Reset(vertices, GL_STATIC_DRAW);

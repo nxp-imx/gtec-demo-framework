@@ -36,10 +36,11 @@
 namespace Fsl
 {
   SpriteMaterialInfo::SpriteMaterialInfo(const SpriteMaterialId spriteMaterialId, const PxExtent2D extentPx, const bool isOpaque,
-                                         std::shared_ptr<ISpriteMaterial> material)
+                                         const BasicPrimitiveTopology primitiveTopology, std::shared_ptr<ISpriteMaterial> material)
     : Id(spriteMaterialId)
     , ExtentPx(extentPx)
     , IsOpaque(isOpaque)
+    , PrimitiveTopology(primitiveTopology)
     , Material(std::move(material))
   {
   }

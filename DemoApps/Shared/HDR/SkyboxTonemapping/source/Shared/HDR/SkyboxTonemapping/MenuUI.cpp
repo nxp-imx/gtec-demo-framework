@@ -119,7 +119,7 @@ namespace Fsl
   }
 
 
-  void MenuUI::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void MenuUI::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
     if (theEvent->IsHandled())
     {
@@ -341,8 +341,8 @@ namespace Fsl
     rRender.resize(entries);
     for (auto& rRecord : rRender)
     {
-      rRecord.LabelAlpha.SetTransitionTime(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth);
-      rRecord.SplitX.SetTransitionTime(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth);
+      rRecord.LabelAlpha.SetTransitionTime(TimeSpan::FromMilliseconds(200), TransitionType::Smooth);
+      rRecord.SplitX.SetTransitionTime(TimeSpan::FromMilliseconds(400), TransitionType::Smooth);
     }
     rRender[Tonemapper::LinearNoGamma].Name = "LinearNoGamma";
     rRender[Tonemapper::Linear].Name = "Linear";

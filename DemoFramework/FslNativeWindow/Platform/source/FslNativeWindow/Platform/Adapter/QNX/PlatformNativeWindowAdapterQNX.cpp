@@ -57,7 +57,7 @@ namespace Fsl
   {
     std::weak_ptr<INativeWindowEventQueue> g_eventQueue;
 
-    VirtualMouseButton::Enum MouseToVirtualMouse(unsigned int button)
+    VirtualMouseButton MouseToVirtualMouse(unsigned int button)
     {
       return VirtualMouseButton::Left;
     }

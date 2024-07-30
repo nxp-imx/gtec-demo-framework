@@ -43,6 +43,7 @@ using namespace Fsl;
 namespace
 {
   template <typename TCurrent>
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class TestFixtureFslGraphics_ContainerTypeConvert : public TestFixtureFslGraphics
   {
   public:

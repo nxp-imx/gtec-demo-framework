@@ -2,5 +2,6 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Library Name="FslSimpleUI.Render.Stub" CreationYear="2021">
     <Dependency Name="FslSimpleUI.Render.Base"/>
+    <Dependency Name="FslSimpleUI.Render.Builder" Access="Private"/>
   </Library>
 </FslBuildGen>

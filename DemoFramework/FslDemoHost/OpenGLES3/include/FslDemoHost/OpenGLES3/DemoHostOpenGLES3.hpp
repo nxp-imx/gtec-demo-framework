@@ -38,7 +38,6 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDemoHost/EGL/EGLDemoHost.hpp>
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include <GLES3/gl3.h>

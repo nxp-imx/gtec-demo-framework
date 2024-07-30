@@ -79,10 +79,10 @@ namespace Fsl
   {
     GLBatch2D::texture_type texFillNative = TextureUtil::ToNative(drawContext.RenderSystem, drawContext.TexFill);
     const PxRectangleU32 texTrimmedRect(drawContext.TexFill.GetInfo().TrimmedRectPx);
-    constexpr auto size1Px = PxValueU::Create(1);
-    constexpr auto size2Px = PxValueU::Create(2);
-    const PxRectangleU32 rectFillTex(texTrimmedRect.X + (texTrimmedRect.Width / size2Px), texTrimmedRect.Y + (texTrimmedRect.Height / size2Px),
-                                     size1Px, size1Px);
+    constexpr auto Size1Px = PxValueU::Create(1);
+    constexpr auto Size2Px = PxValueU::Create(2);
+    const PxRectangleU32 rectFillTex(texTrimmedRect.X + (texTrimmedRect.Width / Size2Px), texTrimmedRect.Y + (texTrimmedRect.Height / Size2Px),
+                                     Size1Px, Size1Px);
 
     const int32_t width = m_gridSize.X;
     const int32_t height = m_gridSize.Y;

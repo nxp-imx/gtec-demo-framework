@@ -24,6 +24,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class S07_EnvironmentMapping : public DemoAppGLES3
   {
     EnvState m_renderState;

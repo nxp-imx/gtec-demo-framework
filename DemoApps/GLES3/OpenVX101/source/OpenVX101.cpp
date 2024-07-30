@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 #include "OpenVX101.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <RapidOpenVX/Check.hpp>
@@ -54,8 +55,8 @@ namespace Fsl
     {
       assert(srcBitmap.GetPixelFormat() == PixelFormat::EX_ALPHA8_UNORM);
 
-      const auto imageWidth = static_cast<uint32_t>(srcBitmap.Width());
-      const auto imageHeight = static_cast<uint32_t>(srcBitmap.Height());
+      const uint32_t imageWidth = srcBitmap.RawUnsignedWidth();
+      const uint32_t imageHeight = srcBitmap.RawUnsignedHeight();
 
       vx_rectangle_t imageRect = {0, 0, imageWidth, imageHeight};
       vx_imagepatch_addressing_t imageInfo = VX_IMAGEPATCH_ADDR_INIT;
@@ -69,10 +70,9 @@ namespace Fsl
       }
 
       {
-        RawBitmap rawSrcBitmap;
-        Bitmap::ScopedDirectAccess scopedAccess(srcBitmap, rawSrcBitmap);
-        const auto* pSrcBitmap = static_cast<const uint8_t*>(rawSrcBitmap.Content());
-        const auto srcStride = rawSrcBitmap.Stride();
+        const Bitmap::ScopedDirectReadAccess scopedAccess(srcBitmap);
+        const auto* pSrcBitmap = static_cast<const uint8_t*>(scopedAccess.AsRawBitmap().Content());
+        const auto srcStride = scopedAccess.AsRawBitmap().Stride();
 
         for (uint32_t y = 0; y < imageHeight; ++y)
         {
@@ -93,8 +93,8 @@ namespace Fsl
     {
       assert(dstBitmap.GetPixelFormat() == PixelFormat::EX_ALPHA8_UNORM);
 
-      const auto imageWidth = static_cast<uint32_t>(dstBitmap.Width());
-      const auto imageHeight = static_cast<uint32_t>(dstBitmap.Height());
+      const uint32_t imageWidth = dstBitmap.RawUnsignedWidth();
+      const uint32_t imageHeight = dstBitmap.RawUnsignedHeight();
       vx_rectangle_t imageRect = {0, 0, imageWidth, imageHeight};
 
       // transfer image from gpu to cpu
@@ -114,10 +114,9 @@ namespace Fsl
         throw std::runtime_error("vx procedure error");
       }
 
-      RawBitmapEx rawDstBitmap;
-      Bitmap::ScopedDirectAccess scopedAccess(dstBitmap, rawDstBitmap);
-      auto* pDstBitmap = static_cast<uint8_t*>(rawDstBitmap.Content());
-      const auto dstStride = rawDstBitmap.Stride();
+      Bitmap::ScopedDirectReadWriteAccess scopedAccess(dstBitmap);
+      auto* pDstBitmap = static_cast<uint8_t*>(scopedAccess.AsRawBitmap().Content());
+      const auto dstStride = scopedAccess.AsRawBitmap().Stride();
 
       for (uint32_t y = 0; y < imageHeight; ++y)
       {
@@ -166,8 +165,8 @@ namespace Fsl
 
     m_texSrc = ToTexture(bitmap, PixelFormat::R8G8B8A8_UNORM);
 
-    const auto imageWidth = static_cast<uint32_t>(bitmap.Width());
-    const auto imageHeight = static_cast<uint32_t>(bitmap.Height());
+    const uint32_t imageWidth = bitmap.RawUnsignedWidth();
+    const uint32_t imageHeight = bitmap.RawUnsignedHeight();
 
     Image image0(context.Get(), imageWidth, imageHeight, VX_DF_IMAGE_U8);
     Image image1(context.Get(), imageWidth, imageHeight, VX_DF_IMAGE_S16);
@@ -209,8 +208,8 @@ namespace Fsl
     PxRectangle rightRect(halfWidth, PxValue::Create(0), halfWidth, resPx.Height());
 
     m_nativeBatch->Begin();
-    m_nativeBatch->Draw(m_texSrc, leftRect, Color::White());
-    m_nativeBatch->Draw(m_texDst, rightRect, Color::White());
+    m_nativeBatch->Draw(m_texSrc, leftRect, Colors::White());
+    m_nativeBatch->Draw(m_texDst, rightRect, Colors::White());
     m_nativeBatch->End();
   }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,15 +32,16 @@
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/IO/FmtPathView.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Declarative/ControlFactory.hpp>
 #include <FslSimpleUI/Declarative/UIReader.hpp>
+#include <FslSimpleUI/Declarative/UIXsdWriter.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
 #include <Shared/UI/Declarative/DeclarativeShared.hpp>
+#include <Shared/UI/Declarative/OptionParser.hpp>
 
 namespace Fsl
 {
@@ -61,6 +62,19 @@ namespace Fsl
 
     {    // Build a simple UI
       auto uiFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+
+      {    // Check if the user requested the XSD to be saved
+        auto optionParser = config.GetOptions<OptionParser>();
+        auto saveXsdFilename = optionParser->TryGetXsdSaveFilename();
+        if (!saveXsdFilename.IsEmpty())
+        {
+          FSLLOG3_INFO("Saving UI XSD to '{}'", saveXsdFilename);
+          UI::Declarative::ControlFactory factory(uiFactory);
+          UI::Declarative::UIXsdWriter::Save(saveXsdFilename, factory);
+        }
+      }
+
+
       m_uiRecord = CreateUI(*contentManager, uiFactory);
 
       // Register the root layout with the window manager
@@ -73,11 +87,11 @@ namespace Fsl
   DeclarativeShared::~DeclarativeShared() = default;
 
 
-  void DeclarativeShared::OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void DeclarativeShared::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& /*theEvent*/)
   {
   }
 
-  void DeclarativeShared::OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void DeclarativeShared::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& /*theEvent*/)
   {
   }
 
@@ -118,11 +132,6 @@ namespace Fsl
     FSLLOG3_INFO("Loading UI from '{}'", LocalConfig::DeclarativeUI);
     auto fullPath = IO::Path::Combine(contentManager.GetContentPath(), LocalConfig::DeclarativeUI);
     std::shared_ptr<UI::BaseWindow> main = UI::Declarative::UIReader::Load(factory, uiFactory->GetContext()->UIDataBindingService, fullPath);
-
-    // auto content = contentManager.ReadAllText(LocalConfig::DeclarativeUI);
-    // std::shared_ptr<UI::BaseWindow> main = UI::Declarative::UIReader::LoadFrom(factory, StringViewLiteUtil::AsStringViewLite(content));
-
-
     return {main};
   }
 

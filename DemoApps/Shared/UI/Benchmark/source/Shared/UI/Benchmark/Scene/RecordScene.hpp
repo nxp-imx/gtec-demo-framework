@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/IO/Path.hpp>
-#include <FslGraphics/Transition/TransitionColor.hpp>
 #include <FslSimpleUI/Base/Control/FmtValueLabel.hpp>
+#include <FslSimpleUI/Base/Transition/TransitionUIColor.hpp>
 #include "BasicTestScene.hpp"
 
 namespace Fsl
@@ -58,12 +58,12 @@ namespace Fsl
 
     struct TransitionRecord
     {
-      TransitionColor ColorButtonBack;
-      TransitionColor ColorButtonRecord;
+      UI::TransitionUIColor ColorButtonBack;
+      UI::TransitionUIColor ColorButtonRecord;
 
-      TransitionRecord(TransitionCache& rTransitionCache, const TimeSpan& time)
-        : ColorButtonBack(rTransitionCache, time, TransitionType::Smooth)
-        , ColorButtonRecord(rTransitionCache, time, TransitionType::Smooth)
+      explicit TransitionRecord(const TimeSpan& time)
+        : ColorButtonBack(time, TransitionType::Smooth)
+        , ColorButtonRecord(time, TransitionType::Smooth)
       {
       }
 

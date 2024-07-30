@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Span/Span.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics2D/Procedural/Batcher/BatchMaterialHandle.hpp>
 #include <cassert>
@@ -50,8 +51,8 @@ namespace Fsl::UI::RenderIMBatch
     {
       if (minCapacity > m_cache.size())
       {
-        constexpr std::size_t growthChunkSize = 64;
-        const std::size_t newCapacity = ((minCapacity / growthChunkSize) + ((minCapacity % growthChunkSize) != 0u ? 1 : 0)) * growthChunkSize;
+        constexpr std::size_t GrowthChunkSize = 64;
+        const std::size_t newCapacity = ((minCapacity / GrowthChunkSize) + ((minCapacity % GrowthChunkSize) != 0u ? 1 : 0)) * GrowthChunkSize;
         assert(newCapacity >= minCapacity);
         m_currentCapacity = newCapacity;
         // *2 because we need two buffers
@@ -62,13 +63,13 @@ namespace Fsl::UI::RenderIMBatch
     Span<MaterialCacheRecord> GetOpaqueCacheSpan(const uint32_t count) noexcept
     {
       assert(count <= m_currentCapacity && m_currentCapacity <= m_cache.size());
-      return Span<MaterialCacheRecord>(m_cache.data(), count, OptimizationCheckFlag::NoCheck);
+      return SpanUtil::UncheckedFirstSpan(m_cache, count);
     }
 
     Span<MaterialCacheRecord> GetTransparentCacheSpan(const uint32_t count) noexcept
     {
       assert((m_currentCapacity + count) <= m_cache.size());
-      return Span<MaterialCacheRecord>(m_cache.data() + m_currentCapacity, count, OptimizationCheckFlag::NoCheck);
+      return SpanUtil::UncheckedAsSpan(m_cache, m_currentCapacity, count);
     }
   };
 }

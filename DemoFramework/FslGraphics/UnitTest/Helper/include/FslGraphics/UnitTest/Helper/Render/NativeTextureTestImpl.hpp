@@ -33,10 +33,10 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxRectangleU32.hpp>
-#include <FslGraphics/Bitmap/RawBitmap.hpp>
+#include <FslGraphics/Bitmap/ReadOnlyRawBitmap.hpp>
 #include <FslGraphics/Render/Adapter/INativeTexture2D.hpp>
 #include <FslGraphics/Render/Texture2DFilterHint.hpp>
-#include <FslGraphics/Texture/RawTexture.hpp>
+#include <FslGraphics/Texture/ReadOnlyRawTexture.hpp>
 #include <FslGraphics/TextureFlags.hpp>
 #include <cassert>
 #include <vector>
@@ -49,7 +49,7 @@ namespace Fsl
     PxExtent3D m_extentPx;
 
   public:
-    NativeTextureTestImpl(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+    NativeTextureTestImpl(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
       : m_extentPx(texture.GetExtent())
     {
       FSL_PARAM_NOT_USED(filterHint);

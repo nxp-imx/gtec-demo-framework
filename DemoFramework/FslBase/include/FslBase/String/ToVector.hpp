@@ -43,7 +43,7 @@ namespace Fsl
     return {str.begin(), str.end()};
   }
 
-  inline std::vector<uint8_t> ToVectorUInt8(const StringViewLite& str)
+  inline std::vector<uint8_t> ToVectorUInt8(const StringViewLite str)
   {
     return {str.begin(), str.end()};
   }

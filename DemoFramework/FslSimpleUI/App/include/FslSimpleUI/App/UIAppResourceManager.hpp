@@ -82,7 +82,7 @@ namespace Fsl
     struct ImageRecord
     {
       SpriteType Type;
-      UIAppTextureHandle TextureHandle{};
+      UIAppTextureHandle TextureHandle;
       IO::Path AtlasName;
       std::shared_ptr<IImageSprite> Sprite;
     };
@@ -90,7 +90,7 @@ namespace Fsl
     struct NineSliceRecord
     {
       SpriteType Type{SpriteType::Basic};
-      UIAppTextureHandle TextureHandle{};
+      UIAppTextureHandle TextureHandle;
       IO::Path AtlasName;
       std::shared_ptr<INineSliceSprite> Sprite;
 
@@ -106,14 +106,14 @@ namespace Fsl
 
     struct FontRecord
     {
-      UIAppTextureHandle TextureHandle{};
+      UIAppTextureHandle TextureHandle;
       IO::Path FontName;
       std::shared_ptr<SpriteFont> Font;
     };
 
     struct CustomTextureRecord
     {
-      UIAppTextureHandle TextureHandle{};
+      UIAppTextureHandle TextureHandle;
       SpriteMaterialId MaterialId;
       std::weak_ptr<IImageSprite> Sprite;
     };
@@ -138,6 +138,7 @@ namespace Fsl
                          const bool defaultToDynamicMaterials, const bool useYFlipTextureCoordinates);
     ~UIAppResourceManager() override;
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void SYS_SetRenderSystemViewport(const PxViewport& viewPortPx);
     void ConfigurationChanged(const DemoWindowMetrics& windowMetrics);
 
@@ -173,7 +174,8 @@ namespace Fsl
     }
 
     //! @brief Define a material with the given unique spriteMaterialId
-    void AddSpriteMaterial(const SpriteMaterialId& spriteMaterialId, const UIAppTextureHandle& hTexture, const BlendState blendState);
+    void AddSpriteMaterial(const SpriteMaterialId& spriteMaterialId, const UIAppTextureHandle& hTexture, const BlendState blendState,
+                           const BasicPrimitiveTopology primitiveTopology = BasicPrimitiveTopology::TriangleList);
 
     // --- platform independent custom texture sprites
 
@@ -186,7 +188,6 @@ namespace Fsl
 
     //! Get the material based on the material id (platform independent)
     SpriteMaterialInfo GetSpriteMaterialInfo(const SpriteMaterialId& spriteMaterialId) final;
-
 
     std::shared_ptr<BasicImageSprite> CreateBasicImageSprite(const SpriteMaterialId& spriteMaterialId, const IO::PathView& atlasPathName) final;
     std::shared_ptr<BasicImageSprite> CreateBasicImageSprite(const SpriteMaterialId& spriteMaterialId, const IO::Path& atlasPathName) final

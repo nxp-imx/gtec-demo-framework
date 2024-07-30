@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
@@ -44,9 +44,12 @@ namespace Fsl::Vulkan::InstanceUtil
 {
   namespace
   {
-    const int ENGINE_MAJOR = 1;
-    const int ENGINE_MINOR = 0;
-    const int ENGINE_PATCH = 0;
+    namespace Engine
+    {
+      constexpr int Major = 1;
+      constexpr int Minor = 0;
+      constexpr int Patch = 0;
+    }
   }
 
   bool IsInstanceLayersAvailable(const uint32_t layerCount, const char* const* enabledLayerNames)
@@ -57,7 +60,7 @@ namespace Fsl::Vulkan::InstanceUtil
     }
 
     const std::vector<VkLayerProperties> layerProperties = InstanceUtil::EnumerateInstanceLayerProperties();
-    const auto layerPropertiesSpan = ReadOnlySpanUtil::AsSpan(layerProperties);
+    const auto layerPropertiesSpan = SpanUtil::AsReadOnlySpan(layerProperties);
     for (uint32_t extensionIndex = 0; extensionIndex < layerCount; ++extensionIndex)
     {
       if (!PropertyUtil::IsLayerAvailable(layerPropertiesSpan, enabledLayerNames[extensionIndex]))
@@ -77,7 +80,7 @@ namespace Fsl::Vulkan::InstanceUtil
     }
 
     const std::vector<VkExtensionProperties> extensionProperties = InstanceUtil::EnumerateInstanceExtensionProperties(pszLayerName);
-    const auto extensionPropertiesSpan = ReadOnlySpanUtil::AsSpan(extensionProperties);
+    const auto extensionPropertiesSpan = SpanUtil::AsReadOnlySpan(extensionProperties);
     for (uint32_t extensionIndex = 0; extensionIndex < extensionCount; ++extensionIndex)
     {
       if (!PropertyUtil::IsExtensionAvailable(extensionPropertiesSpan, enabledExtensionNames[extensionIndex]))
@@ -125,7 +128,7 @@ namespace Fsl::Vulkan::InstanceUtil
     applicationInfo.pApplicationName = applicationName.c_str();
     applicationInfo.applicationVersion = applicationVersion;
     applicationInfo.pEngineName = "DemoFramework";
-    applicationInfo.engineVersion = VK_MAKE_VERSION(ENGINE_MAJOR, ENGINE_MINOR, ENGINE_PATCH);
+    applicationInfo.engineVersion = VK_MAKE_VERSION(Engine::Major, Engine::Minor, Engine::Patch);
     applicationInfo.apiVersion = apiVersion;
 
     VkInstanceCreateInfo instanceCreateInfo{};

@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_DP_DPVALUEF_HPP
 #define FSLBASE_MATH_DP_DPVALUEF_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ namespace Fsl
     {
     }
 
-    DpValueF operator-() noexcept
+    inline constexpr DpValueF operator-() const noexcept
     {
       return DpValueF(-Value);
     }
@@ -183,6 +183,16 @@ namespace Fsl
   inline constexpr DpValueF operator*(const DpValueF lhs, const DpValueF rhs) noexcept
   {
     return DpValueF(lhs.Value * rhs.Value);
+  }
+
+  inline constexpr DpValueF operator*(const DpValueF lhs, const float rhs) noexcept
+  {
+    return DpValueF(lhs.Value * rhs);
+  }
+
+  inline constexpr DpValueF operator*(const float lhs, const DpValueF rhs) noexcept
+  {
+    return DpValueF(lhs * rhs.Value);
   }
 
   // op divide

@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDataBinding/Base/Property/DependencyPropertyDefinition.hpp>
 #include <cassert>
 #include <limits>
@@ -41,7 +40,7 @@ namespace Fsl::DataBinding
                                                              const std::type_index& ownerType,
                                                              std::shared_ptr<Internal::IPropertyMethodsDefinition> methods)
     : m_uniqueId(uniqueId)
-    , m_name(StringViewLiteUtil::ToString(name))
+    , m_name(name)
     , m_type(type)
     , m_ownerType(ownerType)
     , m_methods(std::move(methods))
@@ -54,7 +53,7 @@ namespace Fsl::DataBinding
 
   StringViewLite DependencyPropertyDefinition::Name() const
   {
-    return StringViewLiteUtil::AsStringViewLite(m_name);
+    return std::string_view(m_name);
   }
 
 

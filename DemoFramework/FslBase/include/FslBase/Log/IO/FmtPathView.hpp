@@ -32,31 +32,15 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/IO/PathView.hpp>
-#include <FslBase/IO/PathViewHelper.hpp>
-#include <fmt/core.h>
-#include <string>
+#include <fmt/format.h>
 
-namespace fmt
+namespace Fsl::IO
 {
-  template <>
-  struct formatter<Fsl::IO::PathView>
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  inline auto format_as(const PathView value) noexcept
   {
-    template <typename ParseContext>
-    constexpr auto parse(ParseContext& ctx)
-    {
-      return ctx.begin();
-    }
-
-    template <typename FormatContext>
-    auto format(const Fsl::IO::PathView& value, FormatContext& ctx)
-    {
-      if (value.data() != nullptr)
-      {
-        return format_to(ctx.out(), Fsl::IO::PathViewHelper::ToString(value));
-      }
-      return format_to(ctx.out(), "");
-    }
-  };
+    return value.AsStringView();
+  }
 }
 
 #endif

@@ -46,25 +46,25 @@ namespace Fsl
 
   namespace
   {
-    const std::vector<VGubyte> vgTriangleSegments = {
+    const std::vector<VGubyte> g_vgTriangleSegments = {
       VG_MOVE_TO_ABS,
       VG_LINE_TO_ABS,
       VG_LINE_TO_ABS,
       VG_CLOSE_PATH,
     };
 
-    const std::vector<VGubyte> vgQuadCurveSegments = {
+    const std::vector<VGubyte> g_vgQuadCurveSegments = {
       VG_MOVE_TO_ABS,
       VG_LINE_TO_ABS,
       VG_QUAD_TO_ABS,
       VG_CLOSE_PATH,
     };
 
-    const std::vector<VGubyte> vgCubicCurveSegments = {
+    const std::vector<VGubyte> g_vgCubicCurveSegments = {
       VG_MOVE_TO_ABS, VG_LINE_TO_ABS, VG_CUBIC_TO_ABS, VG_LINE_TO_ABS, VG_CLOSE_PATH,
     };
 
-    const std::vector<VGubyte> vgArcSegments = {
+    const std::vector<VGubyte> g_vgArcSegments = {
       VG_MOVE_TO_ABS,
       VG_LINE_TO_ABS,
       VG_SCCWARC_TO_ABS,
@@ -120,10 +120,10 @@ namespace Fsl
     vgArcPoints.push_back(150.0f * scaleY);
 
 
-    m_vg_triangle_path.Reset(vgTrianglePoints, vgTriangleSegments);
-    m_vg_quad_path.Reset(vgQuadCurvePoints, vgQuadCurveSegments);
-    m_vg_cubic_path.Reset(vgCubicCurvePoints, vgCubicCurveSegments);
-    m_vg_arc_path.Reset(vgArcPoints, vgArcSegments);
+    m_vgTrianglePath.Reset(vgTrianglePoints, g_vgTriangleSegments);
+    m_vgQuadPath.Reset(vgQuadCurvePoints, g_vgQuadCurveSegments);
+    m_vgCubicPath.Reset(vgCubicCurvePoints, g_vgCubicCurveSegments);
+    m_vgArcPath.Reset(vgArcPoints, g_vgArcSegments);
   }
 
 
@@ -146,10 +146,10 @@ namespace Fsl
     vgSeti(VG_MATRIX_MODE, VG_MATRIX_PATH_USER_TO_SURFACE);
     // Loads identity matrix
     vgLoadIdentity();
-    vgDrawPath(m_vg_triangle_path.GetHandle(), VG_STROKE_PATH);
-    vgDrawPath(m_vg_quad_path.GetHandle(), VG_STROKE_PATH);
-    vgDrawPath(m_vg_cubic_path.GetHandle(), VG_STROKE_PATH);
-    vgDrawPath(m_vg_arc_path.GetHandle(), VG_STROKE_PATH);
+    vgDrawPath(m_vgTrianglePath.GetHandle(), VG_STROKE_PATH);
+    vgDrawPath(m_vgQuadPath.GetHandle(), VG_STROKE_PATH);
+    vgDrawPath(m_vgCubicPath.GetHandle(), VG_STROKE_PATH);
+    vgDrawPath(m_vgArcPath.GetHandle(), VG_STROKE_PATH);
     vgFinish();
   }
 }

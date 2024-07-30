@@ -40,7 +40,8 @@
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/String/UTF8String.hpp>
 #include <FslBase/System/Platform/PlatformPathTransform.hpp>
 #include <FslGraphics/TextureAtlas/AtlasNineSliceFlags.hpp>
@@ -60,9 +61,9 @@ namespace Fsl
   {
     namespace BTAFormat
     {
-      constexpr const uint32_t DEFAULT_DP = 160;
+      constexpr const uint32_t DefaultDp = 160;
 
-      constexpr const uint32_t MAX_PARENT_COUNT = 64;
+      constexpr const uint32_t MaxParentCount = 64;
 
       namespace Header
       {
@@ -83,13 +84,13 @@ namespace Fsl
         constexpr const uint32_t HeaderMagicValue = 0x6b6843;
       }
 
-      constexpr const uint32_t BTA_VERSION1 = 0x0001;
-      constexpr const uint32_t BTA_VERSION2 = 0x1001;
-      constexpr const uint32_t BTA_VERSION3 = 0x2001;
-      constexpr const uint32_t BTA_VERSION4 = 0x4000;
+      constexpr const uint32_t BtaVersioN1 = 0x0001;
+      constexpr const uint32_t BtaVersioN2 = 0x1001;
+      constexpr const uint32_t BtaVersioN3 = 0x2001;
+      constexpr const uint32_t BtaVersioN4 = 0x4000;
 
-      constexpr const uint32_t CHUNKTYPE_NINESLICE_VERSION1 = 1;
-      constexpr const uint32_t CHUNKTYPE_NINESLICE_VERSION2 = 2;
+      constexpr const uint32_t ChunktypeNinesliceVersioN1 = 1;
+      constexpr const uint32_t ChunktypeNinesliceVersioN2 = 2;
     }
 
     enum class ChunkType
@@ -159,7 +160,7 @@ namespace Fsl
       // Try to read the file header
       StreamRead(rStream, fileheader.data(), fileheader.size());
 
-      const auto fileHeaderSpan = ReadOnlySpanUtil::AsSpan(fileheader);
+      const auto fileHeaderSpan = SpanUtil::AsReadOnlySpan(fileheader);
 
       BTAHeader header;
       header.Magic = ByteSpanUtil::ReadUInt32LE(fileHeaderSpan.subspan(BTAFormat::Header::OffsetMagic));
@@ -171,11 +172,11 @@ namespace Fsl
         throw FormatException("File not of the expected type");
       }
 
-      if (header.Version != BTAFormat::BTA_VERSION1 && header.Version != BTAFormat::BTA_VERSION2 && header.Version != BTAFormat::BTA_VERSION3 &&
-          header.Version != BTAFormat::BTA_VERSION4)
+      if (header.Version != BTAFormat::BtaVersioN1 && header.Version != BTAFormat::BtaVersioN2 && header.Version != BTAFormat::BtaVersioN3 &&
+          header.Version != BTAFormat::BtaVersioN4)
       {
-        throw FormatException(fmt::format("Unsupported version {} expected {}, {}, {} or {}", header.Version, BTAFormat::BTA_VERSION1,
-                                          BTAFormat::BTA_VERSION2, BTAFormat::BTA_VERSION3, BTAFormat::BTA_VERSION4));
+        throw FormatException(fmt::format("Unsupported version {} expected {}, {}, {} or {}", header.Version, BTAFormat::BtaVersioN1,
+                                          BTAFormat::BtaVersioN2, BTAFormat::BtaVersioN3, BTAFormat::BtaVersioN4));
       }
       return header;
     }
@@ -230,7 +231,7 @@ namespace Fsl
     IO::Path ReadPath(ReadOnlySpan<uint8_t>& rSpan)
     {
       const uint32_t stringLength = ValueCompression::ReadSimpleUInt32(rSpan);
-      if (rSpan.length() < stringLength)
+      if (rSpan.size() < stringLength)
       {
         throw FormatException("Could not read a string of the expected length");
       }
@@ -260,7 +261,7 @@ namespace Fsl
         finalPath = IO::Path::Combine(paths[index].Path, finalPath);
         currentParentPathIndex = paths[index].ParentPathIndex;
         ++parentCount;
-        if (parentCount >= BTAFormat::MAX_PARENT_COUNT)
+        if (parentCount >= BTAFormat::MaxParentCount)
         {
           throw NotSupportedException("path parent count exceeded limit");
         }
@@ -290,7 +291,7 @@ namespace Fsl
       const auto trimPx = PxThicknessU::Create(static_cast<uint32_t>(trimLeft), static_cast<uint32_t>(trimTop), static_cast<uint32_t>(trimRight),
                                                static_cast<uint32_t>(trimBottom));
 
-      rTextureAtlas.SetEntry(index, rectanglePx, trimPx, BTAFormat::DEFAULT_DP, std::move(path));
+      rTextureAtlas.SetEntry(index, rectanglePx, trimPx, BTAFormat::DefaultDp, std::move(path));
     }
 
     void ReadBTA1Entries(BasicTextureAtlas& rTextureAtlas, std::ifstream& rStream, const uint32_t contentSize)
@@ -298,7 +299,7 @@ namespace Fsl
       std::vector<uint8_t> content(contentSize);
       StreamRead(rStream, content.data(), content.size());
 
-      auto contentSpan = ReadOnlySpanUtil::AsSpan(content);
+      auto contentSpan = SpanUtil::AsReadOnlySpan(content);
 
       const uint32_t numEntries = ValueCompression::ReadSimpleUInt32(contentSpan);
       rTextureAtlas.Reset(numEntries);
@@ -380,7 +381,7 @@ namespace Fsl
       std::vector<uint8_t> content(contentSize);
       StreamRead(rStream, content.data(), content.size());
 
-      auto contentSpan = ReadOnlySpanUtil::AsSpan(content);
+      auto contentSpan = SpanUtil::AsReadOnlySpan(content);
       auto pathEntries = ReadBTAPathEntries(contentSpan);
       ReadBTA2AtlasEntries(rTextureAtlas, pathEntries, contentSpan);
     }
@@ -391,7 +392,7 @@ namespace Fsl
       std::vector<uint8_t> content(contentSize);
       StreamRead(rStream, content.data(), content.size());
 
-      auto contentSpan = ReadOnlySpanUtil::AsSpan(content);
+      auto contentSpan = SpanUtil::AsReadOnlySpan(content);
       auto pathEntries = ReadBTAPathEntries(contentSpan);
       ReadBTA3AtlasEntries(rTextureAtlas, pathEntries, contentSpan);
     }
@@ -404,7 +405,7 @@ namespace Fsl
       {
         return {};
       }
-      const auto headerSpan = ReadOnlySpanUtil::AsSpan(header);
+      const auto headerSpan = SpanUtil::AsReadOnlySpan(header);
       MinimalChunkHeader minimalHeader;
       minimalHeader.Magic = ByteSpanUtil::ReadUInt32LE(headerSpan, BTAFormat::Chunk::OffsetMagic);
       minimalHeader.Size = ByteSpanUtil::ReadUInt32LE(headerSpan, BTAFormat::Chunk::OffsetSize);
@@ -414,7 +415,7 @@ namespace Fsl
 
     void ProcessNineSliceChunk(BasicTextureAtlas& rTextureAtlas, ReadOnlySpan<uint8_t>& rSpan, const uint32_t chunkVersion)
     {
-      if (chunkVersion != BTAFormat::CHUNKTYPE_NINESLICE_VERSION1 && chunkVersion != BTAFormat::CHUNKTYPE_NINESLICE_VERSION2)
+      if (chunkVersion != BTAFormat::ChunktypeNinesliceVersioN1 && chunkVersion != BTAFormat::ChunktypeNinesliceVersioN2)
       {
         throw NotSupportedException(fmt::format("Unsupported nine-slice chunk version {}", chunkVersion));
       }
@@ -429,7 +430,7 @@ namespace Fsl
 
         // For older nineslice chunks we just assume they are fully transparent as that will always render correctly
         AtlasNineSliceFlags flags = AtlasNineSliceFlags::Transparent;
-        if (chunkVersion >= BTAFormat::CHUNKTYPE_NINESLICE_VERSION2)
+        if (chunkVersion >= BTAFormat::ChunktypeNinesliceVersioN2)
         {
           const uint32_t encodedFlags = ValueCompression::ReadSimpleUInt32(rSpan);
           flags = static_cast<AtlasNineSliceFlags>(encodedFlags);
@@ -465,7 +466,7 @@ namespace Fsl
       std::vector<uint8_t> chunkContent(chunkContentSize);
       StreamRead(rStream, chunkContent.data(), chunkContent.size());
 
-      auto chunkContentSpan = ReadOnlySpanUtil::AsSpan(chunkContent);
+      auto chunkContentSpan = SpanUtil::AsReadOnlySpan(chunkContent);
 
       // Just after the basic chunk header, there is a extended chunk header
       // ChunkType = EncodedUInt32
@@ -516,16 +517,16 @@ namespace Fsl
     const BTAHeader header = ReadAndValidateHeader(rStream);
     switch (header.Version)
     {
-    case BTAFormat::BTA_VERSION1:
+    case BTAFormat::BtaVersioN1:
       ReadBTA1Entries(rTextureAtlas, rStream, header.Size);
       break;
-    case BTAFormat::BTA_VERSION2:
+    case BTAFormat::BtaVersioN2:
       ReadBTA2Entries(rTextureAtlas, rStream, header.Size);
       break;
-    case BTAFormat::BTA_VERSION3:
+    case BTAFormat::BtaVersioN3:
       ReadBTA3Entries(rTextureAtlas, rStream, header.Size);
       break;
-    case BTAFormat::BTA_VERSION4:
+    case BTAFormat::BtaVersioN4:
       ReadBTA3Entries(rTextureAtlas, rStream, header.Size);
       ReadBTA4OptionalChunks(rTextureAtlas, rStream);
       break;

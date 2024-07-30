@@ -31,7 +31,6 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
 #include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
 #include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>

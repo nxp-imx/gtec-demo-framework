@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Time/MillisecondTickCount32.hpp>
 #include <FslSimpleUI/Base/Event/EventTransactionState.hpp>
 #include <memory>
 
@@ -59,11 +60,12 @@ namespace Fsl
       bool HasActiveClickEvent() const noexcept;
       bool HasActiveClickEventThatIsNot(const std::shared_ptr<TreeNode>& target) const;
 
-      bool SendMouseOverEvent(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat,
-                              const PxPoint2& screenPositionPx, const std::shared_ptr<TreeNode>& target);
+      bool SendMouseOverEvent(const MillisecondTickCount32 timestamp, const int32_t sourceId, const int32_t sourceSubId,
+                              const EventTransactionState state, const bool isRepeat, const PxPoint2& screenPositionPx,
+                              const std::shared_ptr<TreeNode>& target);
 
-      bool SendInputClickEvent(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat,
-                               const PxPoint2& screenPositionPx);
+      bool SendInputClickEvent(const MillisecondTickCount32 timestamp, const int32_t sourceId, const int32_t sourceSubId,
+                               const EventTransactionState state, const bool isRepeat, const PxPoint2& screenPositionPx);
     };
   }
 }

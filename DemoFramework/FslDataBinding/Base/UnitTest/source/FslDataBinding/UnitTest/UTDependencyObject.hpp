@@ -46,13 +46,13 @@ namespace Fsl
     DataBinding::TypedDependencyProperty<prop0_type> m_property0;
     DataBinding::TypedDependencyProperty<prop1_type> m_property1;
 
-    ConstrainedValue<uint32_t> m_contraints0;
+    ConstrainedValue<uint32_t> m_constraints0;
 
   public:
     explicit UTDependencyObject(const std::shared_ptr<DataBinding::DataBindingService>& dataBinding);
 
     ConstrainedValue<uint32_t> GetProperty0ValueConstraints() const;
-    void SetProperty0ValueConstraints(ConstrainedValue<uint32_t> constaints);
+    void SetProperty0ValueConstraints(ConstrainedValue<uint32_t> constraints);
 
     uint32_t GetProperty0Value() const noexcept
     {
@@ -71,7 +71,9 @@ namespace Fsl
       return m_property1.Set(ThisDependencyObject(), value, DataBinding::PropertyChangeReason::Modified);
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static DataBinding::DependencyPropertyDefinition Property0;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static DataBinding::DependencyPropertyDefinition Property1;
 
   protected:

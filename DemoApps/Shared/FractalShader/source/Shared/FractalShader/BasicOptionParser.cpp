@@ -159,8 +159,8 @@ namespace Fsl
       }
       if (!m_modified.IsFlagged(ModifiedFlags::Iterations))
       {
-        m_config.SetIterationsJ(DefaultValues::JULIA_DEFAULT_ITERATIONS);
-        m_config.SetIterationsM(DefaultValues::MANDELBROT_DEFAULT_ITERATIONS);
+        m_config.SetIterationsJ(DefaultValues::JuliaDefaultIterations);
+        m_config.SetIterationsM(DefaultValues::MandelbrotDefaultIterations);
       }
       break;
     case Quality::High:

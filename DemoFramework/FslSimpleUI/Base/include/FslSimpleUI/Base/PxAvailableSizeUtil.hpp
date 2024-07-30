@@ -71,18 +71,21 @@ namespace Fsl::UI
     }
 
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline constexpr layout_value_t Add_LayoutSize_Number(const layout_value_t sizePx, const normal_value_t valuePx) noexcept
     {
       assert(!IsNormalValue(sizePx) || ((sizePx + valuePx.Value) < InfiniteSpaceBeginPx));
       return IsNormalValue(sizePx) ? MathHelper::Max(sizePx + valuePx.Value, static_cast<layout_value_t>(0)) : sizePx;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline constexpr layout_value_t Sub_LayoutSize_Number(const layout_value_t sizePx, const normal_value_t valuePx) noexcept
     {
       assert(!IsNormalValue(sizePx) || ((sizePx + valuePx.Value) < InfiniteSpaceBeginPx));
       return IsNormalValue(sizePx) ? MathHelper::Max(sizePx - valuePx.Value, static_cast<layout_value_t>(0)) : sizePx;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline constexpr layout_value_t Add_LayoutSize_LayoutSize(const layout_value_t sizePx, const layout_value_t valuePx) noexcept
     {
       if (IsNormalValue(sizePx))
@@ -98,6 +101,7 @@ namespace Fsl::UI
       return sizePx;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline constexpr layout_value_t Sub_LayoutSize_LayoutSize(const layout_value_t sizePx, const layout_value_t valuePx) noexcept
     {
       if (IsNormalValue(sizePx))

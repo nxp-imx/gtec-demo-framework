@@ -31,6 +31,7 @@
 
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
@@ -149,7 +150,7 @@ namespace Fsl
   }
 
 
-  void Shared::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void Shared::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_btnDefault)
     {
@@ -162,14 +163,14 @@ namespace Fsl
   {
     m_nativeBatch->Begin();
 
-    constexpr const PxPoint2 spacePx = PxPoint2::Create(20, 20);
+    constexpr const PxPoint2 SpacePx = PxPoint2::Create(20, 20);
 
     const PxSize1DF errorOffsetPxf = PxSize1DF::Create(m_slider->GetValue());
 
-    PxPoint2 offsetPx = spacePx;
-    auto sizePx = DrawScaleMatrix(offsetPx, spacePx, m_testTextures.Text320dp, Color::White(), errorOffsetPxf);
+    PxPoint2 offsetPx = SpacePx;
+    auto sizePx = DrawScaleMatrix(offsetPx, SpacePx, m_testTextures.Text320dp, Colors::White(), errorOffsetPxf);
     offsetPx.X += sizePx.X;
-    sizePx = DrawScaleMatrix(offsetPx, spacePx, m_testTextures.RedBlue320dp, Color::White(), errorOffsetPxf);
+    sizePx = DrawScaleMatrix(offsetPx, SpacePx, m_testTextures.RedBlue320dp, Colors::White(), errorOffsetPxf);
     m_nativeBatch->End();
 
     m_uiExtension->Draw();
@@ -261,19 +262,19 @@ namespace Fsl
       m_buffer.clear();
       fmt::format_to(std::back_inserter(m_buffer), "0.00-{:.2f}", gridWidth0.Value);
 
-      m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Color::White());
+      m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Colors::White());
       dstPos.X = static_cast<float>(gridX1Correct.Value);
       m_buffer.clear();
       fmt::format_to(std::back_inserter(m_buffer), "{:.2f}-{:.2f}", errorOffsetPxf.RawValue(), (errorOffsetPxf + gridWidth1).Value);
-      m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Color::White());
+      m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Colors::White());
       dstPos.X = static_cast<float>(gridX2Correct.Value);
       m_buffer.clear();
       fmt::format_to(std::back_inserter(m_buffer), "0.00-{:.2f}", gridWidth2.Value);
-      m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Color::White());
+      m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Colors::White());
       dstPos.X = static_cast<float>(gridX3Correct.Value);
       m_buffer.clear();
       fmt::format_to(std::back_inserter(m_buffer), "{:.2f}-{:.2f}", errorOffsetPxf.RawValue(), (errorOffsetPxf + gridWidth3).Value);
-      m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Color::White());
+      m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Colors::White());
     }
     return {gridX4Correct, gridY4Correct};
   }

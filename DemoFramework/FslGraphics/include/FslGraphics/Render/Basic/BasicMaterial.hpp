@@ -99,13 +99,13 @@ namespace Fsl
 
     static constexpr BasicMaterialVariableDeclarationArray<1> GetPushConstantDeclarationArray()
     {
-      constexpr BasicMaterialVariableDeclarationArray<1> declArray(
+      constexpr BasicMaterialVariableDeclarationArray<1> DeclArray(
         std::array<BasicMaterialVariableElement, 1>{
           BasicMaterialVariableElement(offsetof(PushConstants, SdfSmooth), BasicMaterialVariableElementFormat::Float1,
                                        BasicMaterialVariableElementUsage::SdfSmooth, 0),
         },
         sizeof(PushConstants));
-      return declArray;
+      return DeclArray;
     }
 
     BasicMaterialVariableDeclarationSpan AsPushConstantDeclarationSpan() const noexcept

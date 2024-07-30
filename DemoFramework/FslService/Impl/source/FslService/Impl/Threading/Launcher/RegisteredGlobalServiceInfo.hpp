@@ -41,7 +41,7 @@ namespace Fsl
     TypeServiceMaps GlobalServiceTypeMaps;
 
     explicit RegisteredGlobalServiceInfo(TypeServiceMaps globalServiceTypeMaps)
-      : GlobalServiceTypeMaps(std::move(globalServiceTypeMaps)){};
+      : GlobalServiceTypeMaps(std::move(globalServiceTypeMaps)) {};
   };
 }
 

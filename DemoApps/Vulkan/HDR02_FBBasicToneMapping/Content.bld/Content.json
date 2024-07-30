@@ -3,12 +3,12 @@
     "Version": "1",
     "Content.SyncList": [
       {
-        "SourcePath" : "${ProjectRoot}/Resources/Source/BasicUI",
+        "SourcePath" : "${ProjectRoot}/Resources/Source/BasicUI/Gen",
         "Content": [
-          "UIAtlas/License.json",
-          "UIAtlas/UIAtlas_*dpi.bta",
-          "UIAtlas/UIAtlas_*dpi.png",
-          "UIAtlas/UIAtlas_*dpi_Font.nbf"
+          "NonLinear/UIAtlas/License.json",
+          "NonLinear/UIAtlas/UIAtlas_*dpi.bta",
+          "NonLinear/UIAtlas/UIAtlas_*dpi.png",
+          "NonLinear/UIAtlas/UIAtlas_*dpi_Font.nbf"
         ]
       },
       {

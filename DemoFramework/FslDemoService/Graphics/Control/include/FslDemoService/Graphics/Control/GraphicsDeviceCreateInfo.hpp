@@ -41,6 +41,7 @@ namespace Fsl
   {
     const uint32_t MaxFramesInFlight;
     const bool PreallocateBasic2D;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const NativeGraphicsCustomDeviceCreateInfo* pCustomCreateInfo;
 
     GraphicsDeviceCreateInfo(const uint32_t maxFramesInFlight, const bool preallocateBasic2D,

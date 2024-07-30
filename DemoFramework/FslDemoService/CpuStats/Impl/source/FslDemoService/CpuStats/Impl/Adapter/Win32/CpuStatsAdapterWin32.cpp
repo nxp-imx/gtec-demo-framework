@@ -1,6 +1,6 @@
 #if defined(_WIN32) && defined(FSL_PLATFORM_WINDOWS)
 /****************************************************************************************************************************************************
- * Copyright 2019, 2022 NXP
+ * Copyright 2019, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ namespace Fsl
   {
     namespace LocalConfig
     {
-      constexpr TimeSpan MinIntervalApplicationCpuUsage(TimeSpanUtil::FromMicroseconds(250 * 1000));
+      constexpr TimeSpan MinIntervalApplicationCpuUsage(TimeSpanUtil::FromSeconds(1));
     }
 
 
@@ -109,27 +109,27 @@ namespace Fsl
   }
 
 
-  bool CpuStatsAdapterWin32::TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex) const
+  bool CpuStatsAdapterWin32::TryGetCpuUsage(CpuUsageRecord& rUsageRecord, const uint32_t cpuIndex) const
   {
     if (m_counters)
     {
-      return m_counters->TryGetCpuUsage(rUsagePercentage, cpuIndex, m_timer.GetTimestamp());
+      return m_counters->TryGetCpuUsage(rUsageRecord, cpuIndex, m_timer.GetTimestamp());
     }
-    rUsagePercentage = 0.0f;
+    rUsageRecord = {};
     return false;
   }
 
 
   // Inspired by: http://www.philosophicalgeek.com/2009/01/03/determine-cpu-usage-of-current-process-c-and-c/
-  bool CpuStatsAdapterWin32::TryGetApplicationCpuUsage(float& rUsagePercentage) const
+  bool CpuStatsAdapterWin32::TryGetApplicationCpuUsage(CpuUsageRecord& rUsageRecord) const
   {
-    rUsagePercentage = 0.0f;
+    rUsageRecord = {};
 
-    auto currentTime = m_timer.GetTimestamp();
+    const auto currentTime = m_timer.GetTimestamp();
     auto deltaTime = currentTime - m_lastTryGetApplicationCpuUsageTime;
     if (deltaTime < LocalConfig::MinIntervalApplicationCpuUsage)
     {
-      rUsagePercentage = m_appCpuUsagePercentage;
+      rUsageRecord = {m_appCpuUsagePercentageTime, m_appCpuUsagePercentage};
       return true;
     }
     m_lastTryGetApplicationCpuUsageTime = currentTime;
@@ -156,13 +156,14 @@ namespace Fsl
       m_appSystemLast = systemTimes;
       m_appProcessLast = processTimes;
       m_appCpuUsagePercentage = static_cast<float>((100.0 * static_cast<double>(appTime)) / static_cast<double>(systemTime));
+      m_appCpuUsagePercentageTime = currentTime;
     }
     else
     {
       FSLLOG3_DEBUG_VERBOSE2("not enough time passed");
     }
 
-    rUsagePercentage = m_appCpuUsagePercentage;
+    rUsageRecord = {m_appCpuUsagePercentageTime, m_appCpuUsagePercentage};
     return true;
   }
 
@@ -192,7 +193,7 @@ namespace Fsl
   }
 
 
-  bool CpuStatsAdapterWin32::TryGetProcessTimes(ProcessTimes& rTimes) const    // NOLINT(readability-convert-member-functions-to-static)
+  bool CpuStatsAdapterWin32::TryGetProcessTimes(ProcessTimes& rTimes)
   {
     FILETIME creationTime{};
     FILETIME exitTime{};
@@ -212,7 +213,7 @@ namespace Fsl
   }
 
 
-  bool CpuStatsAdapterWin32::TryGetSystemTimes(ProcessTimes& rTimes) const    // NOLINT(readability-convert-member-functions-to-static)
+  bool CpuStatsAdapterWin32::TryGetSystemTimes(ProcessTimes& rTimes)
   {
     FILETIME idleTime{};
     FILETIME kernelTime{};

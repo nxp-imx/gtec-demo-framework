@@ -21,7 +21,6 @@
   * [SimpleUI](#simpleui)
 <!-- #AG_TOC_END# -->
 
-
 # Platform specific
 
 ## Android
@@ -57,8 +56,8 @@ Since XDG shell unfortunately does not provide a versioned library of their code
 
 This could be
 
-*	The build fails to locate the correct 'wayland-scanner' executable file
-*	The build fails to locate the correct 'stable/xdg-shell/xdg-shell.xml' xml file
+* The build fails to locate the correct 'wayland-scanner' executable file
+* The build fails to locate the correct 'stable/xdg-shell/xdg-shell.xml' xml file
 
 The build will log the found locations:
 
@@ -130,9 +129,9 @@ Unfortunately you will have to specific this override to all build tools every t
 * Visual Studio 2019 16.5.x might not pickup the environment variables and paths it was launched with. This is a visual studio bug.
   Setting ```set ClearDevCommandPromptEnvVars=false``` before calling ```vcvarsall.bat``` can be used as a workaround until they fix it ([issue-link](https://developercommunity.visualstudio.com/content/problem/951981/environment-paths-not-respected.html)).
 * CMake versions below 3.22 might report MSVC_TOOLSET_VERSION as 142 when it should be 143. See this [bug](https://gitlab.kitware.com/cmake/cmake/-/merge_requests/6497). Some versions of cmake shipping with VS2022 has this bug, to workaround it make sure that your cmake 3.22 install is in the path before the VS2022 version.
+* Running ```FslBuildCheck.py --tidy --repair``` with Visual Studio 17.10 might give the following error:"```ERROR: Path 'lib/assimp-vc144-mt.lib' resolved to 'assimp-vc144-mt.lib' which is not a file.```" This occurs because CMake and FslBuildGen.py does not determine the toolset version the same way. CMake relies on hardcoded values while FslBuildGen tries to guess it based on the environment variable VCToolsVersion. If this occurs you can override the FslBuildGen detection with ```--set VS_TOOLSET_VERSION=143```
 * Python default app issue: "Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings"
   See [this](https://stackoverflow.com/questions/65348890/python-was-not-found-run-without-arguments-to-install-from-the-microsoft-store)
-
 * The generated project files do not detect changes to the build environment automatically.
   So its your job to run FslBuildGen when you change it!
 * If a new shader is added to Content.bld and no files has been modified the content builder

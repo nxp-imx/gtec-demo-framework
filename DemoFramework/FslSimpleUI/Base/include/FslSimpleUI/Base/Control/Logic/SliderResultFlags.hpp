@@ -47,31 +47,31 @@ namespace Fsl::UI
   };
 
 
-  constexpr inline SliderResultFlags& operator|=(SliderResultFlags& rLhs, const SliderResultFlags rhs)
+  constexpr inline SliderResultFlags& operator|=(SliderResultFlags& rLhs, const SliderResultFlags rhs) noexcept
   {
     rLhs = static_cast<SliderResultFlags>(static_cast<uint32_t>(rLhs) | static_cast<uint32_t>(rhs));
     return rLhs;
   }
 
-  constexpr inline SliderResultFlags& operator&=(SliderResultFlags& rLhs, const SliderResultFlags rhs)
+  constexpr inline SliderResultFlags& operator&=(SliderResultFlags& rLhs, const SliderResultFlags rhs) noexcept
   {
     rLhs = static_cast<SliderResultFlags>(static_cast<uint32_t>(rLhs) & static_cast<uint32_t>(rhs));
     return rLhs;
   }
 
-  constexpr inline SliderResultFlags operator|(const SliderResultFlags lhs, const SliderResultFlags rhs)
+  constexpr inline SliderResultFlags operator|(const SliderResultFlags lhs, const SliderResultFlags rhs) noexcept
   {
     return static_cast<SliderResultFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
   }
 
-  constexpr inline SliderResultFlags operator&(const SliderResultFlags lhs, const SliderResultFlags rhs)
+  constexpr inline SliderResultFlags operator&(const SliderResultFlags lhs, const SliderResultFlags rhs) noexcept
   {
     return static_cast<SliderResultFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
   }
 
   namespace SliderResultFlagsUtil
   {
-    constexpr inline bool IsFlagged(const SliderResultFlags src, const SliderResultFlags flag)
+    constexpr inline bool IsFlagged(const SliderResultFlags src, const SliderResultFlags flag) noexcept
     {
       return (src & flag) == flag;
     }

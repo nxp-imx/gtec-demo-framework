@@ -38,11 +38,6 @@
 
 namespace Fsl
 {
-  namespace
-  {
-  }
-
-
   SmoothScroll::SmoothScroll(const DemoAppConfig& config)
     : VulkanBasic::DemoAppVulkanBasic(config)
     , m_shared(config)
@@ -68,9 +63,9 @@ namespace Fsl
   }
 
 
-  void SmoothScroll::FixedUpdate(const DemoTime& demoTime)
+  void SmoothScroll::Update(const DemoTime& demoTime)
   {
-    m_shared.FixedUpdate(demoTime);
+    m_shared.Update(demoTime);
   }
 
 

@@ -85,7 +85,7 @@ namespace Fsl::Graphics3D
     }
 
 
-    void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) final
+    void SetData(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) final
     {
       BasicDynamicTextureLink* pLink = m_link.get();
       if (pLink == nullptr)

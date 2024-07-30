@@ -38,7 +38,7 @@ namespace Fsl::Vulkan
   {
     // QuadBatch.frag.spv
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-    const uint8_t g_QuadBatchFrag[] = {
+    const uint8_t g_quadBatchFrag[] = {
       3,   2,  35,  7,   0,   0,   1,  0,   8,   0,   8,   0,   24,  0,   0,   0,   0,   0,  0,   0,   17,  0,   2,   0,   1,   0,   0,   0,  11,  0,
       6,   0,  1,   0,   0,   0,   71, 76,  83,  76,  46,  115, 116, 100, 46,  52,  53,  48, 0,   0,   0,   0,   14,  0,   3,   0,   0,   0,  0,   0,
       1,   0,  0,   0,   15,  0,   8,  0,   4,   0,   0,   0,   4,   0,   0,   0,   109, 97, 105, 110, 0,   0,   0,   0,   9,   0,   0,   0,  17,  0,
@@ -65,7 +65,7 @@ namespace Fsl::Vulkan
 
     // QuadBatch.vert.spv
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-    const uint8_t g_QuadBatchVert[] = {
+    const uint8_t g_quadBatchVert[] = {
       3,   2,   35,  7,   0,   0,   1,   0,   8,   0,   8,   0,  42,  0,   0,   0,   0,   0,   0,   0,   17,  0,   2,   0,   1,   0,   0,   0,   11,
       0,   6,   0,   1,   0,   0,   0,   71,  76,  83,  76,  46, 115, 116, 100, 46,  52,  53,  48,  0,   0,   0,   0,   14,  0,   3,   0,   0,   0,
       0,   0,   1,   0,   0,   0,   15,  0,   11,  0,   0,   0,  0,   0,   4,   0,   0,   0,   109, 97,  105, 110, 0,   0,   0,   0,   10,  0,   0,
@@ -114,7 +114,7 @@ namespace Fsl::Vulkan
 
     // QuadBatch.frag.spv
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-    const uint8_t g_QuadBatchSdfFrag[] = {
+    const uint8_t g_quadBatchSdfFrag[] = {
       3,   2,   35,  7,   0,   0,   1,   0,   8,   0,   8,   0,   55,  0,   0,   0,   0,   0,   0,   0,   17,  0,   2,   0,   1,   0,   0,   0,   11,
       0,   6,   0,   1,   0,   0,   0,   71,  76,  83,  76,  46,  115, 116, 100, 46,  52,  53,  48,  0,   0,   0,   0,   14,  0,   3,   0,   0,   0,
       0,   0,   1,   0,   0,   0,   15,  0,   8,   0,   4,   0,   0,   0,   4,   0,   0,   0,   109, 97,  105, 110, 0,   0,   0,   0,   16,  0,   0,
@@ -168,16 +168,16 @@ namespace Fsl::Vulkan
 
   ReadOnlySpan<uint8_t> QuadBatchShaders::GetVertexShader()
   {
-    return ReadOnlySpan<uint8_t>(g_QuadBatchVert, sizeof(g_QuadBatchVert));
+    return ReadOnlySpan<uint8_t>(g_quadBatchVert, sizeof(g_quadBatchVert));
   }
 
   ReadOnlySpan<uint8_t> QuadBatchShaders::GetFragmentShader()
   {
-    return ReadOnlySpan<uint8_t>(g_QuadBatchFrag, sizeof(g_QuadBatchFrag));
+    return ReadOnlySpan<uint8_t>(g_quadBatchFrag, sizeof(g_quadBatchFrag));
   }
 
   ReadOnlySpan<uint8_t> QuadBatchShaders::GetSdfFragmentShader()
   {
-    return ReadOnlySpan<uint8_t>(g_QuadBatchSdfFrag, sizeof(g_QuadBatchSdfFrag));
+    return ReadOnlySpan<uint8_t>(g_quadBatchSdfFrag, sizeof(g_quadBatchSdfFrag));
   }
 }

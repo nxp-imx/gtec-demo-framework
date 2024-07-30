@@ -187,12 +187,12 @@ namespace Fsl
   {
     uint32_t expectedBufferLength = 0;
     {
-      constexpr uint32_t maxPathBufferLength = MAX_PATH + 1;
-      std::array<TCHAR, maxPathBufferLength> tmpBuffer{};
+      constexpr uint32_t MaxPathBufferLength = MAX_PATH + 1;
+      std::array<TCHAR, MaxPathBufferLength> tmpBuffer{};
 
-      expectedBufferLength = GetCurrentDirectory(maxPathBufferLength, tmpBuffer.data());
+      expectedBufferLength = GetCurrentDirectory(MaxPathBufferLength, tmpBuffer.data());
       // < because the terminating zero is not reported when its a success
-      if (expectedBufferLength < maxPathBufferLength)
+      if (expectedBufferLength < MaxPathBufferLength)
       {
         return PlatformWin32::Narrow(tmpBuffer.data());
       }

@@ -32,14 +32,20 @@ namespace Fsl
     {
       // Defines for the STB font used
       // STB font files can be found at http://nothings.org/stb/font/
+      // NOLINTNEXTLINE(readability-identifier-naming)
       constexpr const auto STB_FONT_WIDTH = STB_FONT_consolas_24_latin1_BITMAP_WIDTH;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       constexpr const auto STB_FONT_HEIGHT = STB_FONT_consolas_24_latin1_BITMAP_HEIGHT;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       constexpr const auto STB_FIRST_CHAR = STB_FONT_consolas_24_latin1_FIRST_CHAR;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       constexpr const auto STB_NUM_CHARS = STB_FONT_consolas_24_latin1_NUM_CHARS;
 
       // Max. number of chars the text overlay buffer can hold
+      // NOLINTNEXTLINE(readability-identifier-naming)
       constexpr const uint32_t MAX_CHAR_COUNT = 1024;
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       std::array<stb_fontchar, STB_NUM_CHARS> g_stbFontData;
     }
 
@@ -81,8 +87,8 @@ namespace Fsl
     void VulkanTextOverlay::PrepareResources()
     {
       // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-      static unsigned char font24pixels[STB_FONT_HEIGHT][STB_FONT_WIDTH];
-      STB_FONT_NAME(g_stbFontData.data(), font24pixels, STB_FONT_HEIGHT);
+      static unsigned char g_font24pixels[STB_FONT_HEIGHT][STB_FONT_WIDTH];
+      STB_FONT_NAME(g_stbFontData.data(), g_font24pixels, STB_FONT_HEIGHT);
 
       // Command buffer
 
@@ -141,7 +147,7 @@ namespace Fsl
       {
         stagingBuffer.MapEx();
         // Only one channel, so data size = W * H (*R8)
-        std::memcpy(stagingBuffer.GetMappedPointer(), &font24pixels[0][0], STB_FONT_WIDTH * STB_FONT_HEIGHT);
+        std::memcpy(stagingBuffer.GetMappedPointer(), &g_font24pixels[0][0], STB_FONT_WIDTH * STB_FONT_HEIGHT);
         stagingBuffer.Unmap();
       }
 

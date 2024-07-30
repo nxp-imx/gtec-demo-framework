@@ -36,14 +36,15 @@
 
 namespace Fsl::Stub
 {
-  DynamicNativeTexture2D::DynamicNativeTexture2D(const RawTexture& /*texture*/, const Texture2DFilterHint /*filterHint*/)
+  DynamicNativeTexture2D::DynamicNativeTexture2D(const ReadOnlyRawTexture& /*texture*/, const Texture2DFilterHint /*filterHint*/)
   {
   }
 
   DynamicNativeTexture2D::~DynamicNativeTexture2D() = default;
 
 
-  void DynamicNativeTexture2D::SetData(const RawTexture& /*texture*/, const Texture2DFilterHint /*filterHint*/, const TextureFlags /*textureFlags*/)
+  void DynamicNativeTexture2D::SetData(const ReadOnlyRawTexture& /*texture*/, const Texture2DFilterHint /*filterHint*/,
+                                       const TextureFlags /*textureFlags*/)
   {
   }
 }

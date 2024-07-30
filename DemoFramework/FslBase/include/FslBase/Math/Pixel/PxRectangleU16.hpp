@@ -37,7 +37,6 @@
 #include <FslBase/Math/Pixel/PxValueU16.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
-#include <algorithm>
 #include <cassert>
 
 namespace Fsl

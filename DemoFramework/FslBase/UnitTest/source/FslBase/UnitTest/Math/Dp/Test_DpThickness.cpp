@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2023 NXP
+ * Copyright 2020, 2023-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,122 +48,122 @@ TEST(TestMathDp_PxThickness, Default)
 {
   PxThickness value;
 
-  constexpr auto size0Px = PxSize1D::Create(0);
+  constexpr auto Size0Px = PxSize1D::Create(0);
 
-  EXPECT_EQ(size0Px, value.Left());
-  EXPECT_EQ(size0Px, value.Top());
-  EXPECT_EQ(size0Px, value.Right());
-  EXPECT_EQ(size0Px, value.Bottom());
-  EXPECT_EQ(size0Px, value.SumX());
-  EXPECT_EQ(size0Px, value.SumY());
+  EXPECT_EQ(Size0Px, value.Left());
+  EXPECT_EQ(Size0Px, value.Top());
+  EXPECT_EQ(Size0Px, value.Right());
+  EXPECT_EQ(Size0Px, value.Bottom());
+  EXPECT_EQ(Size0Px, value.SumX());
+  EXPECT_EQ(Size0Px, value.SumY());
   EXPECT_EQ(PxSize2D(), value.Sum());
 }
 
 
 TEST(TestMathDp_PxThickness, Values)
 {
-  constexpr const auto left = PxSize1D::Create(1);
-  constexpr const auto top = PxSize1D::Create(2);
-  constexpr const auto right = PxSize1D::Create(3);
-  constexpr const auto bottom = PxSize1D::Create(4);
-  PxThickness value(left, top, right, bottom);
+  constexpr const auto Left = PxSize1D::Create(1);
+  constexpr const auto Top = PxSize1D::Create(2);
+  constexpr const auto Right = PxSize1D::Create(3);
+  constexpr const auto Bottom = PxSize1D::Create(4);
+  PxThickness value(Left, Top, Right, Bottom);
 
-  EXPECT_EQ(left, value.Left());
-  EXPECT_EQ(top, value.Top());
-  EXPECT_EQ(right, value.Right());
-  EXPECT_EQ(bottom, value.Bottom());
-  EXPECT_EQ(left + right, value.SumX());
-  EXPECT_EQ(top + bottom, value.SumY());
-  EXPECT_EQ(PxSize2D(left + right, top + bottom), value.Sum());
+  EXPECT_EQ(Left, value.Left());
+  EXPECT_EQ(Top, value.Top());
+  EXPECT_EQ(Right, value.Right());
+  EXPECT_EQ(Bottom, value.Bottom());
+  EXPECT_EQ(Left + Right, value.SumX());
+  EXPECT_EQ(Top + Bottom, value.SumY());
+  EXPECT_EQ(PxSize2D(Left + Right, Top + Bottom), value.Sum());
 }
 
 TEST(TestMathDp_PxThickness, TopLeft)
 {
-  constexpr const auto left = PxSize1D::Create(1);
-  constexpr const auto top = PxSize1D::Create(2);
-  constexpr const auto right = PxSize1D::Create(3);
-  constexpr const auto bottom = PxSize1D::Create(4);
-  PxThickness value(left, top, right, bottom);
+  constexpr const auto Left = PxSize1D::Create(1);
+  constexpr const auto Top = PxSize1D::Create(2);
+  constexpr const auto Right = PxSize1D::Create(3);
+  constexpr const auto Bottom = PxSize1D::Create(4);
+  PxThickness value(Left, Top, Right, Bottom);
 
-  EXPECT_EQ(PxPoint2(left, top), value.TopLeft());
+  EXPECT_EQ(PxPoint2(Left, Top), value.TopLeft());
 }
 
 TEST(TestMathDp_PxThickness, TopRight)
 {
-  constexpr const auto left = PxSize1D::Create(1);
-  constexpr const auto top = PxSize1D::Create(2);
-  constexpr const auto right = PxSize1D::Create(3);
-  constexpr const auto bottom = PxSize1D::Create(4);
-  PxThickness value(left, top, right, bottom);
+  constexpr const auto Left = PxSize1D::Create(1);
+  constexpr const auto Top = PxSize1D::Create(2);
+  constexpr const auto Right = PxSize1D::Create(3);
+  constexpr const auto Bottom = PxSize1D::Create(4);
+  PxThickness value(Left, Top, Right, Bottom);
 
-  EXPECT_EQ(PxPoint2(right, top), value.TopRight());
+  EXPECT_EQ(PxPoint2(Right, Top), value.TopRight());
 }
 
 TEST(TestMathDp_PxThickness, BottomLeft)
 {
-  constexpr const auto left = PxSize1D::Create(1);
-  constexpr const auto top = PxSize1D::Create(2);
-  constexpr const auto right = PxSize1D::Create(3);
-  constexpr const auto bottom = PxSize1D::Create(4);
-  PxThickness value(left, top, right, bottom);
+  constexpr const auto Left = PxSize1D::Create(1);
+  constexpr const auto Top = PxSize1D::Create(2);
+  constexpr const auto Right = PxSize1D::Create(3);
+  constexpr const auto Bottom = PxSize1D::Create(4);
+  PxThickness value(Left, Top, Right, Bottom);
 
-  EXPECT_EQ(PxPoint2(left, bottom), value.BottomLeft());
+  EXPECT_EQ(PxPoint2(Left, Bottom), value.BottomLeft());
 }
 
 TEST(TestMathDp_PxThickness, BottomRight)
 {
-  constexpr const auto left = PxSize1D::Create(1);
-  constexpr const auto top = PxSize1D::Create(2);
-  constexpr const auto right = PxSize1D::Create(3);
-  constexpr const auto bottom = PxSize1D::Create(4);
-  PxThickness value(left, top, right, bottom);
+  constexpr const auto Left = PxSize1D::Create(1);
+  constexpr const auto Top = PxSize1D::Create(2);
+  constexpr const auto Right = PxSize1D::Create(3);
+  constexpr const auto Bottom = PxSize1D::Create(4);
+  PxThickness value(Left, Top, Right, Bottom);
 
-  EXPECT_EQ(PxPoint2(right, bottom), value.BottomRight());
+  EXPECT_EQ(PxPoint2(Right, Bottom), value.BottomRight());
 }
 
 TEST(TestMathDp_PxThickness, Sum)
 {
-  constexpr const auto left = PxSize1D::Create(1);
-  constexpr const auto top = PxSize1D::Create(2);
-  constexpr const auto right = PxSize1D::Create(3);
-  constexpr const auto bottom = PxSize1D::Create(4);
-  PxThickness value(left, top, right, bottom);
+  constexpr const auto Left = PxSize1D::Create(1);
+  constexpr const auto Top = PxSize1D::Create(2);
+  constexpr const auto Right = PxSize1D::Create(3);
+  constexpr const auto Bottom = PxSize1D::Create(4);
+  PxThickness value(Left, Top, Right, Bottom);
 
-  EXPECT_EQ(PxSize2D(left + right, top + bottom), value.Sum());
+  EXPECT_EQ(PxSize2D(Left + Right, Top + Bottom), value.Sum());
 }
 
 
 TEST(TestMathDp_PxThickness, SumX)
 {
-  constexpr const auto left = PxSize1D::Create(1);
-  constexpr const auto top = PxSize1D::Create(2);
-  constexpr const auto right = PxSize1D::Create(3);
-  constexpr const auto bottom = PxSize1D::Create(4);
-  PxThickness value(left, top, right, bottom);
+  constexpr const auto Left = PxSize1D::Create(1);
+  constexpr const auto Top = PxSize1D::Create(2);
+  constexpr const auto Right = PxSize1D::Create(3);
+  constexpr const auto Bottom = PxSize1D::Create(4);
+  PxThickness value(Left, Top, Right, Bottom);
 
-  EXPECT_EQ(left + right, value.SumX());
+  EXPECT_EQ(Left + Right, value.SumX());
 }
 
 TEST(TestMathDp_PxThickness, SumY)
 {
-  constexpr const auto left = PxSize1D::Create(1);
-  constexpr const auto top = PxSize1D::Create(2);
-  constexpr const auto right = PxSize1D::Create(3);
-  constexpr const auto bottom = PxSize1D::Create(4);
-  PxThickness value(left, top, right, bottom);
+  constexpr const auto Left = PxSize1D::Create(1);
+  constexpr const auto Top = PxSize1D::Create(2);
+  constexpr const auto Right = PxSize1D::Create(3);
+  constexpr const auto Bottom = PxSize1D::Create(4);
+  PxThickness value(Left, Top, Right, Bottom);
 
-  EXPECT_EQ(top + bottom, value.SumY());
+  EXPECT_EQ(Top + Bottom, value.SumY());
 }
 
 
 TEST(TestMathDp_PxThickness, OperatorEqual)
 {
-  constexpr const auto left = PxSize1D::Create(1);
-  constexpr const auto top = PxSize1D::Create(2);
-  constexpr const auto right = PxSize1D::Create(3);
-  constexpr const auto bottom = PxSize1D::Create(4);
-  PxThickness value1(left, top, right, bottom);
-  PxThickness value2(left, top, right, bottom);
+  constexpr const auto Left = PxSize1D::Create(1);
+  constexpr const auto Top = PxSize1D::Create(2);
+  constexpr const auto Right = PxSize1D::Create(3);
+  constexpr const auto Bottom = PxSize1D::Create(4);
+  PxThickness value1(Left, Top, Right, Bottom);
+  PxThickness value2(Left, Top, Right, Bottom);
 
   EXPECT_EQ(value1, value2);
 }
@@ -171,12 +171,12 @@ TEST(TestMathDp_PxThickness, OperatorEqual)
 
 TEST(TestMathDp_PxThickness, OperatorNotEqual)
 {
-  constexpr const auto left = PxSize1D::Create(1);
-  constexpr const auto top = PxSize1D::Create(2);
-  constexpr const auto right = PxSize1D::Create(3);
-  constexpr const auto bottom = PxSize1D::Create(4);
-  PxThickness value1(left, top, right, bottom);
-  PxThickness value2(left, top, right, PxSize1D::Create(5));
+  constexpr const auto Left = PxSize1D::Create(1);
+  constexpr const auto Top = PxSize1D::Create(2);
+  constexpr const auto Right = PxSize1D::Create(3);
+  constexpr const auto Bottom = PxSize1D::Create(4);
+  PxThickness value1(Left, Top, Right, Bottom);
+  PxThickness value2(Left, Top, Right, PxSize1D::Create(5));
 
   EXPECT_NE(value1, value2);
 }

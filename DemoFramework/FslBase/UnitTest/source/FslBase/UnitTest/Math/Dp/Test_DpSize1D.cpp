@@ -51,16 +51,16 @@ TEST(TestMathDp_DpSize1D, Construct_Default)
 
 TEST(TestMathDp_DpSize1D, Construct)
 {
-  constexpr const auto value = DpValue::Create(3);
-  DpSize1D testValue(value);
+  constexpr const auto Value = DpValue::Create(3);
+  DpSize1D testValue(Value);
 
-  EXPECT_EQ(value, testValue.Value());
+  EXPECT_EQ(Value, testValue.Value());
 }
 
 TEST(TestMathDp_DpSize1D, Construct_NegativeValue)
 {
-  constexpr const auto value = DpValue::Create(-1);
-  DpSize1D testValue(value);
+  constexpr const auto Value = DpValue::Create(-1);
+  DpSize1D testValue(Value);
 
   EXPECT_EQ(DpValue::Create(0), testValue.Value());
 }

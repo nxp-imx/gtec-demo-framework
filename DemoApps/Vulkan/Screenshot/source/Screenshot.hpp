@@ -82,7 +82,7 @@ namespace Fsl
 
   public:
     explicit Screenshot(const DemoAppConfig& config);
-    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) final;
+    void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) final;
     void _EndDraw(const FrameInfo& frameInfo) final;
 
   protected:

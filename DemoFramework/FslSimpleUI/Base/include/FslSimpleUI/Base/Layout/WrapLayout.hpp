@@ -55,7 +55,9 @@ namespace Fsl::UI
     DataBinding::TypedDependencyProperty<DpSize2DF> m_propertySpacingDp;
 
   public:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static DataBinding::DependencyPropertyDefinition PropertyOrientation;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static DataBinding::DependencyPropertyDefinition PropertySpacing;
 
     explicit WrapLayout(const std::shared_ptr<BaseWindowContext>& context);

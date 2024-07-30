@@ -100,27 +100,25 @@ namespace Fsl::GLES2
     std::array<GLint, 4> viewport{};
     GL_CHECK(glGetIntegerv(GL_VIEWPORT, viewport.data()))
 
-    const Rectangle srcRectangle(viewport[0], viewport[1], viewport[2], viewport[3]);
+    const auto srcRectangle = PxRectangle::Create(viewport[0], viewport[1], viewport[2], viewport[3]);
     return Capture(rBitmap, pixelFormat, srcRectangle);
   }
 
 
-  void GLUtil::Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const Rectangle& srcRectangle)
+  void GLUtil::Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const PxRectangle& srcRectanglePx)
   {
     // We don't need to clear as we are going to overwrite everything anyway
     // We utilize PixelFormatLayout::R8G8B8A8 here since that is what glReadPixels is filling it with
     // that also allows the convert method to detect if the the supplied pixelFormat is different and then
     // convert as necessary
-    rBitmap.Reset(PxExtent2D::Create(srcRectangle.Width(), srcRectangle.Height()), PixelFormat::R8G8B8A8_UINT, BitmapOrigin::LowerLeft,
-                  BitmapClearMethod::DontClear);
+    rBitmap.Reset(srcRectanglePx.GetSize(), PixelFormat::R8G8B8A8_UINT, BitmapOrigin::LowerLeft, BitmapClearMethod::DontClear);
 
     // glFinish();
     {
-      RawBitmapEx rawBitmap;
-      Bitmap::ScopedDirectAccess scopedAccess(rBitmap, rawBitmap);
-      GL_CHECK(glReadPixels(srcRectangle.X(), srcRectangle.Y(), srcRectangle.Width(), srcRectangle.Height(), GL_RGBA, GL_UNSIGNED_BYTE,
-                            rawBitmap.Content()));
-      RawBitmapUtil::FlipHorizontal(rawBitmap);
+      Bitmap::ScopedDirectReadWriteAccess scopedAccess(rBitmap);
+      GL_CHECK(glReadPixels(srcRectanglePx.RawX(), srcRectanglePx.RawY(), srcRectanglePx.RawWidth(), srcRectanglePx.RawHeight(), GL_RGBA,
+                            GL_UNSIGNED_BYTE, scopedAccess.AsRawBitmap().Content()));
+      RawBitmapUtil::FlipHorizontal(scopedAccess.AsRawBitmap());
     }
 
     // Convert if necessary (convert will do nothing if the format is already correct)

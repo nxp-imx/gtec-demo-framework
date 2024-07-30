@@ -55,6 +55,7 @@ namespace Fsl
       virtual const std::shared_ptr<BasicImageSprite>& GetBasicFillSprite(const bool opaque = true) const = 0;
       virtual const std::shared_ptr<BasicImageSprite>& GetBasicMiniFillSprite(const bool opaque) const = 0;
       virtual const std::shared_ptr<BasicImageSprite>& GetBasicTestSprite(const bool opaque = true) const = 0;
+      virtual const std::shared_ptr<BasicImageSprite>& GetLineListSprite(const bool opaque) const = 0;
 
       virtual const std::shared_ptr<ImageSprite>& GetFillSprite() const = 0;
       virtual const std::shared_ptr<SpriteFont>& GetDefaultSpriteFont() const = 0;

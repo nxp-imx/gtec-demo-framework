@@ -47,10 +47,12 @@ namespace Fsl
     static const Fsl::BlendState BLEND1 = TBlend1;
   };
 
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class TestFixture_StrategyBatchByStateBase : public TestFixtureFslGraphics
   {
   public:
     using strategy_type = Fsl::TestStrategyBatchByState;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     strategy_type m_strategy;
 
     static void AddQuad(strategy_type& rStrategy, const Fsl::TestQuad& quad)
@@ -102,13 +104,13 @@ namespace Fsl
     {
       auto span = strategy.GetSpan();
       ASSERT_NE(span.pVertices, nullptr);
-      EXPECT_EQ(span.VertexCount, static_cast<uint32_t>(content.size() * strategy_type::VERTICES_PER_QUAD));
+      EXPECT_EQ(span.VertexCount, static_cast<uint32_t>(content.size() * strategy_type::VerticesPerQuad));
 
       // Quads are stored in a back-to-front order (equal to insertion order)
       const auto quadCount = static_cast<uint32_t>(content.size());
       for (uint32_t i = 0; i < quadCount; ++i)
       {
-        Expect_EQ(span, content[i], i);
+        ExpectEq(span, content[i], i);
       }
     }
 
@@ -119,7 +121,7 @@ namespace Fsl
       for (uint32_t i = 0; i < segmentCount; ++i)
       {
         auto segment = strategy.GetSegment(i);
-        EXPECT_EQ(segment.VertexCount / strategy_type::VERTICES_PER_QUAD, content[i].QuadCount);
+        EXPECT_EQ(segment.VertexCount / strategy_type::VerticesPerQuad, content[i].QuadCount);
         EXPECT_EQ(segment.TextureInfo, content[i].TextureInfo);
         EXPECT_EQ(segment.ActiveBlendState, content[i].ActiveBlendState);
       }
@@ -127,6 +129,7 @@ namespace Fsl
   };
 
   template <typename TConfig>
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class TestFixture_StrategyBatchByState : public TestFixture_StrategyBatchByStateBase
   {
   public:

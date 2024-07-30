@@ -37,11 +37,11 @@
 
 namespace Fsl::UI
 {
-  BaseWindowContext::BaseWindowContext(const std::shared_ptr<UIContext>& uiContext, const uint32_t densityDpi)
+  BaseWindowContext::BaseWindowContext(const std::shared_ptr<UIContext>& uiContext, const uint32_t densityDpi, const UIColorSpace colorSpace)
     : UIDataBindingService(uiContext->DataBindingService)
     , TheUIContext(uiContext)
     , UnitConverter(densityDpi)
-
+    , ColorConverter(colorSpace)
   {
   }
 

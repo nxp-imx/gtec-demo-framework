@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_LINEAR_PREPROCESSUTIL2_FORCETRANSPARENT_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_LINEAR_PREPROCESSUTIL2_FORCETRANSPARENT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021-2023 NXP
+ * Copyright 2021-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,14 +60,14 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
     assert(!commandSpan.empty());
     const MaterialLookup& materialLookup = meshManager.GetMaterialLookup();
 
-    constexpr uint32_t invalidMaterialCacheIndex = 0xFFFFFFFF;
+    constexpr uint32_t InvalidMaterialCacheIndex = 0xFFFFFFFF;
     for (std::size_t i = 0; i < opaqueMaterialCache.size(); ++i)
     {
-      opaqueMaterialCache[i] = MaterialCacheRecord(invalidMaterialCacheIndex);
+      opaqueMaterialCache[i] = MaterialCacheRecord(InvalidMaterialCacheIndex);
     }
     for (std::size_t i = 0; i < transparentMaterialCache.size(); ++i)
     {
-      transparentMaterialCache[i] = MaterialCacheRecord(invalidMaterialCacheIndex);
+      transparentMaterialCache[i] = MaterialCacheRecord(InvalidMaterialCacheIndex);
     }
 
     const std::size_t capacity = (commandSpan.size() * 2u);
@@ -110,7 +110,7 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
               pDst[dstTransparentIndex].DstAreaRectanglePxf.RawTop() < clipSizeHeightPx &&
               pDst[dstTransparentIndex].DstAreaRectanglePxf.RawBottom() > 0.0f)
           {
-            if (transparentMaterialCache[materialId.Value].Index == invalidMaterialCacheIndex)
+            if (transparentMaterialCache[materialId.Value].Index == InvalidMaterialCacheIndex)
             {
               transparentMaterialCache[materialId.Value].Index = dstTransparentIndex;
             }
@@ -133,7 +133,7 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
               pDst[dstTransparentIndex].DstAreaRectanglePxf.RawTop() < clipSizeHeightPx &&
               pDst[dstTransparentIndex].DstAreaRectanglePxf.RawBottom() > 0.0f)
           {
-            if (transparentMaterialCache[materialId.Value].Index == invalidMaterialCacheIndex)
+            if (transparentMaterialCache[materialId.Value].Index == InvalidMaterialCacheIndex)
             {
               transparentMaterialCache[materialId.Value].Index = dstTransparentIndex;
             }
@@ -159,7 +159,7 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
               pDst[dstTransparentIndex].DstAreaRectanglePxf.RawTop() < clipSizeHeightPx &&
               pDst[dstTransparentIndex].DstAreaRectanglePxf.RawBottom() > 0.0f)
           {
-            if (transparentMaterialCache[materialId.Value].Index == invalidMaterialCacheIndex)
+            if (transparentMaterialCache[materialId.Value].Index == InvalidMaterialCacheIndex)
             {
               transparentMaterialCache[materialId.Value].Index = dstTransparentIndex;
             }
@@ -191,7 +191,7 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
               pDst[dstTransparentIndex].DstAreaRectanglePxf.RawTop() < clipSizeHeightPx &&
               pDst[dstTransparentIndex].DstAreaRectanglePxf.RawBottom() > 0.0f)
           {
-            if (transparentMaterialCache[materialId.Value].Index == invalidMaterialCacheIndex)
+            if (transparentMaterialCache[materialId.Value].Index == InvalidMaterialCacheIndex)
             {
               transparentMaterialCache[materialId.Value].Index = dstTransparentIndex;
             }
@@ -214,7 +214,7 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
               pDst[dstTransparentIndex].DstAreaRectanglePxf.RawTop() < clipSizeHeightPx &&
               pDst[dstTransparentIndex].DstAreaRectanglePxf.RawBottom() > 0.0f)
           {
-            if (transparentMaterialCache[materialId.Value].Index == invalidMaterialCacheIndex)
+            if (transparentMaterialCache[materialId.Value].Index == InvalidMaterialCacheIndex)
             {
               transparentMaterialCache[materialId.Value].Index = dstTransparentIndex;
             }
@@ -241,7 +241,7 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
           if (dstRectanglePxf.RawLeft() < clipSizeWidthPx && dstRectanglePxf.RawRight() > 0.0f && dstRectanglePxf.RawTop() < clipSizeHeightPx &&
               dstRectanglePxf.RawBottom() > 0.0f)
           {
-            if (command.DstColor.A() == 0xFF)
+            if (command.DstColor.IsOpaque())
             {
               if (MeshTransparencyFlagsUtil::IsEnabled(meshRecord.Transparency, MeshTransparencyFlags::Opaque))
               {
@@ -249,7 +249,7 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
                 assert(dstTransparentIndex < capacity);
                 pDst[dstTransparentIndex] =
                   ProcessedCommandRecord(materialId, dstRectanglePxf, command.DstColor, dstTransparentIndex, i, ProcessedCommandFlags::RenderOpaque);
-                if (transparentMaterialCache[materialId.Value].Index == invalidMaterialCacheIndex)
+                if (transparentMaterialCache[materialId.Value].Index == InvalidMaterialCacheIndex)
                 {
                   transparentMaterialCache[materialId.Value].Index = dstTransparentIndex;
                 }
@@ -260,7 +260,7 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
                 const auto materialId = materialLookup.GetMaterialIndex(meshRecord.TransparentMaterialHandle);
                 assert(dstTransparentIndex < capacity);
                 pDst[dstTransparentIndex] = ProcessedCommandRecord(materialId, dstRectanglePxf, command.DstColor, dstTransparentIndex, i);
-                if (transparentMaterialCache[materialId.Value].Index == invalidMaterialCacheIndex)
+                if (transparentMaterialCache[materialId.Value].Index == InvalidMaterialCacheIndex)
                 {
                   transparentMaterialCache[materialId.Value].Index = dstTransparentIndex;
                 }
@@ -273,7 +273,7 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
               assert(dstTransparentIndex < capacity);
               pDst[dstTransparentIndex] = ProcessedCommandRecord(materialId, dstRectanglePxf, command.DstColor, dstTransparentIndex, i,
                                                                  ProcessedCommandFlags::RenderIgnoreOpacity);
-              if (transparentMaterialCache[materialId.Value].Index == invalidMaterialCacheIndex)
+              if (transparentMaterialCache[materialId.Value].Index == InvalidMaterialCacheIndex)
               {
                 transparentMaterialCache[materialId.Value].Index = dstTransparentIndex;
               }

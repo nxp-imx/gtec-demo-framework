@@ -47,22 +47,22 @@ namespace Fsl
   using namespace GLES3;
 
   TessellationShader::TessellationShader(const std::shared_ptr<IContentManager>& contentManager, VertexDeclarationSpan vertexDeclaration)
-    : LocTessLevelInner(GLValues::INVALID_LOCATION)
-    , LocTessLevelOuter(GLValues::INVALID_LOCATION)
-    , LocWorld(GLValues::INVALID_LOCATION)
-    , LocWorldView(GLValues::INVALID_LOCATION)
-    , LocWorldViewProjection(GLValues::INVALID_LOCATION)
-    , LocNormalMatrix(GLValues::INVALID_LOCATION)
-    , LocTextureDiffuse(GLValues::INVALID_LOCATION)
-    , LocTextureNormalEval(GLValues::INVALID_LOCATION)
-    , LocTextureNormalFrag(GLValues::INVALID_LOCATION)
-    , LocTextureDisplacement(GLValues::INVALID_LOCATION)
-    , LocLightDirection(GLValues::INVALID_LOCATION)
-    , LocDisplacementFactor(GLValues::INVALID_LOCATION)
-    , LocDisplacementMod(GLValues::INVALID_LOCATION)
-    , LocMatAmbient(GLValues::INVALID_LOCATION)
-    , LocMatSpecular(GLValues::INVALID_LOCATION)
-    , LocMatShininess(GLValues::INVALID_LOCATION)
+    : LocTessLevelInner(GLValues::InvalidLocation)
+    , LocTessLevelOuter(GLValues::InvalidLocation)
+    , LocWorld(GLValues::InvalidLocation)
+    , LocWorldView(GLValues::InvalidLocation)
+    , LocWorldViewProjection(GLValues::InvalidLocation)
+    , LocNormalMatrix(GLValues::InvalidLocation)
+    , LocTextureDiffuse(GLValues::InvalidLocation)
+    , LocTextureNormalEval(GLValues::InvalidLocation)
+    , LocTextureNormalFrag(GLValues::InvalidLocation)
+    , LocTextureDisplacement(GLValues::InvalidLocation)
+    , LocLightDirection(GLValues::InvalidLocation)
+    , LocDisplacementFactor(GLValues::InvalidLocation)
+    , LocDisplacementMod(GLValues::InvalidLocation)
+    , LocMatAmbient(GLValues::InvalidLocation)
+    , LocMatSpecular(GLValues::InvalidLocation)
+    , LocMatShininess(GLValues::InvalidLocation)
     , AttribLink(4)
   {
     const std::string strVert = contentManager->ReadAllText("Shaders/Tesselation.vert");
@@ -126,82 +126,82 @@ namespace Fsl
                                           const RenderMaterial& material, const int32_t activeTexDiffuseId, const int32_t activeTexNormalId,
                                           const int32_t activeTexDisplaceId)
   {
-    if (LocTessLevelInner != GLValues::INVALID_LOCATION)
+    if (LocTessLevelInner != GLValues::InvalidLocation)
     {
       glProgramUniform1f(ShaderControl.Get(), LocTessLevelInner, tessRenderConfig.TessLevelInner);
     }
 
-    if (LocTessLevelOuter != GLValues::INVALID_LOCATION)
+    if (LocTessLevelOuter != GLValues::InvalidLocation)
     {
       glProgramUniform1f(ShaderControl.Get(), LocTessLevelOuter, tessRenderConfig.TessLevelOuter);
     }
 
-    if (LocWorld != GLValues::INVALID_LOCATION)
+    if (LocWorld != GLValues::InvalidLocation)
     {
       glProgramUniformMatrix4fv(ShaderEval.Get(), LocWorld, 1, GL_FALSE, cameraConfig.World.DirectAccess());
     }
 
-    if (LocWorldView != GLValues::INVALID_LOCATION)
+    if (LocWorldView != GLValues::InvalidLocation)
     {
       glProgramUniformMatrix4fv(ShaderEval.Get(), LocWorldView, 1, GL_FALSE, cameraConfig.WorldView.DirectAccess());
     }
 
-    if (LocWorldViewProjection != GLValues::INVALID_LOCATION)
+    if (LocWorldViewProjection != GLValues::InvalidLocation)
     {
       glProgramUniformMatrix4fv(ShaderEval.Get(), LocWorldViewProjection, 1, GL_FALSE, cameraConfig.WorldViewProjection.DirectAccess());
     }
 
-    if (LocNormalMatrix != GLValues::INVALID_LOCATION)
+    if (LocNormalMatrix != GLValues::InvalidLocation)
     {
       glProgramUniformMatrix3fv(ShaderEval.Get(), LocNormalMatrix, 1, GL_FALSE, cameraConfig.NormalMatrix.DirectAccess());
     }
 
-    if (LocTextureDiffuse != GLValues::INVALID_LOCATION)
+    if (LocTextureDiffuse != GLValues::InvalidLocation)
     {
       glProgramUniform1i(ShaderFrag.Get(), LocTextureDiffuse, activeTexDiffuseId);
     }
 
-    if (LocTextureNormalEval != GLValues::INVALID_LOCATION)
+    if (LocTextureNormalEval != GLValues::InvalidLocation)
     {
       glProgramUniform1i(ShaderFrag.Get(), LocTextureNormalEval, activeTexNormalId);
     }
 
-    if (LocTextureNormalFrag != GLValues::INVALID_LOCATION)
+    if (LocTextureNormalFrag != GLValues::InvalidLocation)
     {
       glProgramUniform1i(ShaderFrag.Get(), LocTextureNormalFrag, activeTexNormalId);
     }
 
-    if (LocTextureDisplacement != GLValues::INVALID_LOCATION)
+    if (LocTextureDisplacement != GLValues::InvalidLocation)
     {
       glProgramUniform1i(ShaderEval.Get(), LocTextureDisplacement, activeTexDisplaceId);
     }
 
-    if (LocLightDirection != GLValues::INVALID_LOCATION)
+    if (LocLightDirection != GLValues::InvalidLocation)
     {
       glProgramUniform3fv(ShaderEval.Get(), LocLightDirection, 1, cameraConfig.CameraSpaceLightDirection.DirectAccess());
     }
 
-    if (LocDisplacementFactor != GLValues::INVALID_LOCATION)
+    if (LocDisplacementFactor != GLValues::InvalidLocation)
     {
       glProgramUniform1f(ShaderEval.Get(), LocDisplacementFactor, tessRenderConfig.DisplacementFactor);
     }
 
-    if (LocDisplacementMod != GLValues::INVALID_LOCATION)
+    if (LocDisplacementMod != GLValues::InvalidLocation)
     {
       glProgramUniform1f(ShaderEval.Get(), LocDisplacementMod, tessRenderConfig.DisplacementMod);
     }
 
-    if (LocMatAmbient != GLValues::INVALID_LOCATION)
+    if (LocMatAmbient != GLValues::InvalidLocation)
     {
       glProgramUniform3fv(ShaderFrag.Get(), LocMatAmbient, 1, material.Ambient.DirectAccess());
     }
 
-    if (LocMatSpecular != GLValues::INVALID_LOCATION)
+    if (LocMatSpecular != GLValues::InvalidLocation)
     {
       glProgramUniform3fv(ShaderFrag.Get(), LocMatSpecular, 1, material.Specular.DirectAccess());
     }
 
-    if (LocMatShininess != GLValues::INVALID_LOCATION)
+    if (LocMatShininess != GLValues::InvalidLocation)
     {
       glProgramUniform1f(ShaderFrag.Get(), LocMatShininess, material.Shininess);
     }

@@ -35,14 +35,14 @@
 
 namespace Fsl
 {
-  class ##PACKAGE_SHORT_NAME## : public DemoAppWindow
+  class ##PACKAGE_SHORT_NAME## final : public DemoAppWindow
   {
   public:
-    ##PACKAGE_SHORT_NAME##(const DemoAppConfig& config);
-    ~##PACKAGE_SHORT_NAME##() override;
+    explicit ##PACKAGE_SHORT_NAME##(const DemoAppConfig& config);
+    ~##PACKAGE_SHORT_NAME##() final;
   protected:
-    void Update(const DemoTime& demoTime) override;
-    void Draw(const FrameInfo& frameInfo) override;
+    void Update(const DemoTime& demoTime) final;
+    void Draw(const FrameInfo& frameInfo) final;
   };
 }
 

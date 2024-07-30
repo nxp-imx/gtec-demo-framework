@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022-2023 NXP
+ * Copyright 2020, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,7 @@
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
@@ -52,11 +51,11 @@ namespace Fsl
     {
       constexpr const float DefaultZPos = 0.0f;
 
-      constexpr const IO::PathView NormalFontAtlasTexturePath("BasicUI/Font/NormalAtlas/FontAtlas.png");
-      constexpr const IO::PathView NormalFontPath("BasicUI/Font/NormalAtlas/FontAtlas_Font.nbf");
+      constexpr const IO::PathView NormalFontAtlasTexturePath("Font/NormalAtlas/FontAtlas.png");
+      constexpr const IO::PathView NormalFontPath("Font/NormalAtlas/FontAtlas_Font.nbf");
 
-      constexpr const IO::PathView SdfFontAtlasTexturePath("BasicUI/Font/SdfAtlas/FontAtlas.png");
-      constexpr const IO::PathView SdfFontPath("BasicUI/Font/SdfAtlas/FontAtlas_Font.nbf");
+      constexpr const IO::PathView SdfFontAtlasTexturePath("Font/SdfAtlas/FontAtlas.png");
+      constexpr const IO::PathView SdfFontPath("Font/SdfAtlas/FontAtlas_Font.nbf");
 
       constexpr const IO::PathView TextVertShader("Text.vert");
       constexpr const IO::PathView TextFragShader("Text.frag");
@@ -190,17 +189,17 @@ namespace Fsl
 
     // Draw baselines
     {
-      constexpr auto baseLineColor = Color(0xFF404040);
+      constexpr auto BaseLineColor = Color(0xFF404040);
 
       m_nativeBatch->Begin();
       m_nativeBatch->DebugDrawLine(m_resources.FillTexture, baseLine0Px, PxPoint2(baseLine0Px.X + currentSizePx.Width(), baseLine0Px.Y),
-                                   baseLineColor);
+                                   BaseLineColor);
       m_nativeBatch->DebugDrawLine(m_resources.FillTexture, baseLine1Px, PxPoint2(baseLine1Px.X + currentSizePx.Width(), baseLine1Px.Y),
-                                   baseLineColor);
+                                   BaseLineColor);
       m_nativeBatch->DebugDrawLine(m_resources.FillTexture, baseLine2Px, PxPoint2(baseLine2Px.X + currentSizePx.Width(), baseLine2Px.Y),
-                                   baseLineColor);
+                                   BaseLineColor);
       m_nativeBatch->DebugDrawLine(m_resources.FillTexture, baseLine3Px, PxPoint2(baseLine3Px.X + currentSizePx.Width(), baseLine3Px.Y),
-                                   baseLineColor);
+                                   BaseLineColor);
       m_nativeBatch->End();
     }
 
@@ -266,22 +265,22 @@ namespace Fsl
     glBindTexture(GL_TEXTURE_2D, texture.Get());
 
     // Load the matrices
-    assert(shader.Location.ProjMatrix != GLES3::GLValues::INVALID_LOCATION);
-    assert(shader.Location.Texture != GLES3::GLValues::INVALID_LOCATION);
+    assert(shader.Location.ProjMatrix != GLES3::GLValues::InvalidLocation);
+    assert(shader.Location.Texture != GLES3::GLValues::InvalidLocation);
     glUniformMatrix4fv(shader.Location.ProjMatrix, 1, 0, projection.DirectAccess());
 
-    if (shader.Location.OutlineDistance != GLES3::GLValues::INVALID_LOCATION)
+    if (shader.Location.OutlineDistance != GLES3::GLValues::InvalidLocation)
     {
       const auto outlineDistance = (fontDrawConfig.OutlineDistance > 0.0f ? 0.5f * fontDrawConfig.OutlineDistance : 0.0f);
       glUniform1f(shader.Location.OutlineDistance, outlineDistance);
     }
 
-    if (shader.Location.Smoothing != GLES3::GLValues::INVALID_LOCATION)
+    if (shader.Location.Smoothing != GLES3::GLValues::InvalidLocation)
     {
       const auto smoothing = 0.25f / (static_cast<float>(fontDrawConfig.FontSdfSpread) * fontDrawConfig.FontScale);
       glUniform1f(shader.Location.Smoothing, smoothing);
     }
-    if (shader.Location.ShadowOffset != GLES3::GLValues::INVALID_LOCATION)
+    if (shader.Location.ShadowOffset != GLES3::GLValues::InvalidLocation)
     {
       auto maxOffsetX = static_cast<float>(fontDrawConfig.FontSdfSpread) / static_cast<float>(texture.GetSize().RawWidth());
       auto maxOffsetY = static_cast<float>(fontDrawConfig.FontSdfSpread) / static_cast<float>(texture.GetSize().RawHeight());
@@ -289,7 +288,7 @@ namespace Fsl
       auto shadowOffsetY = fontDrawConfig.ShadowOffset.Y != 0.0f ? -(maxOffsetY * fontDrawConfig.ShadowOffset.Y) : 0.0f;
       glUniform2f(shader.Location.ShadowOffset, shadowOffsetX, shadowOffsetY);
     }
-    if (shader.Location.ShadowSmoothing != GLES3::GLValues::INVALID_LOCATION)
+    if (shader.Location.ShadowSmoothing != GLES3::GLValues::InvalidLocation)
     {
       const auto shadowSmoothing = (fontDrawConfig.ShadowSmoothing > 0.0f ? 0.5f * fontDrawConfig.ShadowSmoothing : 0.0f);
       glUniform1f(shader.Location.ShadowSmoothing, shadowSmoothing);
@@ -344,8 +343,8 @@ namespace Fsl
     result.Location.ShadowSmoothing = result.Program.TryGetUniformLocation("g_shadowSmoothing");
     result.Location.Texture = result.Program.GetUniformLocation("Texture");
 
-    assert(result.Location.ProjMatrix != GLES3::GLValues::INVALID_LOCATION);
-    assert(result.Location.Texture != GLES3::GLValues::INVALID_LOCATION);
+    assert(result.Location.ProjMatrix != GLES3::GLValues::InvalidLocation);
+    assert(result.Location.Texture != GLES3::GLValues::InvalidLocation);
     return result;
   }
 

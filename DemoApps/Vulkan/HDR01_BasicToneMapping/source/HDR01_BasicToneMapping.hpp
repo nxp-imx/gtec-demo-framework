@@ -49,6 +49,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class HDR01_BasicToneMapping
     : public VulkanBasic::DemoAppVulkanBasic
     , public UI::EventListener

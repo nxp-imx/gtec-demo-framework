@@ -45,12 +45,15 @@ namespace Fsl
 {
   namespace
   {
-    const char MIN_VALUE = 33;
-    const char MAX_VALUE = 127;
+    namespace LocalConfig
+    {
+      constexpr char MinValue = 33;
+      constexpr char MaxValue = 127;
+    }
 
     inline bool IsValidChar(const int ch)
     {
-      return (ch >= static_cast<int>(MIN_VALUE) && ch <= static_cast<int>(MAX_VALUE));
+      return (ch >= static_cast<int>(LocalConfig::MinValue) && ch <= static_cast<int>(LocalConfig::MaxValue));
     }
   }
 
@@ -94,8 +97,8 @@ namespace Fsl
 
       // Create child images for each glyph and assign them to the valid chars
       const VGFont parentImage = m_fontImage.GetHandle();
-      const auto imageWidth = UncheckedNumericCast<int32_t>(bitmap.Width());
-      const auto imageHeight = UncheckedNumericCast<int32_t>(bitmap.Height());
+      const auto imageWidth = bitmap.RawWidth();
+      const auto imageHeight = bitmap.RawHeight();
       const PxSize2D fontSize = EmbeddedFont8x8::CharacterSize();
       std::array<VGfloat, 2> origin = {0.0f, static_cast<VGfloat>(fontSize.RawHeight())};
       std::array<VGfloat, 2> escapement = {static_cast<VGfloat>(fontSize.RawWidth()), 0.0f};

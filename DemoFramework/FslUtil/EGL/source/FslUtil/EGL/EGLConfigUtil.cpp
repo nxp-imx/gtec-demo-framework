@@ -31,7 +31,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslUtil/EGL/EGLCheck.hpp>
 #include <FslUtil/EGL/EGLConfigUtil.hpp>
 #include <FslUtil/EGL/EGLUtil.hpp>
@@ -381,14 +381,14 @@ namespace Fsl::EGLConfigUtil
       {
         if (allowHDR && attributes.IsHDRRequest())
         {
-          auto optionalConfig = TryDoChooseHDRConfig(hDisplay, attributes, ReadOnlySpanUtil::AsSpan(configs));
+          auto optionalConfig = TryDoChooseHDRConfig(hDisplay, attributes, SpanUtil::AsReadOnlySpan(configs));
           if (optionalConfig.has_value())
           {
             return optionalConfig;
           }
         }
         {    // Not a HDR request, so try to chose a SDR format
-          auto optionalConfig = TryDoChooseSDRConfig(hDisplay, attributes, ReadOnlySpanUtil::AsSpan(configs));
+          auto optionalConfig = TryDoChooseSDRConfig(hDisplay, attributes, SpanUtil::AsReadOnlySpan(configs));
           if (optionalConfig.has_value())
           {
             return optionalConfig;

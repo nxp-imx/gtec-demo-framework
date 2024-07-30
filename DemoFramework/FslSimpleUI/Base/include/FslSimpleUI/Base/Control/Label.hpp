@@ -44,6 +44,7 @@ namespace Fsl::UI
     DataBinding::TypedDependencyProperty<StringViewLite> m_propertyContent;
 
   public:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static DataBinding::DependencyPropertyDefinition PropertyContent;
 
     explicit Label(const std::shared_ptr<WindowContext>& context);

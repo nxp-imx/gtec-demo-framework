@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,31 +52,31 @@ TEST(TestMathDp_DpSize2DF, Construct_Default)
 
 TEST(TestMathDp_DpSize2DF, Construct)
 {
-  constexpr const DpValueF width(3.0f);
-  constexpr const DpValueF height(2.0f);
-  DpSize2DF value(width, height);
+  constexpr const DpValueF Width(3.0f);
+  constexpr const DpValueF Height(2.0f);
+  DpSize2DF value(Width, Height);
 
-  EXPECT_EQ(width, value.Width());
-  EXPECT_EQ(height, value.Height());
+  EXPECT_EQ(Width, value.Width());
+  EXPECT_EQ(Height, value.Height());
 }
 
 TEST(TestMathDp_DpSize2DF, Construct_NegativeWidth)
 {
-  constexpr const DpValueF width(-1);
-  constexpr const DpValueF height(2);
-  DpSize2DF value(width, height);
+  constexpr const DpValueF Width(-1);
+  constexpr const DpValueF Height(2);
+  DpSize2DF value(Width, Height);
 
   EXPECT_EQ(DpSize2DF::value_type::Create(0.0f), value.Width());
-  EXPECT_EQ(height, value.Height());
+  EXPECT_EQ(Height, value.Height());
 }
 
 TEST(TestMathDp_DpSize2DF, Construct_NegativeHeight)
 {
-  constexpr const DpValueF width(3);
-  constexpr const DpValueF height(-1);
-  DpSize2DF value(width, height);
+  constexpr const DpValueF Width(3);
+  constexpr const DpValueF Height(-1);
+  DpSize2DF value(Width, Height);
 
-  EXPECT_EQ(width, value.Width());
+  EXPECT_EQ(Width, value.Width());
   EXPECT_EQ(DpSize2DF::value_type::Create(0), value.Height());
 }
 

@@ -32,10 +32,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslGraphics/ColorSpace.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtensionCreateInfoUtil.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtensionLite.hpp>
 #include <FslSimpleUI/App/UIDemoAppRenderCreateInfo.hpp>
+#include <FslSimpleUI/Base/UIColorSpace.hpp>
 
 namespace Fsl
 {
@@ -55,14 +55,13 @@ namespace Fsl
     }
 
     //! @brief Create a UIDemoAppRenderCreateInfo configured for either normal RGB or SRGB
-    static UIDemoAppRenderCreateInfo CreateConfig(const ColorSpace colorSpace)
+    static UIDemoAppRenderCreateInfo CreateConfig(const UI::UIColorSpace colorSpace)
     {
       switch (colorSpace)
       {
-      case ColorSpace::SRGBNonLinear:
+      case UI::UIColorSpace::SRGBNonLinear:
         return {};
-      case ColorSpace::SRGBLinear:
-      case ColorSpace::SCRGBLinear:
+      case UI::UIColorSpace::SRGBLinear:
         return CreateSRGBConfig();
       }
       throw NotSupportedException("Unsupported color-space");
@@ -71,7 +70,7 @@ namespace Fsl
     //! @brief Create a UIDemoAppRenderCreateInfo configured for a SRGB framebuffer
     static UIDemoAppRenderCreateInfo CreateSRGBConfig()
     {
-      return UIDemoAppRenderCreateInfo(UIDemoAppMaterialCreateInfo(PixelFormat::R8G8B8A8_SRGB));
+      return UIDemoAppRenderCreateInfo(UI::UIColorSpace::SRGBLinear, UIDemoAppMaterialCreateInfo(PixelFormat::R8G8B8A8_SRGB));
     }
   };
 }

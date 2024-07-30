@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022-2023 NXP
+ * Copyright 2020, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,19 +52,19 @@ namespace Fsl::UI
   using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
 
   TDef TClass::PropertyBackgroundColorHoverUp =
-    TFactory::Create<Color, TClass, &TClass::GetBackgroundColorHoverUp, &TClass::SetBackgroundColorHoverUp>("BackgroundColorHoverUp");
+    TFactory::Create<UIColor, TClass, &TClass::GetBackgroundColorHoverUp, &TClass::SetBackgroundColorHoverUp>("BackgroundColorHoverUp");
   TDef TClass::PropertyBackgroundColorUp =
-    TFactory::Create<Color, TClass, &TClass::GetBackgroundColorUp, &TClass::SetBackgroundColorUp>("BackgroundColorUp");
+    TFactory::Create<UIColor, TClass, &TClass::GetBackgroundColorUp, &TClass::SetBackgroundColorUp>("BackgroundColorUp");
   TDef TClass::PropertyBackgroundColorDown =
-    TFactory::Create<Color, TClass, &TClass::GetBackgroundColorDown, &TClass::SetBackgroundColorDown>("BackgroundColorDown");
+    TFactory::Create<UIColor, TClass, &TClass::GetBackgroundColorDown, &TClass::SetBackgroundColorDown>("BackgroundColorDown");
   TDef TClass::PropertyBackgroundColorDisabled =
-    TFactory::Create<Color, TClass, &TClass::GetBackgroundColorDisabled, &TClass::SetBackgroundColorDisabled>("BackgroundColorDisabled");
+    TFactory::Create<UIColor, TClass, &TClass::GetBackgroundColorDisabled, &TClass::SetBackgroundColorDisabled>("BackgroundColorDisabled");
   TDef TClass::PropertyBackgroundScalePolicy =
     TFactory::Create<ItemScalePolicy, TClass, &TClass::GetBackgroundScalePolicy, &TClass::SetBackgroundScalePolicy>("BackgroundScalePolicy");
   TDef TClass::PropertyScalePolicy = TFactory::Create<ItemScalePolicy, TClass, &TClass::GetScalePolicy, &TClass::SetScalePolicy>("ScalePolicy");
-  TDef TClass::PropertyColorUp = TFactory::Create<Color, TClass, &TClass::GetColorUp, &TClass::SetColorUp>("ColorUp");
-  TDef TClass::PropertyColorDown = TFactory::Create<Color, TClass, &TClass::GetColorDown, &TClass::SetColorDown>("ColorDown");
-  TDef TClass::PropertyColorDisabled = TFactory::Create<Color, TClass, &TClass::GetColorDisabled, &TClass::SetColorDisabled>("ColorDisabled");
+  TDef TClass::PropertyColorUp = TFactory::Create<UIColor, TClass, &TClass::GetColorUp, &TClass::SetColorUp>("ColorUp");
+  TDef TClass::PropertyColorDown = TFactory::Create<UIColor, TClass, &TClass::GetColorDown, &TClass::SetColorDown>("ColorDown");
+  TDef TClass::PropertyColorDisabled = TFactory::Create<UIColor, TClass, &TClass::GetColorDisabled, &TClass::SetColorDisabled>("ColorDisabled");
 }
 
 namespace Fsl::UI
@@ -73,12 +73,15 @@ namespace Fsl::UI
     : ButtonBase(context)
     , m_windowContext(context)
     , m_content(context->TheUIContext.Get()->MeshManager)
-    , m_background(context->TheUIContext.Get()->MeshManager)
-    , m_currentColor(context->UITransitionCache, DefaultAnim::ColorChangeTime, DefaultAnim::ColorChangeTransitionType)
-    , m_backgroundCurrentColor(context->UITransitionCache, DefaultAnim::ColorChangeTime, DefaultAnim::ColorChangeTransitionType)
+    , m_background(context->TheUIContext.Get()->MeshManager, context->ColorConverter)
+    , m_propertyColorUp(context->ColorConverter, DefaultColor::Button::Up)
+    , m_propertyColorDown(context->ColorConverter, DefaultColor::Button::Down)
+    , m_propertyColorDisabled(context->ColorConverter, DefaultColor::Button::BackgroundDisabled)
+    , m_currentColor(DefaultAnim::ColorChangeTime, DefaultAnim::ColorChangeTransitionType)
+    , m_backgroundCurrentColor(DefaultAnim::ColorChangeTime, DefaultAnim::ColorChangeTransitionType)
   {
-    m_currentColor.SetActualValue(m_propertyColorUp.Get());
-    m_backgroundCurrentColor.SetActualValue(m_background.PropertyColorUp.Get());
+    m_currentColor.SetActualValue(m_propertyColorUp.InternalColor);
+    m_backgroundCurrentColor.SetActualValue(m_background.PropertyColorUp.InternalColor);
     Enable(WindowFlags(WindowFlags::DrawEnabled | WindowFlags::MouseOver));
   }
 
@@ -99,9 +102,9 @@ namespace Fsl::UI
     }
   }
 
-  bool ImageButton::SetBackgroundColorHoverUp(const Color value)
+  bool ImageButton::SetBackgroundColorHoverUp(const UIColor value)
   {
-    const bool changed = m_background.PropertyColorHoverUp.Set(ThisDependencyObject(), value);
+    const bool changed = m_background.PropertyColorHoverUp.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -109,9 +112,9 @@ namespace Fsl::UI
     return changed;
   }
 
-  bool ImageButton::SetBackgroundColorUp(const Color value)
+  bool ImageButton::SetBackgroundColorUp(const UIColor value)
   {
-    const bool changed = m_background.PropertyColorUp.Set(ThisDependencyObject(), value);
+    const bool changed = m_background.PropertyColorUp.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -119,9 +122,9 @@ namespace Fsl::UI
     return changed;
   }
 
-  bool ImageButton::SetBackgroundColorDown(const Color value)
+  bool ImageButton::SetBackgroundColorDown(const UIColor value)
   {
-    const bool changed = m_background.PropertyColorDown.Set(ThisDependencyObject(), value);
+    const bool changed = m_background.PropertyColorDown.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -129,9 +132,9 @@ namespace Fsl::UI
     return changed;
   }
 
-  bool ImageButton::SetBackgroundColorDisabled(const Color value)
+  bool ImageButton::SetBackgroundColorDisabled(const UIColor value)
   {
-    const bool changed = m_background.PropertyColorDisabled.Set(ThisDependencyObject(), value);
+    const bool changed = m_background.PropertyColorDisabled.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -161,9 +164,9 @@ namespace Fsl::UI
   }
 
 
-  bool ImageButton::SetColorUp(const Color value)
+  bool ImageButton::SetColorUp(const UIColor value)
   {
-    const bool changed = m_propertyColorUp.Set(ThisDependencyObject(), value);
+    const bool changed = m_propertyColorUp.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -172,9 +175,9 @@ namespace Fsl::UI
   }
 
 
-  bool ImageButton::SetColorDown(const Color value)
+  bool ImageButton::SetColorDown(const UIColor value)
   {
-    const bool changed = m_propertyColorDown.Set(ThisDependencyObject(), value);
+    const bool changed = m_propertyColorDown.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -183,9 +186,9 @@ namespace Fsl::UI
   }
 
 
-  bool ImageButton::SetColorDisabled(const Color value)
+  bool ImageButton::SetColorDisabled(const UIColor value)
   {
-    const bool changed = m_propertyColorDisabled.Set(ThisDependencyObject(), value);
+    const bool changed = m_propertyColorDisabled.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -214,7 +217,7 @@ namespace Fsl::UI
     ButtonBase::WinDraw(context);
 
     PxSize2D renderSizePx = RenderSizePx();
-    const Color finalColor(GetFinalBaseColor());
+    const UIRenderColor finalColor(GetFinalBaseColor());
     {
       // auto* backgroundSprite = (!IsEnabled() || !m_isHovering) ? m_background.Sprite.get() : m_background.HoverSprite.get();
       // ImageImpl::Draw(*m_windowContext->Batch2D, backgroundSprite, context.TargetRect.Location(), renderSizePx,
@@ -234,9 +237,8 @@ namespace Fsl::UI
   }
 
 
-  void ImageButton::OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent)
+  void ImageButton::OnMouseOver(const std::shared_ptr<WindowMouseOverEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
     m_isHovering = (theEvent->GetState() == EventTransactionState::Begin);
     theEvent->Handled();
   }
@@ -266,13 +268,16 @@ namespace Fsl::UI
   DataBinding::DataBindingInstanceHandle ImageButton::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
   {
     auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(
-      this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyBackgroundColorHoverUp, m_background.PropertyColorHoverUp),
-      DataBinding::PropLinkRefs(PropertyBackgroundColorUp, m_background.PropertyColorUp),
-      DataBinding::PropLinkRefs(PropertyBackgroundColorDown, m_background.PropertyColorDown),
-      DataBinding::PropLinkRefs(PropertyBackgroundColorDisabled, m_background.PropertyColorDisabled),
+      this, ThisDependencyObject(), sourceDef,
+      DataBinding::PropLinkRefs(PropertyBackgroundColorHoverUp, m_background.PropertyColorHoverUp.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorUp, m_background.PropertyColorUp.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorDown, m_background.PropertyColorDown.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorDisabled, m_background.PropertyColorDisabled.ExternalColor),
       DataBinding::PropLinkRefs(PropertyBackgroundScalePolicy, m_background.PropertyScalePolicy),
-      DataBinding::PropLinkRefs(PropertyScalePolicy, m_propertyScalePolicy), DataBinding::PropLinkRefs(PropertyColorUp, m_propertyColorUp),
-      DataBinding::PropLinkRefs(PropertyColorDown, m_propertyColorDown), DataBinding::PropLinkRefs(PropertyColorDisabled, m_propertyColorDisabled));
+      DataBinding::PropLinkRefs(PropertyScalePolicy, m_propertyScalePolicy),
+      DataBinding::PropLinkRefs(PropertyColorUp, m_propertyColorUp.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyColorDown, m_propertyColorDown.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyColorDisabled, m_propertyColorDisabled.ExternalColor));
     return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
   }
 
@@ -281,13 +286,16 @@ namespace Fsl::UI
                                                                       const DataBinding::Binding& binding)
   {
     auto res = DataBinding::DependencyObjectHelper::TrySetBinding(
-      this, ThisDependencyObject(), targetDef, binding, DataBinding::PropLinkRefs(PropertyBackgroundColorHoverUp, m_background.PropertyColorHoverUp),
-      DataBinding::PropLinkRefs(PropertyBackgroundColorUp, m_background.PropertyColorUp),
-      DataBinding::PropLinkRefs(PropertyBackgroundColorDown, m_background.PropertyColorDown),
-      DataBinding::PropLinkRefs(PropertyBackgroundColorDisabled, m_background.PropertyColorDisabled),
+      this, ThisDependencyObject(), targetDef, binding,
+      DataBinding::PropLinkRefs(PropertyBackgroundColorHoverUp, m_background.PropertyColorHoverUp.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorUp, m_background.PropertyColorUp.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorDown, m_background.PropertyColorDown.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorDisabled, m_background.PropertyColorDisabled.ExternalColor),
       DataBinding::PropLinkRefs(PropertyBackgroundScalePolicy, m_background.PropertyScalePolicy),
-      DataBinding::PropLinkRefs(PropertyScalePolicy, m_propertyScalePolicy), DataBinding::PropLinkRefs(PropertyColorUp, m_propertyColorUp),
-      DataBinding::PropLinkRefs(PropertyColorDown, m_propertyColorDown), DataBinding::PropLinkRefs(PropertyColorDisabled, m_propertyColorDisabled));
+      DataBinding::PropLinkRefs(PropertyScalePolicy, m_propertyScalePolicy),
+      DataBinding::PropLinkRefs(PropertyColorUp, m_propertyColorUp.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyColorDown, m_propertyColorDown.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyColorDisabled, m_propertyColorDisabled.ExternalColor));
     return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
   }
 
@@ -318,12 +326,13 @@ namespace Fsl::UI
     const bool isEnabled = IsEnabled();
     const bool isUp = !IsDown();
 
-    auto backgroundColor = isEnabled ? (isUp ? (!m_isHovering ? m_background.PropertyColorUp.Get() : m_background.PropertyColorHoverUp.Get())
-                                             : m_background.PropertyColorDown.Get())
-                                     : m_background.PropertyColorDisabled.Get();
+    auto backgroundColor = isEnabled
+                             ? (isUp ? (!m_isHovering ? m_background.PropertyColorUp.InternalColor : m_background.PropertyColorHoverUp.InternalColor)
+                                     : m_background.PropertyColorDown.InternalColor)
+                             : m_background.PropertyColorDisabled.InternalColor;
     m_backgroundCurrentColor.SetValue(backgroundColor);
 
-    auto color = isEnabled ? (isUp ? m_propertyColorUp.Get() : m_propertyColorDown.Get()) : m_propertyColorDisabled.Get();
+    auto color = isEnabled ? (isUp ? m_propertyColorUp.InternalColor : m_propertyColorDown.InternalColor) : m_propertyColorDisabled.InternalColor;
     m_currentColor.SetValue(color);
 
     if (forceCompleteAnimation)

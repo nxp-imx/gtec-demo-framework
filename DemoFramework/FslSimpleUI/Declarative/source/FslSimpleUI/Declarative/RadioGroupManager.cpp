@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslSimpleUI/Declarative/RadioGroupManager.hpp>
 
 namespace Fsl::UI::Declarative
@@ -41,7 +40,7 @@ namespace Fsl::UI::Declarative
     {
       return itrFind->second;
     }
-    const auto itr = m_namedGroups.emplace(StringViewLiteUtil::ToString(groupName), std::make_shared<RadioGroup>(groupName));
+    const auto itr = m_namedGroups.emplace(std::string(groupName), std::make_shared<RadioGroup>(groupName));
     return itr.first->second;
   }
 }

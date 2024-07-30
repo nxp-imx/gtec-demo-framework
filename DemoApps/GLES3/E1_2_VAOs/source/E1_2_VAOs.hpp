@@ -13,23 +13,24 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class E1_2_VAOs : public DemoAppGLES3
   {
     struct UserData
     {
       // VertexBufferObject Ids
-      std::array<GLuint, 4> vboIds{};
+      std::array<GLuint, 4> VboIds{};
       // VertexArrayObject Id
-      std::array<GLuint, 2> vaoId{};
+      std::array<GLuint, 2> VaoId{};
 
       UserData()
       {
-        vboIds[0] = GLES3::GLValues::INVALID_HANDLE;
-        vboIds[1] = GLES3::GLValues::INVALID_HANDLE;
-        vboIds[2] = GLES3::GLValues::INVALID_HANDLE;
-        vboIds[3] = GLES3::GLValues::INVALID_HANDLE;
-        vaoId[0] = GLES3::GLValues::INVALID_HANDLE;
-        vaoId[1] = GLES3::GLValues::INVALID_HANDLE;
+        VboIds[0] = GLES3::GLValues::InvalidHandle;
+        VboIds[1] = GLES3::GLValues::InvalidHandle;
+        VboIds[2] = GLES3::GLValues::InvalidHandle;
+        VboIds[3] = GLES3::GLValues::InvalidHandle;
+        VaoId[0] = GLES3::GLValues::InvalidHandle;
+        VaoId[1] = GLES3::GLValues::InvalidHandle;
       }
     };
 

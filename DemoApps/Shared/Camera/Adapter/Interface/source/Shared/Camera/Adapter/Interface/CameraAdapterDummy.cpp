@@ -31,7 +31,7 @@
 
 namespace Fsl::Helios
 {
-  void Shared_Camera_Adapter__Dummy()
+  void SharedCameraAdapterDummy()
   {
   }
 }

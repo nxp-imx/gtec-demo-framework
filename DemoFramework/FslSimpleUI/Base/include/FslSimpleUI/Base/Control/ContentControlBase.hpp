@@ -46,6 +46,7 @@ namespace Fsl::UI
     bool m_isInitialized;
 
   public:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static DataBinding::DependencyPropertyDefinition PropertyPadding;
 
     explicit ContentControlBase(const std::shared_ptr<BaseWindowContext>& context);
@@ -73,7 +74,7 @@ namespace Fsl::UI
 
     bool DoSetPadding(const DpThicknessF value);
 
-    std::shared_ptr<BaseWindow> DoGetContent() const
+    const std::shared_ptr<BaseWindow>& DoGetContent() const
     {
       return m_content;
     }

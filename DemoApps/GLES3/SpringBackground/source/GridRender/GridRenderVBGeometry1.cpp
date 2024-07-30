@@ -55,8 +55,8 @@ namespace Fsl
     , m_gridFinalSize((2 * gridSize.X) - 1, (2 * gridSize.Y) - 1)
     , m_coordinates(((m_gridFinalSize.X + 2) * m_gridSize.Y) + ((m_gridFinalSize.Y + 2) * m_gridSize.X))
     , m_vertexBuffer(nullptr, m_coordinates.size(), VertexPositionColorF::AsVertexDeclarationSpan(), GL_STREAM_DRAW)
-    , m_locWorldView(GLValues::INVALID_LOCATION)
-    , m_locWorldViewProjection(GLValues::INVALID_LOCATION)
+    , m_locWorldView(GLValues::InvalidLocation)
+    , m_locWorldViewProjection(GLValues::InvalidLocation)
   {
     if ((gridSize.X & 1) != 0 || (gridSize.Y & 1) != 0)
     {
@@ -81,12 +81,12 @@ namespace Fsl
       m_shaderFrag.Reset(GL_FRAGMENT_SHADER, strFrag);
       GL_CHECK_FOR_ERROR();
 
-      constexpr auto vertexDecl = VertexPositionColorF::GetVertexDeclarationArray();
+      constexpr auto VertexDecl = VertexPositionColorF::GetVertexDeclarationArray();
 
       m_attribLink[0] = GLVertexAttribLink(glGetAttribLocation(m_shaderVert.Get(), "VertexPosition"),
-                                           vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+                                           VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
       m_attribLink[1] =
-        GLVertexAttribLink(glGetAttribLocation(m_shaderVert.Get(), "VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
+        GLVertexAttribLink(glGetAttribLocation(m_shaderVert.Get(), "VertexColor"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
 
       m_locWorldView = glGetUniformLocation(m_shaderGeom.Get(), "WorldView");
       m_locWorldViewProjection = glGetUniformLocation(m_shaderGeom.Get(), "WorldViewProjection");

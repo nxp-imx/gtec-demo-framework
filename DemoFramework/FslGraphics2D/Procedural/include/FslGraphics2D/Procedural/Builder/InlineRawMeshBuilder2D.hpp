@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS2D_PROCEDURAL_BUILDER_INLINERAWMESHBUILDER2D_HPP
 #define FSLGRAPHICS2D_PROCEDURAL_BUILDER_INLINERAWMESHBUILDER2D_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021-2023 NXP
+ * Copyright 2021-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,8 @@
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/Span/SpanUtil_Create.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
-#include <FslGraphics/Color.hpp>
 #include <FslGraphics/NativeNineSliceTextureArea.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
 #include <FslGraphics/TextureAtlas/AtlasNineSliceFlags.hpp>
@@ -75,7 +75,7 @@ namespace Fsl
 
     using vertex_position_type = Vector3;
     using vertex_position_value_type = Vector3::value_type;
-    using vertex_color_type = Color;
+    using vertex_color_type = typename vertex_element_type::color_type;
     using vertex_uv_type = Vector2;
 
   private:
@@ -128,12 +128,12 @@ namespace Fsl
       FSLLOG3_DEBUG_INFO_IF(pIndices == nullptr && indexCapacity != 0, "forcing index capacity to zero");
     }
 
-    inline Color GetColor() const noexcept
+    inline vertex_color_type GetColor() const noexcept
     {
       return m_color;
     }
 
-    inline void SetColor(const Color color) noexcept
+    inline void SetColor(const vertex_color_type color) noexcept
     {
       m_color = color;
     }
@@ -141,13 +141,13 @@ namespace Fsl
     //! Direct span access
     inline ReadOnlySpan<TVertex> VerticesAsReadOnlySpan() const
     {
-      return ReadOnlySpan<TVertex>(m_pVertexData, m_vertexCount, OptimizationCheckFlag::NoCheck);
+      return SpanUtil::UncheckedCreateReadOnly(m_pVertexData, m_vertexCount);
     }
 
     //! Direct span access
     inline ReadOnlySpan<index_value_type> IndicesAsReadOnlySpan() const
     {
-      return ReadOnlySpan<index_value_type>(m_pIndexData, m_indexCount, OptimizationCheckFlag::NoCheck);
+      return SpanUtil::UncheckedCreateReadOnly(m_pIndexData, m_indexCount);
     }
 
 
@@ -430,9 +430,9 @@ namespace Fsl
         pDst[5] = indexOffset + 2;    // C
 
         // CDEF
-        pDst[6] = indexOffset + 3;     // D
-        pDst[7] = indexOffset + 2;     // C
-        pDst[8] = indexOffset + 5;     // F
+        pDst[6] = indexOffset + 3;    // D
+        pDst[7] = indexOffset + 2;    // C
+        pDst[8] = indexOffset + 5;    // F
 
         pDst[9] = indexOffset + 5;     // F
         pDst[10] = indexOffset + 2;    // C
@@ -637,9 +637,9 @@ namespace Fsl
         pDst[5] = indexOffset + 2;    // C
 
         // CDEF
-        pDst[6] = indexOffset + 3;     // D
-        pDst[7] = indexOffset + 2;     // C
-        pDst[8] = indexOffset + 5;     // F
+        pDst[6] = indexOffset + 3;    // D
+        pDst[7] = indexOffset + 2;    // C
+        pDst[8] = indexOffset + 5;    // F
 
         pDst[9] = indexOffset + 5;     // F
         pDst[10] = indexOffset + 2;    // C
@@ -1069,9 +1069,9 @@ namespace Fsl
         pDst[5] = indexOffset + 2;    // C
 
         // CDEF
-        pDst[6] = indexOffset + 3;     // D
-        pDst[7] = indexOffset + 2;     // C
-        pDst[8] = indexOffset + 5;     // F
+        pDst[6] = indexOffset + 3;    // D
+        pDst[7] = indexOffset + 2;    // C
+        pDst[8] = indexOffset + 5;    // F
 
         pDst[9] = indexOffset + 5;     // F
         pDst[10] = indexOffset + 2;    // C

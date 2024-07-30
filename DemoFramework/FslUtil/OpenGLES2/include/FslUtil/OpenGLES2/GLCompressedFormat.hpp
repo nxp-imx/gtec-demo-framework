@@ -36,16 +36,26 @@ namespace Fsl::GLES2
   // Custom formats supported by some GPU's under OpenGL ES2.
   enum class GLCompressedFormat
   {
+    // NOLINTNEXTLINE(readability-identifier-naming)
     R11_EAC = 0x9270,
+    // NOLINTNEXTLINE(readability-identifier-naming)
     SIGNED_R11_EAC = 0x9271,
+    // NOLINTNEXTLINE(readability-identifier-naming)
     RG11_EAC = 0x9272,
+    // NOLINTNEXTLINE(readability-identifier-naming)
     SIGNED_RG11_EAC = 0x9273,
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     RGB8_ETC2 = 0x9274,
+    // NOLINTNEXTLINE(readability-identifier-naming)
     SRGB8_ETC2 = 0x9275,
+    // NOLINTNEXTLINE(readability-identifier-naming)
     RGB8_PUNCHTHROUGH_ALPHA1_ETC2 = 0x9276,
+    // NOLINTNEXTLINE(readability-identifier-naming)
     SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 = 0x9277,
+    // NOLINTNEXTLINE(readability-identifier-naming)
     RGBA8_ETC2_EAC = 0x9278,
+    // NOLINTNEXTLINE(readability-identifier-naming)
     SRGB8_ALPHA8_ETC2_EAC = 0x9279
   };
 }

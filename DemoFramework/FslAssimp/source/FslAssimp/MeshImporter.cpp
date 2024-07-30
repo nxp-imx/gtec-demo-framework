@@ -35,9 +35,9 @@
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Create.hpp>
 #include <FslBase/Span/TypedFlexSpanUtil.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics3D/BasicScene/Mesh.hpp>
 #include <cassert>
 #include <utility>
@@ -74,7 +74,7 @@ namespace Fsl
         auto* const srcIndices = pSrc[faceIndex].mIndices;
         for (std::size_t i = 0; i < 3; ++i)
         {
-          if (dstIndexCount >= dstSpan.length())
+          if (dstIndexCount >= dstSpan.size())
           {
             throw IndexOutOfRangeException("The supplied buffer could not contain all the indices");
           }
@@ -248,7 +248,7 @@ namespace Fsl
                                                                                       vertexElement.Offset, dstRawMeshContent.VertexStride)
                                              .subspan(0, pSrcMesh->mNumVertices);
 
-            MeshImporter::FastExtractColors(dstSpan, pSrcMesh, usageIndex, Color::White());
+            MeshImporter::FastExtractColors(dstSpan, pSrcMesh, usageIndex, Colors::White());
           }
           else
           {
@@ -356,7 +356,7 @@ namespace Fsl
     assert(pSrcMesh != nullptr);
 
     const std::size_t numSrcEntries = pSrcMesh->mNumVertices;
-    DoFastExtractVector3(dst, ReadOnlySpanUtil::AsSpan(pSrcMesh->mVertices, numSrcEntries));
+    DoFastExtractVector3(dst, SpanUtil::CreateReadOnly(pSrcMesh->mVertices, numSrcEntries));
     return numSrcEntries;
   }
 
@@ -366,7 +366,7 @@ namespace Fsl
   {
     assert(pSrcMesh != nullptr);
 
-    const auto src = ReadOnlySpanUtil::AsSpan(pSrcMesh->mVertices, pSrcMesh->mNumVertices);
+    const auto src = SpanUtil::CreateReadOnly(pSrcMesh->mVertices, pSrcMesh->mNumVertices);
 
     dst.Copy(src, [positionMod, scale](const aiVector3D& srcVal)
              { return Vector3((srcVal.x + positionMod.X) * scale.X, (srcVal.y + positionMod.Y) * scale.Y, (srcVal.z + positionMod.Z) * scale.Z); });
@@ -380,7 +380,7 @@ namespace Fsl
     assert(pSrcMesh != nullptr);
 
     const std::size_t numSrcEntries = pSrcMesh->mNumVertices;
-    DoFastExtractVector3(dst, ReadOnlySpanUtil::AsSpan(pSrcMesh->mNormals, numSrcEntries));
+    DoFastExtractVector3(dst, SpanUtil::CreateReadOnly(pSrcMesh->mNormals, numSrcEntries));
     return numSrcEntries;
   }
 
@@ -390,7 +390,7 @@ namespace Fsl
     assert(pSrcMesh != nullptr);
 
     const std::size_t numSrcEntries = pSrcMesh->mNumVertices;
-    DoFastExtractVector3(dst, ReadOnlySpanUtil::AsSpan(pSrcMesh->mTangents, numSrcEntries));
+    DoFastExtractVector3(dst, SpanUtil::CreateReadOnly(pSrcMesh->mTangents, numSrcEntries));
     return numSrcEntries;
   }
 
@@ -400,7 +400,7 @@ namespace Fsl
     assert(pSrcMesh != nullptr);
 
     const std::size_t numSrcEntries = pSrcMesh->mNumVertices;
-    DoFastExtractVector3(dst, ReadOnlySpanUtil::AsSpan(pSrcMesh->mBitangents, numSrcEntries));
+    DoFastExtractVector3(dst, SpanUtil::CreateReadOnly(pSrcMesh->mBitangents, numSrcEntries));
     return numSrcEntries;
   }
 
@@ -412,7 +412,7 @@ namespace Fsl
     assert(srcSetIndex < AI_MAX_NUMBER_OF_TEXTURECOORDS);
 
     const std::size_t numSrcEntries = pSrcMesh->mNumVertices;
-    DoFastExtractVector2(dst, ReadOnlySpanUtil::AsSpan(pSrcMesh->mTextureCoords[srcSetIndex], numSrcEntries));
+    DoFastExtractVector2(dst, SpanUtil::CreateReadOnly(pSrcMesh->mTextureCoords[srcSetIndex], numSrcEntries));
     return numSrcEntries;
   }
 
@@ -424,7 +424,7 @@ namespace Fsl
     assert(srcSetIndex < AI_MAX_NUMBER_OF_TEXTURECOORDS);
 
     const std::size_t numSrcEntries = pSrcMesh->mNumVertices;
-    DoFastExtractVector3(dst, ReadOnlySpanUtil::AsSpan(pSrcMesh->mTextureCoords[srcSetIndex], numSrcEntries));
+    DoFastExtractVector3(dst, SpanUtil::CreateReadOnly(pSrcMesh->mTextureCoords[srcSetIndex], numSrcEntries));
     return numSrcEntries;
   }
 
@@ -436,7 +436,7 @@ namespace Fsl
     assert(srcSetIndex < AI_MAX_NUMBER_OF_COLOR_SETS);
 
     const std::size_t numSrcEntries = pSrcMesh->mNumVertices;
-    DoFastExtractColors(dst, ReadOnlySpanUtil::AsSpan(pSrcMesh->mColors[srcSetIndex], numSrcEntries));
+    DoFastExtractColors(dst, SpanUtil::CreateReadOnly(pSrcMesh->mColors[srcSetIndex], numSrcEntries));
     return numSrcEntries;
   }
 
@@ -448,7 +448,7 @@ namespace Fsl
     assert(srcSetIndex < AI_MAX_NUMBER_OF_COLOR_SETS);
 
     const std::size_t numSrcEntries = pSrcMesh->mNumVertices;
-    DoFastExtractColors(dst, ReadOnlySpanUtil::AsSpan(pSrcMesh->mColors[srcSetIndex], numSrcEntries));
+    DoFastExtractColors(dst, SpanUtil::CreateReadOnly(pSrcMesh->mColors[srcSetIndex], numSrcEntries));
     return numSrcEntries;
   }
 
@@ -459,9 +459,9 @@ namespace Fsl
     switch (cbDstIndexEntry)
     {
     case 1:
-      return FastExtractIndicesUInt8(SpanUtil::AsSpan(static_cast<uint8_t*>(pDst), dstCapacity), pSrcMesh);
+      return FastExtractIndicesUInt8(SpanUtil::Create(static_cast<uint8_t*>(pDst), dstCapacity), pSrcMesh);
     case 2:
-      return FastExtractIndicesUInt16(SpanUtil::AsSpan(static_cast<uint16_t*>(pDst), dstCapacity), pSrcMesh);
+      return FastExtractIndicesUInt16(SpanUtil::Create(static_cast<uint16_t*>(pDst), dstCapacity), pSrcMesh);
     default:
       throw NotSupportedException("The index size is not supported");
     }

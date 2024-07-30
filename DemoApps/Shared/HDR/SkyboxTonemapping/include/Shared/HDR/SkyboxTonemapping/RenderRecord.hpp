@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Transition/TransitionCache.hpp>
 #include <FslBase/Transition/TransitionValue.hpp>
 #include <string>
 
@@ -45,9 +44,9 @@ namespace Fsl
 
     RenderRecord() = default;
 
-    RenderRecord(TransitionCache& rTransitionCache, const TimeSpan& timeSplitX, const TimeSpan& timeLabel)
-      : SplitX(rTransitionCache, timeSplitX)
-      , LabelAlpha(rTransitionCache, timeLabel)
+    RenderRecord(const TimeSpan& timeSplitX, const TimeSpan& timeLabel)
+      : SplitX(timeSplitX)
+      , LabelAlpha(timeLabel)
     {
     }
   };

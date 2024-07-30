@@ -46,7 +46,7 @@ namespace Fsl::GLES3
 {
   class GLBuffer
   {
-    GLuint m_handle{GLValues::INVALID_HANDLE};
+    GLuint m_handle{GLValues::InvalidHandle};
     GLenum m_target{0};
     uint32_t m_capacity{0};
     uint32_t m_elementStride{0};
@@ -75,7 +75,7 @@ namespace Fsl::GLES3
         m_usage = other.m_usage;
 
         // Remove the data from other
-        other.m_handle = GLValues::INVALID_HANDLE;
+        other.m_handle = GLValues::InvalidHandle;
         other.m_target = 0;
         other.m_capacity = 0;
         other.m_elementStride = 0;
@@ -94,7 +94,7 @@ namespace Fsl::GLES3
       , m_usage(other.m_usage)
     {
       // Remove the data from other
-      other.m_handle = GLValues::INVALID_HANDLE;
+      other.m_handle = GLValues::InvalidHandle;
       other.m_target = 0;
       other.m_capacity = 0;
       other.m_elementStride = 0;
@@ -135,18 +135,18 @@ namespace Fsl::GLES3
     //! @brief Check if this buffer contains a valid gl handle.
     bool IsValid() const noexcept
     {
-      return m_handle != GLValues::INVALID_HANDLE;
+      return m_handle != GLValues::InvalidHandle;
     }
 
     //! @brief Get the gl handle associated with the buffer.
-    //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
+    //! @return the handle or GLValues::InvalidHandle if the buffer is unallocated.
     GLuint Get() const noexcept
     {
       return m_handle;
     }
 
     //! @brief Get the gl handle associated with the buffer.
-    //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
+    //! @return the handle or GLValues::InvalidHandle if the buffer is unallocated.
     [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
     {
       return m_handle;

@@ -52,7 +52,7 @@ namespace Fsl::Graphics3D
     struct StaticRecord
     {
       BasicBufferType Type{BasicBufferType::Index};
-      BasicNativeBufferHandle NativeHandle{};
+      BasicNativeBufferHandle NativeHandle;
       std::weak_ptr<BasicStaticBufferTracker> BasicUserObjectTracker;
       uint32_t DeferCount{0};
 

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2023 NXP
+ * Copyright 2020, 2023-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -118,13 +118,13 @@ TEST(TestSprite_SpriteManager, Resize)
   EXPECT_EQ(SpriteDpConfig::BaseDpi, material0->TestDensityDpi);
   EXPECT_EQ(SpriteDpConfig::BaseDpi, material0->TestDensityDpi);
 
-  constexpr uint32_t newDensityDpi = SpriteDpConfig::BaseDpi * 2;
+  constexpr uint32_t NewDensityDpi = SpriteDpConfig::BaseDpi * 2;
 
-  manager.Resize(newDensityDpi);
+  manager.Resize(NewDensityDpi);
 
-  EXPECT_EQ(newDensityDpi, material0->TestDensityDpi);
-  EXPECT_EQ(newDensityDpi, material0->TestDensityDpi);
-  EXPECT_EQ(newDensityDpi, material0->TestDensityDpi);
+  EXPECT_EQ(NewDensityDpi, material0->TestDensityDpi);
+  EXPECT_EQ(NewDensityDpi, material0->TestDensityDpi);
+  EXPECT_EQ(NewDensityDpi, material0->TestDensityDpi);
 }
 
 
@@ -132,8 +132,8 @@ TEST(TestSprite_SpriteManager, AddBasicImageSprite_InvalidRenderMaterial)
 {
   SpriteManager manager(160, false);
 
-  constexpr AtlasTextureInfo textureInfo;
-  EXPECT_THROW(manager.AddBasicImageSprite(SpriteMaterialInfo(), textureInfo, IO::PathView("test")), std::invalid_argument);
+  constexpr AtlasTextureInfo TextureInfo;
+  EXPECT_THROW(manager.AddBasicImageSprite(SpriteMaterialInfo(), TextureInfo, IO::PathView("test")), std::invalid_argument);
 }
 
 
@@ -141,13 +141,13 @@ TEST(TestSprite_SpriteManager, AddBasicImageSprite_InvalidTrim)
 {
   SpriteManager manager(160, false);
 
-  constexpr SpriteMaterialId spriteMaterialId(1);
-  constexpr auto textureExtent = PxExtent2D::Create(512, 1024);
-  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU32::Create(10, 20, 30, 40), PxThicknessU::Create(1, 2, 3, 4), SpriteDpConfig::BaseDpi);
+  constexpr SpriteMaterialId SpriteMaterialId(1);
+  constexpr auto TextureExtent = PxExtent2D::Create(512, 1024);
+  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(SpriteMaterialId, TextureExtent);
+  const SpriteMaterialInfo spriteMaterialInfo(SpriteMaterialId, TextureExtent, true, BasicPrimitiveTopology::TriangleList, renderMaterial);
+  constexpr AtlasTextureInfo TextureInfo(PxRectangleU32::Create(10, 20, 30, 40), PxThicknessU::Create(1, 2, 3, 4), SpriteDpConfig::BaseDpi);
 
-  EXPECT_THROW(manager.AddBasicImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test")), UsageErrorException);
+  EXPECT_THROW(manager.AddBasicImageSprite(spriteMaterialInfo, TextureInfo, IO::PathView("test")), UsageErrorException);
 }
 
 
@@ -155,39 +155,39 @@ TEST(TestSprite_SpriteManager, AddBasicImageSprite_InvalidDpi)
 {
   SpriteManager manager(160, false);
 
-  constexpr SpriteMaterialId spriteMaterialId(1);
-  constexpr auto textureExtent = PxExtent2D::Create(512, 1024);
-  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU32::Create(10, 20, 30, 40), PxThicknessU(), 0);
+  constexpr SpriteMaterialId SpriteMaterialId(1);
+  constexpr auto TextureExtent = PxExtent2D::Create(512, 1024);
+  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(SpriteMaterialId, TextureExtent);
+  const SpriteMaterialInfo spriteMaterialInfo(SpriteMaterialId, TextureExtent, true, BasicPrimitiveTopology::TriangleList, renderMaterial);
+  constexpr AtlasTextureInfo TextureInfo(PxRectangleU32::Create(10, 20, 30, 40), PxThicknessU(), 0);
 
-  EXPECT_THROW(manager.AddBasicImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test")), std::invalid_argument);
+  EXPECT_THROW(manager.AddBasicImageSprite(spriteMaterialInfo, TextureInfo, IO::PathView("test")), std::invalid_argument);
 }
 
 TEST(TestSprite_SpriteManager, AddBasicImageSprite_WidthOutOfBounds)
 {
   SpriteManager manager(160, false);
 
-  constexpr SpriteMaterialId spriteMaterialId(1);
-  constexpr auto textureExtent = PxExtent2D::Create(512, 1024);
-  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU32::Create(10, 20, 512 - 10 + 1, 40), PxThicknessU(), SpriteDpConfig::BaseDpi);
+  constexpr SpriteMaterialId SpriteMaterialId(1);
+  constexpr auto TextureExtent = PxExtent2D::Create(512, 1024);
+  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(SpriteMaterialId, TextureExtent);
+  const SpriteMaterialInfo spriteMaterialInfo(SpriteMaterialId, TextureExtent, true, BasicPrimitiveTopology::TriangleList, renderMaterial);
+  constexpr AtlasTextureInfo TextureInfo(PxRectangleU32::Create(10, 20, 512 - 10 + 1, 40), PxThicknessU(), SpriteDpConfig::BaseDpi);
 
-  EXPECT_THROW(manager.AddBasicImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test")), std::invalid_argument);
+  EXPECT_THROW(manager.AddBasicImageSprite(spriteMaterialInfo, TextureInfo, IO::PathView("test")), std::invalid_argument);
 }
 
 TEST(TestSprite_SpriteManager, AddBasicImageSprite_HeightOutOfBounds)
 {
   SpriteManager manager(160, false);
 
-  constexpr SpriteMaterialId spriteMaterialId(1);
-  constexpr auto textureExtent = PxExtent2D::Create(512, 1024);
-  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU32::Create(10, 20, 30, 1024 - 20 + 1), PxThicknessU(), SpriteDpConfig::BaseDpi);
+  constexpr SpriteMaterialId SpriteMaterialId(1);
+  constexpr auto TextureExtent = PxExtent2D::Create(512, 1024);
+  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(SpriteMaterialId, TextureExtent);
+  const SpriteMaterialInfo spriteMaterialInfo(SpriteMaterialId, TextureExtent, true, BasicPrimitiveTopology::TriangleList, renderMaterial);
+  constexpr AtlasTextureInfo TextureInfo(PxRectangleU32::Create(10, 20, 30, 1024 - 20 + 1), PxThicknessU(), SpriteDpConfig::BaseDpi);
 
-  EXPECT_THROW(manager.AddBasicImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test")), std::invalid_argument);
+  EXPECT_THROW(manager.AddBasicImageSprite(spriteMaterialInfo, TextureInfo, IO::PathView("test")), std::invalid_argument);
 }
 
 
@@ -195,13 +195,13 @@ TEST(TestSprite_SpriteManager, AddBasicImageSprite)
 {
   SpriteManager manager(160, false);
 
-  constexpr SpriteMaterialId spriteMaterialId(1);
-  constexpr auto textureExtent = PxExtent2D::Create(512, 1024);
-  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU32::Create(10, 20, 30, 40), PxThicknessU(), SpriteDpConfig::BaseDpi);
+  constexpr SpriteMaterialId SpriteMaterialId(1);
+  constexpr auto TextureExtent = PxExtent2D::Create(512, 1024);
+  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(SpriteMaterialId, TextureExtent);
+  const SpriteMaterialInfo spriteMaterialInfo(SpriteMaterialId, TextureExtent, true, BasicPrimitiveTopology::TriangleList, renderMaterial);
+  constexpr AtlasTextureInfo TextureInfo(PxRectangleU32::Create(10, 20, 30, 40), PxThicknessU(), SpriteDpConfig::BaseDpi);
 
-  auto value = manager.AddBasicImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test"));
+  auto value = manager.AddBasicImageSprite(spriteMaterialInfo, TextureInfo, IO::PathView("test"));
   EXPECT_EQ(1u, manager.Count());
   EXPECT_TRUE(manager.Contains(value));
 }
@@ -211,8 +211,8 @@ TEST(TestSprite_SpriteManager, AddImageSprite_InvalidRenderMaterial)
 {
   SpriteManager manager(160, false);
 
-  constexpr AtlasTextureInfo textureInfo;
-  EXPECT_THROW(manager.AddImageSprite(SpriteMaterialInfo(), textureInfo, IO::PathView("test")), std::invalid_argument);
+  constexpr AtlasTextureInfo TextureInfo;
+  EXPECT_THROW(manager.AddImageSprite(SpriteMaterialInfo(), TextureInfo, IO::PathView("test")), std::invalid_argument);
 }
 
 
@@ -220,13 +220,13 @@ TEST(TestSprite_SpriteManager, AddImageSprite_InvalidDpi)
 {
   SpriteManager manager(160, false);
 
-  constexpr SpriteMaterialId spriteMaterialId(1);
-  constexpr auto textureExtent = PxExtent2D::Create(512, 1024);
-  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU32::Create(10, 20, 30, 40), PxThicknessU::Create(1, 2, 3, 4), 0);
+  constexpr SpriteMaterialId SpriteMaterialId(1);
+  constexpr auto TextureExtent = PxExtent2D::Create(512, 1024);
+  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(SpriteMaterialId, TextureExtent);
+  const SpriteMaterialInfo spriteMaterialInfo(SpriteMaterialId, TextureExtent, true, BasicPrimitiveTopology::TriangleList, renderMaterial);
+  constexpr AtlasTextureInfo TextureInfo(PxRectangleU32::Create(10, 20, 30, 40), PxThicknessU::Create(1, 2, 3, 4), 0);
 
-  EXPECT_THROW(manager.AddImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test")), std::invalid_argument);
+  EXPECT_THROW(manager.AddImageSprite(spriteMaterialInfo, TextureInfo, IO::PathView("test")), std::invalid_argument);
 }
 
 
@@ -234,13 +234,13 @@ TEST(TestSprite_SpriteManager, AddImageSprite_WidthOutOfBounds)
 {
   SpriteManager manager(160, false);
 
-  constexpr SpriteMaterialId spriteMaterialId(1);
-  constexpr auto textureExtent = PxExtent2D::Create(512, 1024);
-  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU32::Create(10, 20, 512 - 10 + 1, 40), PxThicknessU::Create(1, 2, 3, 4), SpriteDpConfig::BaseDpi);
+  constexpr SpriteMaterialId SpriteMaterialId(1);
+  constexpr auto TextureExtent = PxExtent2D::Create(512, 1024);
+  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(SpriteMaterialId, TextureExtent);
+  const SpriteMaterialInfo spriteMaterialInfo(SpriteMaterialId, TextureExtent, true, BasicPrimitiveTopology::TriangleList, renderMaterial);
+  constexpr AtlasTextureInfo TextureInfo(PxRectangleU32::Create(10, 20, 512 - 10 + 1, 40), PxThicknessU::Create(1, 2, 3, 4), SpriteDpConfig::BaseDpi);
 
-  EXPECT_THROW(manager.AddImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test")), std::invalid_argument);
+  EXPECT_THROW(manager.AddImageSprite(spriteMaterialInfo, TextureInfo, IO::PathView("test")), std::invalid_argument);
 }
 
 
@@ -248,14 +248,14 @@ TEST(TestSprite_SpriteManager, AddImageSprite_HeightOutOfBounds)
 {
   SpriteManager manager(160, false);
 
-  constexpr SpriteMaterialId spriteMaterialId(1);
-  constexpr auto textureExtent = PxExtent2D::Create(512, 1024);
-  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU32::Create(10, 20, 30, 1024 - 20 + 1), PxThicknessU::Create(1, 2, 3, 4),
+  constexpr SpriteMaterialId SpriteMaterialId(1);
+  constexpr auto TextureExtent = PxExtent2D::Create(512, 1024);
+  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(SpriteMaterialId, TextureExtent);
+  const SpriteMaterialInfo spriteMaterialInfo(SpriteMaterialId, TextureExtent, true, BasicPrimitiveTopology::TriangleList, renderMaterial);
+  constexpr AtlasTextureInfo TextureInfo(PxRectangleU32::Create(10, 20, 30, 1024 - 20 + 1), PxThicknessU::Create(1, 2, 3, 4),
                                          SpriteDpConfig::BaseDpi);
 
-  EXPECT_THROW(manager.AddImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test")), std::invalid_argument);
+  EXPECT_THROW(manager.AddImageSprite(spriteMaterialInfo, TextureInfo, IO::PathView("test")), std::invalid_argument);
 }
 
 
@@ -263,13 +263,13 @@ TEST(TestSprite_SpriteManager, AddImageSprite)
 {
   SpriteManager manager(160, false);
 
-  constexpr SpriteMaterialId spriteMaterialId(1);
-  constexpr auto textureExtent = PxExtent2D::Create(512, 1024);
-  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU32::Create(10, 20, 30, 40), PxThicknessU::Create(1, 2, 3, 4), SpriteDpConfig::BaseDpi);
+  constexpr SpriteMaterialId SpriteMaterialId(1);
+  constexpr auto TextureExtent = PxExtent2D::Create(512, 1024);
+  auto renderMaterial = std::make_shared<SpriteMaterialImpl>(SpriteMaterialId, TextureExtent);
+  const SpriteMaterialInfo spriteMaterialInfo(SpriteMaterialId, TextureExtent, true, BasicPrimitiveTopology::TriangleList, renderMaterial);
+  constexpr AtlasTextureInfo TextureInfo(PxRectangleU32::Create(10, 20, 30, 40), PxThicknessU::Create(1, 2, 3, 4), SpriteDpConfig::BaseDpi);
 
-  auto value = manager.AddImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test"));
+  auto value = manager.AddImageSprite(spriteMaterialInfo, TextureInfo, IO::PathView("test"));
   EXPECT_EQ(1u, manager.Count());
   EXPECT_TRUE(manager.Contains(value));
 }

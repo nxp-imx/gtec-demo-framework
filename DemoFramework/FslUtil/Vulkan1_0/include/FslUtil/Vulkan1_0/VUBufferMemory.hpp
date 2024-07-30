@@ -223,6 +223,7 @@ namespace Fsl::Vulkan
       VUBufferMemory& m_rBuffer;
 
     public:
+      // NOLINTNEXTLINE(readability-identifier-naming)
       void* pMappedMemory;
 
       explicit ScopedMap(VUBufferMemory& rBuffer, const VkDeviceSize offset = 0, const VkDeviceSize size = VK_WHOLE_SIZE)

@@ -50,7 +50,7 @@ namespace Fsl::UI
 {
   namespace
   {
-    const std::size_t MAX_EVENT_LOOPS = 1024;
+    constexpr std::size_t MaxEventLoops = 1024;
 
     inline void MarkWindowAndParentsAsDirty(const std::shared_ptr<TreeNode>& node)
     {
@@ -1236,7 +1236,7 @@ namespace Fsl::UI
 
     // Loop until we reach a empty queue or the max loop count
     std::size_t loopCount = 0;
-    while (!m_eventRecordQueue->empty() && loopCount < MAX_EVENT_LOOPS)
+    while (!m_eventRecordQueue->empty() && loopCount < MaxEventLoops)
     {
       while (!m_eventRecordQueue->empty())
       {
@@ -1281,7 +1281,7 @@ namespace Fsl::UI
       ++loopCount;
     }
 
-    FSLLOG3_WARNING_IF(loopCount >= MAX_EVENT_LOOPS, "MaxLoop counter hit during event processing, please check your event sending.");
+    FSLLOG3_WARNING_IF(loopCount >= MaxEventLoops, "MaxLoop counter hit during event processing, please check your event sending.");
   }
 
 

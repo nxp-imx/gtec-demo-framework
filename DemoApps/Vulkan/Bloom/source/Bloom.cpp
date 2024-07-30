@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019, 2022 NXP
+ * Copyright 2019, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <vulkan/vulkan.h>
@@ -44,17 +45,17 @@ namespace Fsl
 {
   namespace
   {
-    const constexpr float DEFAULT_ZOOM = 10;
-    const constexpr float DEFAULT_X_ROTATION = MathHelper::TO_RADS * 20.0f;
+    constexpr float DefaultZoom = 10;
+    constexpr float DefaultXRotation = MathHelper::TO_RADS * 20.0f;
 
-    constexpr uint32_t SIZE_MOD = 2;
-    constexpr uint32_t SIZE_16 = 16 * SIZE_MOD;
-    constexpr uint32_t SIZE_32 = 32 * SIZE_MOD;
-    constexpr uint32_t SIZE_64 = 64 * SIZE_MOD;
-    constexpr uint32_t SIZE_128 = 128 * SIZE_MOD;
-    constexpr uint32_t SIZE_256 = 256 * SIZE_MOD;
+    constexpr uint32_t SizeMod = 2;
+    constexpr uint32_t Size16 = 16 * SizeMod;
+    constexpr uint32_t Size32 = 32 * SizeMod;
+    constexpr uint32_t Size64 = 64 * SizeMod;
+    constexpr uint32_t Size128 = 128 * SizeMod;
+    constexpr uint32_t Size256 = 256 * SizeMod;
 
-    const constexpr uint32_t VERTEX_BUFFER_BIND_ID = 0;
+    const constexpr uint32_t VertexBufferBindId = 0;
 
     VulkanBasic::DemoAppVulkanSetup CreateSetup()
     {
@@ -63,7 +64,7 @@ namespace Fsl
       DemoAppVulkanSetup setup;
       setup.DepthBuffer = DepthBufferMode::Enabled;
       // Ensure that we can reuse the depth buffer for offscreen rendering even when the 'screen resolution' would be lower
-      setup.DepthBufferMinimumExtent = PxExtent2D::Create(SIZE_256, SIZE_256);
+      setup.DepthBufferMinimumExtent = PxExtent2D::Create(Size256, Size256);
       return setup;
     }
 
@@ -597,8 +598,8 @@ namespace Fsl
   {
     RegisterExtension(m_menuUI.GetUIDemoAppExtension());
 
-    m_camera.SetRotation(Matrix::CreateRotationX(DEFAULT_X_ROTATION));
-    m_camera.SetZoom(DEFAULT_ZOOM);
+    m_camera.SetRotation(Matrix::CreateRotationX(DefaultXRotation));
+    m_camera.SetZoom(DefaultZoom);
     m_storedStartRotation = m_rotation;
 
     m_resources.BufferManager =
@@ -743,8 +744,8 @@ namespace Fsl
       if (event.IsPressed())
       {
         m_camera.ResetRotation();
-        m_camera.SetRotation(Matrix::CreateRotationX(DEFAULT_X_ROTATION));
-        m_camera.SetZoom(DEFAULT_ZOOM);
+        m_camera.SetRotation(Matrix::CreateRotationX(DefaultXRotation));
+        m_camera.SetZoom(DefaultZoom);
         m_rotation = m_storedStartRotation;
         event.Handled();
       }
@@ -855,17 +856,17 @@ namespace Fsl
     const VkRenderPass offscreenRPNoDepth = m_dependentResources.OffscreenRPNoDepth.Get();
     const VkImageView depthImageView = context.DepthImageView;
 
-    m_dependentResources.OffscreenFB256.Reset(m_device, VkExtent2D{SIZE_256, SIZE_256}, offscreenRFormat, offscreenRP, depthImageView, "FB256");
-    m_dependentResources.OffscreenFB256A.Reset(m_device, VkExtent2D{SIZE_256, SIZE_256}, offscreenRFormat, offscreenRPNoDepth, "FB256A");
-    m_dependentResources.OffscreenFB256B.Reset(m_device, VkExtent2D{SIZE_256, SIZE_256}, offscreenRFormat, offscreenRPNoDepth, "FB256B");
-    m_dependentResources.OffscreenFB128A.Reset(m_device, VkExtent2D{SIZE_128, SIZE_128}, offscreenRFormat, offscreenRPNoDepth, "FB128A");
-    m_dependentResources.OffscreenFB128B.Reset(m_device, VkExtent2D{SIZE_128, SIZE_128}, offscreenRFormat, offscreenRPNoDepth, "FB128B");
-    m_dependentResources.OffscreenFB64A.Reset(m_device, VkExtent2D{SIZE_64, SIZE_64}, offscreenRFormat, offscreenRPNoDepth, "FB64A");
-    m_dependentResources.OffscreenFB64B.Reset(m_device, VkExtent2D{SIZE_64, SIZE_64}, offscreenRFormat, offscreenRPNoDepth, "FB64B");
-    m_dependentResources.OffscreenFB32A.Reset(m_device, VkExtent2D{SIZE_32, SIZE_32}, offscreenRFormat, offscreenRPNoDepth, "FB32A");
-    m_dependentResources.OffscreenFB32B.Reset(m_device, VkExtent2D{SIZE_32, SIZE_32}, offscreenRFormat, offscreenRPNoDepth, "FB32B");
-    m_dependentResources.OffscreenFB16A.Reset(m_device, VkExtent2D{SIZE_16, SIZE_16}, offscreenRFormat, offscreenRPNoDepth, "FB16A");
-    m_dependentResources.OffscreenFB16B.Reset(m_device, VkExtent2D{SIZE_16, SIZE_16}, offscreenRFormat, offscreenRPNoDepth, "FB16B");
+    m_dependentResources.OffscreenFB256.Reset(m_device, VkExtent2D{Size256, Size256}, offscreenRFormat, offscreenRP, depthImageView, "FB256");
+    m_dependentResources.OffscreenFB256A.Reset(m_device, VkExtent2D{Size256, Size256}, offscreenRFormat, offscreenRPNoDepth, "FB256A");
+    m_dependentResources.OffscreenFB256B.Reset(m_device, VkExtent2D{Size256, Size256}, offscreenRFormat, offscreenRPNoDepth, "FB256B");
+    m_dependentResources.OffscreenFB128A.Reset(m_device, VkExtent2D{Size128, Size128}, offscreenRFormat, offscreenRPNoDepth, "FB128A");
+    m_dependentResources.OffscreenFB128B.Reset(m_device, VkExtent2D{Size128, Size128}, offscreenRFormat, offscreenRPNoDepth, "FB128B");
+    m_dependentResources.OffscreenFB64A.Reset(m_device, VkExtent2D{Size64, Size64}, offscreenRFormat, offscreenRPNoDepth, "FB64A");
+    m_dependentResources.OffscreenFB64B.Reset(m_device, VkExtent2D{Size64, Size64}, offscreenRFormat, offscreenRPNoDepth, "FB64B");
+    m_dependentResources.OffscreenFB32A.Reset(m_device, VkExtent2D{Size32, Size32}, offscreenRFormat, offscreenRPNoDepth, "FB32A");
+    m_dependentResources.OffscreenFB32B.Reset(m_device, VkExtent2D{Size32, Size32}, offscreenRFormat, offscreenRPNoDepth, "FB32B");
+    m_dependentResources.OffscreenFB16A.Reset(m_device, VkExtent2D{Size16, Size16}, offscreenRFormat, offscreenRPNoDepth, "FB16A");
+    m_dependentResources.OffscreenFB16B.Reset(m_device, VkExtent2D{Size16, Size16}, offscreenRFormat, offscreenRPNoDepth, "FB16B");
 
     m_dependentResources.PipelineBrightPass =
       CreatePipeline(m_resources.OffscreenPipelineLayout, context.SwapchainImageExtent, m_resources.ShaderPassVert.Get(),
@@ -962,7 +963,7 @@ namespace Fsl
 
     // 1. Render the scene to a low res frame buffer
     {
-      const VkExtent2D fbExtent{SIZE_256, SIZE_256};
+      const VkExtent2D fbExtent{Size256, Size256};
       std::array<VkClearValue, 2> clearValues{};
       clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
       clearValues[1].depthStencil = {1.0f, 0};
@@ -1093,7 +1094,7 @@ namespace Fsl
       vkCmdBindPipeline(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.PipelineBloom.Get());
 
       VkDeviceSize offsets = 0;
-      vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.VBFullScreen.VertexBuffer.GetBufferPointer(), &offsets);
+      vkCmdBindVertexBuffers(hCmdBuffer, VertexBufferBindId, 1, m_resources.VBFullScreen.VertexBuffer.GetBufferPointer(), &offsets);
       vkCmdDraw(hCmdBuffer, m_resources.VBFullScreen.VertexBuffer.GetVertexCount(), 1, 0, 0);
     }
 
@@ -1102,17 +1103,17 @@ namespace Fsl
     {
       uint32_t dstX = 0;
       m_batch->Begin(BlendState::Opaque);
-      m_batch->Draw(m_dependentResources.OffscreenFB256, Vector2(dstX, 0u), Color::White());
+      m_batch->Draw(m_dependentResources.OffscreenFB256, Vector2(dstX, 0u), Colors::White());
       dstX += m_dependentResources.OffscreenFB256.GetExtent2D().width;
-      m_batch->Draw(m_dependentResources.OffscreenFB256A, Vector2(dstX, 0u), Color::White());
+      m_batch->Draw(m_dependentResources.OffscreenFB256A, Vector2(dstX, 0u), Colors::White());
       dstX += m_dependentResources.OffscreenFB256A.GetExtent2D().width;
-      m_batch->Draw(m_dependentResources.OffscreenFB128A, Vector2(dstX, 0u), Color::White());
+      m_batch->Draw(m_dependentResources.OffscreenFB128A, Vector2(dstX, 0u), Colors::White());
       dstX += m_dependentResources.OffscreenFB128A.GetExtent2D().width;
-      m_batch->Draw(m_dependentResources.OffscreenFB64A, Vector2(dstX, 0u), Color::White());
+      m_batch->Draw(m_dependentResources.OffscreenFB64A, Vector2(dstX, 0u), Colors::White());
       dstX += m_dependentResources.OffscreenFB64A.GetExtent2D().width;
-      m_batch->Draw(m_dependentResources.OffscreenFB32A, Vector2(dstX, 0u), Color::White());
+      m_batch->Draw(m_dependentResources.OffscreenFB32A, Vector2(dstX, 0u), Colors::White());
       dstX += m_dependentResources.OffscreenFB32A.GetExtent2D().width;
-      m_batch->Draw(m_dependentResources.OffscreenFB16A, Vector2(dstX, 0u), Color::White());
+      m_batch->Draw(m_dependentResources.OffscreenFB16A, Vector2(dstX, 0u), Colors::White());
       // dstX += m_dependentResources.OffscreenFB16A.GetExtent2D().width;
       m_batch->End();
     }
@@ -1265,7 +1266,7 @@ namespace Fsl
     vkCmdBindPipeline(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.Get());
 
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.VBFullScreen.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(hCmdBuffer, VertexBufferBindId, 1, m_resources.VBFullScreen.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(hCmdBuffer, m_resources.VBFullScreen.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 

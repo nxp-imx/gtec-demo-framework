@@ -56,15 +56,25 @@ namespace Fsl
     // These would be called BI_RGB etc when searching the web for them
     enum class BmpCompression
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       RGB = 0,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       RLE8 = 1,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       RLE4 = 2,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BITFIELDS = 3,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       JPEG = 4,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       PNG = 5,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       ALPHABITFIELDS = 6,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CMYK = 11,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CMYKRLE8 = 12,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CMYKTLE4 = 13
     };
 
@@ -104,64 +114,64 @@ namespace Fsl
       BMPBitmapV3InfoHeader() = default;
     };
 
-    const int32_t PIXELS_PER_METER_DEFAULT = 100;    // ? magic number
+    constexpr int32_t PixelsPerMeterDefault = 100;    // ? magic number
 
     // The max bitmap size if 512MB
-    const uint64_t MAX_BITMAP_SIZE = 1024 * 1024 * 512;
+    constexpr uint64_t MaxBitmapSize = 1024 * 1024 * 512;
 
-    const uint16_t SIZE_FILEHEADER = 14;
-    const uint16_t SIZE_BITMAPINFOHEADER = 40;
-    const uint16_t SIZE_BITMAPV2INFOHEADER = 52;
-    const uint16_t SIZE_BITMAPV3INFOHEADER = 56;
-    const uint16_t SIZE_BITMAPV4HEADER = 108;
-    const uint16_t SIZE_BITMAPV5HEADER = 124;
+    constexpr uint16_t SizeFileheader = 14;
+    constexpr uint16_t SizeBitmapinfoheader = 40;
+    constexpr uint16_t SizeBitmapV2Infoheader = 52;
+    constexpr uint16_t SizeBitmapV3Infoheader = 56;
+    constexpr uint16_t SizeBitmapV4Header = 108;
+    constexpr uint16_t SizeBitmapV5Header = 124;
 
-    const uint16_t MAX_BITMAPHEADER_SIZE = SIZE_BITMAPV5HEADER;
+    constexpr uint16_t MaxBitmapheaderSize = SizeBitmapV5Header;
 
 
-    const int32_t FILEHEADER_OFFSET_FileType = 0;
-    const int32_t FILEHEADER_OFFSET_FileSize = 2;
-    const int32_t FILEHEADER_OFFSET_Reserved1 = 6;
-    const int32_t FILEHEADER_OFFSET_Reserved2 = 8;
-    const int32_t FILEHEADER_OFFSET_BitmapOffset = 10;
+    constexpr int32_t FileheaderOffsetFileType = 0;
+    constexpr int32_t FileheaderOffsetFileSize = 2;
+    constexpr int32_t FileheaderOffsetReserved1 = 6;
+    constexpr int32_t FileheaderOffsetReserved2 = 8;
+    constexpr int32_t FileheaderOffsetBitmapOffset = 10;
 
-    const int32_t CB_BITMAPHEADER_SIZE_FIELD = 4;
+    constexpr int32_t CbBitmapheaderSizeField = 4;
 
 
     // size of header in bytes
-    const int32_t BITMAPINFOHEADER_OFFSET_Size = 0;
+    constexpr int32_t BitmapinfoheaderOffsetSize = 0;
     // image width in pixels
     // Width does not include any scan - line boundary padding.
-    const int32_t BITMAPINFOHEADER_OFFSET_ImageWidth = 4;
+    constexpr int32_t BitmapinfoheaderOffsetImageWidth = 4;
     // image height in pixels
     // If Height is a positive number, then the image is a "bottom-up" bitmap with the origin in the lower - left corner.
     // If Height is a negative number, then the image is a "top-down" bitmap with the origin in the upper - left corner.
-    const int32_t BITMAPINFOHEADER_OFFSET_ImageHeight = 8;
+    constexpr int32_t BitmapinfoheaderOffsetImageHeight = 8;
     // the number of color planes
-    const int32_t BITMAPINFOHEADER_OFFSET_Planes = 12;
+    constexpr int32_t BitmapinfoheaderOffsetPlanes = 12;
     // Bits per pixel
-    const int32_t BITMAPINFOHEADER_OFFSET_BitsPerPixel = 14;
+    constexpr int32_t BitmapinfoheaderOffsetBitsPerPixel = 14;
     // Compression
-    const int32_t BITMAPINFOHEADER_OFFSET_Compression = 16;
+    constexpr int32_t BitmapinfoheaderOffsetCompression = 16;
     // Size of bitmap (can be zero for uncompressed bitmaps)
-    const int32_t BITMAPINFOHEADER_OFFSET_ImageSize = 20;
+    constexpr int32_t BitmapinfoheaderOffsetImageSize = 20;
     // Horizontal resolution in pixels per meter
-    const int32_t BITMAPINFOHEADER_OFFSET_XPixelsPerMeter = 24;
+    constexpr int32_t BitmapinfoheaderOffsetXPixelsPerMeter = 24;
     // Vertical resolution in pixels per meter
-    const int32_t BITMAPINFOHEADER_OFFSET_YPixelsPerMeter = 28;
+    constexpr int32_t BitmapinfoheaderOffsetYPixelsPerMeter = 28;
     // number of colors in the image
-    const int32_t BITMAPINFOHEADER_OFFSET_ColorsInColorTable = 32;
+    constexpr int32_t BitmapinfoheaderOffsetColorsInColorTable = 32;
     // minimum number of important colors
-    const int32_t BITMAPINFOHEADER_OFFSET_ImportantColorCount = 36;
+    constexpr int32_t BitmapinfoheaderOffsetImportantColorCount = 36;
     // Red mask
-    const int32_t BITMAPV2INFOHEADER_OFFSET_RedMask = 40;
+    constexpr int32_t BitmapV2InfoheaderOffsetRedMask = 40;
     // Green mask
-    const int32_t BITMAPV2INFOHEADER_OFFSET_GreenMask = 44;
+    constexpr int32_t BitmapV2InfoheaderOffsetGreenMask = 44;
     // Blue mask
-    const int32_t BITMAPV2INFOHEADER_OFFSET_BlueMask = 48;
+    constexpr int32_t BitmapV2InfoheaderOffsetBlueMask = 48;
 
     // Alpha mask
-    const int32_t BITMAPV3INFOHEADER_OFFSET_AlphaMask = 52;
+    constexpr int32_t BitmapV3InfoheaderOffsetAlphaMask = 52;
 
 
     struct BitmapHeader
@@ -346,16 +356,16 @@ namespace Fsl
 
     BMPFileHeader ReadFileHeader(std::ifstream& rStream)
     {
-      std::array<uint8_t, SIZE_FILEHEADER> fileheader{};
+      std::array<uint8_t, SizeFileheader> fileheader{};
       // Try to read the file header
-      StreamRead(rStream, fileheader.data(), SIZE_FILEHEADER);
+      StreamRead(rStream, fileheader.data(), SizeFileheader);
 
       BMPFileHeader header;
-      header.FileType = ByteArrayUtil::ReadUInt16LE(fileheader.data(), fileheader.size(), FILEHEADER_OFFSET_FileType);
-      header.FileSize = ByteArrayUtil::ReadUInt32LE(fileheader.data(), fileheader.size(), FILEHEADER_OFFSET_FileSize);
-      header.Reserved1 = ByteArrayUtil::ReadUInt16LE(fileheader.data(), fileheader.size(), FILEHEADER_OFFSET_Reserved1);
-      header.Reserved2 = ByteArrayUtil::ReadUInt16LE(fileheader.data(), fileheader.size(), FILEHEADER_OFFSET_Reserved2);
-      header.BitmapOffset = ByteArrayUtil::ReadUInt16LE(fileheader.data(), fileheader.size(), FILEHEADER_OFFSET_BitmapOffset);
+      header.FileType = ByteArrayUtil::ReadUInt16LE(fileheader.data(), fileheader.size(), FileheaderOffsetFileType);
+      header.FileSize = ByteArrayUtil::ReadUInt32LE(fileheader.data(), fileheader.size(), FileheaderOffsetFileSize);
+      header.Reserved1 = ByteArrayUtil::ReadUInt16LE(fileheader.data(), fileheader.size(), FileheaderOffsetReserved1);
+      header.Reserved2 = ByteArrayUtil::ReadUInt16LE(fileheader.data(), fileheader.size(), FileheaderOffsetReserved2);
+      header.BitmapOffset = ByteArrayUtil::ReadUInt16LE(fileheader.data(), fileheader.size(), FileheaderOffsetBitmapOffset);
 
       if (header.FileType != 0x4D42)
       {
@@ -367,48 +377,46 @@ namespace Fsl
 
     BitmapHeader ReadBitmapHeader(std::ifstream& rStream)
     {
-      std::array<uint8_t, MAX_BITMAPHEADER_SIZE> bitmapHeader{};
+      std::array<uint8_t, MaxBitmapheaderSize> bitmapHeader{};
 
       // Read uint32 that describe the size of the bitmap header
-      StreamRead(rStream, reinterpret_cast<char*>(bitmapHeader.data()), CB_BITMAPHEADER_SIZE_FIELD);
+      StreamRead(rStream, reinterpret_cast<char*>(bitmapHeader.data()), CbBitmapheaderSizeField);
 
       BMPBitmapV3InfoHeader header;
       header.DIBHeaderSize = ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), 4, 0);
 
       // Check if its one of the common header sizes
-      if (header.DIBHeaderSize != SIZE_BITMAPINFOHEADER && header.DIBHeaderSize != SIZE_BITMAPV2INFOHEADER &&
-          header.DIBHeaderSize != SIZE_BITMAPV3INFOHEADER && header.DIBHeaderSize != SIZE_BITMAPV4HEADER &&
-          header.DIBHeaderSize != SIZE_BITMAPV5HEADER)
+      if (header.DIBHeaderSize != SizeBitmapinfoheader && header.DIBHeaderSize != SizeBitmapV2Infoheader &&
+          header.DIBHeaderSize != SizeBitmapV3Infoheader && header.DIBHeaderSize != SizeBitmapV4Header && header.DIBHeaderSize != SizeBitmapV5Header)
       {
         throw FormatException("bitmap header not of the supported size");
       }
 
-      assert(header.DIBHeaderSize <= MAX_BITMAPHEADER_SIZE);
+      assert(header.DIBHeaderSize <= MaxBitmapheaderSize);
 
       // Read the rest of the header
-      StreamRead(rStream, bitmapHeader.data() + CB_BITMAPHEADER_SIZE_FIELD, header.DIBHeaderSize - CB_BITMAPHEADER_SIZE_FIELD);
+      StreamRead(rStream, bitmapHeader.data() + CbBitmapheaderSizeField, header.DIBHeaderSize - CbBitmapheaderSizeField);
 
       // Decode the standard BITMAPINFOHEADER
-      header.ImageWidth = ByteArrayUtil::ReadInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BITMAPINFOHEADER_OFFSET_ImageWidth);
-      header.ImageHeight = ByteArrayUtil::ReadInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BITMAPINFOHEADER_OFFSET_ImageHeight);
-      header.Planes = ByteArrayUtil::ReadUInt16LE(bitmapHeader.data(), header.DIBHeaderSize, BITMAPINFOHEADER_OFFSET_Planes);
-      header.BitsPerPixel = ByteArrayUtil::ReadUInt16LE(bitmapHeader.data(), header.DIBHeaderSize, BITMAPINFOHEADER_OFFSET_BitsPerPixel);
-      header.Compression = ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BITMAPINFOHEADER_OFFSET_Compression);
-      header.ImageSize = ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BITMAPINFOHEADER_OFFSET_ImageSize);
-      header.XPixelsPerMeter = ByteArrayUtil::ReadInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BITMAPINFOHEADER_OFFSET_XPixelsPerMeter);
-      header.YPixelsPerMeter = ByteArrayUtil::ReadInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BITMAPINFOHEADER_OFFSET_YPixelsPerMeter);
-      header.ColorsInColorTable = ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BITMAPINFOHEADER_OFFSET_ColorsInColorTable);
-      header.ImportantColorCount =
-        ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BITMAPINFOHEADER_OFFSET_ImportantColorCount);
+      header.ImageWidth = ByteArrayUtil::ReadInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BitmapinfoheaderOffsetImageWidth);
+      header.ImageHeight = ByteArrayUtil::ReadInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BitmapinfoheaderOffsetImageHeight);
+      header.Planes = ByteArrayUtil::ReadUInt16LE(bitmapHeader.data(), header.DIBHeaderSize, BitmapinfoheaderOffsetPlanes);
+      header.BitsPerPixel = ByteArrayUtil::ReadUInt16LE(bitmapHeader.data(), header.DIBHeaderSize, BitmapinfoheaderOffsetBitsPerPixel);
+      header.Compression = ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BitmapinfoheaderOffsetCompression);
+      header.ImageSize = ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BitmapinfoheaderOffsetImageSize);
+      header.XPixelsPerMeter = ByteArrayUtil::ReadInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BitmapinfoheaderOffsetXPixelsPerMeter);
+      header.YPixelsPerMeter = ByteArrayUtil::ReadInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BitmapinfoheaderOffsetYPixelsPerMeter);
+      header.ColorsInColorTable = ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BitmapinfoheaderOffsetColorsInColorTable);
+      header.ImportantColorCount = ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BitmapinfoheaderOffsetImportantColorCount);
 
       const BmpCompression compression = IdentifyCompression(header.Compression);
 
-      if (header.DIBHeaderSize >= SIZE_BITMAPV2INFOHEADER && header.BitsPerPixel > 24)
+      if (header.DIBHeaderSize >= SizeBitmapV2Infoheader && header.BitsPerPixel > 24)
       {
         // Read the BITMAPV2INFOHEADER extensions
-        header.RedMask = ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BITMAPV2INFOHEADER_OFFSET_RedMask);
-        header.GreenMask = ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BITMAPV2INFOHEADER_OFFSET_GreenMask);
-        header.BlueMask = ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BITMAPV2INFOHEADER_OFFSET_BlueMask);
+        header.RedMask = ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BitmapV2InfoheaderOffsetRedMask);
+        header.GreenMask = ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BitmapV2InfoheaderOffsetGreenMask);
+        header.BlueMask = ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BitmapV2InfoheaderOffsetBlueMask);
       }
       else
       {
@@ -417,10 +425,10 @@ namespace Fsl
         header.BlueMask = 0x000000FF;
       }
 
-      if (header.DIBHeaderSize >= SIZE_BITMAPV3INFOHEADER)
+      if (header.DIBHeaderSize >= SizeBitmapV3Infoheader)
       {
         // Read the  BITMAPV3INFOHEADER extensions
-        header.AlphaMask = ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BITMAPV3INFOHEADER_OFFSET_AlphaMask);
+        header.AlphaMask = ByteArrayUtil::ReadUInt32LE(bitmapHeader.data(), header.DIBHeaderSize, BitmapV3InfoheaderOffsetAlphaMask);
       }
       else
       {
@@ -435,7 +443,7 @@ namespace Fsl
     {
       FSL_PARAM_NOT_USED(bytesPerPixel);
       const uint64_t calculatedSize = static_cast<uint64_t>(minimumStride) * static_cast<uint64_t>(bitmapHeader.ImageHeight);
-      if (calculatedSize > MAX_BITMAP_SIZE)
+      if (calculatedSize > MaxBitmapSize)
       {
         throw FormatException("The bitmap size was exceeded");
       }
@@ -455,27 +463,27 @@ namespace Fsl
     void ReadBitmapContent(std::ifstream& rStream, Bitmap& rBitmap, const uint32_t cbBitmap, [[maybe_unused]] const uint32_t minStride,
                            const BitmapHeader& bitmapHeader, const BitmapOrigin originHint)
     {
-      RawBitmapEx rawBitmap;
-      Bitmap::ScopedDirectAccess scopedAccess(rBitmap, rawBitmap);
+      Bitmap::ScopedDirectReadWriteAccess scopedAccess(rBitmap);
 
-      rawBitmap.SetBitmapOrigin(!bitmapHeader.IsYFlipped ? BitmapOrigin::UpperLeft : BitmapOrigin::LowerLeft);
+      scopedAccess.AsRawBitmap().SetBitmapOrigin(!bitmapHeader.IsYFlipped ? BitmapOrigin::UpperLeft : BitmapOrigin::LowerLeft);
 
-      assert(rawBitmap.Stride() == minStride);
-      if (cbBitmap > rawBitmap.GetByteSize())
+      assert(scopedAccess.AsRawBitmap().Stride() == minStride);
+      if (cbBitmap > scopedAccess.AsRawBitmap().GetByteSize())
       {
         throw FormatException("Decode BMP failed due to unexpected buffer size");
       }
 
       // Since the raw bitmap is in the exact same format we can just read directly into it.
-      StreamRead(rStream, rawBitmap.Content(), cbBitmap);
+      StreamRead(rStream, scopedAccess.AsRawBitmap().Content(), cbBitmap);
 
-      if (rawBitmap.GetOrigin() != originHint)
+      if (scopedAccess.AsRawBitmap().GetOrigin() != originHint)
       {
-        RawBitmapUtil::FlipHorizontal(rawBitmap);
+        RawBitmapUtil::FlipHorizontal(scopedAccess.AsRawBitmap());
       }
       if (bitmapHeader.Swizzle)
       {
-        RawBitmapUtil::Swizzle(rawBitmap, bitmapHeader.SwizzleR, bitmapHeader.SwizzleG, bitmapHeader.SwizzleB, bitmapHeader.SwizzleA);
+        RawBitmapUtil::Swizzle(scopedAccess.AsRawBitmap(), bitmapHeader.SwizzleR, bitmapHeader.SwizzleG, bitmapHeader.SwizzleB,
+                               bitmapHeader.SwizzleA);
       }
     }
 
@@ -491,12 +499,13 @@ namespace Fsl
       // Pixels are packed into bytes and arranged as scan lines.Each scan line must end on a 4 - byte boundary,
       // so one, two, or three bytes of padding may follow each scan line.
       const uint32_t bytesPerPixel = 3;
-      const auto minimumBmpStride = PixelFormatUtil::CalcMinimumStride(bitmapHeader.ImageWidth, bytesPerPixel, StrideRequirement::MinimumAlign32Bit);
+      const auto minimumBmpStride =
+        PixelFormatUtil::CalcMinimumStride(PxSize1D::Create(bitmapHeader.ImageWidth), bytesPerPixel, StrideRequirement::MinimumAlign32Bit);
       const auto cbBitmap = CalcBitmapSize(bitmapHeader, minimumBmpStride, bytesPerPixel, true);
 
       // Ensure that the bitmap can hold the image (dont modify because we fill eventual padding with content from the bmp)
       const PixelFormat pf = bitmapHeader.ActivePixelFormat;
-      rBitmap.Reset(PxExtent2D::Create(bitmapHeader.ImageWidth, bitmapHeader.ImageHeight), pf, minimumBmpStride, rBitmap.GetOrigin(),
+      rBitmap.Reset(PxSize2D::Create(bitmapHeader.ImageWidth, bitmapHeader.ImageHeight), pf, minimumBmpStride, rBitmap.GetOrigin(),
                     BitmapClearMethod::DontModify);
 
       ReadBitmapContent(rStream, rBitmap, cbBitmap, minimumBmpStride, bitmapHeader, originHint);
@@ -511,12 +520,12 @@ namespace Fsl
       }
 
       const uint32_t bytesPerPixel = 4;
-      const auto minStride = PixelFormatUtil::CalcMinimumStride(bitmapHeader.ImageWidth, bytesPerPixel);
+      const auto minStride = PixelFormatUtil::CalcMinimumStride(PxSize1D::Create(bitmapHeader.ImageWidth), bytesPerPixel);
       const auto cbBitmap = CalcBitmapSize(bitmapHeader, minStride, bytesPerPixel, false);
 
       // Ensure that the bitmap can hold the image (We use dont modify because there is no padding to clear and everything will be overwritten)
       const PixelFormat pf = bitmapHeader.ActivePixelFormat;
-      rBitmap.Reset(PxExtent2D::Create(bitmapHeader.ImageWidth, bitmapHeader.ImageHeight), pf, minStride, rBitmap.GetOrigin(),
+      rBitmap.Reset(PxSize2D::Create(bitmapHeader.ImageWidth, bitmapHeader.ImageHeight), pf, minStride, rBitmap.GetOrigin(),
                     BitmapClearMethod::DontModify);
 
       ReadBitmapContent(rStream, rBitmap, cbBitmap, minStride, bitmapHeader, originHint);
@@ -539,30 +548,30 @@ namespace Fsl
     }
 
 
-    void WriteBitmapInfoHeader(std::ofstream& stream, const RawBitmap& bitmap, const uint32_t cbBitmap)
+    void WriteBitmapInfoHeader(std::ofstream& stream, const ReadOnlyRawBitmap& bitmap, const uint32_t cbBitmap)
     {
       const auto width = NumericCast<int32_t>(bitmap.GetExtent().Width.Value);
       const auto height = NumericCast<int32_t>(bitmap.GetExtent().Height.Value);
 
-      std::array<uint8_t, SIZE_BITMAPV2INFOHEADER> bitmapHeader{};
-      ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BITMAPINFOHEADER_OFFSET_Size, SIZE_BITMAPINFOHEADER);
-      ByteArrayUtil::WriteInt32LE(bitmapHeader.data(), bitmapHeader.size(), BITMAPINFOHEADER_OFFSET_ImageWidth, width);
-      ByteArrayUtil::WriteInt32LE(bitmapHeader.data(), bitmapHeader.size(), BITMAPINFOHEADER_OFFSET_ImageHeight, -height);
-      ByteArrayUtil::WriteUInt16LE(bitmapHeader.data(), bitmapHeader.size(), BITMAPINFOHEADER_OFFSET_Planes, 1);
-      ByteArrayUtil::WriteUInt16LE(bitmapHeader.data(), bitmapHeader.size(), BITMAPINFOHEADER_OFFSET_BitsPerPixel, 32);
-      ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BITMAPINFOHEADER_OFFSET_Compression,
+      std::array<uint8_t, SizeBitmapV2Infoheader> bitmapHeader{};
+      ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BitmapinfoheaderOffsetSize, SizeBitmapinfoheader);
+      ByteArrayUtil::WriteInt32LE(bitmapHeader.data(), bitmapHeader.size(), BitmapinfoheaderOffsetImageWidth, width);
+      ByteArrayUtil::WriteInt32LE(bitmapHeader.data(), bitmapHeader.size(), BitmapinfoheaderOffsetImageHeight, -height);
+      ByteArrayUtil::WriteUInt16LE(bitmapHeader.data(), bitmapHeader.size(), BitmapinfoheaderOffsetPlanes, 1);
+      ByteArrayUtil::WriteUInt16LE(bitmapHeader.data(), bitmapHeader.size(), BitmapinfoheaderOffsetBitsPerPixel, 32);
+      ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BitmapinfoheaderOffsetCompression,
                                    static_cast<uint32_t>(BmpCompression::RGB));
-      ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BITMAPINFOHEADER_OFFSET_ImageSize, cbBitmap);
-      ByteArrayUtil::WriteInt32LE(bitmapHeader.data(), bitmapHeader.size(), BITMAPINFOHEADER_OFFSET_XPixelsPerMeter, PIXELS_PER_METER_DEFAULT);
-      ByteArrayUtil::WriteInt32LE(bitmapHeader.data(), bitmapHeader.size(), BITMAPINFOHEADER_OFFSET_YPixelsPerMeter, PIXELS_PER_METER_DEFAULT);
-      ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BITMAPINFOHEADER_OFFSET_ColorsInColorTable, 0);
-      ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BITMAPINFOHEADER_OFFSET_ImportantColorCount, 0);
+      ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BitmapinfoheaderOffsetImageSize, cbBitmap);
+      ByteArrayUtil::WriteInt32LE(bitmapHeader.data(), bitmapHeader.size(), BitmapinfoheaderOffsetXPixelsPerMeter, PixelsPerMeterDefault);
+      ByteArrayUtil::WriteInt32LE(bitmapHeader.data(), bitmapHeader.size(), BitmapinfoheaderOffsetYPixelsPerMeter, PixelsPerMeterDefault);
+      ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BitmapinfoheaderOffsetColorsInColorTable, 0);
+      ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BitmapinfoheaderOffsetImportantColorCount, 0);
 
-      ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BITMAPV2INFOHEADER_OFFSET_RedMask, 0x00FF0000);
-      ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BITMAPV2INFOHEADER_OFFSET_GreenMask, 0x0000FF00);
-      ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BITMAPV2INFOHEADER_OFFSET_BlueMask, 0x000000FF);
+      ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BitmapV2InfoheaderOffsetRedMask, 0x00FF0000);
+      ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BitmapV2InfoheaderOffsetGreenMask, 0x0000FF00);
+      ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BitmapV2InfoheaderOffsetBlueMask, 0x000000FF);
 
-      stream.write(reinterpret_cast<const char*>(bitmapHeader.data()), SIZE_BITMAPV2INFOHEADER);
+      stream.write(reinterpret_cast<const char*>(bitmapHeader.data()), SizeBitmapV2Infoheader);
     }
   }
 
@@ -627,13 +636,12 @@ namespace Fsl
 
   void BMPUtil::Save(const IO::Path& strFilename, const Bitmap& bitmap)
   {
-    RawBitmap rawBitmap;
-    Bitmap::ScopedDirectAccess scopedAccess(bitmap, rawBitmap);
-    Save(strFilename, rawBitmap);
+    const Bitmap::ScopedDirectReadAccess scopedAccess(bitmap);
+    Save(strFilename, scopedAccess.AsRawBitmap());
   }
 
 
-  void BMPUtil::Save(const IO::Path& strFilename, const RawBitmap& bitmap)
+  void BMPUtil::Save(const IO::Path& strFilename, const ReadOnlyRawBitmap& bitmap)
   {
     std::ofstream file(PlatformPathTransform::ToSystemPath(strFilename), std::ios::out | std::ios::binary);
     Save(file, bitmap);
@@ -642,13 +650,12 @@ namespace Fsl
 
   void BMPUtil::Save(std::ofstream& stream, const Bitmap& bitmap)
   {
-    RawBitmap rawBitmap;
-    Bitmap::ScopedDirectAccess scopedAccess(bitmap, rawBitmap);
-    Save(stream, rawBitmap);
+    const Bitmap::ScopedDirectReadAccess scopedAccess(bitmap);
+    Save(stream, scopedAccess.AsRawBitmap());
   }
 
 
-  void BMPUtil::Save(std::ofstream& stream, const RawBitmap& bitmap)
+  void BMPUtil::Save(std::ofstream& stream, const ReadOnlyRawBitmap& bitmap)
   {
     if (bitmap.GetPixelFormatLayout() != PixelFormatLayout::B8G8R8A8)
     {
@@ -657,16 +664,16 @@ namespace Fsl
 
     const auto minimumStride = PixelFormatUtil::CalcMinimumStride(bitmap.Width(), bitmap.GetPixelFormat(), StrideRequirement::MinimumAlign32Bit);
 
-    const uint32_t bitmapOffset = SIZE_FILEHEADER + SIZE_BITMAPV2INFOHEADER;
-    const uint32_t cbBitmap = (minimumStride * bitmap.Height());
+    const uint32_t bitmapOffset = SizeFileheader + SizeBitmapV2Infoheader;
+    const uint32_t cbBitmap = (minimumStride * bitmap.RawUnsignedHeight());
     const uint32_t cbFile = bitmapOffset + cbBitmap;
-    std::array<uint8_t, SIZE_FILEHEADER> fileheader{};
-    ByteArrayUtil::WriteUInt16LE(fileheader.data(), fileheader.size(), FILEHEADER_OFFSET_FileType, 0x4D42);
-    ByteArrayUtil::WriteUInt32LE(fileheader.data(), fileheader.size(), FILEHEADER_OFFSET_FileSize, cbFile);
-    ByteArrayUtil::WriteUInt16LE(fileheader.data(), fileheader.size(), FILEHEADER_OFFSET_Reserved1, 0);
-    ByteArrayUtil::WriteUInt16LE(fileheader.data(), fileheader.size(), FILEHEADER_OFFSET_Reserved2, 0);
-    ByteArrayUtil::WriteUInt32LE(fileheader.data(), fileheader.size(), FILEHEADER_OFFSET_BitmapOffset, bitmapOffset);
-    stream.write(reinterpret_cast<const char*>(fileheader.data()), fileheader.size());
+    std::array<uint8_t, SizeFileheader> fileHeader{};
+    ByteArrayUtil::WriteUInt16LE(fileHeader.data(), fileHeader.size(), FileheaderOffsetFileType, 0x4D42);
+    ByteArrayUtil::WriteUInt32LE(fileHeader.data(), fileHeader.size(), FileheaderOffsetFileSize, cbFile);
+    ByteArrayUtil::WriteUInt16LE(fileHeader.data(), fileHeader.size(), FileheaderOffsetReserved1, 0);
+    ByteArrayUtil::WriteUInt16LE(fileHeader.data(), fileHeader.size(), FileheaderOffsetReserved2, 0);
+    ByteArrayUtil::WriteUInt32LE(fileHeader.data(), fileHeader.size(), FileheaderOffsetBitmapOffset, bitmapOffset);
+    stream.write(reinterpret_cast<const char*>(fileHeader.data()), fileHeader.size());
 
     WriteBitmapInfoHeader(stream, bitmap, cbFile);
 
@@ -674,7 +681,7 @@ namespace Fsl
     {
       // Since its the minimum stride we can just write the entire image with one call
       const std::streamsize bitmapStride = bitmap.Stride();
-      const auto cbBitmap2 = bitmap.Height() * bitmapStride;
+      const auto cbBitmap2 = bitmap.RawUnsignedHeight() * bitmapStride;
       stream.write(reinterpret_cast<const char*>(bitmap.Content()), cbBitmap2);
     }
     else
@@ -684,7 +691,7 @@ namespace Fsl
         // We have to write the image data one scan line at a time to 'compress' the stride to the minimum
         const auto srcStride = bitmap.Stride();
         const auto* pSrc = static_cast<const uint8_t*>(bitmap.Content());
-        const uint8_t* const pSrcEnd = pSrc + (srcStride * bitmap.Height());
+        const uint8_t* const pSrcEnd = pSrc + (srcStride * bitmap.RawUnsignedHeight());
         while (pSrc < pSrcEnd)
         {
           stream.write(reinterpret_cast<const char*>(pSrc), minimumStride);
@@ -696,7 +703,7 @@ namespace Fsl
         // We have to write the image data one scan line at a time to 'compress' the stride to the minimum or to flip it
         const auto srcStride = bitmap.Stride();
         const auto* const pSrcStart = static_cast<const uint8_t*>(bitmap.Content());
-        const uint8_t* pSrc = pSrcStart + (srcStride * (bitmap.Height() - 1));
+        const uint8_t* pSrc = pSrcStart + (srcStride * (bitmap.RawUnsignedHeight() - 1));
         while (pSrc >= pSrcStart)
         {
           stream.write(reinterpret_cast<const char*>(pSrc), minimumStride);

@@ -39,7 +39,7 @@
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Span/Span.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
@@ -83,7 +83,7 @@ namespace Fsl
 
   Shared::Shared(const DemoAppConfig& config)
     : m_uiEventListener(this)
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "BasicUI/UIAtlas/UIAtlas_160dpi"))
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))
     , m_graphicsService(config.DemoServiceProvider.Get<IGraphicsService>())
     , m_renderSystem(m_graphicsService->GetBasicRenderSystem())
   {
@@ -114,7 +114,7 @@ namespace Fsl
   Shared::~Shared() = default;
 
 
-  void Shared::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void Shared::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_uiRecord.ButtonDefault)
     {
@@ -122,7 +122,7 @@ namespace Fsl
     }
   }
 
-  void Shared::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void Shared::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_uiRecord.DrawOutlineCheckBox || theEvent->GetSource() == m_uiRecord.DrawShadowCheckBox)
     {

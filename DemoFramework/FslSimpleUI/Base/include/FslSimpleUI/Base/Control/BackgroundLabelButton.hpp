@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_BACKGROUNDLABELBUTTON_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_BACKGROUNDLABELBUTTON_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2023 NXP
+ * Copyright 2020, 2023-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,14 +32,14 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Dp/DpThickness.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
-#include <FslGraphics/Color.hpp>
-#include <FslGraphics/Transition/TransitionColor.hpp>
 #include <FslSimpleUI/Base/Control/ButtonBase.hpp>
 #include <FslSimpleUI/Base/DefaultValues.hpp>
 #include <FslSimpleUI/Base/Mesh/ContentSpriteMesh.hpp>
 #include <FslSimpleUI/Base/Mesh/SimpleSpriteFontMesh.hpp>
 #include <FslSimpleUI/Base/Mesh/SpriteMesh.hpp>
+#include <FslSimpleUI/Base/Property/DependencyPropertyUIColor.hpp>
+#include <FslSimpleUI/Base/Transition/TransitionUIRenderColor.hpp>
+#include <FslSimpleUI/Base/UIColor.hpp>
 #include <string>
 
 namespace Fsl
@@ -55,6 +55,7 @@ namespace Fsl
       using base_type = ButtonBase;
 
     protected:
+      // NOLINTNEXTLINE(readability-identifier-naming)
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
@@ -63,15 +64,15 @@ namespace Fsl
       ContentSpriteMesh m_backgroundHover;
       ContentSpriteMesh m_backgroundHoverOverlay;
 
-      DataBinding::TypedDependencyProperty<Color> m_propertyBackgroundHoverOverlayColorUp{DefaultColor::Button::BackgroundHoverOverlayUp};
-      DataBinding::TypedDependencyProperty<Color> m_propertyBackgroundHoverOverlayColorDown{DefaultColor::Button::BackgroundHoverOverlayDown};
-      DataBinding::TypedDependencyProperty<Color> m_propertyBackgroundColorHoverUp{DefaultColor::Button::BackgroundHoverUp};
-      DataBinding::TypedDependencyProperty<Color> m_propertyBackgroundColorUp{DefaultColor::Button::BackgroundUp};
-      DataBinding::TypedDependencyProperty<Color> m_propertyBackgroundColorDown{DefaultColor::Button::BackgroundDown};
-      DataBinding::TypedDependencyProperty<Color> m_propertyBackgroundColorDisabled{DefaultColor::Button::BackgroundDisabled};
-      DataBinding::TypedDependencyProperty<Color> m_propertyFontColorUp{DefaultColor::Button::FontUp};
-      DataBinding::TypedDependencyProperty<Color> m_propertyFontColorDown{DefaultColor::Button::FontDown};
-      DataBinding::TypedDependencyProperty<Color> m_propertyFontColorDisabled{DefaultColor::Button::FontDisabled};
+      DependencyPropertyUIColor m_propertyBackgroundHoverOverlayColorUp;
+      DependencyPropertyUIColor m_propertyBackgroundHoverOverlayColorDown;
+      DependencyPropertyUIColor m_propertyBackgroundColorHoverUp;
+      DependencyPropertyUIColor m_propertyBackgroundColorUp;
+      DependencyPropertyUIColor m_propertyBackgroundColorDown;
+      DependencyPropertyUIColor m_propertyBackgroundColorDisabled;
+      DependencyPropertyUIColor m_propertyFontColorUp;
+      DependencyPropertyUIColor m_propertyFontColorDown;
+      DependencyPropertyUIColor m_propertyFontColorDisabled;
       DataBinding::TypedDependencyProperty<DpThicknessF> m_propertyPaddingDp;
       DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyContentAlignmentX{ItemAlignment::Near};
       DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyContentAlignmentY{ItemAlignment::Near};
@@ -80,23 +81,36 @@ namespace Fsl
       SpriteFontMeasureInfo m_labelMeasureInfo;
       bool m_isHovering{false};
 
-      TransitionColor m_backgroundCurrentColor;
-      TransitionColor m_backgroundCurrentHoverOverlayColor;
-      TransitionColor m_fontCurrentColor;
+      TransitionUIRenderColor m_backgroundCurrentColor;
+      TransitionUIRenderColor m_backgroundCurrentHoverOverlayColor;
+      TransitionUIRenderColor m_fontCurrentColor;
 
     public:
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyBackgroundHoverOverlayColorUp;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyBackgroundHoverOverlayColorDown;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyBackgroundColorHoverUp;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyBackgroundColorUp;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyBackgroundColorDown;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyBackgroundColorDisabled;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyFontColorUp;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyFontColorDown;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyFontColorDisabled;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyPadding;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyContentAlignmentX;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyContentAlignmentY;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyContent;
 
       explicit BackgroundLabelButton(const std::shared_ptr<WindowContext>& context);
@@ -137,7 +151,7 @@ namespace Fsl
       }
       bool SetContent(const std::string& str)
       {
-        return SetContent(StringViewLiteUtil::AsStringViewLite(str));
+        return SetContent(StringViewLite(str));
       }
 
       const std::shared_ptr<SpriteFont>& GetFont() const
@@ -147,76 +161,76 @@ namespace Fsl
       void SetFont(const std::shared_ptr<SpriteFont>& value);
 
 
-      Color GetBackgroundHoverOverlayColorUp() const noexcept
+      UIColor GetBackgroundHoverOverlayColorUp() const noexcept
       {
         return m_propertyBackgroundHoverOverlayColorUp.Get();
       }
 
-      bool SetBackgroundHoverOverlayColorUp(const Color value);
+      bool SetBackgroundHoverOverlayColorUp(const UIColor value);
 
 
-      Color GetBackgroundHoverOverlayColorDown() const noexcept
+      UIColor GetBackgroundHoverOverlayColorDown() const noexcept
       {
         return m_propertyBackgroundHoverOverlayColorDown.Get();
       }
 
-      bool SetBackgroundHoverOverlayColorDown(const Color value);
+      bool SetBackgroundHoverOverlayColorDown(const UIColor value);
 
 
-      Color GetBackgroundColorHoverUp() const noexcept
+      UIColor GetBackgroundColorHoverUp() const noexcept
       {
         return m_propertyBackgroundColorHoverUp.Get();
       }
 
-      bool SetBackgroundColorHoverUp(const Color value);
+      bool SetBackgroundColorHoverUp(const UIColor value);
 
 
-      Color GetBackgroundColorUp() const noexcept
+      UIColor GetBackgroundColorUp() const noexcept
       {
         return m_propertyBackgroundColorUp.Get();
       }
 
-      bool SetBackgroundColorUp(const Color value);
+      bool SetBackgroundColorUp(const UIColor value);
 
 
-      Color GetBackgroundColorDown() const noexcept
+      UIColor GetBackgroundColorDown() const noexcept
       {
         return m_propertyBackgroundColorDown.Get();
       }
 
-      bool SetBackgroundColorDown(const Color value);
+      bool SetBackgroundColorDown(const UIColor value);
 
 
-      Color GetBackgroundColorDisabled() const noexcept
+      UIColor GetBackgroundColorDisabled() const noexcept
       {
         return m_propertyBackgroundColorDisabled.Get();
       }
 
-      bool SetBackgroundColorDisabled(const Color value);
+      bool SetBackgroundColorDisabled(const UIColor value);
 
 
-      Color GetFontColorUp() const noexcept
+      UIColor GetFontColorUp() const noexcept
       {
         return m_propertyFontColorUp.Get();
       }
 
-      bool SetFontColorUp(const Color value);
+      bool SetFontColorUp(const UIColor value);
 
 
-      Color GetFontColorDown() const noexcept
+      UIColor GetFontColorDown() const noexcept
       {
         return m_propertyFontColorDown.Get();
       }
 
-      bool SetFontColorDown(const Color value);
+      bool SetFontColorDown(const UIColor value);
 
 
-      Color GetFontColorDisabled() const noexcept
+      UIColor GetFontColorDisabled() const noexcept
       {
         return m_propertyFontColorDisabled.Get();
       }
 
-      bool SetFontColorDisabled(const Color value);
+      bool SetFontColorDisabled(const UIColor value);
 
 
       DpThicknessF GetPadding() const noexcept
@@ -245,7 +259,7 @@ namespace Fsl
       void WinDraw(const UIDrawContext& context) final;
 
     protected:
-      void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) final;
+      void OnMouseOver(const std::shared_ptr<WindowMouseOverEvent>& theEvent) final;
       PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final;
       PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
 
@@ -258,7 +272,7 @@ namespace Fsl
       bool UpdateAnimationState(const bool forceCompleteAnimation) final;
 
     private:
-      Color GetBackgroundColor(const bool isEnabled, const bool isDown, const bool isHovering) const;
+      UIRenderColor GetBackgroundColor(const bool isEnabled, const bool isDown, const bool isHovering) const;
     };
   }
 }

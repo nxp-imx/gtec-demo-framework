@@ -117,7 +117,7 @@ namespace Fsl::UI
   }
 
 
-  void SettingsDialogActivity::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
+  void SettingsDialogActivity::OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent)
   {
     if (m_state == State::Ready && !theEvent->IsHandled())
     {
@@ -135,11 +135,11 @@ namespace Fsl::UI
       }
     }
 
-    DialogActivity::OnContentChanged(args, theEvent);
+    DialogActivity::OnContentChanged(theEvent);
   }
 
 
-  void SettingsDialogActivity::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  void SettingsDialogActivity::OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent)
   {
     if (m_state == State::Ready && !theEvent->IsHandled())
     {
@@ -149,7 +149,7 @@ namespace Fsl::UI
         DoScheduleClose();
       }
     }
-    DialogActivity::OnSelect(args, theEvent);
+    DialogActivity::OnSelect(theEvent);
   }
 
 

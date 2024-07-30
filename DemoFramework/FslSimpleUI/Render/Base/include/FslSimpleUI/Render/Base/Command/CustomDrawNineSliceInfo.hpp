@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_BASE_COMMAND_CUSTOMDRAWNINESLICEINFO_HPP
 #define FSLSIMPLEUI_RENDER_BASE_COMMAND_CUSTOMDRAWNINESLICEINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,29 +37,25 @@
 #include <memory>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::UI
 {
   class UIRawMeshBuilder2D;
+  class ICustomDrawData;
+  using FnDrawCustomNineSliceMesh = void (*)(UIRawMeshBuilder2D&, const PxVector2, const PxSize2D, const RenderNineSliceInfo&,
+                                             const ICustomDrawData* const);
 
-  namespace UI
+  struct CustomDrawNineSliceInfo
   {
-    class ICustomDrawData;
-    using FnDrawCustomNineSliceMesh = void (*)(UIRawMeshBuilder2D&, const PxVector2, const PxSize2D, const RenderNineSliceInfo&,
-                                               const ICustomDrawData* const);
+    FnDrawCustomNineSliceMesh FnDraw{nullptr};
+    std::shared_ptr<ICustomDrawData> CustomData;
 
-    struct CustomDrawNineSliceInfo
+    CustomDrawNineSliceInfo() noexcept = default;
+    explicit CustomDrawNineSliceInfo(const FnDrawCustomNineSliceMesh fnDraw, std::shared_ptr<ICustomDrawData> customData) noexcept
+      : FnDraw(fnDraw)
+      , CustomData(std::move(customData))
     {
-      FnDrawCustomNineSliceMesh FnDraw{nullptr};
-      std::shared_ptr<ICustomDrawData> CustomData;
-
-      CustomDrawNineSliceInfo() noexcept = default;
-      explicit CustomDrawNineSliceInfo(const FnDrawCustomNineSliceMesh fnDraw, std::shared_ptr<ICustomDrawData> customData) noexcept
-        : FnDraw(fnDraw)
-        , CustomData(std::move(customData))
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

@@ -35,13 +35,18 @@
 #include <FslBase/Math/MathHelper_Bilinear.hpp>
 #include <FslBase/Math/MathHelper_Clamp.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <algorithm>
+#include <FslGraphics/ColorChannelConverter.hpp>
+#include <FslGraphics/ColorChannelValueU16.hpp>
+#include <FslGraphics/ColorChannelValueU8.hpp>
+#include <FslGraphics/PackedColor32.hpp>
+#include <FslGraphics/PackedColor64.hpp>
 #include <cmath>
 
 namespace Fsl
 {
   struct Color
   {
+  private:
     uint8_t m_r{0};
     uint8_t m_g{0};
     uint8_t m_b{0};
@@ -50,27 +55,50 @@ namespace Fsl
   public:
     constexpr Color() noexcept = default;
 
+
+    constexpr Color(const ColorChannelValueU8 r, const ColorChannelValueU8 g, const ColorChannelValueU8 b, const ColorChannelValueU8 a) noexcept
+      : m_r(r.RawValue)
+      , m_g(g.RawValue)
+      , m_b(b.RawValue)
+      , m_a(a.RawValue)
+    {
+    }
+
+    constexpr Color(const ColorChannelValueU16 r, const ColorChannelValueU16 g, const ColorChannelValueU16 b, const ColorChannelValueU16 a) noexcept
+      : Color(ColorChannelConverter::ToU8(r), ColorChannelConverter::ToU8(g), ColorChannelConverter::ToU8(b), ColorChannelConverter::ToU8(a))
+    {
+    }
+
+    constexpr explicit Color(const PackedColor32 value) noexcept
+      : m_r(value.RawR())
+      , m_g(value.RawG())
+      , m_b(value.RawB())
+      , m_a(value.RawA())
+    {
+    }
+
+
     constexpr explicit Color(const uint32_t value) noexcept
       : m_r((value >> 16) & 0xFF)
       , m_g((value >> 8) & 0xFF)
-      , m_b((value)&0xFF)
+      , m_b((value) & 0xFF)
       , m_a((value >> 24) & 0xFF)
     {
     }
 
     explicit constexpr Color(const Vector4& col) noexcept
-      : m_r(ToUInt8(col.X))
-      , m_g(ToUInt8(col.Y))
-      , m_b(ToUInt8(col.Z))
-      , m_a(ToUInt8(col.W))
+      : m_r(ColorChannelConverter::RawF32ToRawU8(col.X))
+      , m_g(ColorChannelConverter::RawF32ToRawU8(col.Y))
+      , m_b(ColorChannelConverter::RawF32ToRawU8(col.Z))
+      , m_a(ColorChannelConverter::RawF32ToRawU8(col.W))
     {
     }
 
     constexpr Color(const float r, const float g, const float b, const float a) noexcept
-      : m_r(ToUInt8(r))
-      , m_g(ToUInt8(g))
-      , m_b(ToUInt8(b))
-      , m_a(ToUInt8(a))
+      : m_r(ColorChannelConverter::RawF32ToRawU8(r))
+      , m_g(ColorChannelConverter::RawF32ToRawU8(g))
+      , m_b(ColorChannelConverter::RawF32ToRawU8(b))
+      , m_a(ColorChannelConverter::RawF32ToRawU8(a))
     {
     }
 
@@ -82,330 +110,428 @@ namespace Fsl
     {
     }
 
-    Color(const int32_t r, const int32_t g, const int32_t b, const int32_t a);
-    Color(const uint32_t r, const uint32_t g, const uint32_t b, const uint32_t a);
-
-    constexpr Vector4 ToVector4() const
+    constexpr Color(const int32_t r, const int32_t g, const int32_t b, const int32_t a) noexcept
+      : Color(ColorChannelValueU8::Create(r), ColorChannelValueU8::Create(g), ColorChannelValueU8::Create(b), ColorChannelValueU8::Create(a))
     {
-      return {static_cast<float>(R()) / 255.0f, static_cast<float>(G()) / 255.0f, static_cast<float>(B()) / 255.0f, static_cast<float>(A()) / 255.0f};
+    }
+
+    constexpr Color(const uint32_t r, const uint32_t g, const uint32_t b, const uint32_t a) noexcept
+      : Color(ColorChannelValueU8::Create(r), ColorChannelValueU8::Create(g), ColorChannelValueU8::Create(b), ColorChannelValueU8::Create(a))
+    {
+    }
+
+
+    constexpr bool IsOpaque() const noexcept
+    {
+      return m_a == 0xFF;
+    }
+
+    constexpr Vector4 ToVector4() const noexcept
+    {
+      return {static_cast<float>(m_r) / 255.0f, static_cast<float>(m_g) / 255.0f, static_cast<float>(m_b) / 255.0f, static_cast<float>(m_a) / 255.0f};
+    }
+
+
+    constexpr PackedColor32 AsPackedColor32() const noexcept
+    {
+      return PackedColor32::CreateR8G8B8A8UNorm(m_r, m_g, m_b, m_a);
     }
 
     //! get the packed value
-    //! Colors are encoded like this
-    //! Bits:  0- 7 = Blue
-    //! Bits:  8-15 = Green
-    //! Bits: 16-23 = Red
-    //! Bits: 24-31 = Alpha
-    constexpr uint32_t PackedValue() const noexcept
+    constexpr PackedColor64 AsPackedColor64() const noexcept
     {
-      return (static_cast<uint32_t>(m_a) << 24) | (static_cast<uint32_t>(m_r) << 16) | (static_cast<uint32_t>(m_g) << 8) | static_cast<uint32_t>(m_b);
-    }
-
-    //! @brief get the alpha component
-    constexpr uint8_t A() const noexcept
-    {
-      return m_a;
+      return {R(), G(), B(), A()};
     }
 
     //! @brief get the red component
-    constexpr uint8_t R() const noexcept
+    constexpr ColorChannelValueU8 R() const noexcept
+    {
+      return ColorChannelValueU8(m_r);
+    }
+
+    //! @brief get the green component
+    constexpr ColorChannelValueU8 G() const noexcept
+    {
+      return ColorChannelValueU8(m_g);
+    }
+
+    //! @brief get the blue component
+    constexpr ColorChannelValueU8 B() const noexcept
+    {
+      return ColorChannelValueU8(m_b);
+    }
+
+    //! @brief get the alpha component
+    constexpr ColorChannelValueU8 A() const noexcept
+    {
+      return ColorChannelValueU8(m_a);
+    }
+
+    //! @brief get the red component
+    constexpr uint8_t RawR() const noexcept
     {
       return m_r;
     }
 
     //! @brief get the green component
-    constexpr uint8_t G() const noexcept
+    constexpr uint8_t RawG() const noexcept
     {
       return m_g;
     }
 
     //! @brief get the blue component
-    constexpr uint8_t B() const noexcept
+    constexpr uint8_t RawB() const noexcept
     {
       return m_b;
     }
 
-    // Some predefined colors (values taken from HTML)
-    static constexpr Color Transparent() noexcept
+    //! @brief get the alpha component
+    constexpr uint8_t RawA() const noexcept
     {
-      return Color(0x00000000);
-    }
-
-    static constexpr Color TransparentWhite() noexcept
-    {
-      return Color(0x00FFFFFF);
-    }
-
-    static constexpr Color Black() noexcept
-    {
-      return Color(0xFF000000);
-    }
-
-    static constexpr Color Red() noexcept
-    {
-      return Color(0xFFFF0000);
-    }
-
-    static constexpr Color Green() noexcept
-    {
-      return Color(0xFF00FF00);
-    }
-
-    static constexpr Color Blue() noexcept
-    {
-      return Color(0xFF0000FF);
-    }
-
-    static constexpr Color Cyan() noexcept
-    {
-      return Color(0xFF00FFFF);
-    }
-
-    static constexpr Color Yellow() noexcept
-    {
-      return Color(0xFFFFFF00);
-    }
-
-    static constexpr Color White() noexcept
-    {
-      return Color(0xFFFFFFFF);
-    }
-
-    static constexpr Color Orange() noexcept
-    {
-      return Color(0xFFFFA500);
-    }
-
-    static constexpr Color Pink() noexcept
-    {
-      return Color(0xFFFAAFBE);
-    }
-
-    static constexpr Color Purple() noexcept
-    {
-      return Color(0xFF800080);
-    }
-
-    static constexpr Color Marrom() noexcept
-    {
-      return Color(0xFF800000);
-    }
-
-    static constexpr Color Brown() noexcept
-    {
-      return Color(0xFFA52A2A);
-    }
-
-    static constexpr Color Olive() noexcept
-    {
-      return Color(0xFF808000);
-    }
-
-    static constexpr Color Silver() noexcept
-    {
-      return Color(0xFFC0C0C0);
-    }
-
-    static constexpr Color DarkBlue() noexcept
-    {
-      return Color(0xFF0000A0);
-    }
-
-    static constexpr Color LightBlue() noexcept
-    {
-      return Color(0xFFADD8E6);
-    }
-
-    static constexpr Color Lime() noexcept
-    {
-      return Color(0xFF00FF00);
-    }
-
-
-    constexpr bool operator==(const Color rhs) const noexcept
-    {
-      return PackedValue() == rhs.PackedValue();
-    }
-
-    constexpr bool operator!=(const Color rhs) const noexcept
-    {
-      return PackedValue() != rhs.PackedValue();
+      return m_a;
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------
 
-    static constexpr inline Color ApplyAlpha(const Color color, const float alpha)
+    //! @brief Multiply the RGB value with the given float, the A value will be unmodified
+    //! @param color the source color
+    //! @param value the value to multiply RGB with. In the range of 0.0 to 1.0
+    static constexpr Color MultiplyRGB(const Color color, const float value) noexcept
     {
-      const int32_t newA = MathHelper::Clamp(FastRoundToInt32(static_cast<float>(color.A()) * alpha), 0, 255);
-      return {color.R(), color.G(), color.B(), static_cast<uint8_t>(newA)};
-    }
-
-    static constexpr inline Color ApplyAlpha(const Color color, const uint8_t alpha)
-    {
-      auto newA = static_cast<uint8_t>(((static_cast<uint32_t>(color.A()) * alpha)) / 255);
-      return {color.R(), color.G(), color.B(), newA};
+      return UncheckedMultiplyRGB(color, MathHelper::Clamp(value, 0.0f, 1.0f));
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------
 
-    static constexpr Color MultiplyRGB(Color color, float value)
+    //! @brief Multiply the RGB value with the given float, the A value will be unmodified
+    //! @param color the source color
+    //! @param value the value to multiply RGB with. In the range of 0.0 to 1.0
+    static constexpr Color UncheckedMultiplyRGB(const Color color, const float value) noexcept
     {
-      return {static_cast<uint8_t>(MathHelper::Clamp(FastRoundToInt32(static_cast<float>(color.R()) * value), 0, 255)),
-              static_cast<uint8_t>(MathHelper::Clamp(FastRoundToInt32(static_cast<float>(color.G()) * value), 0, 255)),
-              static_cast<uint8_t>(MathHelper::Clamp(FastRoundToInt32(static_cast<float>(color.B()) * value), 0, 255)), color.A()};
+      assert(value >= 0.0f && value <= 1.0f);
+      const constexpr uint32_t Shift = 32u;
+      const constexpr uint64_t Half = static_cast<uint64_t>(1) << (Shift - 1);
+
+      const auto fixedValue = static_cast<uint64_t>(value * static_cast<double>(static_cast<uint64_t>(1) << Shift));
+      // This is a high precision fixed point calculation (higher than float precision in most cases)
+      // It is basically ((r * a) + 0.5) / 2.0
+      const uint64_t r = ((color.RawR() * fixedValue) + Half) >> Shift;
+      const uint64_t g = ((color.RawG() * fixedValue) + Half) >> Shift;
+      const uint64_t b = ((color.RawB() * fixedValue) + Half) >> Shift;
+
+      return {UncheckedNumericCast<uint8_t>(r), UncheckedNumericCast<uint8_t>(g), UncheckedNumericCast<uint8_t>(b), color.RawA()};
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------
 
-    static constexpr Color MultiplyRGBA(Color color, float value)
+    static constexpr Color MultiplyRGBA(const Color color, const float value) noexcept
     {
-      return {static_cast<uint8_t>(MathHelper::Clamp(FastRoundToInt32(static_cast<float>(color.R()) * value), 0, 255)),
-              static_cast<uint8_t>(MathHelper::Clamp(FastRoundToInt32(static_cast<float>(color.G()) * value), 0, 255)),
-              static_cast<uint8_t>(MathHelper::Clamp(FastRoundToInt32(static_cast<float>(color.B()) * value), 0, 255)),
-              static_cast<uint8_t>(MathHelper::Clamp(FastRoundToInt32(static_cast<float>(color.A()) * value), 0, 255))};
+      return UncheckedMultiplyRGBA(color, MathHelper::Clamp(value, 0.0f, 1.0f));
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------
 
-    static constexpr inline Color Premultiply(const Color color)
+    static constexpr Color UncheckedMultiplyRGBA(const Color color, const float value) noexcept
     {
-      const uint32_t fixed24A = (static_cast<uint32_t>(color.A()) << 24u) / 255;
-      // basically ((r * a) + 0.5f) / 2.0f
-      const uint32_t r = ((color.R() * fixed24A) + (1u << 23u)) >> 24u;
-      const uint32_t g = ((color.G() * fixed24A) + (1u << 23u)) >> 24u;
-      const uint32_t b = ((color.B() * fixed24A) + (1u << 23u)) >> 24u;
-      return {static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b), color.A()};
+      assert(value >= 0.0f && value <= 1.0f);
+      const constexpr uint32_t Shift = 32u;
+      const constexpr uint64_t Half = static_cast<uint64_t>(1) << (Shift - 1);
+
+      const auto fixedValue = static_cast<uint64_t>(value * static_cast<double>(static_cast<uint64_t>(1) << Shift));
+      // This is a high precision fixed point calculation (higher than float precision in most cases)
+      // It is basically ((r * a) + 0.5) / 2.0
+      const uint64_t r = ((color.RawR() * fixedValue) + Half) >> Shift;
+      const uint64_t g = ((color.RawG() * fixedValue) + Half) >> Shift;
+      const uint64_t b = ((color.RawB() * fixedValue) + Half) >> Shift;
+      const uint64_t a = ((color.RawA() * fixedValue) + Half) >> Shift;
+
+      return {UncheckedNumericCast<uint8_t>(r), UncheckedNumericCast<uint8_t>(g), UncheckedNumericCast<uint8_t>(b), UncheckedNumericCast<uint8_t>(a)};
     }
 
+    //------------------------------------------------------------------------------------------------------------------------------------------------
 
-    static constexpr inline Color Premultiply(const Color color, const float alphaMul)
+    static constexpr Color MultiplyA(const Color color, const float value) noexcept
     {
-      // pretty close for fixed point
-      // (((((uint32_t(color.A()) * uint32_t(alphaMod)) << 17u) + (1 << 16u))) / 255) >> 1
-      const float alpha = (static_cast<float>(color.A()) / 255.0f) * std::max(alphaMul, 0.0f);
-      constexpr auto roundMagic = 0.49999997f;
-      auto r = MathHelper::Clamp(static_cast<uint32_t>((alpha * static_cast<float>(color.R())) + roundMagic), 0u, 255u);
-      auto g = MathHelper::Clamp(static_cast<uint32_t>((alpha * static_cast<float>(color.G())) + roundMagic), 0u, 255u);
-      auto b = MathHelper::Clamp(static_cast<uint32_t>((alpha * static_cast<float>(color.B())) + roundMagic), 0u, 255u);
-      auto a = MathHelper::Clamp(FastRoundToInt32(alpha * 255.0f), 0, 255);
-      return {static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b), static_cast<uint8_t>(a)};
+      return UncheckedMultiplyA(color, MathHelper::Clamp(value, 0.0f, 1.0f));
     }
 
-    static constexpr inline Color PremultiplyRGB(const Color color, const float alphaMul, uint8_t newA)
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+
+    static constexpr Color UncheckedMultiplyA(const Color color, const float value) noexcept
     {
-      // pretty close for fixed point
-      // (((((uint32_t(color.A()) * uint32_t(alphaMod)) << 17u) + (1 << 16u))) / 255) >> 1
-      const float alpha = (static_cast<float>(color.A()) / 255.0f) * std::max(alphaMul, 0.0f);
-      auto r = MathHelper::Clamp(FastRoundToInt32(alpha * static_cast<float>(color.R())), 0, 255);
-      auto g = MathHelper::Clamp(FastRoundToInt32(alpha * static_cast<float>(color.G())), 0, 255);
-      auto b = MathHelper::Clamp(FastRoundToInt32(alpha * static_cast<float>(color.B())), 0, 255);
-      return {static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b), newA};
+      assert(value >= 0.0f && value <= 1.0f);
+      const constexpr uint32_t Shift = 32u;
+      const constexpr uint64_t Half = static_cast<uint64_t>(1) << (Shift - 1);
+
+      const auto fixedValue = static_cast<uint64_t>(value * static_cast<double>(static_cast<uint64_t>(1) << Shift));
+      // This is a high precision fixed point calculation (higher than float precision in most cases)
+      // It is basically ((r * a) + 0.5) / 2.0
+      const uint64_t a = ((color.RawA() * fixedValue) + Half) >> Shift;
+
+      return {color.RawR(), color.RawG(), color.RawB(), UncheckedNumericCast<uint8_t>(a)};
     }
 
-    static constexpr inline Color ClearA(const Color color)
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+
+    static constexpr inline Color MultiplyA(const Color color, const ColorChannelValueU8 alpha) noexcept
+    {
+      // This is a high precision fixed point calculation (higher than float precision in most cases)
+      // It is basically ((r * a) + 0.5) / 2.0
+      const constexpr uint32_t Shift = 40u;
+      const constexpr uint32_t MaxValue = 0xFF;
+      const constexpr uint64_t Half = static_cast<uint64_t>(1) << (Shift - 1);
+
+      const uint64_t fixedA = (static_cast<uint64_t>(alpha.RawValue) << Shift) / MaxValue;
+      const uint64_t a = ((color.RawA() * fixedA) + Half) >> Shift;
+      return {color.RawR(), color.RawG(), color.RawB(), UncheckedNumericCast<uint8_t>(a)};
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+
+    static constexpr inline Color Premultiply(const Color color) noexcept
+    {
+      // This is a high precision fixed point calculation (higher than float precision in most cases)
+      // It is basically ((r * a) + 0.5) / 2.0
+      const constexpr uint32_t Shift = 40u;
+      const constexpr uint32_t MaxValue = 0xFF;
+      const constexpr uint64_t Half = static_cast<uint64_t>(1) << (Shift - 1);
+
+      const uint64_t fixedA = (static_cast<uint64_t>(color.RawA()) << Shift) / MaxValue;
+      const uint64_t r = ((color.RawR() * fixedA) + Half) >> Shift;
+      const uint64_t g = ((color.RawG() * fixedA) + Half) >> Shift;
+      const uint64_t b = ((color.RawB() * fixedA) + Half) >> Shift;
+      return {UncheckedNumericCast<uint8_t>(r), UncheckedNumericCast<uint8_t>(g), UncheckedNumericCast<uint8_t>(b), color.RawA()};
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+
+    static constexpr inline Color Premultiply(const Color color, const float alphaMul) noexcept
+    {
+      const constexpr uint32_t Shift = 32u;
+      const constexpr uint32_t MaxValue = 0xFF;
+      const constexpr uint64_t Half = static_cast<uint64_t>(1) << (Shift - 1);
+
+      const double constant = ((static_cast<double>(color.RawA()) / static_cast<float>(MaxValue)) * MathHelper::Clamp(alphaMul, 0.0f, 1.0f)) *
+                              static_cast<double>(static_cast<uint64_t>(1) << Shift);
+      assert(constant >= 0.0f);
+      // This is a high precision fixed point calculation (higher than float precision in most cases)
+      // It is basically ((r * a) + 0.5) / 2.0
+      const auto fixedA = static_cast<uint64_t>(constant);
+      const uint64_t r = ((color.RawR() * fixedA) + Half) >> Shift;
+      const uint64_t g = ((color.RawG() * fixedA) + Half) >> Shift;
+      const uint64_t b = ((color.RawB() * fixedA) + Half) >> Shift;
+      const uint64_t a = ((MaxValue * fixedA) + Half) >> Shift;
+      return {UncheckedNumericCast<uint8_t>(r), UncheckedNumericCast<uint8_t>(g), UncheckedNumericCast<uint8_t>(b), UncheckedNumericCast<uint8_t>(a)};
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+
+    static constexpr inline Color PremultiplyRGB(const Color color, const float alphaMul, const ColorChannelValueU8 newA) noexcept
+    {
+      const constexpr uint32_t Shift = 32u;
+      const constexpr uint32_t MaxValue = 0xFF;
+      const constexpr uint64_t Half = static_cast<uint64_t>(1) << (Shift - 1);
+
+      const double constant = ((static_cast<double>(color.RawA()) / static_cast<float>(MaxValue)) * MathHelper::Clamp(alphaMul, 0.0f, 1.0f)) *
+                              static_cast<double>(static_cast<uint64_t>(1) << Shift);
+      assert(constant >= 0.0f);
+      // This is a high precision fixed point calculation (higher than float precision in most cases)
+      // It is basically ((r * a) + 0.5) / 2.0
+      const auto fixedA = static_cast<uint64_t>(constant);
+      const uint64_t r = ((color.RawR() * fixedA) + Half) >> Shift;
+      const uint64_t g = ((color.RawG() * fixedA) + Half) >> Shift;
+      const uint64_t b = ((color.RawB() * fixedA) + Half) >> Shift;
+      return {UncheckedNumericCast<uint8_t>(r), UncheckedNumericCast<uint8_t>(g), UncheckedNumericCast<uint8_t>(b), newA.RawValue};
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+
+    static constexpr inline Color PremultiplyRGB(const Color color, const float alphaMul, const uint8_t newA) noexcept
+    {
+      return PremultiplyRGB(color, alphaMul, ColorChannelValueU8(newA));
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+    static constexpr inline Color ClearA(const Color color) noexcept
     {
       return {color.m_r, color.m_g, color.m_b, static_cast<uint8_t>(0u)};
     }
 
-    static constexpr inline Color SetA(const Color color, uint8_t value)
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+
+    static constexpr inline Color SetR(const Color color, ColorChannelValueU8 value) noexcept
     {
-      return {color.m_r, color.m_g, color.m_b, value};
+      return {value.RawValue, color.m_g, color.m_b, color.m_a};
     }
 
-    static constexpr inline Color SetR(const Color color, uint8_t value)
+    static constexpr inline Color SetG(const Color color, ColorChannelValueU8 value) noexcept
+    {
+      return {color.m_r, value.RawValue, color.m_b, color.m_a};
+    }
+
+    static constexpr inline Color SetB(const Color color, ColorChannelValueU8 value) noexcept
+    {
+      return {color.m_r, color.m_g, value.RawValue, color.m_a};
+    }
+
+    static constexpr inline Color SetA(const Color color, ColorChannelValueU8 value) noexcept
+    {
+      return {color.m_r, color.m_g, color.m_b, value.RawValue};
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+    static constexpr inline Color SetR(const Color color, uint8_t value) noexcept
     {
       return {value, color.m_g, color.m_b, color.m_a};
     }
 
-    static constexpr inline Color SetG(const Color color, uint8_t value)
+    static constexpr inline Color SetG(const Color color, uint8_t value) noexcept
     {
       return {color.m_r, value, color.m_b, color.m_a};
     }
 
-    static constexpr inline Color SetB(const Color color, uint8_t value)
+    static constexpr inline Color SetB(const Color color, uint8_t value) noexcept
     {
       return {color.m_r, color.m_g, value, color.m_a};
     }
 
-    static constexpr inline Color SetA(const Color color, float value)
+    static constexpr inline Color SetA(const Color color, uint8_t value) noexcept
     {
-      return SetA(color, ToUInt8(value));
+      return {color.m_r, color.m_g, color.m_b, value};
     }
 
-    static constexpr inline Color SetR(const Color color, float value)
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+
+    static constexpr inline Color SetR(const Color color, float value) noexcept
     {
-      return SetR(color, ToUInt8(value));
+      return SetR(color, ColorChannelConverter::RawF32ToRawU8(value));
     }
 
-    static constexpr inline Color SetG(const Color color, float value)
+    static constexpr inline Color SetG(const Color color, float value) noexcept
     {
-      return SetG(color, ToUInt8(value));
+      return SetG(color, ColorChannelConverter::RawF32ToRawU8(value));
     }
 
-    static constexpr inline Color SetB(const Color color, float value)
+    static constexpr inline Color SetB(const Color color, float value) noexcept
     {
-      return SetB(color, ToUInt8(value));
+      return SetB(color, ColorChannelConverter::RawF32ToRawU8(value));
     }
 
-    static constexpr inline Color Bilinear(const Color val00, const Color val10, const Color val01, const Color val11, const float weightX,
+    static constexpr inline Color SetA(const Color color, float value) noexcept
+    {
+      return SetA(color, ColorChannelConverter::RawF32ToRawU8(value));
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+
+    //! @brief Perform bilinear filtering
+    static inline constexpr Color Bilinear(const Color val00, const Color val10, const Color val01, const Color val11, const float weightX,
                                            const float weightY)
     {
       return {
-        MathHelper::Bilinear(static_cast<float>(val00.R()) / 255.0f, static_cast<float>(val10.R()) / 255.0f, static_cast<float>(val01.R()) / 255.0f,
-                             static_cast<float>(val11.R()) / 255.0f, weightX, weightY),
-        MathHelper::Bilinear(static_cast<float>(val00.G()) / 255.0f, static_cast<float>(val10.G()) / 255.0f, static_cast<float>(val01.G()) / 255.0f,
-                             static_cast<float>(val11.G()) / 255.0f, weightX, weightY),
-        MathHelper::Bilinear(static_cast<float>(val00.B()) / 255.0f, static_cast<float>(val10.B()) / 255.0f, static_cast<float>(val01.B()) / 255.0f,
-                             static_cast<float>(val11.B()) / 255.0f, weightX, weightY),
-        MathHelper::Bilinear(static_cast<float>(val00.A()) / 255.0f, static_cast<float>(val10.A()) / 255.0f, static_cast<float>(val01.A()) / 255.0f,
-                             static_cast<float>(val11.A()) / 255.0f, weightX, weightY),
+        MathHelper::Bilinear(static_cast<float>(val00.m_r) / 255.0f, static_cast<float>(val10.m_r) / 255.0f, static_cast<float>(val01.m_r) / 255.0f,
+                             static_cast<float>(val11.m_r) / 255.0f, weightX, weightY),
+        MathHelper::Bilinear(static_cast<float>(val00.m_g) / 255.0f, static_cast<float>(val10.m_g) / 255.0f, static_cast<float>(val01.m_g) / 255.0f,
+                             static_cast<float>(val11.m_g) / 255.0f, weightX, weightY),
+        MathHelper::Bilinear(static_cast<float>(val00.m_b) / 255.0f, static_cast<float>(val10.m_b) / 255.0f, static_cast<float>(val01.m_b) / 255.0f,
+                             static_cast<float>(val11.m_b) / 255.0f, weightX, weightY),
+        MathHelper::Bilinear(static_cast<float>(val00.m_a) / 255.0f, static_cast<float>(val10.m_a) / 255.0f, static_cast<float>(val01.m_a) / 255.0f,
+                             static_cast<float>(val11.m_a) / 255.0f, weightX, weightY),
       };
     }
 
-  private:
-    static constexpr inline uint8_t ToUInt8(const float value) noexcept
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+
+    static constexpr Color CreateR8G8B8A8UNorm(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) noexcept
     {
-      const auto asInt = static_cast<int32_t>(value * 255.0f);
-      return static_cast<uint8_t>(MathHelper::Clamp(asInt, 0, 255));
+      return {ColorChannelValueU8(r), ColorChannelValueU8(g), ColorChannelValueU8(b), ColorChannelValueU8(a)};
     }
 
-    static constexpr inline uint32_t ToUInt32(const float value) noexcept
+    static constexpr Color CreateR8G8B8A8UNorm(const int32_t r, const int32_t g, const int32_t b, const int32_t a)
     {
-      const auto asInt = static_cast<int32_t>(value * 255.0f);
-      return static_cast<uint32_t>(MathHelper::Clamp(asInt, 0, 255));
+      return {ColorChannelValueU8::Create(r), ColorChannelValueU8::Create(g), ColorChannelValueU8::Create(b), ColorChannelValueU8::Create(a)};
     }
 
-    static constexpr inline int32_t FastRoundToInt32(const float value) noexcept
+    static constexpr Color CreateR8G8B8A8UNorm(const uint32_t r, const uint32_t g, const uint32_t b, const uint32_t a)
     {
-      // while the +0.5f trick has issues, its precise enough for what we are doing here and
-      // it allows this to be constexpr (which std::round is not)
-
-      // See http:// blog.frama-c.com/index.php?post/2013/05/02/nearbyintf1
-      // For issues with +0.5f
-      constexpr auto roundMagic = 0.49999997f;
-      return static_cast<int32_t>(value + roundMagic);
+      return {ColorChannelValueU8::Create(r), ColorChannelValueU8::Create(g), ColorChannelValueU8::Create(b), ColorChannelValueU8::Create(a)};
     }
 
-    // static constexpr inline float ToFloat(const uint8_t value)
-    //{
-    //  return value / 255.0f;
-    //}
+    static constexpr Color CreateR8G8B8A8UNorm(const int64_t r, const int64_t g, const int64_t b, const int64_t a)
+    {
+      return {ColorChannelValueU8::Create(r), ColorChannelValueU8::Create(g), ColorChannelValueU8::Create(b), ColorChannelValueU8::Create(a)};
+    }
+
+    static constexpr Color CreateR8G8B8A8UNorm(const uint64_t r, const uint64_t g, const uint64_t b, const uint64_t a)
+    {
+      return {ColorChannelValueU8::Create(r), ColorChannelValueU8::Create(g), ColorChannelValueU8::Create(b), ColorChannelValueU8::Create(a)};
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+
+    static constexpr Color UncheckedCreateR8G8B8A8UNorm(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) noexcept
+    {
+      return {r, g, b, a};
+    }
+
+    static constexpr Color UncheckedCreateR8G8B8A8UNorm(const int32_t r, const int32_t g, const int32_t b, const int32_t a) noexcept
+    {
+      return {ColorChannelValueU8::UncheckedCreate(r), ColorChannelValueU8::UncheckedCreate(g), ColorChannelValueU8::UncheckedCreate(b),
+              ColorChannelValueU8::UncheckedCreate(a)};
+    }
+
+    static constexpr Color UncheckedCreateR8G8B8A8UNorm(const uint32_t r, const uint32_t g, const uint32_t b, const uint32_t a) noexcept
+    {
+      return {ColorChannelValueU8::UncheckedCreate(r), ColorChannelValueU8::UncheckedCreate(g), ColorChannelValueU8::UncheckedCreate(b),
+              ColorChannelValueU8::UncheckedCreate(a)};
+    }
+
+    static constexpr Color UncheckedCreateR8G8B8A8UNorm(const int64_t r, const int64_t g, const int64_t b, const int64_t a) noexcept
+    {
+      return {ColorChannelValueU8::UncheckedCreate(r), ColorChannelValueU8::UncheckedCreate(g), ColorChannelValueU8::UncheckedCreate(b),
+              ColorChannelValueU8::UncheckedCreate(a)};
+    }
+
+    static constexpr Color UncheckedCreateR8G8B8A8UNorm(const uint64_t r, const uint64_t g, const uint64_t b, const uint64_t a) noexcept
+    {
+      return {ColorChannelValueU8::UncheckedCreate(r), ColorChannelValueU8::UncheckedCreate(g), ColorChannelValueU8::UncheckedCreate(b),
+              ColorChannelValueU8::UncheckedCreate(a)};
+    }
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------------------
 
-  constexpr inline Color operator*(const Color lhs, const Color rhs) noexcept
+  inline constexpr bool operator==(const Color lhs, const Color rhs) noexcept
   {
-    const uint32_t fixed24R = (static_cast<uint32_t>(rhs.R()) << 24u) / 255;
-    const uint32_t fixed24G = (static_cast<uint32_t>(rhs.G()) << 24u) / 255;
-    const uint32_t fixed24B = (static_cast<uint32_t>(rhs.B()) << 24u) / 255;
-    const uint32_t fixed24A = (static_cast<uint32_t>(rhs.A()) << 24u) / 255;
+    return lhs.AsPackedColor32() == rhs.AsPackedColor32();
+  }
+
+  inline constexpr bool operator!=(const Color lhs, const Color rhs) noexcept
+  {
+    return lhs.AsPackedColor32() != rhs.AsPackedColor32();
+  }
+
+  //------------------------------------------------------------------------------------------------------------------------------------------------
+
+  inline constexpr Color operator*(const Color lhs, const Color rhs) noexcept
+  {
+    const constexpr uint32_t MaxValue = 0xFF;
+    const constexpr uint32_t Shift = 40;
+    const constexpr uint64_t Half = static_cast<uint64_t>(1) << (Shift - 1);
+
+    const uint64_t fixedR = (static_cast<uint64_t>(rhs.RawR()) << Shift) / MaxValue;
+    const uint64_t fixedG = (static_cast<uint64_t>(rhs.RawG()) << Shift) / MaxValue;
+    const uint64_t fixedB = (static_cast<uint64_t>(rhs.RawB()) << Shift) / MaxValue;
+    const uint64_t fixedA = (static_cast<uint64_t>(rhs.RawA()) << Shift) / MaxValue;
+
     // basically ((lhs.r * rhs.r) + 0.5f) / 2.0f
-    const uint32_t r = ((lhs.R() * fixed24R) + (1u << 23u)) >> 24u;
-    const uint32_t g = ((lhs.G() * fixed24G) + (1u << 23u)) >> 24u;
-    const uint32_t b = ((lhs.B() * fixed24B) + (1u << 23u)) >> 24u;
-    const uint32_t a = ((lhs.A() * fixed24A) + (1u << 23u)) >> 24u;
-    return {static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b), static_cast<uint8_t>(a)};
+    const uint64_t r = ((lhs.RawR() * fixedR) + Half) >> Shift;
+    const uint64_t g = ((lhs.RawG() * fixedG) + Half) >> Shift;
+    const uint64_t b = ((lhs.RawB() * fixedB) + Half) >> Shift;
+    const uint64_t a = ((lhs.RawA() * fixedA) + Half) >> Shift;
+    return Color::UncheckedCreateR8G8B8A8UNorm(r, g, b, a);
   }
 }
 

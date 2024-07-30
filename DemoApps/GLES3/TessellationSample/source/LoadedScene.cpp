@@ -84,116 +84,119 @@ namespace Fsl
       return loader.Load<TestScene>(path);
     }
 
-    std::shared_ptr<TestScene> LoadSceneAssImp(const std::shared_ptr<IContentManager>& /*contentManager*/, const IO::Path& path){
+    std::shared_ptr<TestScene> LoadSceneAssImp(const std::shared_ptr<IContentManager>& /*contentManager*/, const IO::Path& path)
+    {
 #ifdef FSL_ENABLE_ASSIMP
-      {SceneImporter sceneImporter;
-    return sceneImporter.Load<TestScene>(IO::Path::Combine(path, "Scene.obj"), 200.0f, true, aiProcessPreset_TargetRealtime_MaxQuality);
-    // return sceneImporter.Load<TestScene>(DetectSceneFileName(contentPath), aiProcessPreset_TargetRealtime_Quality);
-  }
+      {
+        SceneImporter sceneImporter;
+        return sceneImporter.Load<TestScene>(IO::Path::Combine(path, "Scene.obj"), 200.0f, true, aiProcessPreset_TargetRealtime_MaxQuality);
+        // return sceneImporter.Load<TestScene>(DetectSceneFileName(contentPath), aiProcessPreset_TargetRealtime_Quality);
+      }
 #else
-      {throw NotSupportedException("Scene not supported on this platform");
-  }
+      {
+        throw NotSupportedException("Scene not supported on this platform");
+      }
 #endif
-}
+    }
 
-std::shared_ptr<TestScene> LoadScene(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& path)
-{
-  auto contentPath = IO::Path::Combine(contentManager->GetContentPath(), path);
-  auto preprocessedScene = IO::Path::Combine(contentPath, "Scene.fsf");
-  if (IO::File::Exists(preprocessedScene))
+    std::shared_ptr<TestScene> LoadScene(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& path)
+    {
+      auto contentPath = IO::Path::Combine(contentManager->GetContentPath(), path);
+      auto preprocessedScene = IO::Path::Combine(contentPath, "Scene.fsf");
+      if (IO::File::Exists(preprocessedScene))
+      {
+        return LoadSceneBSF(contentManager, preprocessedScene);
+      }
+
+      return LoadSceneAssImp(contentManager, contentPath);
+    }
+  }
+
+
+  LoadedScene::LoadedScene(const DemoAppConfig& config, const std::shared_ptr<OptionParser>& options, const int32_t /*id*/)
+    : AScene(config, options)
   {
-    return LoadSceneBSF(contentManager, preprocessedScene);
+    SetCullEnabled(false);
+    m_material.Specular = options->GetMatSpecular();
+    m_material.Shininess = options->GetMatShininess();
+    m_material.Ambient = Vector3();
+
+    m_tessellationConfig.TessLevelInner = 3.0f;
+    m_tessellationConfig.TessLevelOuter = 3.0f;
+    m_tessellationConfig.DisplacementFactor = options->GetDisplacementFactor();
+    m_tessellationConfig.DisplacementMod = options->GetDisplacementMod();
+
+
+    if (!GLUtil::HasExtension("GL_EXT_tessellation_shader"))
+    {
+      throw NotSupportedException("GL_EXT_tessellation_shader extension not supported");
+    }
+    if (!GLUtil::HasExtension("GL_EXT_geometry_shader"))
+    {
+      throw NotSupportedException("GL_EXT_geometry_shader extension not supported");
+    }
+
+    const std::shared_ptr<IContentManager> contentManager = config.DemoServiceProvider.Get<IContentManager>();
+
+
+    IO::Path rootDir("Face");
+    rootDir = IO::Path::Combine("Models", rootDir);
+
+
+    FSLLOG3_INFO("Loading scene...");
+    std::shared_ptr<TestScene> scene = LoadScene(contentManager, rootDir);
+
+    {    // Create the main texture (we use a scope here so we throw away the bitmap as soon as we don't need it)
+      Bitmap bitmap;
+      GLTextureParameters texParams(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
+
+      FSLLOG3_INFO("Loading color texture...");
+      contentManager->Read(bitmap, IO::Path::Combine(rootDir, "TexColor.png"), PixelFormat::R8G8B8_UNORM);
+      m_textureDiffuse.SetData(bitmap, texParams);
+
+      FSLLOG3_INFO("Loading normal texture...");
+      contentManager->Read(bitmap, IO::Path::Combine(rootDir, "TexNormal.png"), PixelFormat::R8G8B8_UNORM);
+      m_textureNormals.SetData(bitmap, texParams);
+
+      FSLLOG3_INFO("Loading displace texture...");
+      contentManager->Read(bitmap, IO::Path::Combine(rootDir, "TexDisplace.png"), PixelFormat::R8G8B8_UNORM);
+      m_textureDisplacement.SetData(bitmap, texParams);
+
+      // Generate some 1pixel textures for specific colors
+      bitmap.Reset(1, 1, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
+      bitmap.SetNativePixel(0, 0, 128);
+      m_textureNoDisplacement.SetData(bitmap, texParams);
+      bitmap.SetNativePixel(0, 0, 0xFFFFFFFF);
+      m_textureDiffuseWhite.SetData(bitmap, texParams);
+    }
+
+    FSLLOG3_INFO("Preparing meshes...");
+
+    // Save the scene in bsf format
+    // SceneFormat::BasicSceneFormat sceneFormat;
+    // sceneFormat.Save("Scene.fsf", *scene);
+
+
+    // Create index and vertex buffers for all the meshes.
+    m_indexBuffers.Resize(scene->Meshes.size(), GL_UNSIGNED_SHORT);
+    m_vertexBuffers.Resize(scene->Meshes.size(), TestMesh::vertex_type::AsVertexDeclarationSpan());
+    std::size_t vertexCount = 0;
+    std::size_t indexCount = 0;
+    for (std::size_t i = 0; i < scene->Meshes.size(); ++i)
+    {
+      auto mesh = scene->Meshes[i];
+      m_indexBuffers.Reset(i, mesh->GetIndexArray(), GL_STATIC_DRAW);
+      m_vertexBuffers.Reset(i, mesh->GetVertexArray(), GL_STATIC_DRAW);
+
+      vertexCount += mesh->GetVertexCount();
+      indexCount += mesh->GetIndexCount();
+      FSLLOG3_INFO("Mesh #{} vertex count: {}, Total index count: {}", i, mesh->GetVertexCount(), mesh->GetIndexCount());
+    }
+    FSLLOG3_INFO("Total vertex count: {}, Total index count: {}", vertexCount, indexCount);
+
+    GL_CHECK_FOR_ERROR();
   }
 
-  return LoadSceneAssImp(contentManager, contentPath);
-}
-}
 
-
-LoadedScene::LoadedScene(const DemoAppConfig& config, const std::shared_ptr<OptionParser>& options, const int32_t /*id*/)
-  : AScene(config, options)
-{
-  SetCullEnabled(false);
-  m_material.Specular = options->GetMatSpecular();
-  m_material.Shininess = options->GetMatShininess();
-  m_material.Ambient = Vector3();
-
-  m_tessellationConfig.TessLevelInner = 3.0f;
-  m_tessellationConfig.TessLevelOuter = 3.0f;
-  m_tessellationConfig.DisplacementFactor = options->GetDisplacementFactor();
-  m_tessellationConfig.DisplacementMod = options->GetDisplacementMod();
-
-
-  if (!GLUtil::HasExtension("GL_EXT_tessellation_shader"))
-  {
-    throw NotSupportedException("GL_EXT_tessellation_shader extension not supported");
-  }
-  if (!GLUtil::HasExtension("GL_EXT_geometry_shader"))
-  {
-    throw NotSupportedException("GL_EXT_geometry_shader extension not supported");
-  }
-
-  const std::shared_ptr<IContentManager> contentManager = config.DemoServiceProvider.Get<IContentManager>();
-
-
-  IO::Path rootDir("Face");
-  rootDir = IO::Path::Combine("Models", rootDir);
-
-
-  FSLLOG3_INFO("Loading scene...");
-  std::shared_ptr<TestScene> scene = LoadScene(contentManager, rootDir);
-
-  {    // Create the main texture (we use a scope here so we throw away the bitmap as soon as we don't need it)
-    Bitmap bitmap;
-    GLTextureParameters texParams(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
-
-    FSLLOG3_INFO("Loading color texture...");
-    contentManager->Read(bitmap, IO::Path::Combine(rootDir, "TexColor.png"), PixelFormat::R8G8B8_UNORM);
-    m_textureDiffuse.SetData(bitmap, texParams);
-
-    FSLLOG3_INFO("Loading normal texture...");
-    contentManager->Read(bitmap, IO::Path::Combine(rootDir, "TexNormal.png"), PixelFormat::R8G8B8_UNORM);
-    m_textureNormals.SetData(bitmap, texParams);
-
-    FSLLOG3_INFO("Loading displace texture...");
-    contentManager->Read(bitmap, IO::Path::Combine(rootDir, "TexDisplace.png"), PixelFormat::R8G8B8_UNORM);
-    m_textureDisplacement.SetData(bitmap, texParams);
-
-    // Generate some 1pixel textures for specific colors
-    bitmap.Reset(1, 1, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
-    bitmap.SetNativePixel(0, 0, 128);
-    m_textureNoDisplacement.SetData(bitmap, texParams);
-    bitmap.SetNativePixel(0, 0, 0xFFFFFFFF);
-    m_textureDiffuseWhite.SetData(bitmap, texParams);
-  }
-
-  FSLLOG3_INFO("Preparing meshes...");
-
-  // Save the scene in bsf format
-  // SceneFormat::BasicSceneFormat sceneFormat;
-  // sceneFormat.Save("Scene.fsf", *scene);
-
-
-  // Create index and vertex buffers for all the meshes.
-  m_indexBuffers.Resize(scene->Meshes.size(), GL_UNSIGNED_SHORT);
-  m_vertexBuffers.Resize(scene->Meshes.size(), TestMesh::vertex_type::AsVertexDeclarationSpan());
-  std::size_t vertexCount = 0;
-  std::size_t indexCount = 0;
-  for (std::size_t i = 0; i < scene->Meshes.size(); ++i)
-  {
-    auto mesh = scene->Meshes[i];
-    m_indexBuffers.Reset(i, mesh->GetIndexArray(), GL_STATIC_DRAW);
-    m_vertexBuffers.Reset(i, mesh->GetVertexArray(), GL_STATIC_DRAW);
-
-    vertexCount += mesh->GetVertexCount();
-    indexCount += mesh->GetIndexCount();
-    FSLLOG3_INFO("Mesh #{} vertex count: {}, Total index count: {}", i, mesh->GetVertexCount(), mesh->GetIndexCount());
-  }
-  FSLLOG3_INFO("Total vertex count: {}, Total index count: {}", vertexCount, indexCount);
-
-  GL_CHECK_FOR_ERROR();
-}
-
-
-LoadedScene::~LoadedScene() = default;
+  LoadedScene::~LoadedScene() = default;
 }

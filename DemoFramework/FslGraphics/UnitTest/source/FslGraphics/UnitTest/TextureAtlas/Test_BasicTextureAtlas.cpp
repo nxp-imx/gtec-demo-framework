@@ -42,7 +42,7 @@ using namespace Fsl;
 
 namespace
 {
-  constexpr const uint32_t TEST_DP = 320;
+  constexpr const uint32_t TestDp = 320;
   // constexpr const uint32_t DEFAULT_DP = 160;
 
   using TestTextureAtlas_BasicTextureAtlas = TestFixtureFslGraphics;
@@ -77,7 +77,7 @@ TEST(TestTexture_BasicTextureAtlas, Reset)
     EXPECT_EQ(PxRectangleU32(), entry0.TextureInfo.TrimmedRectPx);
   }
 
-  atlas.SetEntry(0, PxRectangleU32::Create(4, 6, 8, 12), PxThicknessU::Create(3, 4, 9, 14), TEST_DP, "hello");
+  atlas.SetEntry(0, PxRectangleU32::Create(4, 6, 8, 12), PxThicknessU::Create(3, 4, 9, 14), TestDp, "hello");
   {
     const auto& entry0 = atlas.GetEntry(0);
     EXPECT_EQ(IO::Path("hello"), entry0.Name);
@@ -85,6 +85,6 @@ TEST(TestTexture_BasicTextureAtlas, Reset)
     EXPECT_EQ(PxExtent2D::Create(20, 30), entry0.TextureInfo.ExtentPx);
     EXPECT_EQ(PxThicknessU::Create(3, 4, 9, 14), entry0.TextureInfo.TrimMarginPx);
     EXPECT_EQ(PxRectangleU32::Create(4, 6, 8, 12), entry0.TextureInfo.TrimmedRectPx);
-    EXPECT_EQ(TEST_DP, entry0.TextureInfo.Dpi);
+    EXPECT_EQ(TestDp, entry0.TextureInfo.Dpi);
   }
 }

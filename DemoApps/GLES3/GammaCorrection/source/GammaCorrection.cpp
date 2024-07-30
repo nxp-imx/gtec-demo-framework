@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,8 +49,8 @@ namespace Fsl
 
   namespace
   {
-    const Vector3 DEFAULT_CAMERA_POSITION(4.0f, 1.0f, 7.0f);
-    const Vector3 DEFAULT_CAMERA_TARGET(0.0f, 0.0f, 0.0f);
+    constexpr Vector3 DefaultCameraPosition(4.0f, 1.0f, 7.0f);
+    constexpr Vector3 DefaultCameraTarget(0.0f, 0.0f, 0.0f);
   }
 
   GammaCorrection::GammaCorrection(const DemoAppConfig& config)
@@ -63,14 +63,14 @@ namespace Fsl
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
     , m_mouseCaptureEnabled(false)
     , m_state(State::Split4)
-    , m_splitX(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
-    , m_splitY(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
-    , m_scene1LabelAlpha(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
-    , m_scene2LabelAlpha(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
-    , m_scene3LabelAlpha(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
-    , m_scene4LabelAlpha(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
+    , m_splitX(TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_splitY(TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_scene1LabelAlpha(TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
+    , m_scene2LabelAlpha(TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
+    , m_scene3LabelAlpha(TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
+    , m_scene4LabelAlpha(TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
   {
-    m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+    m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
 
     const auto contentManager = GetContentManager();
 
@@ -143,7 +143,7 @@ namespace Fsl
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
-        m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+        m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
         event.Handled();
       }
       break;
@@ -289,10 +289,10 @@ namespace Fsl
     const float alpha2 = m_scene2LabelAlpha.GetValue();
     const float alpha3 = m_scene3LabelAlpha.GetValue();
     const float alpha4 = m_scene4LabelAlpha.GetValue();
-    m_labelTopLeft->SetFontColor(Color(alpha1, alpha1, alpha1, alpha1));
-    m_labelTopRight->SetFontColor(Color(alpha2, alpha2, alpha2, alpha2));
-    m_labelBottomLeft->SetFontColor(Color(alpha3, alpha3, alpha3, alpha3));
-    m_labelBottomRight->SetFontColor(Color(alpha4, alpha4, alpha4, alpha4));
+    m_labelTopLeft->SetFontColor(UI::UIColor(alpha1, alpha1, alpha1, alpha1));
+    m_labelTopRight->SetFontColor(UI::UIColor(alpha2, alpha2, alpha2, alpha2));
+    m_labelBottomLeft->SetFontColor(UI::UIColor(alpha3, alpha3, alpha3, alpha3));
+    m_labelBottomRight->SetFontColor(UI::UIColor(alpha4, alpha4, alpha4, alpha4));
   }
 
 
@@ -304,11 +304,11 @@ namespace Fsl
     glUseProgram(m_resources.Program.Get());
 
     // Load the matrices
-    assert(m_resources.ModelViewMatrixLoc != GLValues::INVALID_HANDLE);
-    assert(m_resources.ProjMatrixLoc != GLValues::INVALID_HANDLE);
-    assert(m_resources.LightPositionsLoc != GLValues::INVALID_HANDLE);
-    assert(m_resources.LightColorsLoc != GLValues::INVALID_HANDLE);
-    assert(m_resources.ViewPosLoc != GLValues::INVALID_HANDLE);
+    assert(m_resources.ModelViewMatrixLoc != GLValues::InvalidHandle);
+    assert(m_resources.ProjMatrixLoc != GLValues::InvalidHandle);
+    assert(m_resources.LightPositionsLoc != GLValues::InvalidHandle);
+    assert(m_resources.LightColorsLoc != GLValues::InvalidHandle);
+    assert(m_resources.ViewPosLoc != GLValues::InvalidHandle);
 
     glUniformMatrix4fv(m_resources.ModelViewMatrixLoc, 1, 0, m_vertexUboData.MatModelView.DirectAccess());
     glUniformMatrix4fv(m_resources.ProjMatrixLoc, 1, 0, m_vertexUboData.MatProj.DirectAccess());
@@ -441,11 +441,11 @@ namespace Fsl
       VertexPositionNormalTexture(Vector3(x1, y, z0), normal, Vector2(u1, v0)),
     };
 
-    constexpr auto vertexDecl = VertexPositionNormalTexture::GetVertexDeclarationArray();
+    constexpr auto VertexDecl = VertexPositionNormalTexture::GetVertexDeclarationArray();
     std::array<GLVertexAttribLink, 3> attribLink = {
-      GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0)),
-      GLVertexAttribLink(program.GetAttribLocation("VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0)),
-      GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0))};
+      GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0)),
+      GLVertexAttribLink(program.GetAttribLocation("VertexNormal"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0)),
+      GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0))};
 
     m_resources.VertexBuffer.Reset(vertices, GL_STATIC_DRAW);
 

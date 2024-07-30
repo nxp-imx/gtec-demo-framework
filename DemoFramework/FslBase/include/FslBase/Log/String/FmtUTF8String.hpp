@@ -1,7 +1,7 @@
 #ifndef FSLBASE_LOG_STRING_FMTUTF8STRING_HPP
 #define FSLBASE_LOG_STRING_FMTUTF8STRING_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,23 +34,22 @@
 #include <FslBase/String/UTF8String.hpp>
 #include <fmt/format.h>
 
-namespace fmt
+template <>
+struct fmt::formatter<Fsl::UTF8String>
 {
-  template <>
-  struct formatter<Fsl::UTF8String>
+  template <typename ParseContext>
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  constexpr auto parse(ParseContext& ctx)
   {
-    template <typename ParseContext>
-    constexpr auto parse(ParseContext& ctx)
-    {
-      return ctx.begin();
-    }
+    return ctx.begin();
+  }
 
-    template <typename FormatContext>
-    auto format(const Fsl::UTF8String& value, FormatContext& ctx)
-    {
-      return format_to(ctx.out(), value.ToUTF8String());
-    }
-  };
-}
+  template <typename FormatContext>
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  auto format(const Fsl::UTF8String& value, FormatContext& ctx)
+  {
+    return fmt::format_to(ctx.out(), "{}", value.AsStringView());
+  }
+};
 
 #endif

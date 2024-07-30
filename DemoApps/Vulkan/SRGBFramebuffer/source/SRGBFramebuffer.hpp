@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Transition/TransitionCache.hpp>
 #include <FslBase/Transition/TransitionValue.hpp>
 #include <FslDemoApp/Base/Service/Keyboard/IKeyboard.hpp>
 #include <FslDemoApp/Base/Service/Mouse/IMouse.hpp>
@@ -139,7 +138,7 @@ namespace Fsl
     };
 
     bool m_hasSRGBFramebuffer;
-    ColorSpace m_colorSpace;
+    UI::UIColorSpace m_colorSpace;
 
     std::shared_ptr<Vulkan::VMBufferManager> m_bufferManager;
 
@@ -161,7 +160,7 @@ namespace Fsl
     FragmentUboData m_fragmentUboData;
 
     State m_state;
-    TransitionCache m_transitionCache;
+
     TransitionValue m_splitX;
     TransitionValue m_splitSceneWidthL;
     TransitionValue m_splitSceneWidthR;
@@ -176,7 +175,7 @@ namespace Fsl
   public:
     explicit SRGBFramebuffer(const DemoAppConfig& config);
 
-    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) final;
+    void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) final;
 
   protected:
     void OnKeyEvent(const KeyEvent& event) final;

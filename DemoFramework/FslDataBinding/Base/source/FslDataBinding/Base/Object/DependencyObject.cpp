@@ -73,6 +73,7 @@ namespace Fsl::DataBinding
     switch (res)
     {
     case PropertySetBindingResult::Unchanged:
+    case PropertySetBindingResult::ReadOnly:
       return false;
     case PropertySetBindingResult::Changed:
       return true;

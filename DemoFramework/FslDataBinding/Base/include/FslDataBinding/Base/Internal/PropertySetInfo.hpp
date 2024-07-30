@@ -40,6 +40,7 @@ namespace Fsl::DataBinding::Internal
   struct PropertySetInfo
   {
     PropertyMethodsImplType ImplType{PropertyMethodsImplType::NotAvailable};
+    // NOLINTNEXTLINE(readability-identifier-naming)
     IPropertyMethods* pSet{nullptr};
 
     PropertySetInfo() = default;

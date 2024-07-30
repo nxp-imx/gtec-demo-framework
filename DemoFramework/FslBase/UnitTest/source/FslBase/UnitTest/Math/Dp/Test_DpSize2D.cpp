@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,31 +52,31 @@ TEST(TestMathDp_DpSize2D, Construct_Default)
 
 TEST(TestMathDp_DpSize2D, Construct)
 {
-  constexpr const DpValue width(3);
-  constexpr const DpValue height(2);
-  DpSize2D value(width, height);
+  constexpr const DpValue Width(3);
+  constexpr const DpValue Height(2);
+  DpSize2D value(Width, Height);
 
-  EXPECT_EQ(width, value.Width());
-  EXPECT_EQ(height, value.Height());
+  EXPECT_EQ(Width, value.Width());
+  EXPECT_EQ(Height, value.Height());
 }
 
 TEST(TestMathDp_DpSize2D, Construct_NegativeWidth)
 {
-  constexpr const DpValue width(-1);
-  constexpr const DpValue height(2);
-  DpSize2D value(width, height);
+  constexpr const DpValue Width(-1);
+  constexpr const DpValue Height(2);
+  DpSize2D value(Width, Height);
 
   EXPECT_EQ(DpValue(0), value.Width());
-  EXPECT_EQ(height, value.Height());
+  EXPECT_EQ(Height, value.Height());
 }
 
 TEST(TestMathDp_DpSize2D, Construct_NegativeHeight)
 {
-  constexpr const DpValue width(3);
-  constexpr const DpValue height(-1);
-  DpSize2D value(width, height);
+  constexpr const DpValue Width(3);
+  constexpr const DpValue Height(-1);
+  DpSize2D value(Width, Height);
 
-  EXPECT_EQ(width, value.Width());
+  EXPECT_EQ(Width, value.Width());
   EXPECT_EQ(DpValue(0), value.Height());
 }
 

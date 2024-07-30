@@ -62,9 +62,9 @@ namespace Fsl
   }
 
 
-  void SmoothScroll::FixedUpdate(const DemoTime& demoTime)
+  void SmoothScroll::Update(const DemoTime& demoTime)
   {
-    m_shared.FixedUpdate(demoTime);
+    m_shared.Update(demoTime);
   }
 
 

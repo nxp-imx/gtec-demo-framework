@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslGraphics/Font/BasicFlatHashTable.hpp>
 #include <FslGraphics/Font/BitmapFontChar.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
@@ -53,7 +53,7 @@ namespace
 
 TEST(TestFont_BasicFlatHashTable, Construct_TryGet)
 {
-  BasicFlatHashTable<BitmapFontChar, uint32_t, 256u> fastlookup(ReadOnlySpanUtil::AsSpan(g_chars));
+  BasicFlatHashTable<BitmapFontChar, uint32_t, 256u> fastlookup(SpanUtil::AsReadOnlySpan(g_chars));
 
   for (std::size_t i = 0; i < g_chars.size(); ++i)
   {
@@ -69,7 +69,7 @@ TEST(TestFont_BasicFlatHashTable, Construct_TryGet)
 
 TEST(TestFont_BasicFlatHashTable, TryGet_NotFound)
 {
-  BasicFlatHashTable<BitmapFontChar, uint32_t, 256u> fastlookup(ReadOnlySpanUtil::AsSpan(g_chars));
+  BasicFlatHashTable<BitmapFontChar, uint32_t, 256u> fastlookup(SpanUtil::AsReadOnlySpan(g_chars));
 
   EXPECT_TRUE(nullptr == fastlookup.TryGet(0x39));
   EXPECT_TRUE(nullptr == fastlookup.TryGet(0x139));

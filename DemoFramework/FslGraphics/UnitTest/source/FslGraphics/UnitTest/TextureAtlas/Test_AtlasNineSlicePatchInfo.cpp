@@ -49,12 +49,12 @@ TEST(Test_AtlasNineSlicePatchInfo, Construct_Default)
 
 TEST(Test_AtlasNineSlicePatchInfo, Construct)
 {
-  constexpr auto nineSlicePx = PxThicknessU::Create(1, 2, 3, 4);
-  constexpr auto contentMarginPx = PxThicknessU::Create(5, 6, 7, 8);
-  constexpr AtlasNineSliceFlags flags{AtlasNineSliceFlags::Transparent};
-  constexpr AtlasNineSlicePatchInfo value(nineSlicePx, contentMarginPx, flags);
+  constexpr auto NineSlicePx = PxThicknessU::Create(1, 2, 3, 4);
+  constexpr auto ContentMarginPx = PxThicknessU::Create(5, 6, 7, 8);
+  constexpr AtlasNineSliceFlags Flags{AtlasNineSliceFlags::Transparent};
+  constexpr AtlasNineSlicePatchInfo Value(NineSlicePx, ContentMarginPx, Flags);
 
-  EXPECT_EQ(nineSlicePx, value.NineSlicePx);
-  EXPECT_EQ(contentMarginPx, value.ContentMarginPx);
-  EXPECT_EQ(flags, value.Flags);
+  EXPECT_EQ(NineSlicePx, Value.NineSlicePx);
+  EXPECT_EQ(ContentMarginPx, Value.ContentMarginPx);
+  EXPECT_EQ(Flags, Value.Flags);
 }

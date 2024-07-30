@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -109,10 +109,10 @@ namespace Fsl
       Bitmap bitmap;
       const GLTextureParameters texParams(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
       contentManger->Read(bitmap, "Cog/Clean.jpg", PixelFormat::R8G8B8A8_UNORM);
-      textureClean.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
+      m_textureClean.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
 
       contentManger->Read(bitmap, "Cog/Dirty.jpg", PixelFormat::R8G8B8A8_UNORM);
-      textureDirty.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
+      m_textureDirty.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
     }
 
     glEnable(GL_CULL_FACE);
@@ -166,11 +166,11 @@ namespace Fsl
     // ACTIVATE BOTH TEXTURE SLOTS
     glUniform1i(m_texUnitLoc1, 0);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureClean.Get());
+    glBindTexture(GL_TEXTURE_2D, m_textureClean.Get());
 
     glUniform1i(m_texUnitLoc2, 1);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, textureDirty.Get());
+    glBindTexture(GL_TEXTURE_2D, m_textureDirty.Get());
 
     // Write Dirt Factor
     glUniform1f(m_mixFactorLoc, m_mixFactor);
@@ -178,23 +178,23 @@ namespace Fsl
     for (unsigned int i = 0; i < m_mesh.size(); i++)
     {
       glBindVertexArray(m_mesh[i].VAO);
-      if (m_diffuseLoc != GLValues::INVALID_LOCATION)
+      if (m_diffuseLoc != GLValues::InvalidLocation)
       {
-        GL_CHECK(glUniform3fv(m_diffuseLoc, 1, m_mesh[i].diffuse));
+        GL_CHECK(glUniform3fv(m_diffuseLoc, 1, m_mesh[i].Diffuse));
       }
-      if (m_ambientLoc != GLValues::INVALID_LOCATION)
+      if (m_ambientLoc != GLValues::InvalidLocation)
       {
-        GL_CHECK(glUniform3fv(m_ambientLoc, 1, m_mesh[i].ambient));
+        GL_CHECK(glUniform3fv(m_ambientLoc, 1, m_mesh[i].Ambient));
       }
-      if (m_specularLoc != GLValues::INVALID_LOCATION)
+      if (m_specularLoc != GLValues::InvalidLocation)
       {
-        GL_CHECK(glUniform3fv(m_specularLoc, 1, m_mesh[i].specular));
+        GL_CHECK(glUniform3fv(m_specularLoc, 1, m_mesh[i].Specular));
       }
-      if (m_shininessLoc != GLValues::INVALID_LOCATION)
+      if (m_shininessLoc != GLValues::InvalidLocation)
       {
-        GL_CHECK(glUniform1f(m_shininessLoc, m_mesh[i].shininess));
+        GL_CHECK(glUniform1f(m_shininessLoc, m_mesh[i].Shininess));
       }
-      glDrawElements(GL_TRIANGLES, m_mesh[i].numFaces * 3, GL_UNSIGNED_INT, nullptr);
+      glDrawElements(GL_TRIANGLES, m_mesh[i].NumFaces * 3, GL_UNSIGNED_INT, nullptr);
       glBindVertexArray(0);
     }
   }
@@ -243,20 +243,20 @@ namespace Fsl
         faceArray.push_back(face->mIndices[1]);
         faceArray.push_back(face->mIndices[2]);
       }
-      m_mesh[n].numFaces = NumericCast<int>(mesh->mNumFaces);
+      m_mesh[n].NumFaces = NumericCast<int>(mesh->mNumFaces);
 
       // Store All Vertices Data into the Mesh Structure
-      m_mesh[n].vertexData.resize(mesh->mNumVertices);
+      m_mesh[n].VertexData.resize(mesh->mNumVertices);
       for (unsigned int i = 0; i < mesh->mNumVertices; i++)
       {
-        m_mesh[n].vertexData[i].position.x = mesh->mVertices[i].x;
-        m_mesh[n].vertexData[i].position.y = mesh->mVertices[i].y;
-        m_mesh[n].vertexData[i].position.z = mesh->mVertices[i].z;
-        m_mesh[n].vertexData[i].normal.x = mesh->mNormals[i].x;
-        m_mesh[n].vertexData[i].normal.y = mesh->mNormals[i].y;
-        m_mesh[n].vertexData[i].normal.z = mesh->mNormals[i].z;
-        m_mesh[n].vertexData[i].texCoords.x = mesh->mTextureCoords[0][i].x;
-        m_mesh[n].vertexData[i].texCoords.y = mesh->mTextureCoords[0][i].y;
+        m_mesh[n].VertexData[i].Position.x = mesh->mVertices[i].x;
+        m_mesh[n].VertexData[i].Position.y = mesh->mVertices[i].y;
+        m_mesh[n].VertexData[i].Position.z = mesh->mVertices[i].z;
+        m_mesh[n].VertexData[i].Normal.x = mesh->mNormals[i].x;
+        m_mesh[n].VertexData[i].Normal.y = mesh->mNormals[i].y;
+        m_mesh[n].VertexData[i].Normal.z = mesh->mNormals[i].z;
+        m_mesh[n].VertexData[i].TexCoords.x = mesh->mTextureCoords[0][i].x;
+        m_mesh[n].VertexData[i].TexCoords.y = mesh->mTextureCoords[0][i].y;
       }
 
       // VAO storing VBOs
@@ -264,25 +264,25 @@ namespace Fsl
       glBindVertexArray(m_mesh[n].VAO);
 
       // Buffer for Indices
-      glGenBuffers(1, &(m_mesh[n].indexBO));
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_mesh[n].indexBO);
+      glGenBuffers(1, &(m_mesh[n].IndexBo));
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_mesh[n].IndexBo);
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, UncheckedNumericCast<GLsizei>(sizeof(unsigned int) * mesh->mNumFaces * 3), faceArray.data(),
                    GL_STATIC_DRAW);
 
       // VBO for the whole Mesh
-      glGenBuffers(1, &(m_mesh[n].posVBO));
-      glBindBuffer(GL_ARRAY_BUFFER, m_mesh[n].posVBO);
-      glBufferData(GL_ARRAY_BUFFER, UncheckedNumericCast<GLsizei>(m_mesh[n].vertexData.size() * sizeof(MeshVertex)), &(m_mesh[n].vertexData[0]),
+      glGenBuffers(1, &(m_mesh[n].PosVbo));
+      glBindBuffer(GL_ARRAY_BUFFER, m_mesh[n].PosVbo);
+      glBufferData(GL_ARRAY_BUFFER, UncheckedNumericCast<GLsizei>(m_mesh[n].VertexData.size() * sizeof(MeshVertex)), &(m_mesh[n].VertexData[0]),
                    GL_STATIC_DRAW);
 
       // Assign the VBO Attributes with offsets
       glEnableVertexAttribArray(m_attribLocMeshPosition);
       glVertexAttribPointer(m_attribLocMeshPosition, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), nullptr);
       glEnableVertexAttribArray(m_attribLocMeshNormal);
-      glVertexAttribPointer(m_attribLocMeshNormal, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), reinterpret_cast<void*>(offsetof(MeshVertex, normal)));
+      glVertexAttribPointer(m_attribLocMeshNormal, 3, GL_FLOAT, GL_FALSE, sizeof(MeshVertex), reinterpret_cast<void*>(offsetof(MeshVertex, Normal)));
       glEnableVertexAttribArray(m_attribLocMeshTexCoord);
       glVertexAttribPointer(m_attribLocMeshTexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(MeshVertex),
-                            reinterpret_cast<void*>(offsetof(MeshVertex, texCoords)));
+                            reinterpret_cast<void*>(offsetof(MeshVertex, TexCoords)));
 
       glBindVertexArray(0);
       glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -294,23 +294,23 @@ namespace Fsl
       aiColor4D aiDiffuse;
       if (AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &aiDiffuse))
       {
-        Color4ToFloat4(&aiDiffuse, m_mesh[n].diffuse);
+        Color4ToFloat4(&aiDiffuse, m_mesh[n].Diffuse);
       }
 
       aiColor4D aiAmbient;
       if (AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_AMBIENT, &aiAmbient))
       {
-        Color4ToFloat4(&aiAmbient, m_mesh[n].ambient);
+        Color4ToFloat4(&aiAmbient, m_mesh[n].Ambient);
       }
 
       aiColor4D aiSpecular;
       if (AI_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, &aiSpecular))
       {
-        Color4ToFloat4(&aiSpecular, m_mesh[n].specular);
+        Color4ToFloat4(&aiSpecular, m_mesh[n].Specular);
       }
 
       unsigned int max = 0;
-      aiGetMaterialFloatArray(material, AI_MATKEY_SHININESS, &m_mesh[n].shininess, &max);
+      aiGetMaterialFloatArray(material, AI_MATKEY_SHININESS, &m_mesh[n].Shininess, &max);
     }
   }
 }

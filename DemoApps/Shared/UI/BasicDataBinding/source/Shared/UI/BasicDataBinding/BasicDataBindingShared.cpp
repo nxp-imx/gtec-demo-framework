@@ -58,7 +58,7 @@ namespace Fsl
   {
     namespace LocalColors
     {
-      constexpr Color ArrowColor(0xFFC0C0C0);
+      constexpr UI::UIColor ArrowColor(PackedColor32(0xFFC0C0C0));
     }
 
     namespace LocalConfig
@@ -141,9 +141,8 @@ namespace Fsl
   BasicDataBindingShared::~BasicDataBindingShared() = default;
 
 
-  void BasicDataBindingShared::OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void BasicDataBindingShared::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
     if (theEvent->GetSource() == m_uiRecord.Example1.BtnSub)
     {
       m_uiRecord.Example1.Slider->SubValue(10);
@@ -154,10 +153,8 @@ namespace Fsl
     }
   }
 
-  void BasicDataBindingShared::OnContentChanged([[maybe_unused]] const UI::RoutedEventArgs& args,
-                                                [[maybe_unused]] const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void BasicDataBindingShared::OnContentChanged([[maybe_unused]] const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
     // if (theEvent->GetSource() == m_uiRecord.DrawOutlineCheckBox || theEvent->GetSource() == m_uiRecord.DrawShadowCheckBox)
     //{
     //  UpdateLinkedUIState();
@@ -562,8 +559,8 @@ namespace Fsl
         auto converterBinding = std::make_shared<Fsl::DataBinding::ConverterBinding<float, uint8_t>>([](const uint8_t value)
                                                                                                      { return static_cast<float>(value) / 255.0f; });
 
-        auto multiConverterBinding = std::make_shared<Fsl::DataBinding::MultiConverterBinding<Color, uint8_t, uint8_t, uint8_t, uint8_t>>(
-          [](const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) { return Color(r, g, b, a); });
+        auto multiConverterBinding = std::make_shared<Fsl::DataBinding::MultiConverterBinding<UI::UIColor, uint8_t, uint8_t, uint8_t, uint8_t>>(
+          [](const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) { return UI::UIColor::CreateR8G8B8A8(r, g, b, a); });
 
         const auto hSliderPropertyR = sliderR->GetPropertyHandle(UI::Slider<uint8_t>::PropertyValue);
         const auto hSliderPropertyG = sliderG->GetPropertyHandle(UI::Slider<uint8_t>::PropertyValue);

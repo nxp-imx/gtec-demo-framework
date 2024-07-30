@@ -53,13 +53,13 @@ namespace Fsl
 {
   using namespace GLES3;
 
-  const int32_t GRAPH_RES = 20000;
+  constexpr int32_t GraphRes = 20000;
 
   namespace
   {
-    const float DEFAULT_ZOOM = 10;
-    const float DEFAULT_MODEL_SCALE = 5;
-    const auto SCENE_PATH = "Models";
+    constexpr float DefaultZoom = 10;
+    constexpr float DefaultModelScale = 5;
+    constexpr auto ScenePath = "Models";
 
     void ExtractMeshes(GLVertexBufferArray& rVertexBuffers, GLIndexBufferArray& rIndexBuffers, const MeshUtil::TestScene& scene)
     {
@@ -129,10 +129,10 @@ namespace Fsl
   ModelViewer::ModelViewer(const DemoAppConfig& config)
     : DemoAppGLES3(config)
     , m_profilerService(config.DemoServiceProvider.Get<IProfilerService>())
-    , m_hCounterBind(m_profilerService, m_profilerService->CreateCustomCounter("bind", 0, GRAPH_RES, Color(0xFF, 0xFF, 0x80, 0xFF)))
-    , m_hCounterEnable(m_profilerService, m_profilerService->CreateCustomCounter("enable", 0, GRAPH_RES, Color(0xFF, 0x80, 0xFF, 0xFF)))
-    , m_hCounterDraw(m_profilerService, m_profilerService->CreateCustomCounter("draw", 0, GRAPH_RES, Color(0x80, 0xFF, 0xFF, 0xFF)))
-    , m_hCounterTotal(m_profilerService, m_profilerService->CreateCustomCounter("total", 0, GRAPH_RES, Color(0x80, 0x80, 0xFF, 0xFF)))
+    , m_hCounterBind(m_profilerService, m_profilerService->CreateCustomCounter("bind", 0, GraphRes, Color(0xFF, 0xFF, 0x80, 0xFF)))
+    , m_hCounterEnable(m_profilerService, m_profilerService->CreateCustomCounter("enable", 0, GraphRes, Color(0xFF, 0x80, 0xFF, 0xFF)))
+    , m_hCounterDraw(m_profilerService, m_profilerService->CreateCustomCounter("draw", 0, GraphRes, Color(0x80, 0xFF, 0xFF, 0xFF)))
+    , m_hCounterTotal(m_profilerService, m_profilerService->CreateCustomCounter("total", 0, GraphRes, Color(0x80, 0x80, 0xFF, 0xFF)))
     , m_camera(config.WindowMetrics.GetSizePx())
     , m_renderConfig(Vector3(), Vector3(0.5f, -0.6f, 0.7f), true)
     , m_lightDirection(1.0f, 1.0f, 1.0f)
@@ -140,7 +140,7 @@ namespace Fsl
   {
     m_lightDirection.Normalize();
 
-    m_camera.SetZoom(DEFAULT_ZOOM);
+    m_camera.SetZoom(DefaultZoom);
 
     auto options = config.GetOptions<OptionParser>();
 
@@ -151,7 +151,7 @@ namespace Fsl
     ModelSceneUtil::ModelLoaderConfig loaderConfig;
     if (customModelPath.IsEmpty())
     {
-      loaderConfig = PrepareSceneModel(m_renderConfig, m_camera, *contentManager, options->GetScene(), SCENE_PATH);
+      loaderConfig = PrepareSceneModel(m_renderConfig, m_camera, *contentManager, options->GetScene(), ScenePath);
     }
     else
     {
@@ -169,7 +169,7 @@ namespace Fsl
     auto modelPath = IO::Path::Combine(contentPath, loaderConfig.ModelFileName);
     FSLLOG3_INFO("Loading scene '{}'", loaderConfig.ModelFileName);
     SceneImporter sceneImporter;
-    const auto scene = sceneImporter.Load<MeshUtil::TestScene>(modelPath, DEFAULT_MODEL_SCALE * loaderConfig.ScaleMod, true);
+    const auto scene = sceneImporter.Load<MeshUtil::TestScene>(modelPath, DefaultModelScale * loaderConfig.ScaleMod, true);
 
     if (scene->GetMeshCount() <= 0)
     {
@@ -262,7 +262,7 @@ namespace Fsl
       if (event.IsPressed())
       {
         m_camera.ResetRotation();
-        m_camera.SetZoom(DEFAULT_ZOOM);
+        m_camera.SetZoom(DefaultZoom);
         m_renderConfig.Rotation = m_storedStartRotation;
         event.Handled();
       }
@@ -335,14 +335,14 @@ namespace Fsl
       // Select Our Texture
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, m_resources.Texture.Get());
-      if (m_resources.TextureSpecular.IsValid() && m_resources.LocTextureSpecular != GLValues::INVALID_LOCATION)
+      if (m_resources.TextureSpecular.IsValid() && m_resources.LocTextureSpecular != GLValues::InvalidLocation)
       {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, m_resources.TextureSpecular.Get());
 
         glUniform1i(m_resources.LocTextureSpecular, 1);
       }
-      if (m_resources.TextureNormal.IsValid() && m_resources.LocTextureNormal != GLValues::INVALID_LOCATION)
+      if (m_resources.TextureNormal.IsValid() && m_resources.LocTextureNormal != GLValues::InvalidLocation)
       {
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, m_resources.TextureNormal.Get());
@@ -350,40 +350,40 @@ namespace Fsl
         glUniform1i(m_resources.LocTextureNormal, 2);
       }
 
-      if (m_resources.LocLightDirection != GLValues::INVALID_LOCATION)
+      if (m_resources.LocLightDirection != GLValues::InvalidLocation)
       {
         glUniform3fv(m_resources.LocLightDirection, 1, m_fragUboData.LightDirection.DirectAccess());
       }
-      if (m_resources.LocLightColor != GLValues::INVALID_LOCATION)
+      if (m_resources.LocLightColor != GLValues::InvalidLocation)
       {
         glUniform3fv(m_resources.LocLightColor, 1, m_fragUboData.LightColor.DirectAccess());
       }
-      if (m_resources.LocMatAmbient != GLValues::INVALID_LOCATION)
+      if (m_resources.LocMatAmbient != GLValues::InvalidLocation)
       {
         glUniform4fv(m_resources.LocMatAmbient, 1, m_fragUboData.MatAmbient.DirectAccess());
       }
-      if (m_resources.LocMatSpecular != GLValues::INVALID_LOCATION)
+      if (m_resources.LocMatSpecular != GLValues::InvalidLocation)
       {
         glUniform4fv(m_resources.LocMatSpecular, 1, m_fragUboData.MatSpecular.DirectAccess());
       }
-      if (m_resources.LocMatShininess != GLValues::INVALID_LOCATION)
+      if (m_resources.LocMatShininess != GLValues::InvalidLocation)
       {
         glUniform1f(m_resources.LocMatShininess, m_fragUboData.MatShininess);
       }
       // Load the matrices
-      if (m_resources.LocWorld != GLValues::INVALID_LOCATION)
+      if (m_resources.LocWorld != GLValues::InvalidLocation)
       {
         glUniformMatrix4fv(m_resources.LocWorld, 1, 0, m_matrixWorld.DirectAccess());
       }
-      if (m_resources.LocWorldView != GLValues::INVALID_LOCATION)
+      if (m_resources.LocWorldView != GLValues::InvalidLocation)
       {
         glUniformMatrix4fv(m_resources.LocWorldView, 1, 0, m_vertexUboData.MatWorldView.DirectAccess());
       }
-      if (m_resources.LocWorldViewProjection != GLValues::INVALID_LOCATION)
+      if (m_resources.LocWorldViewProjection != GLValues::InvalidLocation)
       {
         glUniformMatrix4fv(m_resources.LocWorldViewProjection, 1, 0, m_vertexUboData.MatWorldViewProjection.DirectAccess());
       }
-      if (m_resources.LocNormalMatrix != GLValues::INVALID_LOCATION)
+      if (m_resources.LocNormalMatrix != GLValues::InvalidLocation)
       {
         glUniformMatrix3fv(m_resources.LocNormalMatrix, 1, 0, m_vertexUboData.MatNormal.DirectAccess());
       }
@@ -446,8 +446,8 @@ namespace Fsl
 
     const auto indexBufferType = m_resources.IndexBuffers.GetType();
 
-    TimeSpan sequenceTimestampStart;
-    TimeSpan sequenceTimestampEnd;
+    TickCount sequenceTimestampStart;
+    TickCount sequenceTimestampEnd;
     const GLenum drawMode = !m_wireframe ? GL_TRIANGLES : GL_LINES;
     for (int32_t i = 0; i < m_resources.IndexBuffers.Length(); ++i)
     {
@@ -513,13 +513,13 @@ namespace Fsl
       Matrix matrix = currentMatrix * m_matrixView * m_matrixProjection;
 
       // Load the matrices
-      if (m_resources.LocWorld != GLValues::INVALID_LOCATION)
+      if (m_resources.LocWorld != GLValues::InvalidLocation)
       {
         glUniformMatrix4fv(m_resources.LocWorld, 1, 0, currentMatrix.DirectAccess());
       }
-      // if (m_locWorldView != GLValues::INVALID_LOCATION)
+      // if (m_locWorldView != GLValues::InvalidLocation)
       //  glUniformMatrix4fv(m_locWorldView, 1, 0, currentMatrix.DirectAccess());
-      if (m_resources.LocWorldViewProjection != GLValues::INVALID_LOCATION)
+      if (m_resources.LocWorldViewProjection != GLValues::InvalidLocation)
       {
         glUniformMatrix4fv(m_resources.LocWorldViewProjection, 1, 0, matrix.DirectAccess());
       }
@@ -594,28 +594,28 @@ namespace Fsl
     m_resources.LocMatSpecular = m_resources.Program.TryGetUniformLocation("MatSpecular");
     m_resources.LocMatShininess = m_resources.Program.TryGetUniformLocation("MatShininess");
 
-    constexpr auto vertexDecl = MeshUtil::TestMesh::vertex_type::GetVertexDeclarationArray();
+    constexpr auto VertexDecl = MeshUtil::TestMesh::vertex_type::GetVertexDeclarationArray();
     m_resources.AttribLink[0] = GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexPosition"),
-                                                   vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+                                                   VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
     m_resources.AttribLink[1] =
-      GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
+      GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexColor"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
     if (requireVertexNormal)
     {
       m_resources.AttribLink[2] =
-        GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
+        GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexNormal"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
     }
     else
     {
       m_resources.AttribLink[2] = GLVertexAttribLink(m_resources.Program.TryGetAttribLocation("VertexNormal"),
-                                                     vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
+                                                     VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
     }
 
     m_resources.AttribLink[3] = GLVertexAttribLink(m_resources.Program.TryGetAttribLocation("VertexTexCoord"),
-                                                   vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+                                                   VertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
     if (useNormalMap)
     {
       m_resources.AttribLink[4] = GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexTangent"),
-                                                     vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Tangent, 0));
+                                                     VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Tangent, 0));
     }
     else
     {
@@ -646,9 +646,9 @@ namespace Fsl
       contentManager.Read(bitmapGloss, config.TextureGloss, PixelFormat::R8G8B8A8_UNORM);
       FSLLOG3_INFO("Combining diffuse and gloss texture");
       // This is a slow and brute force way of combining the textures
-      for (uint32_t y = 0; y < bitmap.Height(); ++y)
+      for (uint32_t y = 0; y < bitmap.RawUnsignedHeight(); ++y)
       {
-        for (uint32_t x = 0; x < bitmap.Width(); ++x)
+        for (uint32_t x = 0; x < bitmap.RawUnsignedWidth(); ++x)
         {
           auto col1 = bitmap.GetNativePixel(x, y);
           auto col2 = bitmapGloss.GetNativePixel(x, y);

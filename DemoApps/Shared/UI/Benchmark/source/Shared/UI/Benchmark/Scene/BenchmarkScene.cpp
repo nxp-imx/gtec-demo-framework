@@ -32,7 +32,7 @@
 #include "BenchmarkScene.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslSimpleUI/App/DemoPerformanceCapture.hpp>
 #include <Shared/UI/Benchmark/App/TestAppFactory.hpp>
 #include <Shared/UI/Benchmark/App/TestAppHost.hpp>
@@ -255,12 +255,12 @@ namespace Fsl
 
     const bool gpuProfilingEnabled = m_gpuProfiler && m_gpuProfiler->IsEnabled();
     std::optional<AppBenchmarkGpuData> gpuData =
-      gpuProfilingEnabled ? std::optional<AppBenchmarkGpuData>(AppBenchmarkGpuData(ReadOnlySpanUtil::AsSpan(m_gpuEntries, 0, m_entryCount)))
+      gpuProfilingEnabled ? std::optional<AppBenchmarkGpuData>(AppBenchmarkGpuData(SpanUtil::AsReadOnlySpan(m_gpuEntries, 0, m_entryCount)))
                           : std::optional<AppBenchmarkGpuData>();
 
     std::optional<AppBenchmarkRenderInfo> renderInfo(m_renderInfo);
 
-    AppBenchmarkData benchmarkData(m_info, AppBenchmarkCpuData(ReadOnlySpanUtil::AsSpan(m_cpuEntries, 0, m_entryCount)), gpuData, renderInfo,
+    AppBenchmarkData benchmarkData(m_info, AppBenchmarkCpuData(SpanUtil::AsReadOnlySpan(m_cpuEntries, 0, m_entryCount)), gpuData, renderInfo,
                                    currentTime);
     return m_benchResultManager->TrySave(benchmarkData);
   }

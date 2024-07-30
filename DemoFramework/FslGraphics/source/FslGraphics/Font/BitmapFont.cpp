@@ -101,8 +101,7 @@ namespace Fsl
     std::sort(m_chars.begin(), m_chars.end(), [](const BitmapFontChar& lhs, const BitmapFontChar& rhs) { return lhs.Id < rhs.Id; });
 
     // Sort the kernings
-    std::sort(m_kernings.begin(), m_kernings.end(),
-              [](const BitmapFontKerning& lhs, const BitmapFontKerning& rhs)
+    std::sort(m_kernings.begin(), m_kernings.end(), [](const BitmapFontKerning& lhs, const BitmapFontKerning& rhs)
               { return lhs.First < rhs.First || (lhs.First == rhs.First && lhs.Second < rhs.Second); });
 
     // These checks expect the vectors to be sorted
@@ -115,8 +114,8 @@ namespace Fsl
                          const PxValueU16 baseLinePx, const PxThicknessU16& paddingPx, const StringViewLite textureName,
                          const BitmapFontType fontType, const SdfParams& sdfParams, const ReadOnlySpan<BitmapFontChar> chars,
                          const ReadOnlySpan<BitmapFontKerning> kernings)
-    : BitmapFont(StringViewLiteUtil::ToString(name), dpi, size, lineSpacingPx, baseLinePx, paddingPx, StringViewLiteUtil::ToString(textureName),
-                 fontType, sdfParams, ReadOnlySpanUtil::ToVector(chars), ReadOnlySpanUtil::ToVector(kernings))
+    : BitmapFont(std::string(name), dpi, size, lineSpacingPx, baseLinePx, paddingPx, std::string(textureName), fontType, sdfParams,
+                 SpanUtil::ToVector(chars), SpanUtil::ToVector(kernings))
   {
   }
 
@@ -125,8 +124,8 @@ namespace Fsl
                          const PxValueU16 baseLinePx, const PxThicknessU16& paddingPx, const StringViewLite textureName,
                          const BitmapFontType fontType, const SdfParams& sdfParams, std::vector<BitmapFontChar> chars,
                          std::vector<BitmapFontKerning> kernings)
-    : BitmapFont(StringViewLiteUtil::ToString(name), dpi, size, lineSpacingPx, baseLinePx, paddingPx, StringViewLiteUtil::ToString(textureName),
-                 fontType, sdfParams, std::move(chars), std::move(kernings))
+    : BitmapFont(std::string(name), dpi, size, lineSpacingPx, baseLinePx, paddingPx, std::string(textureName), fontType, sdfParams, std::move(chars),
+                 std::move(kernings))
   {
   }
 

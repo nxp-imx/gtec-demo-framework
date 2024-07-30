@@ -48,7 +48,7 @@ namespace Fsl::DemoAppRegister::Vulkan
   void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigVulkan& config,
                 const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
   {
-    auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass>>();
+    auto appFactory = std::make_shared<DemoHostInternal::DemoAppFactoryTemplate<TAppClass>>();
     const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory);
     Register(rSetup, demoAppSetup, config);
   }
@@ -58,7 +58,7 @@ namespace Fsl::DemoAppRegister::Vulkan
   void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigVulkan& config,
                 const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
   {
-    auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass>>();
+    auto appFactory = std::make_shared<DemoHostInternal::DemoAppFactoryTemplate<TAppClass>>();
     auto appOptionParser = std::make_shared<TOptionParser>();
     const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory, appOptionParser);
     Register(rSetup, demoAppSetup, config);

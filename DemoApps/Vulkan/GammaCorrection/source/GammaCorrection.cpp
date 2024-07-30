@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,10 +54,10 @@ namespace Fsl
 
   namespace
   {
-    const auto VERTEX_BUFFER_BIND_ID = 0;
+    constexpr auto VertexBufferBindId = 0;
 
-    const Vector3 DEFAULT_CAMERA_POSITION(4.0f, 1.0f, 7.0f);
-    const Vector3 DEFAULT_CAMERA_TARGET(0.0f, 0.0f, 0.0f);
+    constexpr Vector3 DefaultCameraPosition(4.0f, 1.0f, 7.0f);
+    constexpr Vector3 DefaultCameraTarget(0.0f, 0.0f, 0.0f);
 
     IO::Path GetTextureFile(const VkPhysicalDeviceFeatures& features)
     {
@@ -387,14 +387,14 @@ namespace Fsl
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
     , m_mouseCaptureEnabled(false)
     , m_state(State::Split4)
-    , m_splitX(m_transitionCache, TimeSpan::FromMicroseconds(400), TransitionType::Smooth)
-    , m_splitY(m_transitionCache, TimeSpan::FromMicroseconds(400), TransitionType::Smooth)
-    , m_scene1LabelAlpha(m_transitionCache, TimeSpan::FromMicroseconds(200), TransitionType::Smooth)
-    , m_scene2LabelAlpha(m_transitionCache, TimeSpan::FromMicroseconds(200), TransitionType::Smooth)
-    , m_scene3LabelAlpha(m_transitionCache, TimeSpan::FromMicroseconds(200), TransitionType::Smooth)
-    , m_scene4LabelAlpha(m_transitionCache, TimeSpan::FromMicroseconds(200), TransitionType::Smooth)
+    , m_splitX(TimeSpan::FromMicroseconds(400), TransitionType::Smooth)
+    , m_splitY(TimeSpan::FromMicroseconds(400), TransitionType::Smooth)
+    , m_scene1LabelAlpha(TimeSpan::FromMicroseconds(200), TransitionType::Smooth)
+    , m_scene2LabelAlpha(TimeSpan::FromMicroseconds(200), TransitionType::Smooth)
+    , m_scene3LabelAlpha(TimeSpan::FromMicroseconds(200), TransitionType::Smooth)
+    , m_scene4LabelAlpha(TimeSpan::FromMicroseconds(200), TransitionType::Smooth)
   {
-    m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+    m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
 
     const auto contentManager = GetContentManager();
 
@@ -485,7 +485,7 @@ namespace Fsl
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
-        m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+        m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
         event.Handled();
       }
       break;
@@ -680,10 +680,10 @@ namespace Fsl
     const float alpha2 = m_scene2LabelAlpha.GetValue();
     const float alpha3 = m_scene3LabelAlpha.GetValue();
     const float alpha4 = m_scene4LabelAlpha.GetValue();
-    m_labelTopLeft->SetFontColor(Color(alpha1, alpha1, alpha1, alpha1));
-    m_labelTopRight->SetFontColor(Color(alpha2, alpha2, alpha2, alpha2));
-    m_labelBottomLeft->SetFontColor(Color(alpha3, alpha3, alpha3, alpha3));
-    m_labelBottomRight->SetFontColor(Color(alpha4, alpha4, alpha4, alpha4));
+    m_labelTopLeft->SetFontColor(UI::UIColor(alpha1, alpha1, alpha1, alpha1));
+    m_labelTopRight->SetFontColor(UI::UIColor(alpha2, alpha2, alpha2, alpha2));
+    m_labelBottomLeft->SetFontColor(UI::UIColor(alpha3, alpha3, alpha3, alpha3));
+    m_labelBottomRight->SetFontColor(UI::UIColor(alpha4, alpha4, alpha4, alpha4));
   }
 
 
@@ -692,7 +692,7 @@ namespace Fsl
     const auto windowSizePx = GetWindowSizePx();
 
     const VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(commandBuffer, VertexBufferBindId, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
 
     const auto splitX = static_cast<int32_t>(std::round(m_splitX.GetValue() * static_cast<float>(windowSizePx.RawWidth())));
     const auto splitY = static_cast<int32_t>(std::round((1.0f - m_splitY.GetValue()) * static_cast<float>(windowSizePx.RawHeight())));

@@ -67,7 +67,7 @@ namespace Fsl::GLES2
         m_size = other.m_size;
 
         // Remove the data from other
-        other.m_handle = GLValues::INVALID_HANDLE;
+        other.m_handle = GLValues::InvalidHandle;
         other.m_format = 0;
         other.m_size = {};
       }
@@ -82,7 +82,7 @@ namespace Fsl::GLES2
       , m_size(other.m_size)
     {
       // Remove the data from other
-      other.m_handle = GLValues::INVALID_HANDLE;
+      other.m_handle = GLValues::InvalidHandle;
       other.m_format = 0;
       other.m_size = {};
     }
@@ -104,18 +104,18 @@ namespace Fsl::GLES2
     //! @brief Check if this buffer contains a valid gl handle.
     bool IsValid() const
     {
-      return m_handle != GLValues::INVALID_HANDLE;
+      return m_handle != GLValues::InvalidHandle;
     }
 
     //! @brief Get the gl handle associated with the buffer.
-    //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
+    //! @return the handle or GLValues::InvalidHandle if the buffer is unallocated.
     GLuint Get() const
     {
       return m_handle;
     }
 
     //! @brief Get the gl handle associated with the buffer *DEPRECATED*.
-    //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
+    //! @return the handle or GLValues::InvalidHandle if the buffer is unallocated.
     [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
     {
       return Get();

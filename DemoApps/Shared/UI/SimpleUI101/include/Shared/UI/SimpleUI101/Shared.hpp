@@ -33,7 +33,7 @@
 
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
-#include <FslSimpleUI/App/UIDemoAppLegacyExtension.hpp>
+#include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Control/Slider.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/System/CallbackEventListenerScope.hpp>
@@ -44,15 +44,8 @@
 
 namespace Fsl
 {
-  class AtlasTexture2D;
-  class BaseTexture2D;
   class IGraphicsService;
-  class KeyEvent;
-  class MouseButtonEvent;
-  class MouseMoveEvent;
-  struct Point2;
   class ImageSprite;
-  class ITextureAtlas;
   class SpriteFont;
 
   namespace UI
@@ -61,15 +54,14 @@ namespace Fsl
     class Button;
     class LabelButton;
     class SimpleImageButton;
-    class StackLayout;
   }
 
   class Shared : public UI::EventListener
   {
     // The UI event listener is responsible for forwarding events to this classes implementation of the UI::EventListener (while its still alive).
     UI::CallbackEventListenerScope m_uiEventListener;
-    // The UIDemoAppLegacyExtension is a simple extension that sets up the basic UI framework and listens for the events it needs.
-    std::shared_ptr<UIDemoAppLegacyExtension> m_uiExtension;
+    // The UIDemoAppExtension is a simple extension that sets up the basic UI framework and listens for the events it needs.
+    std::shared_ptr<UIDemoAppExtension> m_uiExtension;
 
     std::shared_ptr<IGraphicsService> m_graphics;
     std::shared_ptr<UI::FillLayout> m_fillLayout;
@@ -83,21 +75,22 @@ namespace Fsl
     explicit Shared(const DemoAppConfig& config);
     ~Shared() override;
 
-    std::shared_ptr<UIDemoAppLegacyExtension> GetUIDemoAppExtension() const
+    std::shared_ptr<UIDemoAppExtension> GetUIDemoAppExtension() const
     {
       return m_uiExtension;
     }
 
     // From EventListener
-    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
+    void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
     void Draw();
 
   private:
     std::shared_ptr<UI::BaseWindow> CreateStack1(const std::shared_ptr<UI::WindowContext>& context, const std::shared_ptr<SpriteFont>& fontSmall,
                                                  const std::shared_ptr<ImageSprite>& texImage);
     std::shared_ptr<UI::BaseWindow> CreateStack2(const std::shared_ptr<UI::WindowContext>& context, const std::shared_ptr<ImageSprite>& imageSprite);
-    std::shared_ptr<UI::BaseWindow> CreateStack3(const std::shared_ptr<UI::WindowContext>& context, const BaseTexture2D& atlasTexture);
-    std::shared_ptr<UI::BaseWindow> CreateStack4(const std::shared_ptr<UI::WindowContext>& context, const BaseTexture2D& atlasTexture);
+    std::shared_ptr<UI::BaseWindow> CreateStack3(const std::shared_ptr<UI::WindowContext>& context, const SpriteMaterialId customSpriteMaterialId,
+                                                 const std::shared_ptr<SpriteFont>& fontDefault);
+    std::shared_ptr<UI::BaseWindow> CreateStack4(const std::shared_ptr<UI::WindowContext>& context, const SpriteMaterialId customSpriteMaterialId);
   };
 }
 

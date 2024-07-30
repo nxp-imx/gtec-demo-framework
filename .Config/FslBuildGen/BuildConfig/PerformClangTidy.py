@@ -717,7 +717,9 @@ class PerformClangTidyHelper(object):
     VAR_FLAGS = "FLAGS"
     VAR_INCLUDES = "INCLUDES"
     VAR_SYSTEM_INCLUDES = "SYSTEM_INCLUDES"
-    VAR_POSTFIX_ARGS = "POSTFIX_ARGS"
+    VAR_USERARGS_TIDY = "USERARGS_TIDY"
+    VAR_POSTFIX_ARGS_CLANG = "POSTFIX_ARGS_CLANG"
+    VAR_POSTFIX_ARGS_TIDY = "POSTFIX_ARGS_TIDY"
     VAR_YAML_FILE = "YAML_FILE"
     VAR_CUSTOM_CHECKS = "CUSTOM_CHECKS"
 
@@ -945,40 +947,46 @@ class PerformClangTidyHelper(object):
             emptyStringList = [] # type: List[str]
             writer.variable(key=PerformClangTidyHelper.VAR_FLAGS, value=tidyPlatformConfig.PlatformCompilerFlags)
             writer.variable(key=PerformClangTidyHelper.VAR_PLATFORM_DEFINES, value=_AddCmdToEachEntry("-D", tidyPlatformConfig.PlatformDefineCommands))
-            writer.variable(key=PerformClangTidyHelper.VAR_POSTFIX_ARGS, value=performClangTidyConfig.AdditionalUserArguments)
+            writer.variable(key=PerformClangTidyHelper.VAR_USERARGS_TIDY, value=performClangTidyConfig.AdditionalUserArguments)
+            writer.variable(key=PerformClangTidyHelper.VAR_POSTFIX_ARGS_CLANG, value="")
+            writer.variable(key=PerformClangTidyHelper.VAR_POSTFIX_ARGS_TIDY, value=performClangTidyConfig.PostfixArguments)
             writer.variable(key=PerformClangTidyHelper.VAR_PACKAGE_DEFINES, value=emptyStringList)
             writer.variable(key=PerformClangTidyHelper.VAR_INCLUDES, value=emptyStringList)
             writer.variable(key=PerformClangTidyHelper.VAR_SYSTEM_INCLUDES, value=emptyStringList)
             writer.variable(key=PerformClangTidyHelper.VAR_YAML_FILE, value=emptyStringList)
             writer.variable(key=PerformClangTidyHelper.VAR_CUSTOM_CHECKS, value=customChecks)
 
-            compilerArguments = "${0} ${1} ${2} ${3} ${4} ${5}".format(PerformClangTidyHelper.VAR_FLAGS,
-                                                                       PerformClangTidyHelper.VAR_PLATFORM_DEFINES,
-                                                                       PerformClangTidyHelper.VAR_INCLUDES,
-                                                                       PerformClangTidyHelper.VAR_SYSTEM_INCLUDES,
-                                                                       PerformClangTidyHelper.VAR_PACKAGE_DEFINES,
-                                                                       PerformClangTidyHelper.VAR_POSTFIX_ARGS)
+            compilerArgumentsClang = "${0} ${1} ${2} ${3} ${4} ${5}".format(PerformClangTidyHelper.VAR_FLAGS,
+                                                                            PerformClangTidyHelper.VAR_PLATFORM_DEFINES,
+                                                                            PerformClangTidyHelper.VAR_INCLUDES,
+                                                                            PerformClangTidyHelper.VAR_SYSTEM_INCLUDES,
+                                                                            PerformClangTidyHelper.VAR_PACKAGE_DEFINES,
+                                                                            PerformClangTidyHelper.VAR_POSTFIX_ARGS_CLANG)
+            compilerUserArgumentsTidy = "${0}".format(PerformClangTidyHelper.VAR_USERARGS_TIDY)
+            compilerArgumentsTidy = "${0} ${1} ${2} ${3} ${4} ${5}".format(PerformClangTidyHelper.VAR_FLAGS,
+                                                                           PerformClangTidyHelper.VAR_PLATFORM_DEFINES,
+                                                                           PerformClangTidyHelper.VAR_INCLUDES,
+                                                                           PerformClangTidyHelper.VAR_SYSTEM_INCLUDES,
+                                                                           PerformClangTidyHelper.VAR_PACKAGE_DEFINES,
+                                                                           PerformClangTidyHelper.VAR_POSTFIX_ARGS_TIDY)
 
             writer.rule(name=PerformClangTidyHelper.RULE_COMPILE,
                         depfile="$out.d",
-                        command="{0} -c -x c++ $in -o $out -MD -MF $out.d {1}".format(clangExeInfo.Command, compilerArguments),
-                        #command="{0} -c -x c++ $in -o $out -MD -MF $out.d @$out.rsp".format(clangExeInfo.Command),
-                        #rspfile="$out.rsp",
-                        #rspfile_content=compilerArguments
+                        command="{0} -c -x c++ $in -o $out -MD -MF $out.d {1}".format(clangExeInfo.Command, compilerArgumentsClang),
                         )
 
             tidyChecks = "" if customChecks is None else "--checks ${0} ".format(PerformClangTidyHelper.VAR_CUSTOM_CHECKS)
             tidyCommand = ""
             if performClangTidyConfig.Repair:
-                tidyCommand = "{0} $in --export-fixes=${1} {2}-- {3}".format(clangTidyExeInfo.Command, PerformClangTidyHelper.VAR_YAML_FILE,
-                                                                             tidyChecks, compilerArguments)
+                tidyCommand = "{0} $in --export-fixes=${1} {2} {3} -- {4}".format(clangTidyExeInfo.Command, PerformClangTidyHelper.VAR_YAML_FILE,
+                                                                                 tidyChecks, compilerUserArgumentsTidy, compilerArgumentsTidy)
             else:
-                tidyCommand = "{0} $in {1}-- {2}".format(clangTidyExeInfo.Command, tidyChecks, compilerArguments)
+                tidyCommand = "{0} $in {1} {2} -- {3}".format(clangTidyExeInfo.Command, tidyChecks, compilerUserArgumentsTidy, compilerArgumentsTidy)
 
             writer.rule(name=PerformClangTidyHelper.RULE_TIDY,
                         command=tidyCommand,
                         #rspfile="$out.rsp",
-                        #rspfile_content="{0}-- {1}".format(tidyChecks, compilerArguments),
+                        #rspfile_content="{0}-- {1}".format(tidyChecks, compilerArgumentsTidy),
                         restat=True)
 
             toolProjectContextsDict = PackagePathUtil.CreateToolProjectContextsDict(toolConfig.ProjectInfo)

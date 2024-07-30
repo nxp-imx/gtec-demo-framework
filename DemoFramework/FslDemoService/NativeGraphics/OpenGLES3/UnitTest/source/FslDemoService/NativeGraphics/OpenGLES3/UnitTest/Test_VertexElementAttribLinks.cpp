@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES3/VertexElementAttribLinks.hpp>
 #include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
@@ -83,7 +83,7 @@ TEST(Test_VertexElementAttribLinks, Construct_FromVertexDeclaration_InOrder)
   };
   const uint32_t vertexStride = (1 + 2 + 3) * 4;
 
-  VertexDeclarationSpan vertexDeclaration(ReadOnlySpanUtil::AsSpan(vertexElements), vertexStride);
+  VertexDeclarationSpan vertexDeclaration(SpanUtil::AsReadOnlySpan(vertexElements), vertexStride);
 
   std::array<GLES3::GLVertexAttribLink, 3> attribLinks = {
     GLES3::GLVertexAttribLink(31, 0),
@@ -91,7 +91,7 @@ TEST(Test_VertexElementAttribLinks, Construct_FromVertexDeclaration_InOrder)
     GLES3::GLVertexAttribLink(33, 2),
   };
 
-  GLES3::VertexElementAttribLinks links(vertexDeclaration, ReadOnlySpanUtil::AsSpan(attribLinks));
+  GLES3::VertexElementAttribLinks links(vertexDeclaration, SpanUtil::AsReadOnlySpan(attribLinks));
 
   const auto span = links.AsSpan();
   EXPECT_FALSE(span.empty());
@@ -114,7 +114,7 @@ TEST(Test_VertexElementAttribLinks, Construct_FromVertexDeclaration_OutOfOrder)
   };
   const uint32_t vertexStride = (1 + 2 + 3) * 4;
 
-  VertexDeclarationSpan vertexDeclaration(ReadOnlySpanUtil::AsSpan(vertexElements), vertexStride);
+  VertexDeclarationSpan vertexDeclaration(SpanUtil::AsReadOnlySpan(vertexElements), vertexStride);
 
   std::array<GLES3::GLVertexAttribLink, 3> attribLinks = {
     GLES3::GLVertexAttribLink(33, 2),
@@ -122,7 +122,7 @@ TEST(Test_VertexElementAttribLinks, Construct_FromVertexDeclaration_OutOfOrder)
     GLES3::GLVertexAttribLink(31, 0),
   };
 
-  GLES3::VertexElementAttribLinks links(vertexDeclaration, ReadOnlySpanUtil::AsSpan(attribLinks));
+  GLES3::VertexElementAttribLinks links(vertexDeclaration, SpanUtil::AsReadOnlySpan(attribLinks));
 
   const auto span = links.AsSpan();
   EXPECT_FALSE(span.empty());
@@ -145,7 +145,7 @@ TEST(Test_VertexElementAttribLinks, Construct_FromSpan_InOrder)
   };
   const uint32_t vertexStride = (1 + 2 + 3) * 4;
 
-  GLES3::VertexElementAttribLinks links(ReadOnlySpanUtil::AsSpan(vertexElementAttribConfigs), vertexStride);
+  GLES3::VertexElementAttribLinks links(SpanUtil::AsReadOnlySpan(vertexElementAttribConfigs), vertexStride);
   const auto span = links.AsSpan();
   EXPECT_FALSE(span.empty());
   EXPECT_EQ(span.size(), vertexElementAttribConfigs.size());
@@ -165,7 +165,7 @@ TEST(Test_VertexElementAttribLinks, Construct_FromSpan_OutOfOrder)
   };
   const uint32_t vertexStride = (1 + 2 + 3) * 4;
 
-  GLES3::VertexElementAttribLinks links(ReadOnlySpanUtil::AsSpan(vertexElementAttribConfigs), vertexStride);
+  GLES3::VertexElementAttribLinks links(SpanUtil::AsReadOnlySpan(vertexElementAttribConfigs), vertexStride);
   const auto span = links.AsSpan();
   EXPECT_FALSE(span.empty());
   EXPECT_EQ(span.size(), vertexElementAttribConfigs.size());

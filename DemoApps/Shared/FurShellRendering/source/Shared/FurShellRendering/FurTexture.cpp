@@ -53,13 +53,13 @@ namespace Fsl
     {
       for (int x = 0; x < width; ++x)
       {
-        float max_layer_n = 0.2f + 0.8f * (std::sin(static_cast<float>(x) / static_cast<float>(height) * 20.0f) / 2.0f + 0.5f);
+        float maxLayerN = 0.2f + 0.8f * (std::sin(static_cast<float>(x) / static_cast<float>(height) * 20.0f) / 2.0f + 0.5f);
 
         const int dstPixelIndex = (y * width * 4) + (x * 4);
         assert((dstPixelIndex % 4) == 0);
-        colors[dstPixelIndex + 0] = static_cast<uint8_t>(max_layer_n * 255);
-        colors[dstPixelIndex + 1] = static_cast<uint8_t>(max_layer_n * 255);
-        colors[dstPixelIndex + 2] = static_cast<uint8_t>(max_layer_n * 255);
+        colors[dstPixelIndex + 0] = static_cast<uint8_t>(maxLayerN * 255);
+        colors[dstPixelIndex + 1] = static_cast<uint8_t>(maxLayerN * 255);
+        colors[dstPixelIndex + 2] = static_cast<uint8_t>(maxLayerN * 255);
         colors[dstPixelIndex + 3] = 255;
       }
     }
@@ -99,9 +99,9 @@ namespace Fsl
       y = rand() % height;
 
       // compute max layer
-      int max_layer = i / strandsPerLayer;
+      int maxLayer = i / strandsPerLayer;
       // normalize into [0..1] range
-      float max_layer_n = static_cast<float>(max_layer) / static_cast<float>(numLayers);
+      float maxLayerN = static_cast<float>(maxLayer) / static_cast<float>(numLayers);
 
 
       // max_layer_n = 0.2f + 0.8f * (std::sin(x / (float)height * 20.0f) / 2.0f + 0.5f);
@@ -112,12 +112,12 @@ namespace Fsl
 
       // put color (which has an alpha value of 255, i.e. opaque)
       // max_layer_n needs to be multiplied by 255 to achieve a color in [0..255] range
-      max_layer_n = std::max(std::min(max_layer_n, 1.0f), 0.0f);
+      maxLayerN = std::max(std::min(maxLayerN, 1.0f), 0.0f);
       const int dstPixelIndex = (y * width * 4) + (x * 4);
       assert((dstPixelIndex % 4) == 0);
-      colors[dstPixelIndex + 0] = static_cast<uint8_t>(max_layer_n * 255);
-      colors[dstPixelIndex + 1] = static_cast<uint8_t>(max_layer_n * 255);
-      colors[dstPixelIndex + 2] = static_cast<uint8_t>(max_layer_n * 255);
+      colors[dstPixelIndex + 0] = static_cast<uint8_t>(maxLayerN * 255);
+      colors[dstPixelIndex + 1] = static_cast<uint8_t>(maxLayerN * 255);
+      colors[dstPixelIndex + 2] = static_cast<uint8_t>(maxLayerN * 255);
       colors[dstPixelIndex + 3] = 255;
     }
     return colors;
@@ -158,9 +158,9 @@ namespace Fsl
       y = rand() % height;
 
       // compute max layer
-      int max_layer = i / strandsPerLayer;
+      int maxLayer = i / strandsPerLayer;
       // normalize into [0..1] range
-      float max_layer_n = static_cast<float>(max_layer) / static_cast<float>(numLayers);
+      float maxLayerN = static_cast<float>(maxLayer) / static_cast<float>(numLayers);
 
 
       // max_layer_n = 0.2f + 0.8f * (std::sin(x / (float)height * 20.0f) / 2.0f + 0.5f);
@@ -171,13 +171,13 @@ namespace Fsl
 
       // put color (which has an alpha value of 255, i.e. opaque)
       // max_layer_n needs to be multiplied by 255 to achieve a color in [0..255] range
-      max_layer_n = std::max(std::min(max_layer_n, 1.0f), 0.0f);
+      maxLayerN = std::max(std::min(maxLayerN, 1.0f), 0.0f);
       {
         const int dstPixelIndex = (y * width * 4) + (x * 4);
         assert((dstPixelIndex % 4) == 0);
-        colors[dstPixelIndex + 0] = static_cast<uint8_t>(max_layer_n * 255);
-        colors[dstPixelIndex + 1] = static_cast<uint8_t>(max_layer_n * 255);
-        colors[dstPixelIndex + 2] = static_cast<uint8_t>(max_layer_n * 255);
+        colors[dstPixelIndex + 0] = static_cast<uint8_t>(maxLayerN * 255);
+        colors[dstPixelIndex + 1] = static_cast<uint8_t>(maxLayerN * 255);
+        colors[dstPixelIndex + 2] = static_cast<uint8_t>(maxLayerN * 255);
         colors[dstPixelIndex + 3] = 255;
       }
       // if (x > 0)
@@ -202,18 +202,18 @@ namespace Fsl
       {
         const int dstPixelIndex = ((y - 1) * width * 4) + (x * 4);
         assert((dstPixelIndex % 4) == 0);
-        colors[dstPixelIndex + 0] = static_cast<uint8_t>(max_layer_n * 255 * scale);
-        colors[dstPixelIndex + 1] = static_cast<uint8_t>(max_layer_n * 255 * scale);
-        colors[dstPixelIndex + 2] = static_cast<uint8_t>(max_layer_n * 255 * scale);
+        colors[dstPixelIndex + 0] = static_cast<uint8_t>(maxLayerN * 255 * scale);
+        colors[dstPixelIndex + 1] = static_cast<uint8_t>(maxLayerN * 255 * scale);
+        colors[dstPixelIndex + 2] = static_cast<uint8_t>(maxLayerN * 255 * scale);
         colors[dstPixelIndex + 3] = 255;
       }
       if (y < (height - 1))
       {
         const int dstPixelIndex = ((y + 1) * width * 4) + (x * 4);
         assert((dstPixelIndex % 4) == 0);
-        colors[dstPixelIndex + 0] = static_cast<uint8_t>(max_layer_n * 255 * 0.75f);
-        colors[dstPixelIndex + 1] = static_cast<uint8_t>(max_layer_n * 255 * 0.75f);
-        colors[dstPixelIndex + 2] = static_cast<uint8_t>(max_layer_n * 255 * 0.75f);
+        colors[dstPixelIndex + 0] = static_cast<uint8_t>(maxLayerN * 255 * 0.75f);
+        colors[dstPixelIndex + 1] = static_cast<uint8_t>(maxLayerN * 255 * 0.75f);
+        colors[dstPixelIndex + 2] = static_cast<uint8_t>(maxLayerN * 255 * 0.75f);
         colors[dstPixelIndex + 3] = 255;
       }
     }

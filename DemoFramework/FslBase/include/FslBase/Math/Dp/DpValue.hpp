@@ -49,7 +49,7 @@ namespace Fsl
     {
     }
 
-    DpValue operator-() noexcept
+    inline constexpr DpValue operator-() const noexcept
     {
       return DpValue(-Value);
     }

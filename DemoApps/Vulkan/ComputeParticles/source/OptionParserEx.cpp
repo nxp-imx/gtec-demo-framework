@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017, 2022 NXP
+ * Copyright 2017, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,16 +55,16 @@ namespace Fsl
 
     namespace
     {
-      const int32_t PARTICLE_COUNT_ULTRA = 16 * 16384;
-      const int32_t PARTICLE_COUNT_HIGHER = 16 * 8192;
-      const int32_t PARTICLE_COUNT_HIGH = 16 * 4096;
-      const int32_t PARTICLE_COUNT_MEDIUM = 16 * 2048;
-      const int32_t PARTICLE_COUNT_LOW = 16 * 1024;
+      constexpr int32_t ParticleCountUltra = 16 * 16384;
+      constexpr int32_t ParticleCountHigher = 16 * 8192;
+      constexpr int32_t ParticleCountHigh = 16 * 4096;
+      constexpr int32_t ParticleCountMedium = 16 * 2048;
+      constexpr int32_t ParticleCountLow = 16 * 1024;
     }
   }
 
   OptionParserEx::OptionParserEx()
-    : m_particleCount(PARTICLE_COUNT_LOW)
+    : m_particleCount(ParticleCountLow)
   {
   }
 
@@ -93,23 +93,23 @@ namespace Fsl
         }
         if (strOptArg == "low")
         {
-          m_particleCount = PARTICLE_COUNT_LOW;
+          m_particleCount = ParticleCountLow;
         }
         else if (strOptArg == "medium")
         {
-          m_particleCount = PARTICLE_COUNT_MEDIUM;
+          m_particleCount = ParticleCountMedium;
         }
         else if (strOptArg == "high")
         {
-          m_particleCount = PARTICLE_COUNT_HIGH;
+          m_particleCount = ParticleCountHigh;
         }
         else if (strOptArg == "higher")
         {
-          m_particleCount = PARTICLE_COUNT_HIGHER;
+          m_particleCount = ParticleCountHigher;
         }
         else if (strOptArg == "ultra")
         {
-          m_particleCount = PARTICLE_COUNT_ULTRA;
+          m_particleCount = ParticleCountUltra;
         }
         else
         {

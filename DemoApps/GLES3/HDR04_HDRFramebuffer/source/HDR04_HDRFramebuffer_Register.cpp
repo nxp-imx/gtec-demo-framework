@@ -32,7 +32,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Options/IOptions.hpp>
 #include <FslDemoApp/Base/Service/Options/Options.hpp>
-#include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/OpenGLES3/HDR/Setup/RegisterDemoApp.hpp>
 #include <FslUtil/EGL/EGLUtil.hpp>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -74,9 +74,9 @@ namespace Fsl
       // Prefer a EGL config with more than eight bits per channel (HDR)
       EGL_RED_SIZE, 10, EGL_GREEN_SIZE, 10, EGL_BLUE_SIZE, 10, EGL_COLOR_BUFFER_TYPE, EGL_RGB_BUFFER, EGL_NONE};
 
-    const std::array<EGLint, 3> g_eglCreateWindowAttribs_bt2020 = {EGL_GL_COLORSPACE, EGL_GL_COLORSPACE_BT2020_LINEAR_EXT, EGL_NONE};
+    const std::array<EGLint, 3> g_eglCreateWindowAttribsBt2020 = {EGL_GL_COLORSPACE, EGL_GL_COLORSPACE_BT2020_LINEAR_EXT, EGL_NONE};
 
-    const std::array<EGLint, 3> g_eglCreateWindowAttribs_scrgb = {EGL_GL_COLORSPACE, EGL_GL_COLORSPACE_SCRGB_LINEAR_EXT, EGL_NONE};
+    const std::array<EGLint, 3> g_eglCreateWindowAttribsScrgb = {EGL_GL_COLORSPACE, EGL_GL_COLORSPACE_SCRGB_LINEAR_EXT, EGL_NONE};
 
 
     const EGLint* GetCreateWindowSurfaceAttribs(const EGLDisplay display, const DemoAppHostCreateWindowSurfaceInfoEGL& createInfo,
@@ -107,9 +107,9 @@ namespace Fsl
       Options optionsService(createInfo.TheServiceProvider.Get<IOptions>());
       const auto options = optionsService.GetOptionParser<OptionParserEx>();
       const auto disableDisplayHDRCheck = options->IsDisplayHDRCheckDisabled();
-      bool IsDisplayHDRCompatible = disableDisplayHDRCheck ? true : createInfo.IsDisplayHDRCompatible;
+      bool isDisplayHdrCompatible = disableDisplayHDRCheck ? true : createInfo.IsDisplayHDRCompatible;
       FSLLOG3_WARNING_IF(disableDisplayHDRCheck, "Display HDR check disabled from command line");
-      if (!IsDisplayHDRCompatible || !createInfo.IsConfigAttribsHDRCompatible)
+      if (!isDisplayHdrCompatible || !createInfo.IsConfigAttribsHDRCompatible)
       {
         FSLLOG3_INFO("HDRFramebuffer not supported");
         return nullptr;
@@ -120,7 +120,7 @@ namespace Fsl
       {
         userTagEx->HDRFramebufferEnabled = true;
         FSLLOG3_INFO("EGL_EXT_gl_colorspace_scrgb_linear detected, requesting EGL_GL_COLORSPACE=EGL_GL_COLORSPACE_SCRGB_LINEAR_EXT");
-        return g_eglCreateWindowAttribs_scrgb.data();
+        return g_eglCreateWindowAttribsScrgb.data();
       }
 
       // Since the extension 'EGL_EXT_gl_colorspace_bt2020_linear' is optional we check for it
@@ -128,7 +128,7 @@ namespace Fsl
       {
         userTagEx->HDRFramebufferEnabled = true;
         FSLLOG3_INFO("EGL_EXT_gl_colorspace_bt2020_linear detected, requesting EGL_GL_COLORSPACE=EGL_GL_COLORSPACE_BT2020_LINEAR_EXT");
-        return g_eglCreateWindowAttribs_bt2020.data();
+        return g_eglCreateWindowAttribsBt2020.data();
       }
       return nullptr;
     }
@@ -154,6 +154,6 @@ namespace Fsl
     config.AddExtensionRequest(ExtensionType::OpenGLES, "GL_EXT_color_buffer_float", ExtensionPrecense::Mandatory);
 
     CustomDemoAppConfig customDemoAppConfig(sharedData);
-    DemoAppRegister::GLES3::Register<HDR04_HDRFramebuffer, OptionParserEx>(rSetup, "GLES3.HDR04_HDRFramebuffer", config, customDemoAppConfig);
+    DemoAppRegister::GLES3::HDR::Register<HDR04_HDRFramebuffer, OptionParserEx>(rSetup, "GLES3.HDR04_HDRFramebuffer", config, customDemoAppConfig);
   }
 }

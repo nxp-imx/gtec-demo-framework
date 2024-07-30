@@ -44,7 +44,8 @@ namespace Fsl
     public:
       const std::shared_ptr<SpriteFont> DefaultFont;
 
-      WindowContext(const std::shared_ptr<Fsl::UI::UIContext>& uiContext, std::shared_ptr<SpriteFont> defaultFont, const uint32_t densityDpi);
+      WindowContext(const std::shared_ptr<Fsl::UI::UIContext>& uiContext, std::shared_ptr<SpriteFont> defaultFont, const uint32_t densityDpi,
+                    const UIColorSpace colorSpace);
       ~WindowContext();
     };
   }

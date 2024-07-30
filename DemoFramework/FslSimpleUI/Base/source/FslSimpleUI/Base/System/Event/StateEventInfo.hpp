@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
+#include <FslBase/Time/MillisecondTickCount32.hpp>
 #include <FslSimpleUI/Base/Event/EventTransactionState.hpp>
 
 namespace Fsl::UI
@@ -39,6 +40,7 @@ namespace Fsl::UI
   struct StateEventInfo
   {
   private:
+    MillisecondTickCount32 m_timestamp;
     int32_t m_sourceId{0};
     int32_t m_sourceSubId{0};
     EventTransactionState m_transactionState{EventTransactionState::End};
@@ -49,8 +51,10 @@ namespace Fsl::UI
   public:
     StateEventInfo() = default;
 
-    StateEventInfo(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState transactionState, const bool isRepeat)
-      : m_sourceId(sourceId)
+    StateEventInfo(const MillisecondTickCount32 timestamp, const int32_t sourceId, const int32_t sourceSubId,
+                   const EventTransactionState transactionState, const bool isRepeat)
+      : m_timestamp(timestamp)
+      , m_sourceId(sourceId)
       , m_sourceSubId(sourceSubId)
       , m_transactionState(transactionState)
       , m_isRepeat(isRepeat)
@@ -58,9 +62,10 @@ namespace Fsl::UI
     }
 
 
-    StateEventInfo(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState transactionState, const bool isRepeat,
-                   const int32_t tag)
-      : m_sourceId(sourceId)
+    StateEventInfo(const MillisecondTickCount32 timestamp, const int32_t sourceId, const int32_t sourceSubId,
+                   const EventTransactionState transactionState, const bool isRepeat, const int32_t tag)
+      : m_timestamp(timestamp)
+      , m_sourceId(sourceId)
       , m_sourceSubId(sourceSubId)
       , m_transactionState(transactionState)
       , m_isRepeat(isRepeat)
@@ -68,45 +73,49 @@ namespace Fsl::UI
     {
     }
 
+    MillisecondTickCount32 Timestamp() const
+    {
+      return m_timestamp;
+    }
 
-    int32_t SourceId() const
+    int32_t SourceId() const noexcept
     {
       return m_sourceId;
     }
 
-    int32_t SourceSubId() const
+    int32_t SourceSubId() const noexcept
     {
       return m_sourceSubId;
     }
 
-    EventTransactionState TransactionState() const
+    EventTransactionState TransactionState() const noexcept
     {
       return m_transactionState;
     }
 
-    bool IsBegin() const
+    bool IsBegin() const noexcept
     {
       return m_transactionState == EventTransactionState::Begin;
     }
-    bool IsCancel() const
+    bool IsCancel() const noexcept
     {
       return m_transactionState == EventTransactionState::Canceled;
     }
-    bool IsEnd() const
+    bool IsEnd() const noexcept
     {
       return m_transactionState == EventTransactionState::End;
     }
-    bool IsRepeat() const
+    bool IsRepeat() const noexcept
     {
       return m_isRepeat;
     }
 
-    int32_t Tag() const
+    int32_t Tag() const noexcept
     {
       return m_tag;
     }
 
-    PxPoint2 Param1() const
+    PxPoint2 Param1() const noexcept
     {
       return m_param1;
     }
@@ -115,7 +124,7 @@ namespace Fsl::UI
       m_param1 = value;
     }
 
-    void Clear()
+    void Clear() noexcept
     {
       m_transactionState = EventTransactionState::Canceled;
       m_tag = 0;

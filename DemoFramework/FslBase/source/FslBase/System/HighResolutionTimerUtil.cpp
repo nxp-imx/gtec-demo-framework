@@ -31,14 +31,13 @@
 
 #include <FslBase/Math/TypeConverter_Double.hpp>
 #include <FslBase/System/HighResolutionTimerUtil.hpp>
-#include <FslBase/Time/TimeInfo.hpp>
 
 namespace Fsl::HighResolutionTimerUtil
 {
   TimeSpan ToTimeSpan(const uint64_t nativeTicks, const uint64_t nativeTickFrequency)
   {
     // Convert to TimeSpan ticks
-    const double frequency = static_cast<double>(nativeTickFrequency) / static_cast<double>(TimeInfo::TicksPerSecond);
+    const double frequency = static_cast<double>(nativeTickFrequency) / static_cast<double>(TimeSpan::TicksPerSecond);
     const double timeSpanTicks = static_cast<double>(nativeTicks) / frequency;
     return TimeSpan(TypeConverter::ChangeTo<int64_t>(timeSpanTicks));
   }

@@ -34,6 +34,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/FmtVector2.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/Font/BitmapFont.hpp>
 #include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
@@ -198,7 +199,7 @@ namespace Fsl
   }
 
 
-  void Shared::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void Shared::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_ui.BtnDefault)
     {
@@ -210,10 +211,10 @@ namespace Fsl
   {
   }
 
-  void Shared::FixedUpdate(const DemoTime& /*demoTime*/)
+  void Shared::Update(const DemoTime& demoTime)
   {
-    m_position0 += m_ui.Slider->GetValue() * static_cast<float>(m_direction0);
-    m_position1 += m_ui.Slider->GetValue() * static_cast<float>(m_direction1);
+    m_position0 += m_ui.Slider->GetValue() * 60.0f * static_cast<float>(m_direction0) * demoTime.DeltaTime;
+    m_position1 += m_ui.Slider->GetValue() * 60.0f * static_cast<float>(m_direction1) * demoTime.DeltaTime;
   }
 
 
@@ -288,11 +289,11 @@ namespace Fsl
 
       if (drawText)
       {
-        constexpr auto textColor = Color::White();
-        DrawText(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, position0, textColor, rectTopLeftPx);
-        DrawText(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, position1, textColor, rectTopRightPx);
-        DrawText(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, position2, textColor, rectMiddleTopPx);
-        DrawText(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, position3, textColor, rectMiddleBottomPx);
+        constexpr auto TextColor = Colors::White();
+        DrawText(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, position0, TextColor, rectTopLeftPx);
+        DrawText(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, position1, TextColor, rectTopRightPx);
+        DrawText(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, position2, TextColor, rectMiddleTopPx);
+        DrawText(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, position3, TextColor, rectMiddleBottomPx);
       }
     }
 

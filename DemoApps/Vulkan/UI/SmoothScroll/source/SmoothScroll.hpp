@@ -36,7 +36,7 @@
 
 namespace Fsl
 {
-  class SmoothScroll : public VulkanBasic::DemoAppVulkanBasic
+  class SmoothScroll final : public VulkanBasic::DemoAppVulkanBasic
   {
     struct DependentResources
     {
@@ -64,13 +64,13 @@ namespace Fsl
     explicit SmoothScroll(const DemoAppConfig& config);
 
   protected:
-    void OnKeyEvent(const KeyEvent& event) override;
-    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
-    void FixedUpdate(const DemoTime& demoTime) override;
-    void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) override;
+    void OnKeyEvent(const KeyEvent& event) final;
+    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;
+    void Update(const DemoTime& demoTime) final;
+    void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) final;
 
-    VkRenderPass OnBuildResources(const VulkanBasic::BuildResourcesContext& context) override;
-    void OnFreeResources() override;
+    VkRenderPass OnBuildResources(const VulkanBasic::BuildResourcesContext& context) final;
+    void OnFreeResources() final;
   };
 }
 

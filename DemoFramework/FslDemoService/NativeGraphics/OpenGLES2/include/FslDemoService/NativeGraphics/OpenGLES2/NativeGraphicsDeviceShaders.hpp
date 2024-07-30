@@ -40,14 +40,20 @@ namespace Fsl::GLES2
   class NativeGraphicsDeviceShaders
   {
   public:
-    static ReadOnlySpan<uint8_t> GetVertexShader();
-    static ReadOnlySpan<uint8_t> GetFragmentShader();
-    static ReadOnlySpan<uint8_t> GetSdfFragmentShader();
+    static ReadOnlySpan<uint8_t> GetPositionColorVertexShader();
+    static ReadOnlySpan<uint8_t> GetPositionColorFragmentShader();
+    static ReadOnlySpan<uint8_t> GetPositionColorTextureVertexShader();
+    static ReadOnlySpan<uint8_t> GetPositionColorTextureFragmentShader();
+    static ReadOnlySpan<uint8_t> GetPositionColorTextureSdfFragmentShader();
 
-    static constexpr VertexAttributeDescriptionArray<3> VertexShaderVertexDecl = {
+    static constexpr VertexAttributeDescriptionArray<3> VertexShaderVertexPositionColorTextureDecl = {
       VertexAttributeDescription(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0, "inVertexPosition"),
       VertexAttributeDescription(1, VertexElementFormat::Vector4, VertexElementUsage::Color, 0, "inVertexColor"),
       VertexAttributeDescription(2, VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate, 0, "inVertexTextureCoord")};
+
+    static constexpr VertexAttributeDescriptionArray<2> VertexShaderVertexPositionColorDecl = {
+      VertexAttributeDescription(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0, "inVertexPosition"),
+      VertexAttributeDescription(1, VertexElementFormat::Vector4, VertexElementUsage::Color, 0, "inVertexColor")};
   };
 }
 

@@ -36,14 +36,14 @@ namespace Fsl
 {
   namespace
   {
-    const uint32_t VERTEX_BUFFER_BIND_ID = 0;
-    const uint32_t PATCH_SIZE = 64;
-    const float UV_SCALE = 1.0f;
+    constexpr uint32_t VertexBufferBindId = 0;
+    constexpr uint32_t PatchSize = 64;
+    constexpr float UvScale = 1.0f;
 
 #ifdef __ANDROID__
-    const float TESSELLATION_FACTOR = 0.20f;
+    constexpr float TESSELLATION_FACTOR = 0.20f;
 #else
-    const float TESSELLATION_FACTOR = 0.75f;
+    constexpr float TessellationFactor = 0.75f;
 #endif
 
 
@@ -56,36 +56,36 @@ namespace Fsl
     struct HeightMap
     {
     private:
-      uint32_t Dim;
-      std::vector<uint16_t> HeightData;
-      uint32_t Scale;
+      uint32_t m_dim;
+      std::vector<uint16_t> m_heightData;
+      uint32_t m_scale;
 
     public:
       HeightMap(const Bitmap& srcBitmap, const uint32_t patchSize)
-        : Dim(srcBitmap.GetExtent().Width.Value)
-        , HeightData(Dim * Dim)
-        , Scale(Dim / patchSize)
+        : m_dim(srcBitmap.GetExtent().Width.Value)
+        , m_heightData(m_dim * m_dim)
+        , m_scale(m_dim / patchSize)
       {
         assert(srcBitmap.GetExtent().Width == srcBitmap.GetExtent().Height);
 
-        RawBitmap rawBitmap;
-        Bitmap::ScopedDirectAccess directAccess(srcBitmap, rawBitmap);
+        const Bitmap::ScopedDirectReadAccess directAccess(srcBitmap);
+        const ReadOnlyRawBitmap rawBitmap = directAccess.AsRawBitmap();
 
-        assert(PixelFormatUtil::CalcMinimumStride(rawBitmap.Width(), rawBitmap.GetPixelFormat()) == rawBitmap.Stride());
-        assert(rawBitmap.GetByteSize() <= (HeightData.size() * sizeof(uint16_t)));
-        std::memcpy(HeightData.data(), rawBitmap.Content(), rawBitmap.GetByteSize());
+        assert(PixelFormatUtil::CalcMinimumStride(rawBitmap.RawUnsignedWidth(), rawBitmap.GetPixelFormat()) == rawBitmap.Stride());
+        assert(rawBitmap.GetByteSize() <= (m_heightData.size() * sizeof(uint16_t)));
+        std::memcpy(m_heightData.data(), rawBitmap.Content(), rawBitmap.GetByteSize());
       };
 
       float GetHeight(const uint32_t x, const uint32_t y) const
       {
-        assert(x < Dim);
-        assert(y < Dim);
+        assert(x < m_dim);
+        assert(y < m_dim);
 
-        glm::ivec2 rpos = glm::ivec2(x, y) * glm::ivec2(UncheckedNumericCast<int>(Scale));
-        rpos.x = std::max(0, std::min(rpos.x, static_cast<int>(Dim) - 1));
-        rpos.y = std::max(0, std::min(rpos.y, static_cast<int>(Dim) - 1));
-        rpos /= glm::ivec2(UncheckedNumericCast<int>(Scale));
-        return static_cast<float>(*(HeightData.data() + (rpos.x + (rpos.y * Dim)) * Scale)) / 65535.0f;
+        glm::ivec2 rpos = glm::ivec2(x, y) * glm::ivec2(UncheckedNumericCast<int>(m_scale));
+        rpos.x = std::max(0, std::min(rpos.x, static_cast<int>(m_dim) - 1));
+        rpos.y = std::max(0, std::min(rpos.y, static_cast<int>(m_dim) - 1));
+        rpos /= glm::ivec2(UncheckedNumericCast<int>(m_scale));
+        return static_cast<float>(*(m_heightData.data() + (rpos.x + (rpos.y * m_dim)) * m_scale)) / 65535.0f;
       }
     };
   }
@@ -99,7 +99,7 @@ namespace Fsl
     m_pipelineStats[0] = 0;
     m_pipelineStats[1] = 0;
 
-    m_uboTess.TessellationFactor = TESSELLATION_FACTOR;
+    m_uboTess.TessellationFactor = TessellationFactor;
 
     m_enableTextOverlay = true;
     m_title = "Vulkan Example - Dynamic terrain tessellation";
@@ -277,7 +277,7 @@ namespace Fsl
           vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines.Skysphere.Get());
           vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayouts.Skysphere.Get(), 0, 1,
                                   &m_descriptorSets.Skysphere, 0, nullptr);
-          vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Skysphere.GetVertices().GetBufferPointer(), &offsets);
+          vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VertexBufferBindId, 1, m_meshes.Skysphere.GetVertices().GetBufferPointer(), &offsets);
           vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_meshes.Skysphere.GetIndices().GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
           vkCmdDrawIndexed(m_drawCmdBuffers[i], m_meshes.Skysphere.GetIndexCount(), 1, 0, 0, 0);
 
@@ -292,7 +292,7 @@ namespace Fsl
                             m_wireframe ? m_pipelines.Wireframe.Get() : m_pipelines.Terrain.Get());
           vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayouts.Terrain.Get(), 0, 1,
                                   &m_descriptorSets.Terrain, 0, nullptr);
-          vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Terrain.GetVertices().GetBufferPointer(), &offsets);
+          vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VertexBufferBindId, 1, m_meshes.Terrain.GetVertices().GetBufferPointer(), &offsets);
           vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_meshes.Terrain.GetIndices().GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
           vkCmdDrawIndexed(m_drawCmdBuffers[i], m_meshes.Terrain.GetIndexCount(), 1, 0, 0, 0);
           if (m_deviceFeatures.pipelineStatisticsQuery != VK_FALSE)
@@ -437,29 +437,29 @@ namespace Fsl
 
     struct Vertex
     {
-      glm::vec3 pos;
-      glm::vec3 normal;
-      glm::vec2 uv;
+      glm::vec3 Pos;
+      glm::vec3 Normal;
+      glm::vec2 Uv;
     };
 
 
-    std::vector<Vertex> vertices(PATCH_SIZE * PATCH_SIZE * 4);
+    std::vector<Vertex> vertices(PatchSize * PatchSize * 4);
 
     const float wx = 2.0f;
     const float wy = 2.0f;
 
     {
       auto* pDst = vertices.data();
-      for (uint32_t x = 0; x < PATCH_SIZE; ++x)
+      for (uint32_t x = 0; x < PatchSize; ++x)
       {
-        for (uint32_t y = 0; y < PATCH_SIZE; ++y)
+        for (uint32_t y = 0; y < PatchSize; ++y)
         {
-          const uint32_t index = (x + y * PATCH_SIZE);
+          const uint32_t index = (x + y * PatchSize);
           assert(index < vertices.size());
-          pDst[index].pos[0] = (static_cast<float>(x) * wx) + (wx / 2.0f) - ((static_cast<float>(PATCH_SIZE) * wx) / 2.0f);
-          pDst[index].pos[1] = 0.0f;
-          pDst[index].pos[2] = (static_cast<float>(y) * wy) + (wy / 2.0f) - ((static_cast<float>(PATCH_SIZE) * wy) / 2.0f);
-          pDst[index].uv = glm::vec2(static_cast<float>(x) / PATCH_SIZE, static_cast<float>(y) / PATCH_SIZE) * UV_SCALE;
+          pDst[index].Pos[0] = (static_cast<float>(x) * wx) + (wx / 2.0f) - ((static_cast<float>(PatchSize) * wx) / 2.0f);
+          pDst[index].Pos[1] = 0.0f;
+          pDst[index].Pos[2] = (static_cast<float>(y) * wy) + (wy / 2.0f) - ((static_cast<float>(PatchSize) * wy) / 2.0f);
+          pDst[index].Uv = glm::vec2(static_cast<float>(x) / PatchSize, static_cast<float>(y) / PatchSize) * UvScale;
         }
       }
     }
@@ -467,10 +467,10 @@ namespace Fsl
     const Bitmap heightBitmap = GetContentManager()->ReadBitmap("Textures/Terrain/terrain_heightmap_r16.ktx");
 
     // Calculate normals from height map using a sobel filter
-    HeightMap heightMap(heightBitmap, PATCH_SIZE);
-    for (uint32_t x = 0; x < PATCH_SIZE; ++x)
+    HeightMap heightMap(heightBitmap, PatchSize);
+    for (uint32_t x = 0; x < PatchSize; ++x)
     {
-      for (uint32_t y = 0; y < PATCH_SIZE; ++y)
+      for (uint32_t y = 0; y < PatchSize; ++y)
       {
         // Get height samples centered around current position
         float heights[3][3]{};    // NOLINT(modernize-avoid-c-arrays)
@@ -492,12 +492,12 @@ namespace Fsl
         // The first value controls the bump strength
         normal.y = 0.25f * std::sqrt(1.0f - normal.x * normal.x - normal.z * normal.z);
 
-        vertices[x + y * PATCH_SIZE].normal = glm::normalize(normal * glm::vec3(2.0f, 1.0f, 2.0f));
+        vertices[x + y * PatchSize].Normal = glm::normalize(normal * glm::vec3(2.0f, 1.0f, 2.0f));
       }
     }
 
     // Indices
-    const uint32_t w = (PATCH_SIZE - 1);
+    const uint32_t w = (PatchSize - 1);
     std::vector<uint32_t> indices(w * w * 4);
     {
       auto* pDst = indices.data();
@@ -507,8 +507,8 @@ namespace Fsl
         {
           const uint32_t index = (x + y * w) * 4;
           assert((index + 3) < indices.size());
-          pDst[index] = (x + y * PATCH_SIZE);
-          pDst[index + 1] = indices[index] + PATCH_SIZE;
+          pDst[index] = (x + y * PatchSize);
+          pDst[index + 1] = indices[index] + PatchSize;
           pDst[index + 2] = indices[index + 1] + 1;
           pDst[index + 3] = indices[index] + 1;
         }
@@ -516,9 +516,9 @@ namespace Fsl
     }
     // FIX:
     // meshes.terrain.indexCount = (PATCH_SIZE - 1) * (PATCH_SIZE - 1) * 4;
-    const auto terrainIndexCount = (PATCH_SIZE - 1) * (PATCH_SIZE - 1) * 4;
+    const auto terrainIndexCount = (PatchSize - 1) * (PatchSize - 1) * 4;
 
-    const uint32_t vertexBufferSize = (PATCH_SIZE * PATCH_SIZE * 4) * sizeof(Vertex);
+    const uint32_t vertexBufferSize = (PatchSize * PatchSize * 4) * sizeof(Vertex);
     const uint32_t indexBufferSize = (w * w * 4) * sizeof(uint32_t);
 
     struct Buffers
@@ -619,7 +619,7 @@ namespace Fsl
     // Binding description
     m_vertices.BindingDescriptions.resize(1);
     // Lookup of initializer 'vertexInputBindingDescription'
-    m_vertices.BindingDescriptions[0].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.BindingDescriptions[0].binding = VertexBufferBindId;
     m_vertices.BindingDescriptions[0].stride = Willems::MeshLoader::VertexSize(g_vertexLayout);
     m_vertices.BindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
@@ -629,19 +629,19 @@ namespace Fsl
 
     // Location 0 : Position
     m_vertices.AttributeDescriptions[0].location = 0;
-    m_vertices.AttributeDescriptions[0].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[0].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
     m_vertices.AttributeDescriptions[0].offset = 0;
 
     // Location 1 : Normals
     m_vertices.AttributeDescriptions[1].location = 1;
-    m_vertices.AttributeDescriptions[1].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[1].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
     m_vertices.AttributeDescriptions[1].offset = sizeof(float) * 3;
 
     // Location 2 : Texture coordinates
     m_vertices.AttributeDescriptions[2].location = 2;
-    m_vertices.AttributeDescriptions[2].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[2].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
     m_vertices.AttributeDescriptions[2].offset = sizeof(float) * 6;
 
@@ -704,7 +704,7 @@ namespace Fsl
     }
 
     // Skysphere vertex shader
-    m_uboVS.mvp = m_camera.Matrices.Perspective * glm::mat4(glm::mat3(m_camera.Matrices.View));
+    m_uboVS.Mvp = m_camera.Matrices.Perspective * glm::mat4(glm::mat3(m_camera.Matrices.View));
 
     {
       m_uniformData.SkysphereVertex.Map(0, sizeof(m_uboVS));

@@ -31,7 +31,7 @@ namespace Fsl
 {
   namespace
   {
-    const uint32_t VERTEX_BUFFER_BIND_ID = 0;
+    constexpr uint32_t VertexBufferBindId = 0;
   }
 
 
@@ -200,7 +200,7 @@ namespace Fsl
 
     // Binding and attribute descriptions are shared across all gears
     m_vertices.BindingDescriptions.resize(1);
-    m_vertices.BindingDescriptions[0].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.BindingDescriptions[0].binding = VertexBufferBindId;
     m_vertices.BindingDescriptions[0].stride = sizeof(Vertex);
     m_vertices.BindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
@@ -211,19 +211,19 @@ namespace Fsl
 
     // Location 0 : Position
     m_vertices.AttributeDescriptions[0].location = 0;
-    m_vertices.AttributeDescriptions[0].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[0].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
     m_vertices.AttributeDescriptions[0].offset = 0;
 
     // Location 1 : Normal
     m_vertices.AttributeDescriptions[1].location = 1;
-    m_vertices.AttributeDescriptions[1].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[1].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
     m_vertices.AttributeDescriptions[1].offset = sizeof(float) * 3;
 
     // Location 2 : Color
     m_vertices.AttributeDescriptions[2].location = 2;
-    m_vertices.AttributeDescriptions[2].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[2].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
     m_vertices.AttributeDescriptions[2].offset = sizeof(float) * 6;
 

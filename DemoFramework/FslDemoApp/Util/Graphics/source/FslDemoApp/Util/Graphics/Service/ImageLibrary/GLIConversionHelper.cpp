@@ -710,25 +710,25 @@ namespace Fsl
       return PixelFormat::BC7_SRGB_BLOCK;
 
     case gli::FORMAT_RGB_ETC2_UNORM_BLOCK8:
-      return PixelFormat::ETC2_R8G8B8_UNORM_BLOCK;      // ?
+      return PixelFormat::ETC2_R8G8B8_UNORM_BLOCK;    // ?
     case gli::FORMAT_RGB_ETC2_SRGB_BLOCK8:
-      return PixelFormat::ETC2_R8G8B8_SRGB_BLOCK;       // ?
+      return PixelFormat::ETC2_R8G8B8_SRGB_BLOCK;    // ?
     case gli::FORMAT_RGBA_ETC2_UNORM_BLOCK8:
       return PixelFormat::ETC2_R8G8B8A1_UNORM_BLOCK;    // ?
     case gli::FORMAT_RGBA_ETC2_SRGB_BLOCK8:
-      return PixelFormat::ETC2_R8G8B8A1_SRGB_BLOCK;     // ?
+      return PixelFormat::ETC2_R8G8B8A1_SRGB_BLOCK;    // ?
     case gli::FORMAT_RGBA_ETC2_UNORM_BLOCK16:
       return PixelFormat::ETC2_R8G8B8A8_UNORM_BLOCK;    // ?
     case gli::FORMAT_RGBA_ETC2_SRGB_BLOCK16:
-      return PixelFormat::ETC2_R8G8B8A8_SRGB_BLOCK;     // ?
+      return PixelFormat::ETC2_R8G8B8A8_SRGB_BLOCK;    // ?
     case gli::FORMAT_R_EAC_UNORM_BLOCK8:
-      return PixelFormat::EAC_R11_UNORM_BLOCK;          // ?
+      return PixelFormat::EAC_R11_UNORM_BLOCK;    // ?
     case gli::FORMAT_R_EAC_SNORM_BLOCK8:
-      return PixelFormat::EAC_R11_SNORM_BLOCK;          // ?
+      return PixelFormat::EAC_R11_SNORM_BLOCK;    // ?
     case gli::FORMAT_RG_EAC_UNORM_BLOCK16:
-      return PixelFormat::EAC_R11G11_UNORM_BLOCK;       // ?
+      return PixelFormat::EAC_R11G11_UNORM_BLOCK;    // ?
     case gli::FORMAT_RG_EAC_SNORM_BLOCK16:
-      return PixelFormat::EAC_R11G11_SNORM_BLOCK;       // ?
+      return PixelFormat::EAC_R11G11_SNORM_BLOCK;    // ?
 
     case gli::FORMAT_RGBA_ASTC_4X4_UNORM_BLOCK16:
       return PixelFormat::ASTC_4x4_UNORM_BLOCK;

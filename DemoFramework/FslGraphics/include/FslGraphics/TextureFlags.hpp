@@ -47,12 +47,12 @@ namespace Fsl
     ExactFormat = 0x04,
   };
 
-  constexpr inline TextureFlags operator|(const TextureFlags lhs, const TextureFlags rhs)
+  inline constexpr TextureFlags operator|(const TextureFlags lhs, const TextureFlags rhs) noexcept
   {
     return static_cast<TextureFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
   }
 
-  constexpr inline TextureFlags operator&(const TextureFlags lhs, const TextureFlags rhs)
+  inline constexpr TextureFlags operator&(const TextureFlags lhs, const TextureFlags rhs) noexcept
   {
     return static_cast<TextureFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
   }
@@ -60,23 +60,23 @@ namespace Fsl
 
   namespace TextureFlagsUtil
   {
-    inline bool IsEnabled(const TextureFlags srcFlag, TextureFlags flag)
+    inline constexpr bool IsEnabled(const TextureFlags srcFlag, TextureFlags flag) noexcept
     {
       return (srcFlag & flag) == flag;
     }
 
-    inline void Enable(TextureFlags& rDstFlag, TextureFlags flag)
+    inline constexpr void Enable(TextureFlags& rDstFlag, TextureFlags flag) noexcept
     {
       rDstFlag = rDstFlag | flag;
     }
 
 
-    inline void Disable(TextureFlags& rDstFlag, TextureFlags flag)
+    inline constexpr void Disable(TextureFlags& rDstFlag, TextureFlags flag) noexcept
     {
       rDstFlag = rDstFlag & (static_cast<TextureFlags>(~static_cast<uint32_t>(flag)));
     }
 
-    inline void Set(TextureFlags& rDstFlag, TextureFlags flag, const bool enabled)
+    inline constexpr void Set(TextureFlags& rDstFlag, TextureFlags flag, const bool enabled) noexcept
     {
       rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (static_cast<TextureFlags>(~static_cast<uint32_t>(flag))));
     }

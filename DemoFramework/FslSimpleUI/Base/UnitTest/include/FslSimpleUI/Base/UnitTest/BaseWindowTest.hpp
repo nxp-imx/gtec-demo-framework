@@ -77,10 +77,10 @@ namespace Fsl::UI
     void WinDraw(const UIDrawContext& context) override;
 
   protected:
-    void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
-    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
-    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override;
-    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override;
+    void OnClickInputPreview(const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
+    void OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
+    void OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent) override;
+    void OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent) override;
 
     PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
     PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;

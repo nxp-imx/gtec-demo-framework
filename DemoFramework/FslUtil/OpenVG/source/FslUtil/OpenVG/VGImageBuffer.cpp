@@ -79,7 +79,7 @@ namespace Fsl::OpenVG
   }
 
 
-  VGImageBuffer::VGImageBuffer(const RawBitmap& bitmap, const VGbitfield quality)
+  VGImageBuffer::VGImageBuffer(const ReadOnlyRawBitmap& bitmap, const VGbitfield quality)
     : m_handle(VG_INVALID_HANDLE)
 
   {
@@ -114,30 +114,33 @@ namespace Fsl::OpenVG
 
   void VGImageBuffer::Reset(const Bitmap& bitmap, const VGbitfield quality)
   {
-    RawBitmap rawBitmap;
-    Bitmap::ScopedDirectAccess scopedAccess(bitmap, rawBitmap);
-    Reset(rawBitmap, quality);
+    const Bitmap::ScopedDirectReadAccess scopedAccess(bitmap);
+    Reset(scopedAccess.AsRawBitmap(), quality);
   }
 
 
-  void VGImageBuffer::Reset(const RawBitmap& bitmap, const VGbitfield quality)
+  void VGImageBuffer::Reset(const ReadOnlyRawBitmap& bitmap, const VGbitfield quality)
   {
     if (!bitmap.IsValid())
     {
       throw std::invalid_argument("The bitmap must be valid");
     }
+    if (bitmap.RawWidth() < 1 || bitmap.RawHeight() < 1)
+    {
+      throw std::invalid_argument("The bitmap must be at least 1x1");
+    }
 
     Reset();
 
     const VGImageFormat pixelFormat = Convert(bitmap.GetPixelFormat());
-    m_handle = vgCreateImage(pixelFormat, UncheckedNumericCast<VGint>(bitmap.Width()), UncheckedNumericCast<VGint>(bitmap.Height()), quality);
+    m_handle = vgCreateImage(pixelFormat, UncheckedNumericCast<VGint>(bitmap.RawWidth()), UncheckedNumericCast<VGint>(bitmap.RawHeight()), quality);
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
 
-    const uint8_t* pSrc = static_cast<const uint8_t*>(bitmap.Content()) + (bitmap.Height() - 1) * bitmap.Stride();
+    const uint8_t* pSrc = static_cast<const uint8_t*>(bitmap.Content()) + (bitmap.RawUnsignedHeight() - 1) * bitmap.Stride();
     assert(bitmap.Stride() < static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
     auto stride = static_cast<VGint>(bitmap.Stride());
-    vgImageSubData(m_handle, pSrc, -stride, pixelFormat, 0, 0, UncheckedNumericCast<VGint>(bitmap.Width()),
-                   UncheckedNumericCast<VGint>(bitmap.Height()));
+    vgImageSubData(m_handle, pSrc, -stride, pixelFormat, 0, 0, UncheckedNumericCast<VGint>(bitmap.RawWidth()),
+                   UncheckedNumericCast<VGint>(bitmap.RawHeight()));
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
   }
 

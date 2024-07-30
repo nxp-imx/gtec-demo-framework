@@ -35,6 +35,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/Span/SpanUtil_ValueCompare.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialVariableElement.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialVariableElementFormatUtil.hpp>
 #include <array>
@@ -92,17 +93,20 @@ namespace Fsl
       assert(IsValidElements(srcElements, m_materialStride));
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr bool empty() const
     {
       return m_span.empty();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const BasicMaterialVariableElement* data() const
     {
       return m_span.data();
     }
 
     //! @brief Get the number of elements
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr uint32_t size() const
     {
       assert(m_span.size() <= 0xFFFFFFFFu);
@@ -110,6 +114,7 @@ namespace Fsl
     }
 
     //! @brief Get the material stride
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr uint32_t stride() const
     {
       return m_materialStride;
@@ -157,7 +162,7 @@ namespace Fsl
 
     constexpr bool operator==(const BasicMaterialVariableDeclarationSpan& rhs) const
     {
-      return (m_materialStride == rhs.m_materialStride && m_span == rhs.m_span);
+      return (m_materialStride == rhs.m_materialStride && SpanUtil::ValueEquals(m_span, rhs.m_span));
     }
 
     constexpr bool operator!=(const BasicMaterialVariableDeclarationSpan& rhs) const

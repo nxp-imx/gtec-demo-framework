@@ -49,6 +49,8 @@ namespace Fsl::DataBinding::Internal::ConverterChecks
       {
       case PropertyMethodsImplType::ATypedDependencyProperty:
       case PropertyMethodsImplType::ATypedDependencyPropertyRef:
+      case PropertyMethodsImplType::ATypedReadOnlyDependencyProperty:
+      case PropertyMethodsImplType::ATypedReadOnlyDependencyPropertyRef:
         return true;
       case PropertyMethodsImplType::NotAvailable:
       case PropertyMethodsImplType::Undefined:

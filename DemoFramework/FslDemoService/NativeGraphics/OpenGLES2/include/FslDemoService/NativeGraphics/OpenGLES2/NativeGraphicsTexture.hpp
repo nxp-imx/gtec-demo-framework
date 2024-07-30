@@ -33,7 +33,7 @@
 
 #include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <FslGraphics/Render/Texture2DFilterHint.hpp>
-#include <FslGraphics/Texture/RawTexture.hpp>
+#include <FslGraphics/Texture/ReadOnlyRawTexture.hpp>
 #include <FslGraphics/TextureFlags.hpp>
 #include <FslGraphics3D/BasicRender/Adapter/INativeTexture.hpp>
 #include <FslUtil/OpenGLES2/GLTexture.hpp>
@@ -43,12 +43,12 @@ namespace Fsl::GLES2
 {
   class NativeGraphicsTexture final : public Graphics3D::INativeTexture
   {
-    PxExtent3D m_extentPx{};
+    PxExtent3D m_extentPx;
     GLTexture m_texture;
 
   public:
     NativeGraphicsTexture() = default;
-    NativeGraphicsTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags);
+    NativeGraphicsTexture(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags);
 
     void Destroy();
 
@@ -82,7 +82,7 @@ namespace Fsl::GLES2
     //}
 
     // Graphics3D::INativeTexture
-    void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) final;
+    void SetData(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) final;
   };
 }
 

@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Core.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
 #include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
 #include <FslDataBinding/Base/Property/DependencyPropertyDefinition.hpp>
@@ -93,6 +92,7 @@ namespace Fsl::UI
       return true;
     }
 
+
     //! @return true if the format string was changed (false if the format string was already equal to the value being set)
     bool SetFormatString(const std::string& strFormat)
     {
@@ -138,7 +138,7 @@ namespace Fsl::UI
     PxSize2D MeasureRenderedValue(const value_type value) const
     {
       fmt::memory_buffer tmpBuffer;
-      fmt::format_to(std::back_inserter(tmpBuffer), m_format, value);
+      fmt::vformat_to(std::back_inserter(tmpBuffer), m_format, fmt::make_format_args(value));
       return DoMeasureRenderedString(StringViewLite(tmpBuffer.data(), tmpBuffer.size()));
     }
 
@@ -149,6 +149,7 @@ namespace Fsl::UI
     }
 
   public:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline static typename DataBinding::DependencyPropertyDefinition PropertyContent =
       DataBinding::DependencyPropertyDefinitionFactory::Create<value_type, FmtValueLabel, &FmtValueLabel::GetContent, &FmtValueLabel::SetContent>(
         "Content");
@@ -180,7 +181,8 @@ namespace Fsl::UI
     void RebuildCache()
     {
       m_buffer.clear();
-      fmt::format_to(std::back_inserter(m_buffer), m_format, GetContent());
+      const auto content = GetContent();
+      fmt::vformat_to(std::back_inserter(m_buffer), m_format, fmt::make_format_args(content));
       DoSetContent(DoGetContent());
     }
   };

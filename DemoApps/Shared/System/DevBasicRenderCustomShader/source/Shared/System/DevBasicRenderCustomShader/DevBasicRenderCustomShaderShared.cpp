@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,10 @@
 
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/Render/Basic/BasicCameraInfo.hpp>
 #include <FslGraphics/Render/Basic/IBasicDynamicBuffer.hpp>
 #include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
@@ -57,23 +58,23 @@ namespace Fsl
       // constexpr Color Col4 = Color(0x7FFFFFFF);
       // constexpr Color Col5 = Color(0x7FFFFFFF);
 
-      constexpr Color ColQuad = Color::White();
-      // constexpr const Color ColQuadB = Color::Blue();
-      // constexpr const Color ColQuadR = Color::Red();
+      constexpr Color ColQuad = Colors::White();
+      // constexpr const Color ColQuadB = Colors::Blue();
+      // constexpr const Color ColQuadR = Colors::Red();
     }
 
 
-    constexpr int32_t QUAD_SIZE1 = 64;
-    constexpr float QUAD_SIZE = static_cast<float>(QUAD_SIZE1);
-    constexpr float QUAD_LEFT = 0;
-    constexpr float QUAD_RIGHT = QUAD_SIZE;
-    constexpr float QUAD_TOP = 0;
-    constexpr float QUAD_Z = 1;
-    constexpr float QUAD_BOTTOM = QUAD_SIZE;
-    constexpr float QUAD_U0 = 0.0f;
-    constexpr float QUAD_U1 = 1.0f;
-    constexpr float QUAD_V0 = 1.0f;
-    constexpr float QUAD_V1 = 0.0f;
+    constexpr int32_t QuadSizE1 = 64;
+    constexpr float QuadSize = static_cast<float>(QuadSizE1);
+    constexpr float QuadLeft = 0;
+    constexpr float QuadRight = QuadSize;
+    constexpr float QuadTop = 0;
+    constexpr float QuadZ = 1;
+    constexpr float QuadBottom = QuadSize;
+    constexpr float QuadU0 = 0.0f;
+    constexpr float QuadU1 = 1.0f;
+    constexpr float QuadV0 = 1.0f;
+    constexpr float QuadV1 = 0.0f;
 
     //  L  R
     // T*-*
@@ -83,14 +84,14 @@ namespace Fsl
     // CW:   LB, LT, RB + LT, RT, RB
     // CCW:  LB, RB, LT + LT, RB, RT
 
-    constexpr std::array<VertexPositionColorTexture, 3 * 2> g_quad0Vertices = {
-      VertexPositionColorTexture(Vector3(QUAD_LEFT, QUAD_BOTTOM, QUAD_Z), LocalConfig::ColQuad, Vector2(QUAD_U0, QUAD_V1)),     // LB
-      VertexPositionColorTexture(Vector3(QUAD_LEFT, QUAD_TOP, QUAD_Z), LocalConfig::ColQuad, Vector2(QUAD_U0, QUAD_V0)),        // LT
-      VertexPositionColorTexture(Vector3(QUAD_RIGHT, QUAD_BOTTOM, QUAD_Z), LocalConfig::ColQuad, Vector2(QUAD_U1, QUAD_V1)),    // RB
+    constexpr std::array<VertexPositionColorTexture, 3 * 2> GQuad0Vertices = {
+      VertexPositionColorTexture(Vector3(QuadLeft, QuadBottom, QuadZ), LocalConfig::ColQuad, Vector2(QuadU0, QuadV1)),     // LB
+      VertexPositionColorTexture(Vector3(QuadLeft, QuadTop, QuadZ), LocalConfig::ColQuad, Vector2(QuadU0, QuadV0)),        // LT
+      VertexPositionColorTexture(Vector3(QuadRight, QuadBottom, QuadZ), LocalConfig::ColQuad, Vector2(QuadU1, QuadV1)),    // RB
 
-      VertexPositionColorTexture(Vector3(QUAD_LEFT, QUAD_TOP, QUAD_Z), LocalConfig::ColQuad, Vector2(QUAD_U0, QUAD_V0)),        // LT
-      VertexPositionColorTexture(Vector3(QUAD_RIGHT, QUAD_TOP, QUAD_Z), LocalConfig::ColQuad, Vector2(QUAD_U1, QUAD_V0)),       // RT
-      VertexPositionColorTexture(Vector3(QUAD_RIGHT, QUAD_BOTTOM, QUAD_Z), LocalConfig::ColQuad, Vector2(QUAD_U1, QUAD_V1)),    // RB
+      VertexPositionColorTexture(Vector3(QuadLeft, QuadTop, QuadZ), LocalConfig::ColQuad, Vector2(QuadU0, QuadV0)),        // LT
+      VertexPositionColorTexture(Vector3(QuadRight, QuadTop, QuadZ), LocalConfig::ColQuad, Vector2(QuadU1, QuadV0)),       // RT
+      VertexPositionColorTexture(Vector3(QuadRight, QuadBottom, QuadZ), LocalConfig::ColQuad, Vector2(QuadU1, QuadV1)),    // RB
     };
 
     // constexpr std::array<VertexPositionColorTexture, 4> g_quad1Vertices = {
@@ -108,7 +109,7 @@ namespace Fsl
   {
     const auto& contentManager = *createInfo.ContentManager;
 
-    auto quadVertexSpan = ReadOnlyFlexVertexSpanUtil::AsSpan(g_quad0Vertices);
+    auto quadVertexSpan = ReadOnlyFlexVertexSpanUtil::AsSpan(GQuad0Vertices);
     m_resources.QuadMeshVertices = m_render->CreateDynamicBuffer(quadVertexSpan);
 
     auto shadersRecord = CreateCustomShaders(*m_render, createInfo);
@@ -185,14 +186,14 @@ namespace Fsl
   DevBasicRenderCustomShaderShared::CustomShadersRecord
     DevBasicRenderCustomShaderShared::CreateCustomShaders(IBasicRenderSystem& render, const DevCustomCreateInfo& devCustomCreateInfo)
   {
-    constexpr VertexAttributeDescriptionArray<3> vertexAttrDesc = {
+    constexpr VertexAttributeDescriptionArray<3> VertexAttrDesc = {
       VertexAttributeDescription(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0, "inVertexPosition"),
       VertexAttributeDescription(1, VertexElementFormat::Vector4, VertexElementUsage::Color, 0, "inVertexColor"),
       VertexAttributeDescription(2, VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate, 0, "inVertexTextureCoord")};
 
     BasicShaderCreateInfo basicVertFixedColorCreateInfo(
-      BasicShaderStageFlag::Vertex, ReadOnlySpanUtil::AsSpan(devCustomCreateInfo.ShaderBasicVertFixedColor), vertexAttrDesc.AsReadOnlySpan());
-    BasicShaderCreateInfo basicFragFixedColorCreateInfo(ReadOnlySpanUtil::AsSpan(devCustomCreateInfo.ShaderBasicFragFixedColor));
+      BasicShaderStageFlag::Vertex, SpanUtil::AsReadOnlySpan(devCustomCreateInfo.ShaderBasicVertFixedColor), VertexAttrDesc.AsReadOnlySpan());
+    BasicShaderCreateInfo basicFragFixedColorCreateInfo(SpanUtil::AsReadOnlySpan(devCustomCreateInfo.ShaderBasicFragFixedColor));
 
     BasicShader basicVertFixedColor = render.CreateShader(basicVertFixedColorCreateInfo);
     BasicShader basicFragFixedColor = render.CreateShader(basicFragFixedColorCreateInfo);
@@ -206,29 +207,29 @@ namespace Fsl
                                                                                                       const CustomShadersRecord& shaders,
                                                                                                       const VertexDeclarationSpan& vertexDeclSpan)
   {
-    constexpr IO::PathView pathLogo("Textures/GPUSdk/SquareLogo512x512.jpg");
-    constexpr IO::PathView pathOpaqueR("Textures/TestText/Opaque/R.png");
-    constexpr IO::PathView pathOpaqueG("Textures/TestText/Opaque/G.png");
-    constexpr IO::PathView pathOpaqueB("Textures/TestText/Opaque/B.png");
-    constexpr IO::PathView pathPreAlpha1("Textures/TestText/Premultiplied/1.png");
-    constexpr IO::PathView pathNonPreAlpha("Textures/TestText/Alpha/1.png");
+    constexpr IO::PathView PathLogo("Textures/GPUSdk/SquareLogo512x512.jpg");
+    constexpr IO::PathView PathOpaqueR("Textures/TestText/Opaque/R.png");
+    constexpr IO::PathView PathOpaqueG("Textures/TestText/Opaque/G.png");
+    constexpr IO::PathView PathOpaqueB("Textures/TestText/Opaque/B.png");
+    constexpr IO::PathView PathPreAlpha1("Textures/TestText/Premultiplied/1.png");
+    constexpr IO::PathView PathNonPreAlpha("Textures/TestText/Alpha/1.png");
 
-    constexpr BitmapOrigin bitmapOrigin = BitmapOrigin::LowerLeft;
+    constexpr BitmapOrigin BitmapOrigin = BitmapOrigin::LowerLeft;
 
     Texture texture;
-    contentManager.Read(texture, pathLogo, PixelFormat::R8G8B8A8_UNORM, bitmapOrigin, PixelChannelOrder::Undefined, true);
+    contentManager.Read(texture, PathLogo, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin, PixelChannelOrder::Undefined, true);
     auto textureLogo = render.CreateTexture2D(texture, Texture2DFilterHint::Smooth);
 
-    contentManager.Read(texture, pathOpaqueR, PixelFormat::R8G8B8A8_UNORM, bitmapOrigin, PixelChannelOrder::Undefined, true);
+    contentManager.Read(texture, PathOpaqueR, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin, PixelChannelOrder::Undefined, true);
     auto textureOpaqueR = render.CreateTexture2D(texture, Texture2DFilterHint::Smooth);
-    contentManager.Read(texture, pathOpaqueG, PixelFormat::R8G8B8A8_UNORM, bitmapOrigin, PixelChannelOrder::Undefined, true);
+    contentManager.Read(texture, PathOpaqueG, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin, PixelChannelOrder::Undefined, true);
     auto textureOpaqueG = render.CreateTexture2D(texture, Texture2DFilterHint::Smooth);
-    contentManager.Read(texture, pathOpaqueB, PixelFormat::R8G8B8A8_UNORM, bitmapOrigin, PixelChannelOrder::Undefined, true);
+    contentManager.Read(texture, PathOpaqueB, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin, PixelChannelOrder::Undefined, true);
     auto textureOpaqueB = render.CreateTexture2D(texture, Texture2DFilterHint::Smooth);
 
-    contentManager.Read(texture, pathPreAlpha1, PixelFormat::R8G8B8A8_UNORM, bitmapOrigin, PixelChannelOrder::Undefined, true);
+    contentManager.Read(texture, PathPreAlpha1, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin, PixelChannelOrder::Undefined, true);
     auto textureAlpha = render.CreateTexture2D(texture, Texture2DFilterHint::Smooth);
-    contentManager.Read(texture, pathNonPreAlpha, PixelFormat::R8G8B8A8_UNORM, bitmapOrigin, PixelChannelOrder::Undefined, true);
+    contentManager.Read(texture, PathNonPreAlpha, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin, PixelChannelOrder::Undefined, true);
     auto textureNonPreAlpha = render.CreateTexture2D(texture, Texture2DFilterHint::Smooth);
 
 
@@ -274,15 +275,15 @@ namespace Fsl
       matrices.Orthographic0 = Matrix::CreateTranslation(-screenOffsetX, -screenOffsetY, 1.0f) * Matrix::CreateRotationX(MathHelper::ToRadians(180)) *
                                Matrix::CreateOrthographic(screenWidth, screenHeight, 1.0f, 10.0f);
 
-      matrices.Orthographic1 = Matrix::CreateTranslation(-screenOffsetX + ((QUAD_SIZE + 10) * 1), -screenOffsetY, 1.0f) *
+      matrices.Orthographic1 = Matrix::CreateTranslation(-screenOffsetX + ((QuadSize + 10) * 1), -screenOffsetY, 1.0f) *
                                Matrix::CreateRotationX(MathHelper::ToRadians(180)) *
                                Matrix::CreateOrthographic(screenWidth, screenHeight, 1.0f, 10.0f);
 
-      matrices.Orthographic2 = Matrix::CreateTranslation(-screenOffsetX + ((QUAD_SIZE + 10) * 2), -screenOffsetY, 1.0f) *
+      matrices.Orthographic2 = Matrix::CreateTranslation(-screenOffsetX + ((QuadSize + 10) * 2), -screenOffsetY, 1.0f) *
                                Matrix::CreateRotationX(MathHelper::ToRadians(180)) *
                                Matrix::CreateOrthographic(screenWidth, screenHeight, 1.0f, 10.0f);
 
-      matrices.Orthographic3 = Matrix::CreateTranslation(-screenOffsetX + ((QUAD_SIZE + 10) * 3), -screenOffsetY, 1.0f) *
+      matrices.Orthographic3 = Matrix::CreateTranslation(-screenOffsetX + ((QuadSize + 10) * 3), -screenOffsetY, 1.0f) *
                                Matrix::CreateRotationX(MathHelper::ToRadians(180)) *
                                Matrix::CreateOrthographic(screenWidth, screenHeight, 1.0f, 10.0f);
     }

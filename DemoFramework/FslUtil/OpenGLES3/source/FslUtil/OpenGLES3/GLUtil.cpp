@@ -43,6 +43,73 @@
 
 namespace Fsl::GLES3
 {
+  namespace
+  {
+    struct PixelEncodingRecord
+    {
+      GLint Format{0};
+      GLint Type{0};
+
+      constexpr PixelEncodingRecord(const GLint format, const GLint type) noexcept
+        : Format(format)
+        , Type(type)
+      {
+      }
+    };
+
+
+    struct CaptureMethodRecord
+    {
+      PixelEncodingRecord Encoding;
+      PixelFormat BitmapPixelFormat;
+
+      constexpr CaptureMethodRecord(const PixelEncodingRecord encoding, const PixelFormat bitmapPixelFormat) noexcept
+        : Encoding(encoding)
+        , BitmapPixelFormat(bitmapPixelFormat)
+      {
+      }
+    };
+
+    PixelEncodingRecord GetImplementationColorEncodingRecord() noexcept
+    {
+      GLint implColorReadFormat = 0;
+      glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &implColorReadFormat);
+      GLint implColorReadType = 0;
+      glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &implColorReadType);
+      return {implColorReadFormat, implColorReadType};
+    }
+
+
+    CaptureMethodRecord DecideCaptureMethod(const PixelEncodingRecord colorEncoding) noexcept
+    {
+      switch (colorEncoding.Type)
+      {
+      case GL_UNSIGNED_BYTE:
+      case GL_UNSIGNED_SHORT_5_6_5:
+      case GL_UNSIGNED_SHORT_4_4_4_4:
+      case GL_UNSIGNED_SHORT_5_5_5_1:
+        return {PixelEncodingRecord(colorEncoding.Format, GL_UNSIGNED_BYTE), PixelFormat::R8G8B8A8_UINT};
+      case GL_BYTE:
+        return {PixelEncodingRecord(colorEncoding.Format, GL_BYTE), PixelFormat::R8G8B8A8_SINT};
+      case GL_HALF_FLOAT:
+        return {PixelEncodingRecord(colorEncoding.Format, GL_HALF_FLOAT), PixelFormat::R16G16B16A16_SNORM};
+      case GL_FLOAT:
+        return {PixelEncodingRecord(colorEncoding.Format, GL_FLOAT), PixelFormat::R32G32B32A32_SFLOAT};
+      // case GL_UNSIGNED_INT_2_10_10_10_REV:
+      // case GL_UNSIGNED_INT_10F_11F_11F_REV:
+      // case GL_UNSIGNED_INT_5_9_9_9_REV:
+      default:
+        return {PixelEncodingRecord(colorEncoding.Format, GL_UNSIGNED_BYTE), PixelFormat::R8G8B8A8_UINT};
+      }
+    }
+
+
+    CaptureMethodRecord MakeCaptureDecision() noexcept
+    {
+      return DecideCaptureMethod(GetImplementationColorEncodingRecord());
+    }
+  }
+
   std::vector<StringViewLite> GLUtil::GetExtensions()
   {
     const auto* pszExtensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
@@ -115,27 +182,27 @@ namespace Fsl::GLES3
     std::array<GLint, 4> viewport{};
     GL_CHECK(glGetIntegerv(GL_VIEWPORT, viewport.data()))
 
-    const Rectangle srcRectangle(viewport[0], viewport[1], viewport[2], viewport[3]);
-    return Capture(rBitmap, pixelFormat, srcRectangle);
+    const auto srcRectanglePx = PxRectangle::Create(viewport[0], viewport[1], viewport[2], viewport[3]);
+    return Capture(rBitmap, pixelFormat, srcRectanglePx);
   }
 
 
-  void GLUtil::Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const Rectangle& srcRectangle)
+  void GLUtil::Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const PxRectangle& srcRectanglePx)
   {
+    const CaptureMethodRecord captureDecision = MakeCaptureDecision();
+
     // We don't need to clear as we are going to overwrite everything anyway
     // We utilize PixelFormatLayout::R8G8B8A8 here since that is what glReadPixels is filling it with
     // that also allows the convert method to detect if the the supplied pixelFormat is different and then
     // convert as necessary
-    rBitmap.Reset(PxExtent2D::Create(srcRectangle.Width(), srcRectangle.Height()), PixelFormat::R8G8B8A8_UINT, BitmapOrigin::LowerLeft,
-                  BitmapClearMethod::DontClear);
+    rBitmap.Reset(srcRectanglePx.GetSize(), captureDecision.BitmapPixelFormat, BitmapOrigin::LowerLeft, BitmapClearMethod::DontClear);
 
     // glFinish();
     {
-      RawBitmapEx rawBitmap;
-      Bitmap::ScopedDirectAccess scopedAccess(rBitmap, rawBitmap);
-      GL_CHECK(glReadPixels(srcRectangle.X(), srcRectangle.Y(), srcRectangle.Width(), srcRectangle.Height(), GL_RGBA, GL_UNSIGNED_BYTE,
-                            rawBitmap.Content()));
-      RawBitmapUtil::FlipHorizontal(rawBitmap);
+      Bitmap::ScopedDirectReadWriteAccess scopedAccess(rBitmap);
+      GL_CHECK(glReadPixels(srcRectanglePx.RawX(), srcRectanglePx.RawY(), srcRectanglePx.RawWidth(), srcRectanglePx.RawHeight(),
+                            captureDecision.Encoding.Format, captureDecision.Encoding.Type, scopedAccess.AsRawBitmap().Content()));
+      RawBitmapUtil::FlipHorizontal(scopedAccess.AsRawBitmap());
     }
 
     // Convert if necessary (convert will do nothing if the format is already correct)

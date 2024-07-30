@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Time/TickCount.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslDemoApp/Base/TimeStepMode.hpp>
 #include <optional>
@@ -71,17 +72,17 @@ namespace Fsl
       //! The total accumulated time that has not been used by the app so far
       TimeSpan CurrentAccumulatedTime;
       //! The total fixed time that has passed since we launched (which the app knows about)
-      TimeSpan AccumulatedTotalTime;
+      TickCount AppTickCount;
     };
 
     struct Timing
     {
-      TimeSpan TimeThen{0u};
+      TickCount TimeThen{0u};
 
       //! The time that has passed since last time
       TimeSpan LastTimeDiff;
       //! The total time that has passed since we launched
-      TimeSpan AccumulatedTotalTime;
+      TickCount AccumulatedTotalTime;
 
       FixedTiming FixedTime;
     };
@@ -93,7 +94,7 @@ namespace Fsl
     //! @brief
     //! @param currentTimestamp the current timestamp.
     //! @param forcedUpdateTime the forced update time ignores any real timings (if this is zero forced update times are disabled)
-    explicit DemoAppTiming(const TimeSpan currentTimestamp, const TimeSpan forcedUpdateTime);
+    explicit DemoAppTiming(const TickCount currentTimestamp, const TimeSpan forcedUpdateTime);
 
     //! @brief Set the number of fixed updates per second
     //! @return true if the value was different and therefore changed (false if the value was equal to the existing and therefore did nothing).
@@ -106,13 +107,13 @@ namespace Fsl
 
     //! @brief Reset the timer to the supplied time (last timestamp will also be equal to the current time)
     //! @param currentTimestamp the current timestamp.
-    void ResetTimer(const TimeSpan currentTimestamp);
+    void ResetTimer(const TickCount currentTimestamp);
 
     //! Advance the time by the fixed/forced timestep
     void AdvanceFixedTimeStep();
 
 
-    void TimeNow(const TimeSpan currentTimestamp, const TimeStepMode timeStepMode);
+    void TimeNow(const TickCount currentTimestamp, const TimeStepMode timeStepMode);
 
 
     bool HasPendingFixedUpdate() const noexcept;
@@ -126,7 +127,7 @@ namespace Fsl
     }
 
   private:
-    void DoTimeNow(const TimeSpan currentTimestamp, const TimeStepMode timeStepMode, const bool allowForce);
+    void DoTimeNow(const TickCount currentTimestamp, const TimeStepMode timeStepMode, const bool allowForce);
     void ConfigureTimeStepMode(const TimeStepMode mode);
     TimeSpan ApplyMaxFrameTimpCap(const TimeSpan timeDiff) const noexcept;
     void ApplyTimeStepMode(TimeSpan& rTimeDiff, TimeSpan& rAccumulatedTime, const TimeStepMode timeStepMode) const noexcept;

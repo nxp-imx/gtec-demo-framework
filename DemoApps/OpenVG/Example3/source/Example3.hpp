@@ -40,25 +40,25 @@ namespace Fsl
 {
   class Example3 : public DemoAppVG
   {
-    OpenVG::VGPathBuffer m_vg_triangle_path;
-    OpenVG::VGPathBuffer m_vg_quad_path;
-    OpenVG::VGPathBuffer m_vg_cubic_path;
-    OpenVG::VGPathBuffer m_vg_arc_path;
-    VGPaint m_vg_triangle_paint;
-    VGPaint m_vg_quad_paint;
-    VGPaint m_vg_cubic_paint;
-    VGPaint m_vg_arc_paint;
-    VGPaint m_vg_stroke_paint;
+    OpenVG::VGPathBuffer m_vgTrianglePath;
+    OpenVG::VGPathBuffer m_vgQuadPath;
+    OpenVG::VGPathBuffer m_vgCubicPath;
+    OpenVG::VGPathBuffer m_vgArcPath;
+    VGPaint m_vgTrianglePaint;
+    VGPaint m_vgQuadPaint;
+    VGPaint m_vgCubicPaint;
+    VGPaint m_vgArcPaint;
+    VGPaint m_vgStrokePaint;
 
     VGfloat m_angle;
     VGfloat m_scale;
     VGfloat m_shear;
     VGfloat m_translate;
-    uint8_t m_scale_direction;
-    uint8_t m_shear_direction;
-    uint8_t m_translate_direction;
-    uint8_t m_scissors_direction;
-    VGfloat m_scissor_rectangle;
+    uint8_t m_scaleDirection;
+    uint8_t m_shearDirection;
+    uint8_t m_translateDirection;
+    uint8_t m_scissorsDirection;
+    VGfloat m_scissorRectangle;
 
   public:
     explicit Example3(const DemoAppConfig& config);

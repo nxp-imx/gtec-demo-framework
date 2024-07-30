@@ -28,16 +28,16 @@ namespace Fsl
 
     {    // Initialization
       // 3 vertices, with (x,y,z), (r, g, b, a) per-vertex
-      constexpr std::array<VertexPositionColorF, 3> vertices = {
+      constexpr std::array<VertexPositionColorF, 3> Vertices = {
         VertexPositionColorF(Vector3(-0.5f, 0.5f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f)),     // v0, c0
         VertexPositionColorF(Vector3(-1.0f, -0.5f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f)),    // v1, c1
         VertexPositionColorF(Vector3(0.0f, -0.5f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f)),     // v2, c2
       };
       // Index buffer data
-      constexpr std::array<GLushort, 3> indices = {0, 1, 2};
+      constexpr std::array<GLushort, 3> Indices = {0, 1, 2};
 
       // 4 vertices, with (x,y,z), (r, g, b, a) per-vertex
-      constexpr std::array<VertexPositionColorF, 4> vertices2 = {
+      constexpr std::array<VertexPositionColorF, 4> Vertices2 = {
         VertexPositionColorF(Vector3(0.0f, 0.5f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f)),     // v0, c0
         VertexPositionColorF(Vector3(0.0f, -0.5f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f)),    // v1, c1
         VertexPositionColorF(Vector3(1.0f, -0.5f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f)),    // v2, c2
@@ -45,16 +45,16 @@ namespace Fsl
       };
 
       // Index buffer data
-      constexpr std::array<GLushort, 6> indices2 = {0, 2, 1, 0, 3, 2};
+      constexpr std::array<GLushort, 6> Indices2 = {0, 2, 1, 0, 3, 2};
 
 
       // Prepare the vertex and index buffer
-      m_vertexBuffer0.Reset(vertices.data(), vertices.size(), GL_STATIC_DRAW);
-      m_indexBuffer0.Reset(indices.data(), indices.size(), GL_STATIC_DRAW);
+      m_vertexBuffer0.Reset(Vertices.data(), Vertices.size(), GL_STATIC_DRAW);
+      m_indexBuffer0.Reset(Indices.data(), Indices.size(), GL_STATIC_DRAW);
 
       // Prepare the vertex and index buffer
-      m_vertexBuffer1.Reset(vertices2.data(), vertices2.size(), GL_STATIC_DRAW);
-      m_indexBuffer1.Reset(indices2.data(), indices2.size(), GL_STATIC_DRAW);
+      m_vertexBuffer1.Reset(Vertices2.data(), Vertices2.size(), GL_STATIC_DRAW);
+      m_indexBuffer1.Reset(Indices2.data(), Indices2.size(), GL_STATIC_DRAW);
 
       // Prepare the vertex arrays
       m_vertexArray0.Reset(true);

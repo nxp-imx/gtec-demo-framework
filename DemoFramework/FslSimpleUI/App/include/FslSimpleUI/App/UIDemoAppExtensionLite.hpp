@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_APP_UIDEMOAPPEXTENSIONLITE_HPP
 #define FSLSIMPLEUI_APP_UIDEMOAPPEXTENSIONLITE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Render/Adapter/IDynamicNativeTexture2D.hpp>
+#include <FslGraphics/Render/Basic/BasicPrimitiveTopology.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialId.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
@@ -98,14 +99,17 @@ namespace Fsl
 
     struct Resources
     {
+      UIAppTextureHandle MainTextureAtlasHandle;
       // std::shared_ptr<SpriteFont> DefaultFontOpaque;
       std::shared_ptr<SpriteFont> DefaultFont;
       std::shared_ptr<SpriteFont> DefaultHeaderFont;
       PathRecord Paths;
 
       Resources() = default;
-      Resources(std::shared_ptr<SpriteFont> defaultFont, std::shared_ptr<SpriteFont> defaultHeaderFont, const PathRecord& paths)
-        : DefaultFont(std::move(defaultFont))
+      Resources(UIAppTextureHandle mainTextureAtlasHandle, std::shared_ptr<SpriteFont> defaultFont, std::shared_ptr<SpriteFont> defaultHeaderFont,
+                const PathRecord& paths)
+        : MainTextureAtlasHandle(mainTextureAtlasHandle)
+        , DefaultFont(std::move(defaultFont))
         , DefaultHeaderFont(std::move(defaultHeaderFont))
         , Paths(paths)
       {
@@ -142,7 +146,14 @@ namespace Fsl
       return m_context;
     }
 
-    SpriteMaterialId GetDefaultMaterialId(const bool opaque = false) const;
+    UIAppTextureHandle GetAtlasTextureHandle() const noexcept
+    {
+      return m_resources.MainTextureAtlasHandle;
+    }
+
+
+    SpriteMaterialId GetDefaultMaterialId(const BasicPrimitiveTopology primitiveTopology = BasicPrimitiveTopology::TriangleList,
+                                          const bool opaque = false) const;
 
     //! @brief Retrieve the atlas texture used for the default texture atlas
 
@@ -155,6 +166,7 @@ namespace Fsl
                                      const bool isUITexture);
     UIAppTextureHandle CreateAtlasTexture(const IO::PathView& atlasPath, const UIAppTextureResourceCreationInfo& textureCreationInfo,
                                           const bool isUITexture);
+    UIAppTextureHandle CreateLegacyAtlasTexture(const IO::PathView& atlasPath, const UIAppTextureResourceCreationInfo& textureCreationInfo);
     void AddSpriteMaterial(const SpriteMaterialId& spriteMaterialId, const UIAppTextureHandle& hTexture, const BlendState blendState);
 
     // Get access to the sprite resource manager

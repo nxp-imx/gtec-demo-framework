@@ -32,6 +32,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
 #include <FslUtil/OpenCL1_2/ProgramEx.hpp>
 #include <RapidOpenCL1/Check.hpp>
@@ -43,70 +44,68 @@
 #include <sstream>
 #include "OptionParser.hpp"
 
-using namespace RapidOpenCL1;
-
 namespace Fsl
 {
-  using namespace OpenCL;
-
   namespace
   {
-    const auto RADIX2_FFT_KERNEL = "fft_radix2";
-    const auto RADIX4_FFT_KERNEL = "fft_radix4";
+    namespace KernelName
+    {
+      constexpr auto RadiX2Fft = "fft_radix2";
+      constexpr auto RadiX4Fft = "fft_radix4";
+    }
 
 
-    const std::array<int, FFT_MAX_LOG2N> g_p = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
+    const std::array<int, FftMaxLoG2N> g_p = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
 
 
-    const std::array<int, FFT_MAX_LOG2N> g_twop = {2 * 1,   2 * 2,   2 * 4,    2 * 8,    2 * 16,   2 * 32,   2 * 64,    2 * 128,
-                                                   2 * 256, 2 * 512, 2 * 1024, 2 * 2048, 2 * 4096, 2 * 8192, 2 * 16384, 2 * 32768};
+    const std::array<int, FftMaxLoG2N> g_twop = {2 * 1,   2 * 2,   2 * 4,    2 * 8,    2 * 16,   2 * 32,   2 * 64,    2 * 128,
+                                                 2 * 256, 2 * 512, 2 * 1024, 2 * 2048, 2 * 4096, 2 * 8192, 2 * 16384, 2 * 32768};
 
 
-    const std::array<int, FFT_MAX_LOG2N> g_threep = {3 * 1,   3 * 2,   3 * 4,    3 * 8,    3 * 16,   3 * 32,   3 * 64,    3 * 128,
-                                                     3 * 256, 3 * 512, 3 * 1024, 3 * 2048, 3 * 4096, 3 * 8192, 3 * 16384, 3 * 32768};
+    const std::array<int, FftMaxLoG2N> g_threep = {3 * 1,   3 * 2,   3 * 4,    3 * 8,    3 * 16,   3 * 32,   3 * 64,    3 * 128,
+                                                   3 * 256, 3 * 512, 3 * 1024, 3 * 2048, 3 * 4096, 3 * 8192, 3 * 16384, 3 * 32768};
 
 
-    const std::array<int, FFT_MAX_LOG2N> g_pminus1 = {1 - 1,   2 - 1,   4 - 1,    8 - 1,    16 - 1,   32 - 1,   64 - 1,    128 - 1,
-                                                      256 - 1, 512 - 1, 1024 - 1, 2048 - 1, 4096 - 1, 8192 - 1, 16384 - 1, 32768 - 1};
+    const std::array<int, FftMaxLoG2N> g_pminus1 = {1 - 1,   2 - 1,   4 - 1,    8 - 1,    16 - 1,   32 - 1,   64 - 1,    128 - 1,
+                                                    256 - 1, 512 - 1, 1024 - 1, 2048 - 1, 4096 - 1, 8192 - 1, 16384 - 1, 32768 - 1};
 
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-    const cl_float g_minusPIoverp[FFT_MAX_LOG2N] = {
+    const cl_float g_minusPIoverp[FftMaxLoG2N] = {
       -MathHelper::PI,          -MathHelper::PI / 2.f,    -MathHelper::PI / 4.f,     -MathHelper::PI / 8.f,
       -MathHelper::PI / 16.f,   -MathHelper::PI / 32.f,   -MathHelper::PI / 64.f,    -MathHelper::PI / 128.f,
       -MathHelper::PI / 256.f,  -MathHelper::PI / 512.f,  -MathHelper::PI / 1024.f,  -MathHelper::PI / 2048.f,
       -MathHelper::PI / 4096.f, -MathHelper::PI / 8192.f, -MathHelper::PI / 16384.f, -MathHelper::PI / 32768.f};
 
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-    const cl_float g_minusPIover2p[FFT_MAX_LOG2N] = {
+    const cl_float g_minusPIover2p[FftMaxLoG2N] = {
       -MathHelper::PI / 2.f,    -MathHelper::PI / 4.f,     -MathHelper::PI / 8.f,     -MathHelper::PI / 16.f,
       -MathHelper::PI / 32.f,   -MathHelper::PI / 64.f,    -MathHelper::PI / 128.f,   -MathHelper::PI / 256.f,
       -MathHelper::PI / 512.f,  -MathHelper::PI / 1024.f,  -MathHelper::PI / 2048.f,  -MathHelper::PI / 4096.f,
       -MathHelper::PI / 8192.f, -MathHelper::PI / 16384.f, -MathHelper::PI / 32768.f, -MathHelper::PI / 65536.f};
 
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-    const cl_float g_minusPIover2p_2x[FFT_MAX_LOG2N] = {
+    const cl_float g_minusPIover2p2x[FftMaxLoG2N] = {
       -2.f * MathHelper::PI / 2.f,    -2.f * MathHelper::PI / 4.f,     -2.f * MathHelper::PI / 8.f,     -2.f * MathHelper::PI / 16.f,
       -2.f * MathHelper::PI / 32.f,   -2.f * MathHelper::PI / 64.f,    -2.f * MathHelper::PI / 128.f,   -2.f * MathHelper::PI / 256.f,
       -2.f * MathHelper::PI / 512.f,  -2.f * MathHelper::PI / 1024.f,  -2.f * MathHelper::PI / 2048.f,  -2.f * MathHelper::PI / 4096.f,
       -2.f * MathHelper::PI / 8192.f, -2.f * MathHelper::PI / 16384.f, -2.f * MathHelper::PI / 32768.f, -2.f * MathHelper::PI / 65536.f};
 
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-    const cl_float g_minusPIover2p_3x[FFT_MAX_LOG2N] = {
+    const cl_float g_minusPIover2p3x[FftMaxLoG2N] = {
       -3.f * MathHelper::PI / 2.f,    -3.f * MathHelper::PI / 4.f,     -3.f * MathHelper::PI / 8.f,     -3.f * MathHelper::PI / 16.f,
       -3.f * MathHelper::PI / 32.f,   -3.f * MathHelper::PI / 64.f,    -3.f * MathHelper::PI / 128.f,   -3.f * MathHelper::PI / 256.f,
       -3.f * MathHelper::PI / 512.f,  -3.f * MathHelper::PI / 1024.f,  -3.f * MathHelper::PI / 2048.f,  -3.f * MathHelper::PI / 4096.f,
       -3.f * MathHelper::PI / 8192.f, -3.f * MathHelper::PI / 16384.f, -3.f * MathHelper::PI / 32768.f, -3.f * MathHelper::PI / 65536.f};
 
 
-    int Radix(const int N)
+    int Radix(const int n)
     {
-      int i = 0;
       int j = 0;
-      for (; i <= 31; i++)
+      for (int i = 0; i <= 31; ++i)
       {
-        if ((N & (1 << i)) == 0)
+        if ((n & (1 << i)) == 0)
         {
-          j++;
+          ++j;
         }
         else
         {
@@ -141,52 +140,29 @@ namespace Fsl
     }
 
 
-    void CopyToDevice(const CommandQueue& commandQueue, const cl_mem mem, float* const hostPtr, const unsigned size)
+    void CopyToDevice(const RapidOpenCL1::CommandQueue& commandQueue, const cl_mem mem, const ReadOnlySpan<float> hostSpan)
     {
-      RAPIDOPENCL_CHECK(clEnqueueWriteBuffer(commandQueue.Get(), mem, CL_FALSE, 0, sizeof(float) * size, hostPtr, 0, nullptr, nullptr));
+      RAPIDOPENCL_CHECK(
+        clEnqueueWriteBuffer(commandQueue.Get(), mem, CL_FALSE, 0, sizeof(float) * hostSpan.size(), hostSpan.data(), 0, nullptr, nullptr));
     }
 
 
-    void CopyFromDevice(const CommandQueue& commandQueue, const cl_mem dMem, float* const hostPtr, const unsigned size, UserEvent* pGpuDone)
+    void CopyFromDevice(const RapidOpenCL1::CommandQueue& commandQueue, const cl_mem dMem, Span<float> hostSpan, RapidOpenCL1::UserEvent* pGpuDone)
     {
       if (pGpuDone == nullptr)
       {
-        RAPIDOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), dMem, CL_FALSE, 0, sizeof(float) * size, hostPtr, 0, nullptr, nullptr));
+        RAPIDOPENCL_CHECK(
+          clEnqueueReadBuffer(commandQueue.Get(), dMem, CL_FALSE, 0, sizeof(float) * hostSpan.size(), hostSpan.data(), 0, nullptr, nullptr));
       }
       else
       {
         cl_event hEvent = nullptr;
-        RAPIDOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), dMem, CL_FALSE, 0, sizeof(float) * size, hostPtr, 0, nullptr, &hEvent));
+        RAPIDOPENCL_CHECK(
+          clEnqueueReadBuffer(commandQueue.Get(), dMem, CL_FALSE, 0, sizeof(float) * hostSpan.size(), hostSpan.data(), 0, nullptr, &hEvent));
         // Hand off the event to a managed object
         pGpuDone->Reset(hEvent);
       }
     }
-
-
-    cl_uint GetDeviceCount(const cl_context context)
-    {
-      std::size_t nDeviceBytes = 0;
-      RAPIDOPENCL_CHECK(clGetContextInfo(context, CL_CONTEXT_DEVICES, 0, nullptr, &nDeviceBytes));
-      return (static_cast<cl_uint>(nDeviceBytes) / sizeof(cl_device_id));
-    }
-
-
-    cl_uint GetNumComputeUnits(const cl_platform_id platform, const cl_device_type deviceType)
-    {
-      // Get all the devices
-      FSLLOG3_INFO("Get the Device info and select Device...");
-      const auto devices = OpenCLHelper::GetDeviceIDs(platform, deviceType);
-
-      // Set target device and Query number of compute units on targetDevice
-      FSLLOG3_INFO("# of Devices Available = {}", devices.size());
-
-      cl_uint numComputeUnits = 0;
-      RAPIDOPENCL_CHECK(clGetDeviceInfo(devices[0], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(numComputeUnits), &numComputeUnits, nullptr));
-
-      FSLLOG3_INFO("# of Compute Units = {}", numComputeUnits);
-      return numComputeUnits;
-    }
-
 
     double GetExecutionTime(const cl_event event)
     {
@@ -209,16 +185,13 @@ namespace Fsl
     , m_length(16)
     , m_save(true)
     , m_blockSize(16)
-    , m_deviceId(nullptr)
-    , m_gpuDone(Values::INVALID_EVENT)
+    , m_gpuDone(RapidOpenCL1::Values::INVALID_EVENT)
   {
     auto optionParser = config.GetOptions<OptionParser>();
     const auto length = optionParser->GetLength();
-    if (length > FFT_MAX)
+    if (length > FftMax)
     {
-      std::stringstream errorMessage;
-      errorMessage << "FFT length cannot be greater than " << FFT_MAX;
-      throw std::invalid_argument(errorMessage.str());
+      throw std::invalid_argument(fmt::format("FFT length cannot be greater than {}", FftMax));
     }
 
     if (length < 16)
@@ -228,9 +201,7 @@ namespace Fsl
 
     if ((length != 1) && ((length & (length - 1)) != 0u))
     {
-      std::stringstream errorMessage;
-      errorMessage << "FFT length (" << length << ") must be a power-of-2.";
-      throw std::invalid_argument(errorMessage.str());
+      throw std::invalid_argument(fmt::format("FFT length ({}) must be a power-of-2.", length));
     }
     m_length = length;
 
@@ -250,24 +221,12 @@ namespace Fsl
       }
 
       FSLLOG3_INFO("Initializing device(s)...");
-      const cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
 
       // create the OpenCL context on available GPU devices
-      m_context.Reset(deviceType);
-
-      if (GetDeviceCount(m_context.Get()) <= 0)
-      {
-        throw InitFailedException("No OpenCL specific devices!");
-      }
-
-      const cl_uint ciComputeUnitsCount = GetNumComputeUnits(m_context.GetPlatformId(), deviceType);
-      FSLLOG3_INFO("# compute units = {}", ciComputeUnitsCount);
-
-      FSLLOG3_INFO("Getting device id...");
-      RAPIDOPENCL_CHECK(clGetContextInfo(m_context.Get(), CL_CONTEXT_DEVICES, sizeof(cl_device_id), &m_deviceId, nullptr));
+      m_context.Reset(CL_DEVICE_TYPE_GPU);
 
       FSLLOG3_INFO("Creating Command Queue...");
-      m_commandQueue.Reset(m_context.Get(), m_deviceId, CL_QUEUE_PROFILING_ENABLE);
+      m_commandQueue.Reset(m_context.Get(), m_context.GetDeviceId(), CL_QUEUE_PROFILING_ENABLE);
     }
   }
 
@@ -302,25 +261,25 @@ namespace Fsl
     // compileProgram("fft.cl");
 
     const std::string strProgram = GetContentManager()->ReadAllText("fft.cl");
-    ProgramEx program(m_context.Get(), m_deviceId, strProgram);
+    OpenCL::ProgramEx program(m_context.Get(), m_context.GetDeviceId(), strProgram);
 
     FSLLOG3_INFO("creating radix-{} kernels...", rad);
 
-    std::array<Kernel, FFT_MAX_LOG2N> kernels;
+    std::array<RapidOpenCL1::Kernel, FftMaxLoG2N> kernels;
     if (2 == rad)
     {
       for (unsigned kk = 0; kk < log2n; kk++)
       {
-        FSLLOG3_INFO("Creating kernel {} {} (p={})...", RADIX2_FFT_KERNEL, kk, g_p[kk]);
-        kernels[kk].Reset(program.Get(), RADIX2_FFT_KERNEL);
+        FSLLOG3_INFO("Creating kernel {} {} (p={})...", KernelName::RadiX2Fft, kk, g_p[kk]);
+        kernels[kk].Reset(program.Get(), KernelName::RadiX2Fft);
       }
     }
     else
     {    // radix-4
       for (unsigned kk = 0; kk < log2n; kk += 2)
       {
-        FSLLOG3_INFO("Creating kernel {} {}...", RADIX4_FFT_KERNEL, (kk >> 1));
-        kernels[kk >> 1].Reset(program.Get(), RADIX4_FFT_KERNEL);
+        FSLLOG3_INFO("Creating kernel {} {}...", KernelName::RadiX4Fft, (kk >> 1));
+        kernels[kk >> 1].Reset(program.Get(), KernelName::RadiX4Fft);
       }
     }
 
@@ -334,8 +293,8 @@ namespace Fsl
       // input and output swapped each time
       for (unsigned kk = 0; kk < log2n; kk++)
       {
-        void* in = (0 == (kk & 1)) ? &m_deviceMemIntime : &m_deviceMemOutfft;
-        void* out = (0 == (kk & 1)) ? &m_deviceMemOutfft : &m_deviceMemIntime;
+        void* in = (0 == (kk & 1)) ? &m_deviceMemInTime : &m_deviceMemOutFft;
+        void* out = (0 == (kk & 1)) ? &m_deviceMemOutFft : &m_deviceMemInTime;
         FSLLOG3_INFO("Setting kernel args for kernel {} (p={})...", kk, g_p[kk]);
         const cl_kernel hKernel = kernels[kk].Get();
         clSetKernelArg(hKernel, 0, sizeof(cl_mem), in);
@@ -351,8 +310,8 @@ namespace Fsl
       for (uint32_t kk = 0; kk < log2n; kk += 2)
       {
         uint32_t idx = kk >> 1;
-        void* in = (0 == (idx & 1)) ? &m_deviceMemIntime : &m_deviceMemOutfft;
-        void* out = (0 == (idx & 1)) ? &m_deviceMemOutfft : &m_deviceMemIntime;
+        void* in = (0 == (idx & 1)) ? &m_deviceMemInTime : &m_deviceMemOutFft;
+        void* out = (0 == (idx & 1)) ? &m_deviceMemOutFft : &m_deviceMemInTime;
         FSLLOG3_INFO("Setting kernel args for kernel {} (p={})...", idx, g_p[kk]);
         const cl_kernel hKernel = kernels[kk].Get();
         clSetKernelArg(hKernel, 0, sizeof(cl_mem), in);
@@ -362,15 +321,15 @@ namespace Fsl
         clSetKernelArg(hKernel, 4, sizeof(unsigned), &g_twop[kk]);
         clSetKernelArg(hKernel, 5, sizeof(unsigned), &g_threep[kk]);
         clSetKernelArg(hKernel, 6, sizeof(cl_float), &g_minusPIover2p[kk]);
-        clSetKernelArg(hKernel, 7, sizeof(cl_float), &g_minusPIover2p_2x[kk]);
-        clSetKernelArg(hKernel, 8, sizeof(cl_float), &g_minusPIover2p_3x[kk]);
+        clSetKernelArg(hKernel, 7, sizeof(cl_float), &g_minusPIover2p2x[kk]);
+        clSetKernelArg(hKernel, 8, sizeof(cl_float), &g_minusPIover2p3x[kk]);
       }    // end (for 1,4,16,...,N/4)
-    }      // end (if radix-2 or radix-4)
+    }    // end (if radix-2 or radix-4)
 
     const std::size_t globalWorkSize = (2 == rad) ? (1 << (log2n - 1)) : (m_length >> 2);
     const std::size_t localWorkSize = (m_blockSize <= globalWorkSize) ? m_blockSize : globalWorkSize;
 
-    cl_mem d_result = Values::INVALID_MEM;
+    cl_mem dResult = RapidOpenCL1::Values::INVALID_MEM;
     if (2 == rad)
     {
       for (unsigned kk = 0; kk < log2n; kk++)
@@ -384,7 +343,7 @@ namespace Fsl
         // Hand the event over to a managed object
         m_gpuExecution[kk].Reset(hEvent);
 
-        d_result = ((0 == (kk & 1)) ? m_deviceMemOutfft : m_deviceMemIntime).Get();
+        dResult = ((0 == (kk & 1)) ? m_deviceMemOutFft : m_deviceMemInTime).Get();
       }
     }
     else
@@ -401,15 +360,15 @@ namespace Fsl
         // Hand the event over to a managed object
         m_gpuExecution[idx].Reset(hEvent);
 
-        d_result = ((0 == (kk & 1)) ? m_deviceMemOutfft : m_deviceMemIntime).Get();
+        dResult = ((0 == (kk & 1)) ? m_deviceMemOutFft : m_deviceMemInTime).Get();
       }
     }
-    if (d_result == Values::INVALID_MEM)
+    if (dResult == RapidOpenCL1::Values::INVALID_MEM)
     {
       throw std::runtime_error("Internal error. variable not set");
     }
 
-    CopyFromDevice(m_commandQueue, d_result, m_outfft.data() + workOffset, 2 * worksize, &m_gpuDone);
+    CopyFromDevice(m_commandQueue, dResult, SpanUtil::AsSpan(m_outFft, workOffset, 2 * worksize), &m_gpuDone);
 
     // wait for copy event
     const cl_event hGPUDone = m_gpuDone.Get();
@@ -419,7 +378,7 @@ namespace Fsl
     FSLLOG3_INFO("Successful.");
     if (m_save)
     {
-      auto result = BuildResultString(m_length, m_outfft);
+      auto result = BuildResultString(m_length, m_outFft);
       GetPersistentDataManager()->WriteAlltext("fft_output.csv", result);
     }
   }
@@ -427,51 +386,67 @@ namespace Fsl
 
   void FastFourierTransform::AllocateHostMemory(const std::size_t len)
   {
-    m_Freal.resize(len);
-    m_Fimag.resize(len);
-    m_Rreal.resize(len);
-    m_Rimag.resize(len);
+    m_realF.resize(len);
+    m_imagF.resize(len);
+    m_realR.resize(len);
+    m_imagR.resize(len);
     //  real/imag interleaved input time-domain samples
     m_intime.resize(len * 2);
     //  real/imag interleaved output FFT data
-    m_outfft.resize(len * 2);
+    m_outFft.resize(len * 2);
 
     const unsigned n = 16;
     for (unsigned i = 0; i < len; ++i)
     {
-      m_Freal[i] = static_cast<float>((i + 1) % n);
-      m_Fimag[i] = static_cast<float>((i + 1) % n);
+      m_realF[i] = static_cast<float>((i + 1) % n);
+      m_imagF[i] = static_cast<float>((i + 1) % n);
       m_intime[2 * i] = m_intime[2 * i + 1] = static_cast<float>((i + 1) % n);
       // m_Rreal[i] = 0;
       // m_Rimag[i] = 0;
-      m_outfft[2 * i] = m_outfft[2 * i + 1] = 0;
+      m_outFft[2 * i] = m_outFft[2 * i + 1] = 0;
     }
   }
 
 
   void FastFourierTransform::AllocateDeviceMemory(const cl_context context, const unsigned size, const unsigned copyOffset)
   {
-    const auto defaultFlags = CL_MEM_COPY_HOST_PTR;
+    constexpr auto DefaultFlags = CL_MEM_COPY_HOST_PTR;
+    {
+      Span<float> span = SpanUtil::AsSpan(m_realF, copyOffset, size);
+      m_deviceMemRealF.Reset(context, DefaultFlags | CL_MEM_READ_ONLY, sizeof(float) * span.size(), span.data());
+      CopyToDevice(m_commandQueue, m_deviceMemRealF.Get(), span);
+    }
 
-    m_deviceMemFreal.Reset(context, defaultFlags | CL_MEM_READ_ONLY, sizeof(float) * size, m_Freal.data() + copyOffset);
-    CopyToDevice(m_commandQueue, m_deviceMemFreal.Get(), m_Freal.data() + copyOffset, size);
+    {
+      Span<float> span = SpanUtil::AsSpan(m_imagF, copyOffset, size);
+      m_deviceMemImagF.Reset(context, DefaultFlags | CL_MEM_READ_ONLY, sizeof(float) * span.size(), span.data());
+      CopyToDevice(m_commandQueue, m_deviceMemImagF.Get(), span);
+    }
 
-    m_deviceMemFimag.Reset(context, defaultFlags | CL_MEM_READ_ONLY, sizeof(float) * size, m_Fimag.data() + copyOffset);
-    CopyToDevice(m_commandQueue, m_deviceMemFimag.Get(), m_Fimag.data() + copyOffset, size);
+    {    //  copy real/imag interleaved input data to device
+      Span<float> span = SpanUtil::AsSpan(m_intime, copyOffset * 2, size * 2);
+      m_deviceMemInTime.Reset(context, DefaultFlags | CL_MEM_READ_WRITE, sizeof(float) * span.size(), span.data());
+      Span<float> span2 = SpanUtil::AsSpan(m_outFft, 0, size * 2);
+      CopyFromDevice(m_commandQueue, m_deviceMemInTime.Get(), span2, nullptr);    // debug
+    }
 
-    //  copy real/imag interleaved input data to device
-    m_deviceMemIntime.Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(float) * size * 2, m_intime.data() + copyOffset * 2);
-    CopyFromDevice(m_commandQueue, m_deviceMemIntime.Get(), m_outfft.data(), size * 2, nullptr);    // debug
+    {
+      Span<float> span = SpanUtil::AsSpan(m_realR, copyOffset, size);
+      m_deviceMemRealR.Reset(context, DefaultFlags | CL_MEM_WRITE_ONLY, sizeof(float) * span.size(), span.data());
+      CopyToDevice(m_commandQueue, m_deviceMemRealR.Get(), span);
+    }
 
-    m_deviceMemRreal.Reset(context, defaultFlags | CL_MEM_WRITE_ONLY, sizeof(float) * size, m_Rreal.data() + copyOffset);
-    CopyToDevice(m_commandQueue, m_deviceMemRreal.Get(), m_Rreal.data() + copyOffset, size);
+    {
+      Span<float> span = SpanUtil::AsSpan(m_imagR, copyOffset, size);
+      m_deviceMemImagR.Reset(context, DefaultFlags | CL_MEM_WRITE_ONLY, sizeof(float) * span.size(), span.data());
+      CopyToDevice(m_commandQueue, m_deviceMemImagR.Get(), span);
+    }
 
-    m_deviceMemRimag.Reset(context, defaultFlags | CL_MEM_WRITE_ONLY, sizeof(float) * size, m_Rimag.data() + copyOffset);
-    CopyToDevice(m_commandQueue, m_deviceMemRimag.Get(), m_Rimag.data() + copyOffset, size);
-
-    //  copy real/imag interleaved out FFT to device
-    m_deviceMemOutfft.Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(float) * size * 2, m_outfft.data() + copyOffset * 2);
-    CopyToDevice(m_commandQueue, m_deviceMemIntime.Get(), m_outfft.data() + copyOffset * 2, size * 2);
+    {    //  copy real/imag interleaved out FFT to device
+      Span<float> span = SpanUtil::AsSpan(m_outFft, copyOffset * 2, size * 2);
+      m_deviceMemOutFft.Reset(context, DefaultFlags | CL_MEM_READ_WRITE, sizeof(float) * span.size(), span.data());
+      CopyToDevice(m_commandQueue, m_deviceMemInTime.Get(), span);
+    }
   }
 
 

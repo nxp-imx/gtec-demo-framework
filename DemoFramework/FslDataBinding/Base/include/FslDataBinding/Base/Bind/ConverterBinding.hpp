@@ -1,7 +1,7 @@
 #ifndef FSLDATABINDING_BASE_BIND_CONVERTERBINDING_HPP
 #define FSLDATABINDING_BASE_BIND_CONVERTERBINDING_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -95,6 +95,24 @@ namespace Fsl::DataBinding
       case Internal::PropertyMethodsImplType::ATypedDependencyPropertyRef:
         {    // Try the ref get method
           const auto* const pTypedGetOperation = dynamic_cast<const Internal::ATypedDependencyPropertyRefMethods<source_value_type>*>(pGet);
+          if (pTypedGetOperation != nullptr)
+          {
+            return Internal::TypedPropertyMethodsUtil::SetByRef(setPropertyMethodsImplType, pSet, m_fnConvert(pTypedGetOperation->Get()));
+          }
+          break;
+        }
+      case Internal::PropertyMethodsImplType::ATypedReadOnlyDependencyProperty:
+        {    // Try the normal get method
+          const auto* const pTypedGetOperation = dynamic_cast<const Internal::ATypedReadOnlyDependencyPropertyMethods<source_value_type>*>(pGet);
+          if (pTypedGetOperation != nullptr)
+          {
+            return Internal::TypedPropertyMethodsUtil::SetByValue(setPropertyMethodsImplType, pSet, m_fnConvert(pTypedGetOperation->Get()));
+          }
+          break;
+        }
+      case Internal::PropertyMethodsImplType::ATypedReadOnlyDependencyPropertyRef:
+        {    // Try the ref get method
+          const auto* const pTypedGetOperation = dynamic_cast<const Internal::ATypedReadOnlyDependencyPropertyRefMethods<source_value_type>*>(pGet);
           if (pTypedGetOperation != nullptr)
           {
             return Internal::TypedPropertyMethodsUtil::SetByRef(setPropertyMethodsImplType, pSet, m_fnConvert(pTypedGetOperation->Get()));

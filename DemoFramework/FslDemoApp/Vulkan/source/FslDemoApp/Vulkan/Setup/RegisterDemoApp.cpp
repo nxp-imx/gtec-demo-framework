@@ -40,14 +40,15 @@
 #include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoHost/Vulkan/Service/VulkanHost/VulkanHostServiceFactory.hpp>
 #include <FslDemoHost/Vulkan/VulkanDemoHostSetup.hpp>
-// #include <FslDemoHost/Vulkan/Service/VulkanHost/VulkanHostServiceFactory.hpp>
 #include <FslDemoService/Graphics/Impl/GraphicsServiceFactory.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsService.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
+#include <memory>
+// #include <FslDemoHost/Vulkan/Service/VulkanHost/VulkanHostServiceFactory.hpp>
 // #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 // #include <FslUtil/Vulkan1_0/DebugStrings.hpp>
-#include <sstream>
+// #include <sstream>
 
 namespace Fsl
 {
@@ -56,14 +57,14 @@ namespace Fsl
     using NativeGraphicsServiceFactory =
       ThreadLocalSingletonServiceFactoryTemplate2<Vulkan::NativeGraphicsService, INativeGraphicsService, Vulkan::NativeGraphicsService>;
 
-    DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
+    DemoHostFeature CommonSetup(HostDemoAppSetup& rSetup, ColorSpaceType colorSpace)
     {
       // Use the VulkanDemoHost for Vulkan
       std::deque<DemoHostFeatureName::Enum> hostFeatures;
       hostFeatures.push_back(DemoHostFeatureName::Vulkan);
       rSetup.TheHostRegistry.Register(hostFeatures, VulkanDemoHostSetup::Get());
       rSetup.TheServiceRegistry.Register<VulkanHostServiceFactory>(ServicePriorityList::VulkanHostService());
-      rSetup.TheServiceRegistry.Register<GraphicsServiceFactory>();
+      rSetup.TheServiceRegistry.Register(std::make_shared<GraphicsServiceFactory>(colorSpace));
       rSetup.TheServiceRegistry.Register<NativeGraphicsServiceFactory>(ServicePriorityList::NativeGraphicsService());
       rSetup.TheServiceRegistry.Register<WindowHostServiceFactory>(ServicePriorityList::WindowHostService());
 
@@ -97,7 +98,7 @@ namespace Fsl
       // Register a formatter for common Vulkan exceptions (from the libs we utilize)
       // rSetup.CustomExceptionFormatter.Add(TryFormatException);
 
-      const DemoHostFeature feature = CommenSetup(rSetup);
+      const DemoHostFeature feature = CommonSetup(rSetup, demoAppSetup.CustomAppConfig.AppColorSpaceType);
       const auto appHostConfig = std::make_shared<DemoAppHostConfigVulkan>(demoHostConfig);
       rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, appHostConfig);
     }

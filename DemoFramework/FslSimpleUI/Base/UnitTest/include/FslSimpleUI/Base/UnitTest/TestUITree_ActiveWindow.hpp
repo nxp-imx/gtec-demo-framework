@@ -33,6 +33,7 @@
 
 #include "TestUITree_Window.hpp"
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 class TestUITree_ActiveWindow : public TestUITree_Window
 {
 protected:

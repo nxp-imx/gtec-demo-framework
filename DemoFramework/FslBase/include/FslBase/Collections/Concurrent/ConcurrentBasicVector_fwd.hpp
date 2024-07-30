@@ -43,9 +43,9 @@ namespace Fsl
     std::vector<T> m_content;
 
   public:
-    ConcurrentBasicVector<T>(const ConcurrentBasicVector<T>&) = delete;
-    ConcurrentBasicVector<T>& operator=(const ConcurrentBasicVector<T>&) = delete;
-    ConcurrentBasicVector<T>() = default;
+    ConcurrentBasicVector(const ConcurrentBasicVector<T>&) = delete;
+    ConcurrentBasicVector& operator=(const ConcurrentBasicVector<T>&) = delete;
+    ConcurrentBasicVector() = default;
 
     using value_type = T;
 

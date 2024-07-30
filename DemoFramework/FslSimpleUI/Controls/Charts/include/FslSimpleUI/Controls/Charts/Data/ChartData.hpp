@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_CONTROLS_CHARTS_DATA_CHARTDATA_HPP
 #define FSLSIMPLEUI_CONTROLS_CHARTS_DATA_CHARTDATA_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,8 @@
 #include <FslBase/Collections/CircularFixedSizeBuffer.hpp>
 #include <FslBase/Math/MinMax.hpp>
 #include <FslBase/String/StringViewLite.hpp>
+#include <FslDataBinding/Base/Property/TypedReadOnlyDependencyProperty.hpp>
+#include <FslSimpleUI/Base/UIColor.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/AChartData.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/ChartChannelMetaData.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/ChartDataStats.hpp>
@@ -47,6 +49,8 @@ namespace Fsl::UI
 
   class ChartData final : public AChartData
   {
+    using base_type = AChartData;
+
   public:
     using value_type = uint32_t;
 
@@ -95,7 +99,13 @@ namespace Fsl::UI
     std::optional<MinMax<value_type>> m_customViewMinMax;
     std::array<ChartChannelMetaData, ChartDataLimits::MaxChannels> m_channelMetaData;
 
+    DataBinding::TypedReadOnlyDependencyProperty<ChartDataEntry> m_propertyLatestEntry;
+
   public:
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    static DataBinding::DependencyPropertyDefinition PropertyLatestEntry;
+
+
     //! @param dataEntries the number of entries in ChartDataEntry that are valid
     explicit ChartData(const std::shared_ptr<DataBinding::DataBindingService>& dataBinding, const uint32_t entries, const uint32_t dataChannelCount,
                        const Constraints constraints);
@@ -119,7 +129,7 @@ namespace Fsl::UI
 
     void SetChannelMetaData(const uint32_t channelIndex, const ChartChannelMetaData& metaData);
     void SetChannelMetaData(const uint32_t channelIndex, const StringViewLite label);
-    void SetChannelMetaData(const uint32_t channelIndex, const Color primaryColor);
+    void SetChannelMetaData(const uint32_t channelIndex, const UIColor primaryColor);
 
     // From AChartData
     uint32_t ChannelCount() const noexcept final
@@ -127,7 +137,7 @@ namespace Fsl::UI
       return m_dataChannelCount;
     }
 
-    //! Get the latest change id (this id changes everything the chart data is modified)
+    //! Get the latest change id (this id changes every time the chart data is modified)
     uint32_t ChangeId() const noexcept final
     {
       return m_changeId;
@@ -140,6 +150,12 @@ namespace Fsl::UI
     ChartDataInfo DataInfo(const ChartDataViewConfig viewConfig) const final;
     ReadOnlySpan<ChartDataEntry> SegmentDataAsReadOnlySpan(const ChartDataViewConfig viewConfig, const uint32_t segmentIndex) const final;
     ChartChannelMetaDataInfo GetChannelMetaDataInfo(const uint32_t channelIndex) const final;
+
+    ChartDataEntry GetLatestEntry() const noexcept;
+
+  protected:
+    DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) final;
+    void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) final;
 
   private:
     void UpdateCachedValues(const MinMax<value_type> minMax);

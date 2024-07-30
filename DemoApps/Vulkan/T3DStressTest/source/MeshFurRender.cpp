@@ -82,15 +82,15 @@ namespace Fsl
                                const bool useHighPrecision, const int lightCount)
   {
     // Done this way as old versions of RapidVulkan did not include a constructor that takes a vector
-    VertShader.Reset(device.Get(), 0, contentManager.ReadBytes(GetVertAndLog(shaderPath, useHighPrecision)));
-    FragShader.Reset(device.Get(), 0, contentManager.ReadBytes(GetFragAndLog(shaderPath, useHighPrecision, lightCount)));
+    m_vertShader.Reset(device.Get(), 0, contentManager.ReadBytes(GetVertAndLog(shaderPath, useHighPrecision)));
+    m_fragShader.Reset(device.Get(), 0, contentManager.ReadBytes(GetFragAndLog(shaderPath, useHighPrecision, lightCount)));
   }
 
   MeshFurRender::MeshFurRender(const IContentManager& contentManager, const Vulkan::VUDevice& device, const IO::Path& vertShaderPath,
                                const IO::Path& fragShaderPath, const int /*lightCount*/)
   {
     // Done this way as old versions of RapidVulkan did not include a constructor that takes a vector
-    VertShader.Reset(device.Get(), 0, contentManager.ReadBytes(vertShaderPath));
-    FragShader.Reset(device.Get(), 0, contentManager.ReadBytes(fragShaderPath));
+    m_vertShader.Reset(device.Get(), 0, contentManager.ReadBytes(vertShaderPath));
+    m_fragShader.Reset(device.Get(), 0, contentManager.ReadBytes(fragShaderPath));
   }
 }

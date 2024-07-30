@@ -44,11 +44,11 @@ namespace Fsl
     uint32_t Faces{0};
     uint32_t Layers{0};
 
-    constexpr TextureInfo() = default;
+    constexpr TextureInfo() noexcept = default;
 
-    TextureInfo(const uint32_t levels, const TextureType& textureType, const uint32_t layers);
+    TextureInfo(const uint32_t levels, const TextureType& textureType, const uint32_t layers) noexcept;
 
-    constexpr TextureInfo(const uint32_t levels, const uint32_t faces, const uint32_t layers)
+    constexpr TextureInfo(const uint32_t levels, const uint32_t faces, const uint32_t layers) noexcept
       : Levels(levels)
       , Faces(faces)
       , Layers(layers)
@@ -56,19 +56,19 @@ namespace Fsl
       assert(IsValid());
     }
 
-    constexpr bool IsValid() const
+    constexpr bool IsValid() const noexcept
     {
       return Levels > 0 && Faces > 0 && Layers > 0;
     }
 
-    constexpr uint32_t GetBlobCount() const
+    constexpr uint32_t GetBlobCount() const noexcept
     {
       return Levels * Faces * Layers;
     }
 
     //! @brief Helper function for acquiring the right index for a block given levels, faces and layers
     //! @note Prevents code duplication and makes it easier to modify
-    constexpr inline uint32_t GetBlockIndex(const uint32_t level, const uint32_t face, const uint32_t layer) const
+    constexpr inline uint32_t GetBlockIndex(const uint32_t level, const uint32_t face, const uint32_t layer) const noexcept
     {
       assert(level <= Levels);
       assert(face <= Faces);
@@ -79,12 +79,12 @@ namespace Fsl
     }
 
 
-    constexpr bool operator==(const TextureInfo& rhs) const
+    constexpr bool operator==(const TextureInfo& rhs) const noexcept
     {
       return Levels == rhs.Levels && Faces == rhs.Faces && Layers == rhs.Layers;
     }
 
-    constexpr bool operator!=(const TextureInfo& rhs) const
+    constexpr bool operator!=(const TextureInfo& rhs) const noexcept
     {
       return !(*this == rhs);
     }

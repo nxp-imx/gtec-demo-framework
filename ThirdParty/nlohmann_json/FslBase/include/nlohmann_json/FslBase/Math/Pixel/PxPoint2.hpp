@@ -36,7 +36,9 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   void to_json(nlohmann::json& j, const PxPoint2& src);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   void from_json(const nlohmann::json& j, PxPoint2& rDst);
 }
 

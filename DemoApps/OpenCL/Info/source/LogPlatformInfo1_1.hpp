@@ -35,6 +35,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   inline void LogPlatformInfo1_1(LogHelp& rLog, const cl_platform_id platformId)
   {
     rLog.Log_CL_PLATFORM_PROFILE(platformId);

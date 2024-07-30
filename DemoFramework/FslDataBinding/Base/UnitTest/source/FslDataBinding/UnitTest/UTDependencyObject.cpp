@@ -59,22 +59,22 @@ namespace Fsl
 {
   UTDependencyObject::UTDependencyObject(const std::shared_ptr<DataBinding::DataBindingService>& dataBinding)
     : DataBinding::DependencyObject(dataBinding)
-    , m_contraints0(std::numeric_limits<uint32_t>::min(), std::numeric_limits<uint32_t>::max())
+    , m_constraints0(std::numeric_limits<uint32_t>::min(), std::numeric_limits<uint32_t>::max())
   {
   }
 
 
   ConstrainedValue<uint32_t> UTDependencyObject::GetProperty0ValueConstraints() const
   {
-    return m_contraints0;
+    return m_constraints0;
   }
 
 
-  void UTDependencyObject::SetProperty0ValueConstraints(ConstrainedValue<uint32_t> constaints)
+  void UTDependencyObject::SetProperty0ValueConstraints(ConstrainedValue<uint32_t> constraints)
   {
-    if (constaints != m_contraints0)
+    if (constraints != m_constraints0)
     {
-      m_contraints0 = constaints;
+      m_constraints0 = constraints;
       DoSetProperty0Value(GetProperty0Value(), DataBinding::PropertyChangeReason::Refresh);
     }
   }
@@ -87,7 +87,7 @@ namespace Fsl
 
   bool UTDependencyObject::DoSetProperty0Value(const uint32_t value, const DataBinding::PropertyChangeReason changeReason)
   {
-    const uint32_t constrainedValue = std::clamp(value, m_contraints0.Min(), m_contraints0.Max());
+    const uint32_t constrainedValue = std::clamp(value, m_constraints0.Min(), m_constraints0.Max());
     return m_property0.Set(ThisDependencyObject(), constrainedValue, changeReason);
   }
 

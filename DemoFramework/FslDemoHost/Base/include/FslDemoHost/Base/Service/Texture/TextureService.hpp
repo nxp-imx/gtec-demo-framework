@@ -47,12 +47,12 @@ namespace Fsl
 
     std::optional<Texture> TryGenerateMipMaps(const Bitmap& src, const TextureMipMapFilter filter) final;
     std::optional<Texture> TryGenerateMipMaps(const Texture& src, const TextureMipMapFilter filter) final;
-    std::optional<Texture> TryGenerateMipMaps(const RawBitmap& src, const TextureMipMapFilter filter) final;
-    std::optional<Texture> TryGenerateMipMaps(const RawTexture& src, const TextureMipMapFilter filter) final;
+    std::optional<Texture> TryGenerateMipMaps(const ReadOnlyRawBitmap& src, const TextureMipMapFilter filter) final;
+    std::optional<Texture> TryGenerateMipMaps(const ReadOnlyRawTexture& src, const TextureMipMapFilter filter) final;
     Texture GenerateMipMaps(const Bitmap& src, const TextureMipMapFilter filter) final;
     Texture GenerateMipMaps(const Texture& src, const TextureMipMapFilter filter) final;
-    Texture GenerateMipMaps(const RawBitmap& src, const TextureMipMapFilter filter) final;
-    Texture GenerateMipMaps(const RawTexture& src, const TextureMipMapFilter filter) final;
+    Texture GenerateMipMaps(const ReadOnlyRawBitmap& src, const TextureMipMapFilter filter) final;
+    Texture GenerateMipMaps(const ReadOnlyRawTexture& src, const TextureMipMapFilter filter) final;
   };
 }
 

@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
 #include <FslGraphics/Render/Adapter/INativeTexture2D.hpp>
 #include <FslGraphics/Render/BaseTexture2D.hpp>
@@ -77,6 +78,11 @@ namespace Fsl
     m_pixelFormat = PixelFormat::Undefined;
   }
 
+
+  PxSize2D BaseTexture2D::GetSize() const noexcept
+  {
+    return TypeConverter::UncheckedTo<PxSize2D>(m_extent);
+  }
 
   std::shared_ptr<INativeTexture2D> BaseTexture2D::GetNative() const
   {

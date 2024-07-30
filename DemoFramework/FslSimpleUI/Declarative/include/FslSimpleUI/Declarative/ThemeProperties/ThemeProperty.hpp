@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_DECLARATIVE_THEMEPROPERTIES_THEMEPROPERTY_HPP
 #define FSLSIMPLEUI_DECLARATIVE_THEMEPROPERTIES_THEMEPROPERTY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,30 +34,22 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslSimpleUI/Declarative/PropertyName.hpp>
 #include <FslSimpleUI/Declarative/PropertyValue.hpp>
+#include <FslSimpleUI/Declarative/ThemeProperties/ThemePropertyValueRecord.hpp>
+#include <span>
 #include <string>
+#include <typeindex>
 
 namespace Fsl::UI::Declarative
 {
-  struct ThemePropertyValueRecord
-  {
-    PropertyValue Name;
-    uint32_t GenericValueId;
-
-    ThemePropertyValueRecord(PropertyValue name, const uint32_t genericValueId) noexcept
-      : Name(std::move(name))
-      , GenericValueId(genericValueId)
-    {
-    }
-  };
-
   class ThemeProperty
   {
     PropertyName m_name;
+    std::type_index m_type;
     std::vector<ThemePropertyValueRecord> m_validValues;
 
   public:
-    explicit ThemeProperty(PropertyName name);
-    ThemeProperty(PropertyName name, std::vector<ThemePropertyValueRecord> validValues);
+    explicit ThemeProperty(PropertyName name, const std::type_index& type);
+    ThemeProperty(PropertyName name, const std::type_index& type, std::vector<ThemePropertyValueRecord> validValues);
 
     virtual ~ThemeProperty() = default;
 
@@ -65,6 +57,16 @@ namespace Fsl::UI::Declarative
     const PropertyName& GetName() const noexcept
     {
       return m_name;
+    }
+
+    const std::type_index& GetType() const noexcept
+    {
+      return m_type;
+    }
+
+    std::span<const ThemePropertyValueRecord> ValidValues() const
+    {
+      return m_validValues;
     }
 
   protected:

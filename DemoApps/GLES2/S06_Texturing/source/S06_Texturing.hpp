@@ -38,6 +38,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class S06_Texturing : public DemoAppGLES2
   {
     GLES2::GLProgram m_program;

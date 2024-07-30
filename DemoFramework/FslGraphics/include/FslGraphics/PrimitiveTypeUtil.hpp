@@ -33,15 +33,12 @@
 
 #include <FslGraphics/PrimitiveType.hpp>
 
-namespace Fsl
+namespace Fsl::PrimitiveTypeUtil
 {
-  class PrimitiveTypeUtil
-  {
-  public:
-    //! @brief Given a the index count calculate how many of primitives of the given type that would fit.
-    static int32_t CalcPrimitiveCount(const int32_t indexCount, const PrimitiveType primitiveType);
-    static uint32_t CalcPrimitiveCount(const uint32_t indexCount, const PrimitiveType primitiveType);
-  };
+  //! @brief Given a the index count calculate how many of primitives of the given type that would fit.
+  extern int32_t CalcPrimitiveCount(const int32_t indexCount, const PrimitiveType primitiveType);
+
+  extern uint32_t CalcPrimitiveCount(const uint32_t indexCount, const PrimitiveType primitiveType);
 }
 
 #endif

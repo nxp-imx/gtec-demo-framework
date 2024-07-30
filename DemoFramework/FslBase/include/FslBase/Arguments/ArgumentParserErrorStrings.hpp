@@ -35,6 +35,7 @@
 #include <FslBase/Arguments/ParseResult.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslBase/String/StringViewLite.hpp>
+#include <fmt/core.h>
 #include <cstdint>
 #include <deque>
 #include <string>
@@ -50,9 +51,8 @@ namespace Fsl::Arguments
     public:
       virtual ~ErrorFormatter() = default;
 
-      virtual std::string Format(const char* const pszFormat, const StringViewLite strArg0) = 0;
-      virtual std::string Format(const char* const pszFormat, const std::string& str) = 0;
-      virtual std::string Format(const char* const pszFormat, const uint32_t arg0) = 0;
+      virtual std::string Format(fmt::format_string<std::string_view> formatString, const std::string_view str) = 0;
+      virtual std::string Format(fmt::format_string<uint32_t> formatString, const uint32_t arg0) = 0;
     };
 
     std::string GetErrorString(const ParseResult result, const ParseErrorInfo& parseErrorInfo, const ReadOnlySpan<StringViewLite> args,

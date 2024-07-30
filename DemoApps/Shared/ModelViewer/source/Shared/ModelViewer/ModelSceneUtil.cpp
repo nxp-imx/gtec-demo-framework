@@ -43,10 +43,10 @@ namespace Fsl::ModelSceneUtil
   {
     IO::Path TryDiscoverTextureName(const IContentManager& contentManager, const IO::Path& baseName, const std::string& postfix)
     {
-      constexpr std::array<const char*, 2> extensions = {"png", "jpg"};
+      constexpr std::array<const char*, 2> Extensions = {"png", "jpg"};
 
       FSLLOG3_VERBOSE("Trying to discover texture name")
-      for (const auto& entry : extensions)
+      for (const auto& entry : Extensions)
       {
         IO::Path filename(fmt::format("{}{}.{}", baseName, postfix, entry));
         if (contentManager.Exists(filename))

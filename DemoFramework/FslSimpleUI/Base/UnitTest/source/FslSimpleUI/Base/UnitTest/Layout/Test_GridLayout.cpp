@@ -49,7 +49,9 @@ namespace
   class TestGridLayout : public TestFixtureFslSimpleUIUITree
   {
   protected:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const UI::PxAvailableSize m_defaultSizePx{UI::PxAvailableSize::Create(1920, 1080)};
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const PxRectangle m_finalRectPx{PxRectangle::Create(1, 2, 1920, 1080)};
 
   public:

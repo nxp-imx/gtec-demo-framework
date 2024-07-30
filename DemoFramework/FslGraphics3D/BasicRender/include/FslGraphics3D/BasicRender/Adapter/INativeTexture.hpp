@@ -37,7 +37,7 @@
 
 namespace Fsl
 {
-  class RawTexture;
+  class ReadOnlyRawTexture;
 
   namespace Graphics3D
   {
@@ -54,7 +54,7 @@ namespace Fsl
       //!        that SetData was supported.
       //!        WARNING: can only be called once during a frame, and its up to the caller to ensure that no rendering is currently using
       //!                 or scheduled to use the existing texture data.
-      virtual void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) = 0;
+      virtual void SetData(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) = 0;
     };
   }
 }

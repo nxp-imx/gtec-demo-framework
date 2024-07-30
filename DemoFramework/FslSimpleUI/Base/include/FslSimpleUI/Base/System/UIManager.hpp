@@ -33,7 +33,9 @@
 
 #include <FslBase/Math/BasicWindowMetrics.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/Time/MillisecondTickCount32.hpp>
 #include <FslSimpleUI/Base/Render/UIRenderSystem.hpp>
+#include <FslSimpleUI/Base/UIColorSpace.hpp>
 #include <FslSimpleUI/Base/UIStats.hpp>
 #include <memory>
 
@@ -95,9 +97,9 @@ namespace Fsl
       UIManager& operator=(const UIManager&) = delete;
 
       explicit UIManager(const std::shared_ptr<DataBinding::DataBindingService>& dataBindingService, std::unique_ptr<IRenderSystem> renderSystem,
-                         const bool useYFlipTextureCoordinates, const BasicWindowMetrics& windowMetrics);
+                         const UIColorSpace colorSpace, const bool useYFlipTextureCoordinates, const BasicWindowMetrics& windowMetrics);
       explicit UIManager(const std::shared_ptr<DataBinding::DataBindingService>& dataBindingService, std::unique_ptr<IRenderSystem> renderSystem,
-                         const bool useYFlipTextureCoordinates, const BasicWindowMetrics& windowMetrics,
+                         const UIColorSpace colorSpace, const bool useYFlipTextureCoordinates, const BasicWindowMetrics& windowMetrics,
                          ReadOnlySpan<std::shared_ptr<IExternalModuleFactory>> externalModuleFactories);
       ~UIManager();
 
@@ -113,8 +115,8 @@ namespace Fsl
       // bool SendKeyEvent(const KeyEvent& event);
       //! @brief Send a mouse button event
       //! @note Returns true if the event was handled by a UIElement
-      bool SendMouseButtonEvent(const PxPoint2& positionPx, const bool LeftButtonDown, const bool isTouch);
-      bool SendMouseMoveEvent(const PxPoint2& positionPx, const bool isTouch);
+      bool SendMouseButtonEvent(const MillisecondTickCount32 timestamp, const PxPoint2 positionPx, const bool leftButtonDown, const bool isTouch);
+      bool SendMouseMoveEvent(const MillisecondTickCount32 timestamp, const PxPoint2 positionPx, const bool isTouch);
       // bool SendMouseWheelEvent(const MouseWheelEvent& event);
 
       //! Check if the UI system is considered idle
@@ -142,6 +144,7 @@ namespace Fsl
       //! @brief Unregister a event listener
       void UnregisterEventListener(const std::weak_ptr<IEventListener>& eventListener);
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool SYS_GetUseYFlipTextureCoordinates() const noexcept
       {
         return m_renderSystem.SYS_GetUseYFlipTextureCoordinates();

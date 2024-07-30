@@ -57,12 +57,12 @@ namespace Fsl
   namespace
   {
     // The desired minimum image count for the swap buffers
-    const uint32_t DESIRED_MIN_SWAP_BUFFER_COUNT = 2;
+    constexpr uint32_t DesiredMinSwapBufferCount = 2;
 
 #ifdef FSL_WINDOWSYSTEM_WAYLAND
-    const bool SWAPCHAIN_DEPENDENT_SURFACE = true;
+    constexpr bool SwapchainDependentSurface = true;
 #else
-    const bool SWAPCHAIN_DEPENDENT_SURFACE = false;
+    constexpr bool SwapchainDependentSurface = false;
 #endif
 
     void LogSurfaceCapabilities(const VkSurfaceCapabilitiesKHR& surfaceCapabilities)
@@ -168,7 +168,7 @@ namespace Fsl
     FSLLOG3_INFO("WindowExtent: {}", windowExtent);
 
     FSLLOG3_INFO("Checking surface capabilities pre-swapchain creation");
-    CheckPhysicalDeviceSurfaceCapabilitiesPreSwapchain(m_physicalDevice.Device, m_surface, windowExtent, SWAPCHAIN_DEPENDENT_SURFACE);
+    CheckPhysicalDeviceSurfaceCapabilitiesPreSwapchain(m_physicalDevice.Device, m_surface, windowExtent, SwapchainDependentSurface);
 
     FSLLOG3_INFO("Creating swapchain");
 
@@ -176,11 +176,11 @@ namespace Fsl
     const VkImageUsageFlags desiredImageUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
     auto swapchain = Vulkan::SwapchainKHRUtil::CreateSwapchain(
-      m_physicalDevice.Device, m_device.Get(), 0, m_surface, DESIRED_MIN_SWAP_BUFFER_COUNT, 1, desiredImageUsageFlags, VK_SHARING_MODE_EXCLUSIVE, 0,
+      m_physicalDevice.Device, m_device.Get(), 0, m_surface, DesiredMinSwapBufferCount, 1, desiredImageUsageFlags, VK_SHARING_MODE_EXCLUSIVE, 0,
       nullptr, VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, presentMode, VK_TRUE, VK_NULL_HANDLE, windowExtent, Vulkan::SurfaceFormatInfo());
 
     FSLLOG3_INFO("Checking surface capabilities post-swapchain creation");
-    CheckPhysicalDeviceSurfaceCapabilitiesPostSwapchain(m_physicalDevice.Device, m_surface, windowExtent, SWAPCHAIN_DEPENDENT_SURFACE);
+    CheckPhysicalDeviceSurfaceCapabilitiesPostSwapchain(m_physicalDevice.Device, m_surface, windowExtent, SwapchainDependentSurface);
 
     FSLLOG3_INFO("\n*** Checks completed successfully ***\n");
     GetDemoAppControl()->RequestExit();

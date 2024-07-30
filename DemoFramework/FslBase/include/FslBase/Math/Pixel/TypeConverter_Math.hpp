@@ -47,6 +47,14 @@ namespace Fsl::TypeConverter
   // PX     -> normal
   // normal -> PX
 
+  // --- PxSize2D
+
+  template <>
+  constexpr inline PxSize2D To<PxSize2D, Point2>(const Point2& value)
+  {
+    static_assert(std::is_same<PxSize2D::raw_value_type, Point2::value_type>::value, "we expect the types to be equal");
+    return PxSize2D::Create(value.X, value.Y);
+  }
 
   // --- PxVector2
 

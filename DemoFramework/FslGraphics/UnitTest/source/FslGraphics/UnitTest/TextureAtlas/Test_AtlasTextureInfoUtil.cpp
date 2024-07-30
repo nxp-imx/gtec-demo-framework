@@ -39,7 +39,7 @@ using namespace Fsl;
 
 namespace
 {
-  constexpr const uint32_t TEST_DP = 320;
+  constexpr const uint32_t TestDp = 320;
   using Test_AtlasTextureInfoUtil = TestFixtureFslGraphics;
 }
 
@@ -47,7 +47,7 @@ namespace
 TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_LeftOfTrim)
 {
   // src rect(-7, -4, 18, 15) on texture
-  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TEST_DP);
+  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TestDp);
 
   auto srcRectOrg = PxRectangleU32::Create(0, 0, 8, 15);
 
@@ -66,7 +66,7 @@ TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_LeftOfTrim)
 TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_RightOfTrim)
 {
   // src rect(-7, -4, 18, 15) on texture
-  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TEST_DP);
+  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TestDp);
 
   auto srcRectOrg = PxRectangleU32::Create(11, 0, 7, 15);
 
@@ -85,7 +85,7 @@ TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_RightOfTrim)
 TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_TopOfTrim)
 {
   // src rect(-7, -4, 18, 15) on texture
-  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TEST_DP);
+  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TestDp);
 
   auto srcRectOrg = PxRectangleU32::Create(0, 0, 18, 6);
 
@@ -104,7 +104,7 @@ TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_TopOfTrim)
 TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_BottomOfTrim)
 {
   // src rect(-7, -4, 18, 15) on texture
-  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TEST_DP);
+  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TestDp);
 
   auto srcRectOrg = PxRectangleU32::Create(0, 10, 18, 5);
 
@@ -123,7 +123,7 @@ TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_BottomOfTrim)
 TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_FullSrc)
 {
   // src rect(-7, -4, 18, 15) on texture
-  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TEST_DP);
+  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TestDp);
 
   auto srcRectOrg = PxRectangleU32::Create(0, 0, 18, 15);
 
@@ -142,7 +142,7 @@ TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_FullSrc)
 TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_FullyInsideTrim)
 {
   // src rect(-7, -4, 18, 15) on texture
-  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TEST_DP);
+  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TestDp);
 
   auto srcRectOrg = PxRectangleU32::Create(8, 6, 2, 3);
 
@@ -160,7 +160,7 @@ TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_FullyInsideTrim)
 TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_FullTrim)
 {
   // src rect(-7, -4, 18, 15) on texture
-  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TEST_DP);
+  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TestDp);
 
   auto srcRectOrg = PxRectangleU32::Create(8, 6, 3, 4);
 

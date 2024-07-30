@@ -34,6 +34,7 @@
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/Sprite/ISpriteResourceManager.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
@@ -140,7 +141,7 @@ namespace Fsl
   }
 
 
-  void SpringBackground::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void SpringBackground::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_btnRenderTypePrev)
     {
@@ -153,7 +154,7 @@ namespace Fsl
   }
 
 
-  void SpringBackground::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void SpringBackground::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_cbBloom)
     {
@@ -312,7 +313,7 @@ namespace Fsl
     {
       m_batch->Begin();
 
-      const Color ballColor = Color::White();
+      const Color ballColor = Colors::White();
       Vector2 scale(1, 1);
       Vector2 origin(static_cast<float>(m_texBall.GetSize().RawWidth()) * 0.5f, static_cast<float>(m_texBall.GetSize().RawHeight()) * 0.5f);
       for (auto itr = m_balls.begin(); itr != m_balls.end(); ++itr)

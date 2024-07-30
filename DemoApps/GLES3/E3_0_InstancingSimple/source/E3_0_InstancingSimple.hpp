@@ -14,30 +14,31 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class E3_0_InstancingSimple : public DemoAppGLES3
   {
     struct UserData
     {
-      GLuint positionVBO;
-      GLuint colorVBO;
-      GLuint mvpVBO;
-      GLuint indicesIBO;
+      GLuint PositionVbo;
+      GLuint ColorVbo;
+      GLuint MvpVbo;
+      GLuint IndicesIbo;
 
       // Number of indices
-      int numIndices{0};
+      int NumIndices{0};
 
       // Rotation angle
-      GLfloat angle[NUM_INSTANCES]{};    // NOLINT(modernize-avoid-c-arrays)
+      GLfloat Angle[NUM_INSTANCES]{};    // NOLINT(modernize-avoid-c-arrays)
 
       UserData()
-        : positionVBO(GLES3::GLValues::INVALID_HANDLE)
-        , colorVBO(GLES3::GLValues::INVALID_HANDLE)
-        , mvpVBO(GLES3::GLValues::INVALID_HANDLE)
-        , indicesIBO(GLES3::GLValues::INVALID_HANDLE)
+        : PositionVbo(GLES3::GLValues::InvalidHandle)
+        , ColorVbo(GLES3::GLValues::InvalidHandle)
+        , MvpVbo(GLES3::GLValues::InvalidHandle)
+        , IndicesIbo(GLES3::GLValues::InvalidHandle)
       {
         for (int i = 0; i < NUM_INSTANCES; ++i)
         {
-          angle[i] = 0;
+          Angle[i] = 0;
         }
       }
     };

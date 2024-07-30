@@ -31,13 +31,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
-#include <FslGraphics/Transition/TransitionColor.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/FmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
+#include <FslSimpleUI/Base/Transition/TransitionUIColor.hpp>
 // #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/RadioButton.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
@@ -143,12 +142,12 @@ namespace Fsl
 
     struct AnimRecord
     {
-      TransitionColor OverlayColorStatsApp;
-      TransitionColor OverlayColorStats;
+      UI::TransitionUIColor OverlayColorStatsApp;
+      UI::TransitionUIColor OverlayColorStats;
 
-      explicit AnimRecord(TransitionCache& rTransitionCache, const TimeSpan transitionTimeSpan)
-        : OverlayColorStatsApp(rTransitionCache, transitionTimeSpan, TransitionType::Smooth)
-        , OverlayColorStats(rTransitionCache, transitionTimeSpan, TransitionType::Smooth)
+      explicit AnimRecord(const TimeSpan transitionTimeSpan)
+        : OverlayColorStatsApp(transitionTimeSpan, TransitionType::Smooth)
+        , OverlayColorStats(transitionTimeSpan, TransitionType::Smooth)
       {
       }
 

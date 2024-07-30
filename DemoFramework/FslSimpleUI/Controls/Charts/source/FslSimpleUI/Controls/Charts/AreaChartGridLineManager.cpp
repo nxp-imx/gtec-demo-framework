@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2023 NXP
+ * Copyright 2021-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,7 @@
 
 #include <FslBase/Math/MathHelper_Clamp.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslGraphics/Sprite/NineSliceSprite.hpp>
 #include <FslSimpleUI/Controls/Charts/AreaChartGridLineManager.hpp>
@@ -59,10 +57,10 @@ namespace Fsl::UI
   {
     namespace LocalConfig
     {
-      const uint32_t GrowBy = 32;
+      constexpr uint32_t GrowBy = 32;
     }
 
-    inline void SetEntry(Render::ChartDataWindowDrawData::GridLineRecord& rRec, const uint8_t alpha, const PxValue gridLineYPositionPx,
+    inline void SetEntry(Render::ChartDataWindowDrawData::GridLineRecord& rRec, const ColorChannelValueU16 alpha, const PxValue gridLineYPositionPx,
                          const PxPoint2 backgroundOffsetPx, const PxValue labelBackgroundXOffsetPx, const PxValue fontBaseLinePx,
                          const PxSize2D labelSizePx, const PxSize2D finalSizePx, const StringViewLite& labelStrView)
     {
@@ -71,13 +69,13 @@ namespace Fsl::UI
       rRec.LabelOffsetPx = PxPoint2(labelBackgroundXOffsetPx, gridLineYPositionPx - fontBaseLinePx);
       rRec.LabelSizePx = labelSizePx;
       rRec.LabelBackgroundRectanglePx = PxRectangle(backgroundOffsetPx, finalSizePx);
-      StringViewLiteUtil::Set(rRec.Label, labelStrView);
+      rRec.Label = labelStrView;
     }
   }
 
-  AreaChartGridLineManager::ViewRecord::ViewRecord(TransitionCache& rTransitionCache, const TimeSpan transitionTime)
-    : m_animatedViewMin(rTransitionCache, TimeSpan(transitionTime))
-    , m_animatedViewMax(rTransitionCache, TimeSpan(transitionTime))
+  AreaChartGridLineManager::ViewRecord::ViewRecord(const TimeSpan transitionTime)
+    : m_animatedViewMin(TimeSpan(transitionTime))
+    , m_animatedViewMax(TimeSpan(transitionTime))
   {
     m_animatedViewMax.SetActualValue(5000);
   }
@@ -134,26 +132,25 @@ namespace Fsl::UI
 
   // -----------------------------------------------------------------------------------------------------------------------------------------------
 
-  AreaChartGridLineManager::GridLineRecord::GridLineRecord(TransitionCache& rTransitionCache, const TimeSpan transitionTime)
-    : m_animatedAlpha(rTransitionCache, TimeSpan(transitionTime))
+  AreaChartGridLineManager::GridLineRecord::GridLineRecord(const TimeSpan transitionTime)
+    : m_animatedAlpha(TimeSpan(transitionTime))
   {
   }
 
 
-  void AreaChartGridLineManager::GridLineRecord::SetAlpha(const uint8_t alpha)
+  void AreaChartGridLineManager::GridLineRecord::SetAlpha(const ColorChannelValueU16 alpha)
   {
     if (alpha != m_actualAlpha)
     {
       m_actualAlpha = alpha;
-      m_animatedAlpha.SetValue(static_cast<float>(alpha));
+      m_animatedAlpha.SetValue(alpha.AsFloat());
     }
   }
 
 
-  uint8_t AreaChartGridLineManager::GridLineRecord::GetAlpha() const
+  ColorChannelValueU16 AreaChartGridLineManager::GridLineRecord::GetAlpha() const
   {
-    return m_animatedAlpha.IsCompleted() ? m_actualAlpha
-                                         : static_cast<uint8_t>(MathHelper::Clamp(static_cast<int32_t>(m_animatedAlpha.GetValue()), 0, 255));
+    return m_animatedAlpha.IsCompleted() ? m_actualAlpha : ColorChannelValueU16::Create(m_animatedAlpha.GetValue());
   }
 
 
@@ -172,17 +169,16 @@ namespace Fsl::UI
 
   // -----------------------------------------------------------------------------------------------------------------------------------------------
 
-  AreaChartGridLineManager::AreaChartGridLineManager(TransitionCache& rTransitionCache, const TimeSpan transitionTime,
-                                                     const TimeSpan transitionTimespanLabels, const PxSize1D chartEntryWidthPx,
-                                                     const PxSize1D chartLabelSpacingPx)
+  AreaChartGridLineManager::AreaChartGridLineManager(const TimeSpan transitionTime, const TimeSpan transitionTimespanLabels,
+                                                     const PxSize1D chartEntryWidthPx, const PxSize1D chartLabelSpacingPx)
     : m_chartEntryWidthPx(chartEntryWidthPx)
     , m_chartLabelSpacingPx(chartLabelSpacingPx)
     , m_gridLineRecords(RenderAreaChartConfig::MaxGridLines)
-    , m_viewRecord(rTransitionCache, transitionTime)
+    , m_viewRecord(transitionTime)
   {
     for (std::size_t i = 0; i < m_gridLineRecords.size(); ++i)
     {
-      m_gridLineRecords[i] = GridLineRecord(rTransitionCache, transitionTimespanLabels);
+      m_gridLineRecords[i] = GridLineRecord(transitionTimespanLabels);
     }
   }
 
@@ -253,7 +249,7 @@ namespace Fsl::UI
 
     rDst.Clear();
     SelectGridLines(m_gridLineRecords, m_gridLineRecordCount, m_gridLines.get(), m_viewRecord);
-    DetermineVisibility(rDst, SpanUtil::AsSubSpan(m_gridLineRecords, 0, m_gridLineRecordCount), m_viewRecord, renderSizePx, pBackgroundSprite, pFont,
+    DetermineVisibility(rDst, SpanUtil::AsSpan(m_gridLineRecords, 0, m_gridLineRecordCount), m_viewRecord, renderSizePx, pBackgroundSprite, pFont,
                         m_chartEntryWidthPx, m_chartLabelSpacingPx);
     if (!m_isAnimating)
     {
@@ -339,7 +335,7 @@ namespace Fsl::UI
       {
         const uint32_t currentDstIndex = dstIndex - 1u;
 
-        if (!rGridLines[currentDstIndex].Suggested && rGridLines[currentDstIndex].GetAlpha() == 0)
+        if (!rGridLines[currentDstIndex].Suggested && rGridLines[currentDstIndex].GetAlpha().RawValue == 0)
         {
           RemoveAt(rGridLines, rGridLineCount, currentDstIndex);
         }
@@ -392,7 +388,7 @@ namespace Fsl::UI
         const uint32_t position = rSrcGridLineEntry.RawDataPosition;
         if (position >= viewMin && position <= viewMax)
         {
-          const StringViewLite labelStrView = StringViewLiteUtil::AsStringViewLite(rSrcGridLineEntry.Label);
+          const StringViewLite labelStrView(rSrcGridLineEntry.Label);
           const PxValue gridLineYPositionPx =
             maxYPx - PxValue(TypeConverter::UncheckedChangeTo<int32_t>(static_cast<float>(position - viewMin) * dataRenderScale));
 
@@ -406,7 +402,7 @@ namespace Fsl::UI
               ((lastGridLineYPositionPx - gridLineYPositionPx) >= maxCaptionEntryHeightPx) && rSrcGridLineEntry.Suggested;
             if (canFitsAndShouldBeShown)
             {
-              rSrcGridLineEntry.SetAlpha(255);
+              rSrcGridLineEntry.SetAlpha(ColorChannelValueU16::Max());
               lastGridLineYPositionPx = gridLineYPositionPx;
 
               SetEntry(rDst.GridLines[dstGridLineIndex], rSrcGridLineEntry.GetAlpha(), gridLineYPositionPx,
@@ -416,7 +412,7 @@ namespace Fsl::UI
             }
             else
             {
-              rSrcGridLineEntry.SetAlpha(0);
+              rSrcGridLineEntry.SetAlpha(ColorChannelValueU16::Min());
               if (dstFadingGridLineIndex < maxFadingDstxGridLines)
               {
                 SetEntry(rDst.FadingGridLines[dstFadingGridLineIndex], rSrcGridLineEntry.GetAlpha(), gridLineYPositionPx,
@@ -469,7 +465,7 @@ namespace Fsl::UI
         rGridLines[i].Clear();
       }
     }
-    SANITY_CHECK(ReadOnlySpanUtil::AsSpan(rGridLines, 0, rGridLineCount));
+    SANITY_CHECK(SpanUtil::AsReadOnlySpan(rGridLines, 0, rGridLineCount));
 
     if (insertAtIndex >= rGridLineCount)
     {
@@ -477,9 +473,9 @@ namespace Fsl::UI
       rGridLines[rGridLineCount].Clear();
       rGridLines[rGridLineCount].Suggested = true;
       rGridLines[rGridLineCount].RawDataPosition = srcInfo.Position;
-      StringViewLiteUtil::Set(rGridLines[rGridLineCount].Label, srcInfo.Label);
+      rGridLines[rGridLineCount].Label = srcInfo.Label;
       ++rGridLineCount;
-      SANITY_CHECK(ReadOnlySpanUtil::AsSpan(rGridLines, 0, rGridLineCount));
+      SANITY_CHECK(SpanUtil::AsReadOnlySpan(rGridLines, 0, rGridLineCount));
       return rGridLineCount;
     }
 
@@ -496,8 +492,8 @@ namespace Fsl::UI
     rGridLines[insertAtIndex].Clear();
     rGridLines[insertAtIndex].Suggested = true;
     rGridLines[insertAtIndex].RawDataPosition = srcInfo.Position;
-    StringViewLiteUtil::Set(rGridLines[insertAtIndex].Label, srcInfo.Label);
-    SANITY_CHECK(ReadOnlySpanUtil::AsSpan(rGridLines, 0, rGridLineCount));
+    rGridLines[insertAtIndex].Label = srcInfo.Label;
+    SANITY_CHECK(SpanUtil::AsReadOnlySpan(rGridLines, 0, rGridLineCount));
 
     return insertAtIndex + 1;
   }
@@ -512,7 +508,7 @@ namespace Fsl::UI
     }
     assert(rGridLineCount >= 1u);
 
-    SANITY_CHECK(ReadOnlySpanUtil::AsSpan(rGridLines, 0, rGridLineCount));
+    SANITY_CHECK(SpanUtil::AsReadOnlySpan(rGridLines, 0, rGridLineCount));
 
     --rGridLineCount;
     for (std::size_t i = removeAtIndex; i < rGridLineCount; ++i)
@@ -521,7 +517,7 @@ namespace Fsl::UI
     }
     rGridLines[rGridLineCount].Clear();
 
-    SANITY_CHECK(ReadOnlySpanUtil::AsSpan(rGridLines, 0, rGridLineCount));
+    SANITY_CHECK(SpanUtil::AsReadOnlySpan(rGridLines, 0, rGridLineCount));
 
     return removeAtIndex;
   }

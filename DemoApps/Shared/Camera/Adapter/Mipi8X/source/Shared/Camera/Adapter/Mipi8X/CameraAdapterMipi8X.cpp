@@ -174,8 +174,8 @@ namespace Fsl
             memset(video_ch[ch_id].buffers[i].start, 0xFF, video_ch[ch_id].buffers[i].length);
 
 
-            FSLLOG3_INFO("buffer[{}] startAddr=0x{:x}, offset=0x{:x}, buf_size={}", i,
-                         reinterpret_cast<const void*>(video_ch[ch_id].buffers[i].start), video_ch[ch_id].buffers[i].offset,
+            FSLLOG3_INFO("buffer[{}] startAddr={}, offset=0x{:x}, buf_size={}", i,
+                         fmt::ptr(reinterpret_cast<const void*>(video_ch[ch_id].buffers[i].start)), video_ch[ch_id].buffers[i].offset,
                          video_ch[ch_id].buffers[i].length);
           }
         }
@@ -453,7 +453,7 @@ namespace Fsl
           }
           int buf_id = video_ch[i].cur_buf_id;
           memcpy(rTargetBitmap.Content(), reinterpret_cast<void*>(video_ch[i].buffers[buf_id].start),
-                 rTargetBitmap.Height() * rTargetBitmap.Stride());
+                 rTargetBitmap.RawUnsignedHeight() * rTargetBitmap.Stride());
           put_video_channel_buffer(i);
         }
       }

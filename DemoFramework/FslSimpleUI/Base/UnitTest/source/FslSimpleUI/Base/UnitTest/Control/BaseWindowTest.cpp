@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -134,7 +134,7 @@ namespace Fsl::UI
   }
 
 
-  void BaseWindowTest::OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+  void BaseWindowTest::OnClickInputPreview(const std::shared_ptr<WindowInputClickEvent>& theEvent)
   {
     ++m_callCount.OnClickInputPreview;
     if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnClickInputPreview))
@@ -142,12 +142,12 @@ namespace Fsl::UI
       m_callId.OnClickInputPreview = m_callIdManager->Claim();
     }
 
-    BaseWindow::OnClickInputPreview(args, theEvent);
+    BaseWindow::OnClickInputPreview(theEvent);
 
-    Callbacks.OnClickInputPreview(args, theEvent);
+    Callbacks.OnClickInputPreview(theEvent);
   }
 
-  void BaseWindowTest::OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+  void BaseWindowTest::OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent)
   {
     ++m_callCount.OnClickInput;
     if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnClickInput))
@@ -155,12 +155,12 @@ namespace Fsl::UI
       m_callId.OnClickInput = m_callIdManager->Claim();
     }
 
-    BaseWindow::OnClickInput(args, theEvent);
+    BaseWindow::OnClickInput(theEvent);
 
-    Callbacks.OnClickInput(args, theEvent);
+    Callbacks.OnClickInput(theEvent);
   }
 
-  void BaseWindowTest::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  void BaseWindowTest::OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent)
   {
     ++m_callCount.OnSelect;
     if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnSelect))
@@ -168,12 +168,12 @@ namespace Fsl::UI
       m_callId.OnSelect = m_callIdManager->Claim();
     }
 
-    BaseWindow::OnSelect(args, theEvent);
+    BaseWindow::OnSelect(theEvent);
 
-    Callbacks.OnSelect(args, theEvent);
+    Callbacks.OnSelect(theEvent);
   }
 
-  void BaseWindowTest::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
+  void BaseWindowTest::OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent)
   {
     ++m_callCount.OnContentChanged;
     if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnContentChanged))
@@ -181,9 +181,9 @@ namespace Fsl::UI
       m_callId.OnContentChanged = m_callIdManager->Claim();
     }
 
-    BaseWindow::OnContentChanged(args, theEvent);
+    BaseWindow::OnContentChanged(theEvent);
 
-    Callbacks.OnContentChanged(args, theEvent);
+    Callbacks.OnContentChanged(theEvent);
   }
 
   PxSize2D BaseWindowTest::ArrangeOverride(const PxSize2D& finalSizePx)

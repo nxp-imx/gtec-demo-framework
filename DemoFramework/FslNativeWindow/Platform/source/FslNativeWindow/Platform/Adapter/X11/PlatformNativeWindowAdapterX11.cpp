@@ -68,7 +68,7 @@ namespace Fsl
       return static_cast<int>(event->type == MapNotify && event->xmap.window == *reinterpret_cast<Window*>(arg));
     }
 
-    VirtualMouseButton::Enum MouseToVirtualMouse(unsigned int button)
+    VirtualMouseButton MouseToVirtualMouse(unsigned int button)
     {
       switch (button)
       {
@@ -448,7 +448,7 @@ namespace Fsl
     VirtualKey::Enum keyCode = VirtualKey::Undefined;
     std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
     PxPoint2 mousePosition;
-    VirtualMouseButton::Enum mouseButton = VirtualMouseButton::Undefined;
+    VirtualMouseButton mouseButton = VirtualMouseButton::Undefined;
     bool bQuit = false;
     XEvent event;
     static int wheelEvents = 0;
@@ -480,6 +480,7 @@ namespace Fsl
         }
       case ButtonPress:
         {
+          const auto timestamp = MillisecondTickCount32::FromMilliseconds(event.xbutton.time);
           mousePosition = PxPoint2::Create(event.xbutton.x, event.xbutton.y);
           if (event.xbutton.button < Button4)
           {
@@ -487,7 +488,7 @@ namespace Fsl
             mouseButton = MouseToVirtualMouse(event.xbutton.button);
             if (eventQueue)
             {
-              eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(mouseButton, true, mousePosition));
+              eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(timestamp, mouseButton, true, mousePosition));
             }
           }
           else
@@ -503,23 +504,25 @@ namespace Fsl
             }
             if (eventQueue)
             {
-              eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseWheelEvent(wheelEvents, mousePosition));
+              eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseWheelEvent(timestamp, wheelEvents, mousePosition));
             }
           }
           break;
         }
       case ButtonRelease:
         {
+          const auto timestamp = MillisecondTickCount32::FromMilliseconds(event.xbutton.time);
           mousePosition = PxPoint2::Create(event.xbutton.x, event.xbutton.y);
           mouseButton = MouseToVirtualMouse(event.xbutton.button);
           if (eventQueue)
           {
-            eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(mouseButton, false, mousePosition));
+            eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(timestamp, mouseButton, false, mousePosition));
           }
           break;
         }
       case KeyPress:
         {
+          // const auto timestamp = MillisecondTickCount32::FromMilliseconds(event.xbutton.time);
           keyCode = KeyToVirtualKey(&event.xkey);
           if (eventQueue)
           {
@@ -529,6 +532,7 @@ namespace Fsl
         }
       case KeyRelease:
         {
+          // const auto timestamp = MillisecondTickCount32::FromMilliseconds(event.xbutton.time);
           keyCode = KeyToVirtualKey(&event.xkey);
           if (eventQueue)
           {
@@ -538,10 +542,11 @@ namespace Fsl
         }
       case MotionNotify:
         {
+          const auto timestamp = MillisecondTickCount32::FromMilliseconds(event.xmotion.time);
           mousePosition = PxPoint2::Create(event.xmotion.x, event.xmotion.y);
           if (eventQueue)
           {
-            eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseMoveEvent(mousePosition));
+            eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseMoveEvent(timestamp, mousePosition));
           }
           break;
         }

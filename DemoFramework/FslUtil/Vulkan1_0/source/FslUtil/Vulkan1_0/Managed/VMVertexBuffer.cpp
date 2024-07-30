@@ -172,9 +172,8 @@ namespace Fsl::Vulkan
 
   int32_t VMVertexBuffer::VertexElementIndexOf(const VertexElementUsage usage, const uint32_t usageIndex) const
   {
-    auto itrFind =
-      std::find_if(m_vertexElements.begin(), m_vertexElements.end(),
-                   [usage, usageIndex](const VMVertexElement& entry) { return (entry.Usage == usage && entry.UsageIndex == usageIndex); });
+    auto itrFind = std::find_if(m_vertexElements.begin(), m_vertexElements.end(), [usage, usageIndex](const VMVertexElement& entry)
+                                { return (entry.Usage == usage && entry.UsageIndex == usageIndex); });
     if (itrFind != m_vertexElements.end())
     {
       return static_cast<int32_t>(std::distance(m_vertexElements.begin(), itrFind));

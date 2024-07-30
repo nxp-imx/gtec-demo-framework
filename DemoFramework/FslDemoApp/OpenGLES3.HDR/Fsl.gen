@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="FslDemoApp.OpenGLES3.HDR" CreationYear="2024">
+    <Dependency Name="FslDemoApp.OpenGLES3"/>
+    <Dependency Name="FslDemoService.ImageConverter.HDR" Access="Private"/>
+    <Dependency Name="FslService.Impl" Access="Private"/>
+    <Dependency Name="FslDemoHost.Base" Access="Private"/>
+  </Library>
+</FslBuildGen>

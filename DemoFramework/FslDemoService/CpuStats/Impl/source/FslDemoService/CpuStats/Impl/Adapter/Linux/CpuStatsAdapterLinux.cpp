@@ -1,6 +1,6 @@
 #ifdef __linux__
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,10 +32,10 @@
 
 #include <FslBase/IO/File.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Time/TimeSpanUtil.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoService/CpuStats/Impl/Adapter/Linux/CpuStatsAdapterLinux.hpp>
 #include <unistd.h>
+#include <ctime>
 
 namespace Fsl
 {
@@ -43,14 +43,35 @@ namespace Fsl
   {
     namespace LocalConfig
     {
-      constexpr TimeSpan MinIntervalCoreCpuUsage(TimeSpanUtil::FromMicroseconds(250 * 1000));
-      constexpr TimeSpan MinIntervalApplicationCpuUsage(TimeSpanUtil::FromMicroseconds(250 * 1000));
+      constexpr TimeSpan MinIntervalCoreCpuUsage(TimeSpan::FromSeconds(1));
+      constexpr TimeSpan MinIntervalApplicationCpuUsage(TimeSpan::FromSeconds(1));
     }
 
 
     uint32_t DoGetCpuCount()
     {
       return static_cast<uint32_t>(sysconf(_SC_NPROCESSORS_ONLN));
+    }
+
+    bool TryClockGetTime(const clockid_t clockId, int64_t& rNanoSeconds)
+    {
+      timespec ts{};
+      if (clock_gettime(clockId, &ts) != 0)
+      {
+        rNanoSeconds = {};
+        return false;
+      }
+
+      rNanoSeconds = ts.tv_sec * 1000000000LL + ts.tv_nsec;
+      return true;
+    }
+
+    float CalculateCpuUsage(const int64_t currentProcessCpuNanoseconds, const int64_t totalCpuNanoseconds)
+    {
+      // FSLLOG3_INFO("{} vs {}", currentProcessCpuNanoseconds, totalCpuNanoseconds);
+      return totalCpuNanoseconds == 0
+               ? 0.0f
+               : static_cast<float>(static_cast<double>(currentProcessCpuNanoseconds) / static_cast<double>(totalCpuNanoseconds)) * 100.0f;
     }
   }
 
@@ -66,8 +87,7 @@ namespace Fsl
     }
 
     TryParseCpuLoadNow();
-    const TimeSpan currentTime = m_timer.GetTimestamp();
-    m_lastAppTime = 0;
+    const TickCount currentTime = m_timer.GetTimestamp();
     m_lastTryGetCpuUsage = currentTime - LocalConfig::MinIntervalCoreCpuUsage;
     m_lastTryGetApplicationCpuUsageTime = m_timer.GetTimestamp() - LocalConfig::MinIntervalApplicationCpuUsage;
   }
@@ -79,9 +99,9 @@ namespace Fsl
   }
 
 
-  bool CpuStatsAdapterLinux::TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex) const
+  bool CpuStatsAdapterLinux::TryGetCpuUsage(CpuUsageRecord& rUsageRecord, const uint32_t cpuIndex) const
   {
-    rUsagePercentage = 0.0f;
+    rUsageRecord = {};
     // We rely on the service to do the actual validation
     assert(m_cpuCount <= m_cpuStats.size());
     if (cpuIndex >= m_cpuCount)
@@ -117,48 +137,38 @@ namespace Fsl
       return false;
     }
 
-    rUsagePercentage = static_cast<float>(static_cast<double>(totalAppTime) / static_cast<double>(totalUsage)) * 100.0f;
+    rUsageRecord = {m_lastTryGetCpuUsage, static_cast<float>(static_cast<double>(totalAppTime) / static_cast<double>(totalUsage)) * 100.0f};
     return true;
   }
 
 
-  bool CpuStatsAdapterLinux::TryGetApplicationCpuUsage(float& rUsagePercentage) const
+  bool CpuStatsAdapterLinux::TryGetApplicationCpuUsage(CpuUsageRecord& rUsageRecord) const
   {
-    rUsagePercentage = 0.0f;
+    rUsageRecord = {};
 
     auto currentTime = m_timer.GetTimestamp();
     auto callDeltaTime = currentTime - m_lastTryGetApplicationCpuUsageTime;
     if (callDeltaTime < LocalConfig::MinIntervalApplicationCpuUsage)
     {
-      rUsagePercentage = m_appCpuUsagePercentage;
+      rUsageRecord = {m_appCpuUsagePercentageTime, m_appCpuUsagePercentage};
       return true;
     }
     m_lastTryGetApplicationCpuUsageTime = currentTime;
 
-    clock_t currentAppTime{};
     ProcessTimes processTimes;
-    if (!TryGetProcessTimes(processTimes, &currentAppTime))
+    if (!TryGetProcessTimes(processTimes))
     {
       FSLLOG3_DEBUG_WARNING("TryGetProcessTimes failed");
       return false;
     }
 
+    m_appCpuUsagePercentage = CalculateCpuUsage(processTimes.CurrentProcessCpuNanoseconds - m_appProcessLast.CurrentProcessCpuNanoseconds,
+                                                processTimes.TotalCpuNanoseconds - m_appProcessLast.TotalCpuNanoseconds) /
+                              static_cast<float>(m_cpuCount);
+    m_appProcessLast = processTimes;
+    m_appCpuUsagePercentageTime = currentTime;
 
-    auto totalAppTime = (processTimes.KernelTime - m_appProcessLast.KernelTime) + (processTimes.UserTime - m_appProcessLast.UserTime);
-
-    const clock_t deltaTime = currentAppTime - m_lastAppTime;
-    if (deltaTime > 0)
-    {
-      m_appProcessLast = processTimes;
-      m_lastAppTime = currentAppTime;
-      m_appCpuUsagePercentage = static_cast<float>(static_cast<double>(totalAppTime) / static_cast<double>(deltaTime)) * 100.0f;
-    }
-    else
-    {
-      FSLLOG3_DEBUG_VERBOSE2("not enough time passed");
-    }
-
-    rUsagePercentage = m_appCpuUsagePercentage;
+    rUsageRecord = {m_appCpuUsagePercentageTime, m_appCpuUsagePercentage};
     return true;
   }
 
@@ -210,6 +220,7 @@ namespace Fsl
             }
           }
           FSLLOG3_DEBUG_WARNING_IF(validEntries != m_cpuCount, "Could only find information for {} of {} cpus", validEntries, m_cpuCount);
+          FSL_PARAM_NOT_USED(validEntries);
           return true;
         }
       }
@@ -224,22 +235,21 @@ namespace Fsl
   }
 
 
-  bool CpuStatsAdapterLinux::TryGetProcessTimes(ProcessTimes& rTimes, clock_t* pCurrentTime) const
+  bool CpuStatsAdapterLinux::TryGetProcessTimes(ProcessTimes& rTimes) const
   {
-    struct tms buf
+    int64_t currentProcessCpuNanoseconds = 0;
+    if (!TryClockGetTime(CLOCK_PROCESS_CPUTIME_ID, currentProcessCpuNanoseconds))
     {
-    };
-    auto currentTime = times(&buf);
-    if (pCurrentTime != nullptr)
-    {
-      *pCurrentTime = currentTime;
-    }
-
-    if (currentTime == static_cast<clock_t>(-1))
-    {
+      rTimes = {};
       return false;
     }
-    rTimes = ProcessTimes(buf.tms_stime, buf.tms_utime);
+    int64_t totalCpuNanoseconds = 0;
+    if (!TryClockGetTime(CLOCK_REALTIME, totalCpuNanoseconds))
+    {
+      rTimes = {};
+      return false;
+    }
+    rTimes = ProcessTimes(currentProcessCpuNanoseconds, totalCpuNanoseconds);
     return true;
   }
 }

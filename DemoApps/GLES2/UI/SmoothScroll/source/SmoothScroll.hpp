@@ -36,7 +36,7 @@
 
 namespace Fsl
 {
-  class SmoothScroll : public DemoAppGLES2
+  class SmoothScroll final : public DemoAppGLES2
   {
     //! All the actual UI example code can be found in the Shared class since its reused for all SmoothScroll samples.
     Shared m_shared;
@@ -45,10 +45,10 @@ namespace Fsl
     explicit SmoothScroll(const DemoAppConfig& config);
 
   protected:
-    void OnKeyEvent(const KeyEvent& event) override;
-    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
-    void FixedUpdate(const DemoTime& demoTime) override;
-    void Draw(const FrameInfo& frameInfo) override;
+    void OnKeyEvent(const KeyEvent& event) final;
+    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;
+    void Update(const DemoTime& demoTime) final;
+    void Draw(const FrameInfo& frameInfo) final;
   };
 }
 

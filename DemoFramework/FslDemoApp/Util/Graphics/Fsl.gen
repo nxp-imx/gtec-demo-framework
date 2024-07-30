@@ -12,7 +12,7 @@
       <Dependency Name="Platform.Android.GameActivity" Access="Private"/>
       <!--Dependency Name="Platform.Android.NDKHelper" Access="Private"/-->
       <Dependency Name="Platform.Android.JNIUtil" Access="Private"/>
-      <Dependency Name="half" Access="Private"/>
+      <Dependency Name="FslDemoService.ImageConverter.HDR" Access="Private"/>
     </Platform>
     <Platform Name="Ubuntu">
       <Dependency Name="DevIL" Access="Private"/>    
@@ -28,7 +28,6 @@
     <Platform Name="Windows" ProjectId="0552A8CE-DC30-4694-9E5F-60DF9545EA79">
       <Dependency Name="DevIL" Access="Private"/>    
       <Dependency Name="gli" Access="Private"/>
-      <!--Dependency Name="half" Access="Private"/-->
     </Platform>
   </Library>
 </FslBuildGen>

@@ -37,6 +37,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class S05_PrecompiledShader : public DemoAppGLES3
   {
     int m_width;

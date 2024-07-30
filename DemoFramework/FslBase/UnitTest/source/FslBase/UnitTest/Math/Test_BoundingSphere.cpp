@@ -177,12 +177,12 @@ TEST(TestMath_BoundingSphere, CreateFromBoundingBox)
 {
   const BoundingBox box1(Vector3(-0.5f, -0.5f, -0.5f), Vector3(0.5f, 0.5f, 0.5f));
   const BoundingBox box2(Vector3(-5.0f, -5.0f, -5.0f), Vector3(5.0f, 5.0f, 5.0f));
-  constexpr float tolerance = 0.000001f;
+  constexpr float Tolerance = 0.000001f;
 
   // Not a very accurate check but better than nothing for now
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(BoundingSphere(Vector3(0, 0, 0), 0.866025f), BoundingSphere::CreateFromBoundingBox(box1), tolerance))
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(BoundingSphere(Vector3(0, 0, 0), 0.866025f), BoundingSphere::CreateFromBoundingBox(box1), Tolerance))
     << "box1: " << box1;
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(BoundingSphere(Vector3(0, 0, 0), 8.660254f), BoundingSphere::CreateFromBoundingBox(box2), tolerance))
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(BoundingSphere(Vector3(0, 0, 0), 8.660254f), BoundingSphere::CreateFromBoundingBox(box2), Tolerance))
     << "box2: " << box2;
 }
 
@@ -191,7 +191,7 @@ TEST(TestMath_BoundingSphere, CreateFromBoundingBox_Ref)
 {
   const BoundingBox box1(Vector3(-0.5f, -0.5f, -0.5f), Vector3(0.5f, 0.5f, 0.5f));
   const BoundingBox box2(Vector3(-5.0f, -5.0f, -5.0f), Vector3(5.0f, 5.0f, 5.0f));
-  constexpr float tolerance = 0.000001f;
+  constexpr float Tolerance = 0.000001f;
 
   BoundingSphere res1;
   BoundingSphere res2;
@@ -199,8 +199,8 @@ TEST(TestMath_BoundingSphere, CreateFromBoundingBox_Ref)
   BoundingSphere::CreateFromBoundingBox(box2, res2);
 
   // Not a very accurate check but better than nothing for now
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(BoundingSphere(Vector3(0, 0, 0), 0.866025f), res1, tolerance)) << "box1: " << box1;
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(BoundingSphere(Vector3(0, 0, 0), 8.660254f), res2, tolerance)) << "box2: " << box2;
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(BoundingSphere(Vector3(0, 0, 0), 0.866025f), res1, Tolerance)) << "box1: " << box1;
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(BoundingSphere(Vector3(0, 0, 0), 8.660254f), res2, Tolerance)) << "box2: " << box2;
 }
 
 

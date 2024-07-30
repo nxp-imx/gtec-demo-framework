@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,13 +44,13 @@ namespace
 
 TEST(TestReadOnlyFlexSpanUtil, AsSpan_PointerLength)
 {
-  constexpr static std::array<char, 11> data = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
-  ReadOnlyFlexSpan span = ReadOnlyFlexSpanUtil::AsSpan(data.data(), data.size());
+  constexpr static std::array<char, 11> Data = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+  ReadOnlyFlexSpan span = ReadOnlyFlexSpanUtil::AsSpan(Data.data(), Data.size());
 
   EXPECT_FALSE(span.empty());
-  EXPECT_EQ(span.data(), data.data());
-  EXPECT_EQ(span.size(), data.size());
-  EXPECT_EQ(span.length(), data.size());
+  EXPECT_EQ(span.data(), Data.data());
+  EXPECT_EQ(span.size(), Data.size());
+  EXPECT_EQ(span.length(), Data.size());
   EXPECT_EQ(span.stride(), sizeof(char));
 }
 
@@ -69,8 +69,8 @@ TEST(TestReadOnlyFlexSpanUtil, AsSpan_PointerLength_NullPtrZeroLength)
 
 TEST(TestReadOnlyFlexSpanUtil, AsSpan_PointerLength_NullPtrInvalidLength)
 {
-  constexpr static std::array<char, 11> data = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
-  EXPECT_THROW(ReadOnlyFlexSpanUtil::AsSpan<char>(nullptr, data.size()), std::invalid_argument);
+  constexpr static std::array<char, 11> Data = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+  EXPECT_THROW(ReadOnlyFlexSpanUtil::AsSpan<char>(nullptr, Data.size()), std::invalid_argument);
 }
 
 
@@ -91,12 +91,12 @@ TEST(TestReadOnlyFlexSpanUtil, AsSpan_FromZeroTerminated)
 TEST(TestReadOnlyFlexSpanUtil, AsSpan_FromZeroTerminated_constexpr)
 {
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  constexpr static char data[11] = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
-  constexpr static ReadOnlyFlexSpan span = ReadOnlyFlexSpanUtil::AsSpan(data, 11);
+  constexpr static char Data[11] = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+  constexpr static ReadOnlyFlexSpan Span = ReadOnlyFlexSpanUtil::AsSpan(Data, 11);
 
-  EXPECT_FALSE(span.empty());
-  EXPECT_EQ(span.data(), data);
-  EXPECT_EQ(span.size(), 11u);
-  EXPECT_EQ(span.length(), 11u);
-  EXPECT_EQ(span.stride(), sizeof(char));
+  EXPECT_FALSE(Span.empty());
+  EXPECT_EQ(Span.data(), Data);
+  EXPECT_EQ(Span.size(), 11u);
+  EXPECT_EQ(Span.length(), 11u);
+  EXPECT_EQ(Span.stride(), sizeof(char));
 }

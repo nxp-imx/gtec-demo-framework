@@ -127,13 +127,13 @@ namespace Fsl
     }
 
 
-    constexpr std::array<std::pair<const char*, MeshMode>, 3> g_meshModes = {std::make_pair("SingleMesh", MeshMode::SingleMesh),
-                                                                             std::make_pair("MultipleMeshes", MeshMode::MultipleMeshes),
-                                                                             std::make_pair("Wireframe", MeshMode::Wireframe)};
+    constexpr std::array<std::pair<const char*, MeshMode>, 3> MeshModesDesc = {std::make_pair("SingleMesh", MeshMode::SingleMesh),
+                                                                               std::make_pair("MultipleMeshes", MeshMode::MultipleMeshes),
+                                                                               std::make_pair("Wireframe", MeshMode::Wireframe)};
 
-    constexpr std::array<std::pair<const char*, ShaderMode>, 3> g_shaderMode = {std::make_pair("PerPixelTextured", ShaderMode::PerPixelTextured),
-                                                                                std::make_pair("PerPixelNoTextures", ShaderMode::PerPixelNoTextures),
-                                                                                std::make_pair("NoLightVertexColor", ShaderMode::NoLightVertexColor)};
+    constexpr std::array<std::pair<const char*, ShaderMode>, 3> ShaderModeDesc = {
+      std::make_pair("PerPixelTextured", ShaderMode::PerPixelTextured), std::make_pair("PerPixelNoTextures", ShaderMode::PerPixelNoTextures),
+      std::make_pair("NoLightVertexColor", ShaderMode::NoLightVertexColor)};
   }
 
   OptionParser::OptionParser()
@@ -147,8 +147,8 @@ namespace Fsl
 
   void OptionParser::OnArgumentSetup(std::deque<Option>& rOptions)
   {
-    auto meshModes = GetHelpString(g_meshModes);
-    auto shaderModes = GetHelpString(g_shaderMode);
+    auto meshModes = GetHelpString(MeshModesDesc);
+    auto shaderModes = GetHelpString(ShaderModeDesc);
 
     rOptions.emplace_back("s", "Scene", OptionArgument::OptionRequired, CommandId::Scene, "Select the scene to run (0 to 9)");
     rOptions.emplace_back("m", "Model", OptionArgument::OptionRequired, CommandId::Model,
@@ -178,14 +178,14 @@ namespace Fsl
       m_customModelPath = strOptArg;
       return OptionParseResult::Parsed;
     case CommandId::MeshMode:
-      if (!TryParse(m_meshMode, g_meshModes, strOptArg, MeshMode::SingleMesh))
+      if (!TryParse(m_meshMode, MeshModesDesc, strOptArg, MeshMode::SingleMesh))
       {
         FSLLOG3_INFO("Unsupported MeshMode: {}", strOptArg);
         return OptionParseResult::Failed;
       }
       return OptionParseResult::Parsed;
     case CommandId::ShaderMode:
-      if (!TryParse(m_shaderMode, g_shaderMode, strOptArg, ShaderMode::PerPixelTextured))
+      if (!TryParse(m_shaderMode, ShaderModeDesc, strOptArg, ShaderMode::PerPixelTextured))
       {
         FSLLOG3_INFO("Unsupported ShaderMode: {}", strOptArg);
         return OptionParseResult::Failed;

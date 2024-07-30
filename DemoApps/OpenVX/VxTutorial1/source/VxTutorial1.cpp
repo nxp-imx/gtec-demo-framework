@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,8 +52,8 @@ namespace Fsl
     {
       assert(srcBitmap.GetPixelFormat() == PixelFormat::EX_ALPHA8_UNORM);
 
-      const auto imageWidth = static_cast<uint32_t>(srcBitmap.Width());
-      const auto imageHeight = static_cast<uint32_t>(srcBitmap.Height());
+      const uint32_t imageWidth = srcBitmap.RawUnsignedWidth();
+      const uint32_t imageHeight = srcBitmap.RawUnsignedHeight();
 
       vx_rectangle_t imageRect = {0, 0, imageWidth, imageHeight};
       vx_imagepatch_addressing_t imageInfo = VX_IMAGEPATCH_ADDR_INIT;
@@ -67,10 +67,9 @@ namespace Fsl
       }
 
       {
-        RawBitmap rawSrcBitmap;
-        Bitmap::ScopedDirectAccess scopedAccess(srcBitmap, rawSrcBitmap);
-        const auto* pSrcBitmap = static_cast<const uint8_t*>(rawSrcBitmap.Content());
-        const auto srcStride = rawSrcBitmap.Stride();
+        const Bitmap::ScopedDirectReadAccess scopedAccess(srcBitmap);
+        const auto* pSrcBitmap = static_cast<const uint8_t*>(scopedAccess.AsRawBitmap().Content());
+        const auto srcStride = scopedAccess.AsRawBitmap().Stride();
 
         for (uint32_t y = 0; y < imageHeight; ++y)
         {
@@ -91,8 +90,8 @@ namespace Fsl
     {
       assert(dstBitmap.GetPixelFormat() == PixelFormat::EX_ALPHA8_UNORM);
 
-      const auto imageWidth = static_cast<uint32_t>(dstBitmap.Width());
-      const auto imageHeight = static_cast<uint32_t>(dstBitmap.Height());
+      const uint32_t imageWidth = dstBitmap.RawUnsignedWidth();
+      const uint32_t imageHeight = dstBitmap.RawUnsignedHeight();
       vx_rectangle_t imageRect = {0, 0, imageWidth, imageHeight};
 
       // transfer image from gpu to cpu
@@ -112,10 +111,9 @@ namespace Fsl
         throw std::runtime_error("vx procedure error");
       }
 
-      RawBitmapEx rawDstBitmap;
-      Bitmap::ScopedDirectAccess scopedAccess(dstBitmap, rawDstBitmap);
-      auto* pDstBitmap = static_cast<uint8_t*>(rawDstBitmap.Content());
-      const auto dstStride = rawDstBitmap.Stride();
+      Bitmap::ScopedDirectReadWriteAccess scopedAccess(dstBitmap);
+      auto* pDstBitmap = static_cast<uint8_t*>(scopedAccess.AsRawBitmap().Content());
+      const auto dstStride = scopedAccess.AsRawBitmap().Stride();
 
       for (uint32_t y = 0; y < imageHeight; ++y)
       {
@@ -158,8 +156,8 @@ namespace Fsl
     Bitmap bitmap;
     GetContentManager()->Read(bitmap, "Test_gray.png", PixelFormat::EX_ALPHA8_UNORM);
 
-    const auto imageWidth = static_cast<uint32_t>(bitmap.Width());
-    const auto imageHeight = static_cast<uint32_t>(bitmap.Height());
+    const uint32_t imageWidth = bitmap.RawUnsignedWidth();
+    const uint32_t imageHeight = bitmap.RawUnsignedHeight();
 
     Image image0(m_context.Get(), imageWidth, imageHeight, VX_DF_IMAGE_U8);
     Image image1(m_context.Get(), imageWidth, imageHeight, VX_DF_IMAGE_S16);

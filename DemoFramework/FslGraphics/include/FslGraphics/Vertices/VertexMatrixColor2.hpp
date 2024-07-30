@@ -57,12 +57,12 @@ namespace Fsl
 
     constexpr static VertexDeclarationArray<3> GetVertexDeclarationArray()
     {
-      constexpr BasicVertexDeclarationArray<3> elements = {
+      constexpr BasicVertexDeclarationArray<3> Elements = {
         VertexElement(offsetof(VertexMatrixColor2, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0),
         VertexElement(offsetof(VertexMatrixColor2, Color1), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
         VertexElement(offsetof(VertexMatrixColor2, Color2), VertexElementFormat::Vector4, VertexElementUsage::Color, 1)};
 
-      return {elements, sizeof(VertexMatrixColor2)};
+      return {Elements, sizeof(VertexMatrixColor2)};
     }
 
 
@@ -70,8 +70,8 @@ namespace Fsl
     //              At least this workaround still gives us compile time validation of the vertex element data
     static VertexDeclarationSpan AsVertexDeclarationSpan()
     {
-      constexpr static VertexDeclarationArray<3> decl = GetVertexDeclarationArray();
-      return decl.AsReadOnlySpan();
+      constexpr static VertexDeclarationArray<3> Decl = GetVertexDeclarationArray();
+      return Decl.AsReadOnlySpan();
     }
 
 

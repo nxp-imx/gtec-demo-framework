@@ -50,7 +50,7 @@ namespace Fsl
     struct ProgramInfo
     {
       GLES3::GLProgram Program;
-      GLint LocWorldViewProjection{GLES3::GLValues::INVALID_LOCATION};
+      GLint LocWorldViewProjection{GLES3::GLValues::InvalidLocation};
       std::array<GLES3::GLVertexAttribLink, 2> Links;
     };
 

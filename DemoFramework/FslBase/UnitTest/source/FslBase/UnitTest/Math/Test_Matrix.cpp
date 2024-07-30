@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,45 +60,45 @@ namespace
     }
   }
 
-  constexpr unsigned int _M11 = (4 * 0) + 0;
-  constexpr unsigned int _M12 = (4 * 0) + 1;
-  constexpr unsigned int _M13 = (4 * 0) + 2;
-  constexpr unsigned int _M14 = (4 * 0) + 3;
+  constexpr unsigned int M11 = (4 * 0) + 0;
+  constexpr unsigned int M12 = (4 * 0) + 1;
+  constexpr unsigned int M13 = (4 * 0) + 2;
+  constexpr unsigned int M14 = (4 * 0) + 3;
 
-  constexpr unsigned int _M21 = (4 * 1) + 0;
-  constexpr unsigned int _M22 = (4 * 1) + 1;
-  constexpr unsigned int _M23 = (4 * 1) + 2;
-  constexpr unsigned int _M24 = (4 * 1) + 3;
+  constexpr unsigned int M21 = (4 * 1) + 0;
+  constexpr unsigned int M22 = (4 * 1) + 1;
+  constexpr unsigned int M23 = (4 * 1) + 2;
+  constexpr unsigned int M24 = (4 * 1) + 3;
 
-  constexpr unsigned int _M31 = (4 * 2) + 0;
-  constexpr unsigned int _M32 = (4 * 2) + 1;
-  constexpr unsigned int _M33 = (4 * 2) + 2;
-  constexpr unsigned int _M34 = (4 * 2) + 3;
+  constexpr unsigned int M31 = (4 * 2) + 0;
+  constexpr unsigned int M32 = (4 * 2) + 1;
+  constexpr unsigned int M33 = (4 * 2) + 2;
+  constexpr unsigned int M34 = (4 * 2) + 3;
 
-  constexpr unsigned int _M41 = (4 * 3) + 0;
-  constexpr unsigned int _M42 = (4 * 3) + 1;
-  constexpr unsigned int _M43 = (4 * 3) + 2;
-  constexpr unsigned int _M44 = (4 * 3) + 3;
+  constexpr unsigned int M41 = (4 * 3) + 0;
+  constexpr unsigned int M42 = (4 * 3) + 1;
+  constexpr unsigned int M43 = (4 * 3) + 2;
+  constexpr unsigned int M44 = (4 * 3) + 3;
 
   // Compile time evaluated matrix multiply :)
   constexpr Matrix ConstMultiply(const float* const pLhs, const float* const pRhs)
   {
-    return {(((pLhs[_M11] * pRhs[_M11]) + (pLhs[_M12] * pRhs[_M21])) + (pLhs[_M13] * pRhs[_M31])) + (pLhs[_M14] * pRhs[_M41]),
-            (((pLhs[_M11] * pRhs[_M12]) + (pLhs[_M12] * pRhs[_M22])) + (pLhs[_M13] * pRhs[_M32])) + (pLhs[_M14] * pRhs[_M42]),
-            (((pLhs[_M11] * pRhs[_M13]) + (pLhs[_M12] * pRhs[_M23])) + (pLhs[_M13] * pRhs[_M33])) + (pLhs[_M14] * pRhs[_M43]),
-            (((pLhs[_M11] * pRhs[_M14]) + (pLhs[_M12] * pRhs[_M24])) + (pLhs[_M13] * pRhs[_M34])) + (pLhs[_M14] * pRhs[_M44]),
-            (((pLhs[_M21] * pRhs[_M11]) + (pLhs[_M22] * pRhs[_M21])) + (pLhs[_M23] * pRhs[_M31])) + (pLhs[_M24] * pRhs[_M41]),
-            (((pLhs[_M21] * pRhs[_M12]) + (pLhs[_M22] * pRhs[_M22])) + (pLhs[_M23] * pRhs[_M32])) + (pLhs[_M24] * pRhs[_M42]),
-            (((pLhs[_M21] * pRhs[_M13]) + (pLhs[_M22] * pRhs[_M23])) + (pLhs[_M23] * pRhs[_M33])) + (pLhs[_M24] * pRhs[_M43]),
-            (((pLhs[_M21] * pRhs[_M14]) + (pLhs[_M22] * pRhs[_M24])) + (pLhs[_M23] * pRhs[_M34])) + (pLhs[_M24] * pRhs[_M44]),
-            (((pLhs[_M31] * pRhs[_M11]) + (pLhs[_M32] * pRhs[_M21])) + (pLhs[_M33] * pRhs[_M31])) + (pLhs[_M34] * pRhs[_M41]),
-            (((pLhs[_M31] * pRhs[_M12]) + (pLhs[_M32] * pRhs[_M22])) + (pLhs[_M33] * pRhs[_M32])) + (pLhs[_M34] * pRhs[_M42]),
-            (((pLhs[_M31] * pRhs[_M13]) + (pLhs[_M32] * pRhs[_M23])) + (pLhs[_M33] * pRhs[_M33])) + (pLhs[_M34] * pRhs[_M43]),
-            (((pLhs[_M31] * pRhs[_M14]) + (pLhs[_M32] * pRhs[_M24])) + (pLhs[_M33] * pRhs[_M34])) + (pLhs[_M34] * pRhs[_M44]),
-            (((pLhs[_M41] * pRhs[_M11]) + (pLhs[_M42] * pRhs[_M21])) + (pLhs[_M43] * pRhs[_M31])) + (pLhs[_M44] * pRhs[_M41]),
-            (((pLhs[_M41] * pRhs[_M12]) + (pLhs[_M42] * pRhs[_M22])) + (pLhs[_M43] * pRhs[_M32])) + (pLhs[_M44] * pRhs[_M42]),
-            (((pLhs[_M41] * pRhs[_M13]) + (pLhs[_M42] * pRhs[_M23])) + (pLhs[_M43] * pRhs[_M33])) + (pLhs[_M44] * pRhs[_M43]),
-            (((pLhs[_M41] * pRhs[_M14]) + (pLhs[_M42] * pRhs[_M24])) + (pLhs[_M43] * pRhs[_M34])) + (pLhs[_M44] * pRhs[_M44])};
+    return {(((pLhs[M11] * pRhs[M11]) + (pLhs[M12] * pRhs[M21])) + (pLhs[M13] * pRhs[M31])) + (pLhs[M14] * pRhs[M41]),
+            (((pLhs[M11] * pRhs[M12]) + (pLhs[M12] * pRhs[M22])) + (pLhs[M13] * pRhs[M32])) + (pLhs[M14] * pRhs[M42]),
+            (((pLhs[M11] * pRhs[M13]) + (pLhs[M12] * pRhs[M23])) + (pLhs[M13] * pRhs[M33])) + (pLhs[M14] * pRhs[M43]),
+            (((pLhs[M11] * pRhs[M14]) + (pLhs[M12] * pRhs[M24])) + (pLhs[M13] * pRhs[M34])) + (pLhs[M14] * pRhs[M44]),
+            (((pLhs[M21] * pRhs[M11]) + (pLhs[M22] * pRhs[M21])) + (pLhs[M23] * pRhs[M31])) + (pLhs[M24] * pRhs[M41]),
+            (((pLhs[M21] * pRhs[M12]) + (pLhs[M22] * pRhs[M22])) + (pLhs[M23] * pRhs[M32])) + (pLhs[M24] * pRhs[M42]),
+            (((pLhs[M21] * pRhs[M13]) + (pLhs[M22] * pRhs[M23])) + (pLhs[M23] * pRhs[M33])) + (pLhs[M24] * pRhs[M43]),
+            (((pLhs[M21] * pRhs[M14]) + (pLhs[M22] * pRhs[M24])) + (pLhs[M23] * pRhs[M34])) + (pLhs[M24] * pRhs[M44]),
+            (((pLhs[M31] * pRhs[M11]) + (pLhs[M32] * pRhs[M21])) + (pLhs[M33] * pRhs[M31])) + (pLhs[M34] * pRhs[M41]),
+            (((pLhs[M31] * pRhs[M12]) + (pLhs[M32] * pRhs[M22])) + (pLhs[M33] * pRhs[M32])) + (pLhs[M34] * pRhs[M42]),
+            (((pLhs[M31] * pRhs[M13]) + (pLhs[M32] * pRhs[M23])) + (pLhs[M33] * pRhs[M33])) + (pLhs[M34] * pRhs[M43]),
+            (((pLhs[M31] * pRhs[M14]) + (pLhs[M32] * pRhs[M24])) + (pLhs[M33] * pRhs[M34])) + (pLhs[M34] * pRhs[M44]),
+            (((pLhs[M41] * pRhs[M11]) + (pLhs[M42] * pRhs[M21])) + (pLhs[M43] * pRhs[M31])) + (pLhs[M44] * pRhs[M41]),
+            (((pLhs[M41] * pRhs[M12]) + (pLhs[M42] * pRhs[M22])) + (pLhs[M43] * pRhs[M32])) + (pLhs[M44] * pRhs[M42]),
+            (((pLhs[M41] * pRhs[M13]) + (pLhs[M42] * pRhs[M23])) + (pLhs[M43] * pRhs[M33])) + (pLhs[M44] * pRhs[M43]),
+            (((pLhs[M41] * pRhs[M14]) + (pLhs[M42] * pRhs[M24])) + (pLhs[M43] * pRhs[M34])) + (pLhs[M44] * pRhs[M44])};
   }
 
   // Compile time evaluated matrix multiply :)
@@ -409,20 +409,20 @@ TEST(TestMath_Matrix, CreateTranslation_Vector3)
 
 TEST(TestMath_Matrix, CreateOrthographic)
 {
-  constexpr float width = 320.0f;
-  constexpr float height = 240.0f;
-  constexpr float zNear = 0.001f;
-  constexpr float zFar = 10.0f;
-  const auto res = Matrix::CreateOrthographic(width, height, zNear, zFar);
+  constexpr float Width = 320.0f;
+  constexpr float Height = 240.0f;
+  constexpr float ZNear = 0.001f;
+  constexpr float ZFar = 10.0f;
+  const auto res = Matrix::CreateOrthographic(Width, Height, ZNear, ZFar);
 
-  constexpr float m11 = 2.0f / width;
-  constexpr float m22 = 2.0f / height;
-  constexpr float m33 = 1.0f / (zNear - zFar);
-  constexpr float m43 = zNear / (zNear - zFar);
+  constexpr float M11 = 2.0f / Width;
+  constexpr float M22 = 2.0f / Height;
+  constexpr float M33 = 1.0f / (ZNear - ZFar);
+  constexpr float M43 = ZNear / (ZNear - ZFar);
 
   //--------------------M11--M12---M13---M14---M21---M22--M23---M24---M31---M32---M33--M34---M41---M42---M43---M44
   //--------------------0----1-----2-----3-----4-----5----6-----7-----8-----9-----10---11----12----13----14----15
-  const Matrix expected(m11, 0.0f, 0.0f, 0.0f, 0.0f, m22, 0.0f, 0.0f, 0.0f, 0.0f, m33, 0.0f, 0.0f, 0.0f, m43, 1.0f);
+  const Matrix expected(M11, 0.0f, 0.0f, 0.0f, 0.0f, M22, 0.0f, 0.0f, 0.0f, 0.0f, M33, 0.0f, 0.0f, 0.0f, M43, 1.0f);
 
   EXPECT_EQ(expected, res);
 }
@@ -648,25 +648,25 @@ TEST(TestMath_Matrix, Multiply_float)
 
 TEST(TestMath_Matrix, Multiply)
 {
-  constexpr Matrix value1(101.0f, 102.0f, 103.0f, 104.0f, 105.0f, 106.0f, 107.0f, 108.0f, 109.0f, 110.0f, 111.0f, 112.0f, 113.0f, 114.0f, 115.0f,
+  constexpr Matrix Value1(101.0f, 102.0f, 103.0f, 104.0f, 105.0f, 106.0f, 107.0f, 108.0f, 109.0f, 110.0f, 111.0f, 112.0f, 113.0f, 114.0f, 115.0f,
                           116.0f);
-  constexpr Matrix value2(16.0f, 15.0f, 14.0f, 13.0f, 12.0f, 11.0f, 10.0f, 9.0f, 8.0f, 7.0f, 6.0f, 5.0f, 4.0f, 3.0f, 2.0f, 1.5f);
+  constexpr Matrix Value2(16.0f, 15.0f, 14.0f, 13.0f, 12.0f, 11.0f, 10.0f, 9.0f, 8.0f, 7.0f, 6.0f, 5.0f, 4.0f, 3.0f, 2.0f, 1.5f);
 
-  constexpr Matrix expectedResult = ConstMultiply(value1, value2);
+  constexpr Matrix ExpectedResult = ConstMultiply(Value1, Value2);
 
-  const auto res = Matrix::Multiply(value1, value2);
-  EXPECT_EQ(expectedResult, res);
+  const auto res = Matrix::Multiply(Value1, Value2);
+  EXPECT_EQ(ExpectedResult, res);
 
   Matrix res2;
-  Matrix::Multiply(value1, value2, res2);
-  EXPECT_EQ(expectedResult, res2);
+  Matrix::Multiply(Value1, Value2, res2);
+  EXPECT_EQ(ExpectedResult, res2);
 
-  Matrix res3 = value1;
-  res3 *= value2;
-  EXPECT_EQ(expectedResult, res3);
+  Matrix res3 = Value1;
+  res3 *= Value2;
+  EXPECT_EQ(ExpectedResult, res3);
 
-  const Matrix res4 = value1 * value2;
-  EXPECT_EQ(expectedResult, res4);
+  const Matrix res4 = Value1 * Value2;
+  EXPECT_EQ(ExpectedResult, res4);
 }
 
 

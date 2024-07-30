@@ -44,12 +44,13 @@ namespace Fsl
     VkDescriptorBufferInfo Descriptor{};
     VkDeviceSize Size{0};
     VkDeviceSize Alignment{0};
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void* pMapped{nullptr};
 
     //! @brief Usage flags to be filled by external source at buffer creation (to query at some later point)
-    VkBufferUsageFlags usageFlags{0};
+    VkBufferUsageFlags UsageFlags{0};
     //! @brief Memory properties flags to be filled by external source at buffer creation (to query at some later point)
-    VkMemoryPropertyFlags memoryPropertyFlags{0};
+    VkMemoryPropertyFlags MemoryPropertyFlags{0};
 
     BufferData() = default;
   };

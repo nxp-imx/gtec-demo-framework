@@ -121,14 +121,14 @@ namespace Fsl
     }
 
     assert(m_pEventQueue != nullptr);
-    m_pEventQueue->push(EventRecord(event));
+    m_pEventQueue->emplace(event);
   }
 
 
   void EventsService::Post(const BasicEvent& event)
   {
     assert(m_pEventQueue != nullptr);
-    m_pEventQueue->push(EventRecord(event));
+    m_pEventQueue->emplace(event);
   }
 
 

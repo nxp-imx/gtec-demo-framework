@@ -138,13 +138,13 @@ namespace Fsl
   TessellationSample::~TessellationSample() = default;
 
 
-  void TessellationSample::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void TessellationSample::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
     FSL_PARAM_NOT_USED(theEvent);
   }
 
 
-  void TessellationSample::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void TessellationSample::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
     auto source = theEvent->GetSource();
     if (source == m_sliderTInner)

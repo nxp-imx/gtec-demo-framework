@@ -36,9 +36,8 @@
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/SpanRange.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/Span/Span.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslSimpleUI/Render/Base/Command/EncodedCommand.hpp>
 #include <FslSimpleUI/Render/IMBatch/DrawReorderMethod.hpp>
 #include <unordered_map>
@@ -147,14 +146,13 @@ namespace Fsl::UI::RenderIMBatch
 
       if (result.OpaqueCount > 0u)
       {
-        Reorder(opaqueMaterialCache, SpanUtil::AsSubSpan(m_finalEntries, 0u, result.OpaqueCount, OptimizationCheckFlag::NoCheck),
-                ReadOnlySpanUtil::AsSpan(rProcessedCommandRecords, result.OpaqueStartIndex, result.OpaqueCount, OptimizationCheckFlag::NoCheck));
+        Reorder(opaqueMaterialCache, SpanUtil::UncheckedAsSpan(m_finalEntries, 0u, result.OpaqueCount),
+                SpanUtil::UncheckedAsReadOnlySpan(rProcessedCommandRecords, result.OpaqueStartIndex, result.OpaqueCount));
       }
       if (result.TransparentCount > 0u)
       {
-        Reorder(
-          transparentMaterialCache, SpanUtil::AsSubSpan(m_finalEntries, result.OpaqueCount, result.TransparentCount, OptimizationCheckFlag::NoCheck),
-          ReadOnlySpanUtil::AsSpan(rProcessedCommandRecords, result.TransparentStartIndex, result.TransparentCount, OptimizationCheckFlag::NoCheck));
+        Reorder(transparentMaterialCache, SpanUtil::UncheckedAsSpan(m_finalEntries, result.OpaqueCount, result.TransparentCount),
+                SpanUtil::UncheckedAsReadOnlySpan(rProcessedCommandRecords, result.TransparentStartIndex, result.TransparentCount));
       }
       m_finalOpaqueCount = result.OpaqueCount;
       m_finalTransparentCount = result.TransparentCount;
@@ -162,12 +160,12 @@ namespace Fsl::UI::RenderIMBatch
 
     inline ReadOnlySpan<ProcessedCommandRecord> GetOpaqueSpan(std::vector<ProcessedCommandRecord>& /*rProcessedCommandRecords*/) const noexcept
     {
-      return ReadOnlySpanUtil::AsSpan(m_finalEntries, 0u, m_finalOpaqueCount, OptimizationCheckFlag::NoCheck);
+      return SpanUtil::UncheckedAsReadOnlySpan(m_finalEntries, 0u, m_finalOpaqueCount);
     }
 
     inline ReadOnlySpan<ProcessedCommandRecord> GetTransparentSpan(std::vector<ProcessedCommandRecord>& /*rProcessedCommandRecords*/) const noexcept
     {
-      return ReadOnlySpanUtil::AsSpan(m_finalEntries, m_finalOpaqueCount, m_finalTransparentCount, OptimizationCheckFlag::NoCheck);
+      return SpanUtil::UncheckedAsReadOnlySpan(m_finalEntries, m_finalOpaqueCount, m_finalTransparentCount);
     }
 
   private:
@@ -190,7 +188,6 @@ namespace Fsl::UI::RenderIMBatch
     //! @param materialCache A initialized material cache that will point to the first index of the material (or the invalid material id)
     //! @param dstSpan
     //! @param srcSpan
-    //! @param maxBacktracking
     void Reorder(Span<MaterialCacheRecord> materialCache, Span<ProcessedCommandRecord> dstSpan, ReadOnlySpan<ProcessedCommandRecord> srcSpan)
     {
       m_grid.Clear();

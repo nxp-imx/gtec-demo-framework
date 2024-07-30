@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
+#include <FslBase/Span/SpanUtil_Create.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
@@ -47,7 +48,7 @@ namespace
 
 
   template <typename T, std::size_t TSize>
-  void Expect_EQ(const std::vector<T>& expected, const std::array<T, TSize>& value, const std::size_t numEntries)
+  void ExpectEq(const std::vector<T>& expected, const std::array<T, TSize>& value, const std::size_t numEntries)
   {
     EXPECT_GE(expected.size(), numEntries);
     for (std::size_t i = 0; i < expected.size(); ++i)
@@ -57,7 +58,7 @@ namespace
   }
 
   template <std::size_t TSize>
-  void Expect_EQ(const std::vector<float>& expected, const std::array<float, TSize>& value, const std::size_t numEntries)
+  void ExpectEq(const std::vector<float>& expected, const std::array<float, TSize>& value, const std::size_t numEntries)
   {
     EXPECT_GE(expected.size(), numEntries);
     for (std::size_t i = 0; i < expected.size(); ++i)
@@ -67,7 +68,7 @@ namespace
   }
 
   template <std::size_t TSize>
-  void Expect_EQ(const std::vector<double>& expected, const std::array<double, TSize>& value, const std::size_t numEntries)
+  void ExpectEq(const std::vector<double>& expected, const std::array<double, TSize>& value, const std::size_t numEntries)
   {
     EXPECT_GE(expected.size(), numEntries);
     for (std::size_t i = 0; i < expected.size(); ++i)
@@ -761,15 +762,15 @@ TEST(TestString_StringUtil, ParseArrayBool)
 
   res = StringParseUtil::ParseArray(dstSpan, "[true]");
   EXPECT_EQ(6u, res.CharactersConsumed);
-  Expect_EQ<bool>({true}, dstArray, res.ArrayEntries);
+  ExpectEq<bool>({true}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[false]");
   EXPECT_EQ(7u, res.CharactersConsumed);
-  Expect_EQ<bool>({false}, dstArray, res.ArrayEntries);
+  ExpectEq<bool>({false}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[0,true,0,1,false]");
   EXPECT_EQ(18u, res.CharactersConsumed);
-  Expect_EQ<bool>({false, true, false, true, false}, dstArray, res.ArrayEntries);
+  ExpectEq<bool>({false, true, false, true, false}, dstArray, res.ArrayEntries);
 }
 
 
@@ -781,7 +782,7 @@ TEST(TestString_StringUtil, ParseArrayBool_Invalid)
 
   // nullptr
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, nullptr), FormatException);
-  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::AsSpan(pNull, 0), "[0]"), FormatException);
+  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::Create(pNull, 0), "[0]"), FormatException);
 
   // format
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, ""), FormatException);
@@ -809,19 +810,19 @@ TEST(TestString_StringUtil, ParseArrayUInt8)
 
   res = StringParseUtil::ParseArray(dstSpan, "[1]");
   EXPECT_EQ(3u, res.CharactersConsumed);
-  Expect_EQ<uint8_t>({1}, dstArray, res.ArrayEntries);
+  ExpectEq<uint8_t>({1}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[0]");
   EXPECT_EQ(3u, res.CharactersConsumed);
-  Expect_EQ<uint8_t>({0}, dstArray, res.ArrayEntries);
+  ExpectEq<uint8_t>({0}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[255]");
   EXPECT_EQ(5u, res.CharactersConsumed);
-  Expect_EQ<uint8_t>({255}, dstArray, res.ArrayEntries);
+  ExpectEq<uint8_t>({255}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[0,6,0,255,1]");
   EXPECT_EQ(13u, res.CharactersConsumed);
-  Expect_EQ<uint8_t>({0, 6, 0, 255, 1}, dstArray, res.ArrayEntries);
+  ExpectEq<uint8_t>({0, 6, 0, 255, 1}, dstArray, res.ArrayEntries);
 }
 
 
@@ -833,7 +834,7 @@ TEST(TestString_StringUtil, ParseArrayUInt8_Invalid)
 
   // nullptr
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, nullptr), FormatException);
-  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::AsSpan(pNull, 0), "[0]"), FormatException);
+  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::Create(pNull, 0), "[0]"), FormatException);
 
   // format
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, ""), FormatException);
@@ -859,7 +860,7 @@ TEST(TestString_StringUtil, ParseArrayUInt16_Invalid)
 
   // nullptr
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, nullptr), FormatException);
-  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::AsSpan(pNull, 0), "[0]"), FormatException);
+  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::Create(pNull, 0), "[0]"), FormatException);
 
   // format
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, ""), FormatException);
@@ -885,19 +886,19 @@ TEST(TestString_StringUtil, ParseArrayUInt32)
 
   res = StringParseUtil::ParseArray(dstSpan, "[1]");
   EXPECT_EQ(3u, res.CharactersConsumed);
-  Expect_EQ<uint32_t>({1}, dstArray, res.ArrayEntries);
+  ExpectEq<uint32_t>({1}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[0]");
   EXPECT_EQ(3u, res.CharactersConsumed);
-  Expect_EQ<uint32_t>({0}, dstArray, res.ArrayEntries);
+  ExpectEq<uint32_t>({0}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[255]");
   EXPECT_EQ(5u, res.CharactersConsumed);
-  Expect_EQ<uint32_t>({255}, dstArray, res.ArrayEntries);
+  ExpectEq<uint32_t>({255}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[0,6,0,255,1]");
   EXPECT_EQ(13u, res.CharactersConsumed);
-  Expect_EQ<uint32_t>({0, 6, 0, 255, 1}, dstArray, res.ArrayEntries);
+  ExpectEq<uint32_t>({0, 6, 0, 255, 1}, dstArray, res.ArrayEntries);
 }
 
 
@@ -909,7 +910,7 @@ TEST(TestString_StringUtil, ParseArrayUInt32_Invalid)
 
   // nullptr
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, nullptr), FormatException);
-  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::AsSpan(pNull, 0), "[0]"), FormatException);
+  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::Create(pNull, 0), "[0]"), FormatException);
 
   // format
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, ""), FormatException);
@@ -935,7 +936,7 @@ TEST(TestString_StringUtil, ParseArrayInt8_Invalid)
 
   // nullptr
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, nullptr), FormatException);
-  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::AsSpan(pNull, 0), "[0]"), FormatException);
+  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::Create(pNull, 0), "[0]"), FormatException);
 
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, ""), FormatException);
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, "[]"), FormatException);
@@ -959,7 +960,7 @@ TEST(TestString_StringUtil, ParseArrayInt16_Invalid)
 
   // nullptr
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, nullptr), FormatException);
-  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::AsSpan(pNull, 0), "[0]"), FormatException);
+  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::Create(pNull, 0), "[0]"), FormatException);
 
   // format
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, ""), FormatException);
@@ -984,31 +985,31 @@ TEST(TestString_StringUtil, ParseArrayInt32)
 
   res = StringParseUtil::ParseArray(dstSpan, "[1]");
   EXPECT_EQ(3u, res.CharactersConsumed);
-  Expect_EQ<int32_t>({1}, dstArray, res.ArrayEntries);
+  ExpectEq<int32_t>({1}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[-1]");
   EXPECT_EQ(4u, res.CharactersConsumed);
-  Expect_EQ<int32_t>({-1}, dstArray, res.ArrayEntries);
+  ExpectEq<int32_t>({-1}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[0]");
   EXPECT_EQ(3u, res.CharactersConsumed);
-  Expect_EQ<int32_t>({0}, dstArray, res.ArrayEntries);
+  ExpectEq<int32_t>({0}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[255]");
   EXPECT_EQ(5u, res.CharactersConsumed);
-  Expect_EQ<int32_t>({255}, dstArray, res.ArrayEntries);
+  ExpectEq<int32_t>({255}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[-255]");
   EXPECT_EQ(6u, res.CharactersConsumed);
-  Expect_EQ<int32_t>({-255}, dstArray, res.ArrayEntries);
+  ExpectEq<int32_t>({-255}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[0,6,0,255,1]");
   EXPECT_EQ(13u, res.CharactersConsumed);
-  Expect_EQ<int32_t>({0, 6, 0, 255, 1}, dstArray, res.ArrayEntries);
+  ExpectEq<int32_t>({0, 6, 0, 255, 1}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[0,-6,0,255,1]");
   EXPECT_EQ(14u, res.CharactersConsumed);
-  Expect_EQ<int32_t>({0, -6, 0, 255, 1}, dstArray, res.ArrayEntries);
+  ExpectEq<int32_t>({0, -6, 0, 255, 1}, dstArray, res.ArrayEntries);
 }
 
 
@@ -1020,7 +1021,7 @@ TEST(TestString_StringUtil, ParseArrayInt32_Invalid)
 
   // nullptr
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, nullptr), FormatException);
-  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::AsSpan(pNull, 0), "[0]"), FormatException);
+  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::Create(pNull, 0), "[0]"), FormatException);
 
   // format
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, ""), FormatException);
@@ -1046,39 +1047,39 @@ TEST(TestString_StringUtil, ParseArrayFloat)
 
   res = StringParseUtil::ParseArray(dstSpan, "[1]");
   EXPECT_EQ(3u, res.CharactersConsumed);
-  Expect_EQ({1}, dstArray, res.ArrayEntries);
+  ExpectEq({1}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[-1]");
   EXPECT_EQ(4u, res.CharactersConsumed);
-  Expect_EQ({-1}, dstArray, res.ArrayEntries);
+  ExpectEq({-1}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[0]");
   EXPECT_EQ(3u, res.CharactersConsumed);
-  Expect_EQ({0}, dstArray, res.ArrayEntries);
+  ExpectEq({0}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[255]");
   EXPECT_EQ(5u, res.CharactersConsumed);
-  Expect_EQ({255}, dstArray, res.ArrayEntries);
+  ExpectEq({255}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[-255]");
   EXPECT_EQ(6u, res.CharactersConsumed);
-  Expect_EQ({-255}, dstArray, res.ArrayEntries);
+  ExpectEq({-255}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[0,6,0,255,1]");
   EXPECT_EQ(13u, res.CharactersConsumed);
-  Expect_EQ({0, 6, 0, 255, 1}, dstArray, res.ArrayEntries);
+  ExpectEq({0, 6, 0, 255, 1}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[0,-6,0,255,1]");
   EXPECT_EQ(14u, res.CharactersConsumed);
-  Expect_EQ({0, -6, 0, 255, 1}, dstArray, res.ArrayEntries);
+  ExpectEq({0, -6, 0, 255, 1}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[0.5]");
   EXPECT_EQ(5u, res.CharactersConsumed);
-  Expect_EQ({0.5f}, dstArray, res.ArrayEntries);
+  ExpectEq({0.5f}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[-0.5]");
   EXPECT_EQ(6u, res.CharactersConsumed);
-  Expect_EQ({-0.5f}, dstArray, res.ArrayEntries);
+  ExpectEq({-0.5f}, dstArray, res.ArrayEntries);
 }
 
 
@@ -1090,7 +1091,7 @@ TEST(TestString_StringUtil, ParseArrayFloat_Invalid)
 
   // nullptr
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, nullptr), FormatException);
-  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::AsSpan(pNull, 0), "[0]"), FormatException);
+  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::Create(pNull, 0), "[0]"), FormatException);
 
   // format
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, ""), FormatException);
@@ -1115,39 +1116,39 @@ TEST(TestString_StringUtil, ParseArrayDouble)
 
   res = StringParseUtil::ParseArray(dstSpan, "[1]");
   EXPECT_EQ(3u, res.CharactersConsumed);
-  Expect_EQ({1}, dstArray, res.ArrayEntries);
+  ExpectEq({1}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[-1]");
   EXPECT_EQ(4u, res.CharactersConsumed);
-  Expect_EQ({-1}, dstArray, res.ArrayEntries);
+  ExpectEq({-1}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[0]");
   EXPECT_EQ(3u, res.CharactersConsumed);
-  Expect_EQ({0}, dstArray, res.ArrayEntries);
+  ExpectEq({0}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[255]");
   EXPECT_EQ(5u, res.CharactersConsumed);
-  Expect_EQ({255}, dstArray, res.ArrayEntries);
+  ExpectEq({255}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[-255]");
   EXPECT_EQ(6u, res.CharactersConsumed);
-  Expect_EQ({-255}, dstArray, res.ArrayEntries);
+  ExpectEq({-255}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[0,6,0,255,1]");
   EXPECT_EQ(13u, res.CharactersConsumed);
-  Expect_EQ({0, 6, 0, 255, 1}, dstArray, res.ArrayEntries);
+  ExpectEq({0, 6, 0, 255, 1}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[0,-6,0,255,1]");
   EXPECT_EQ(14u, res.CharactersConsumed);
-  Expect_EQ({0, -6, 0, 255, 1}, dstArray, res.ArrayEntries);
+  ExpectEq({0, -6, 0, 255, 1}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[0.5]");
   EXPECT_EQ(5u, res.CharactersConsumed);
-  Expect_EQ({0.5}, dstArray, res.ArrayEntries);
+  ExpectEq({0.5}, dstArray, res.ArrayEntries);
 
   res = StringParseUtil::ParseArray(dstSpan, "[-0.5]");
   EXPECT_EQ(6u, res.CharactersConsumed);
-  Expect_EQ({-0.5}, dstArray, res.ArrayEntries);
+  ExpectEq({-0.5}, dstArray, res.ArrayEntries);
 }
 
 
@@ -1159,7 +1160,7 @@ TEST(TestString_StringUtil, ParseArrayDouble_Invalid)
 
   // nullptr
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, nullptr), FormatException);
-  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::AsSpan(pNull, 0), "[0]"), FormatException);
+  EXPECT_THROW(StringParseUtil::ParseArray(SpanUtil::Create(pNull, 0), "[0]"), FormatException);
 
   // format
   EXPECT_THROW(StringParseUtil::ParseArray(dstSpan, ""), FormatException);

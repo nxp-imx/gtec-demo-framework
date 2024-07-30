@@ -31,123 +31,188 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Pixel/PxSize1D.hpp>
 #include <FslGraphics/PixelChannelOrder.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <FslGraphics/PixelFormatLayoutUtil.hpp>
 #include <FslGraphics/StrideRequirement.hpp>
 
-namespace Fsl
+namespace Fsl::PixelFormatUtil
 {
-  class PixelFormatUtil
+  //! @brief Get the format-id of the pixel format (it basically strips all the extra meta data)
+  extern uint32_t GetId(const PixelFormat pixelFormat);
+
+  //! @brief Get the zero based index of this pixel format type.
+  //         Index zero means the first id defined by PixelFormat::ENUM_ID_BEGIN_RANGE
+  extern uint32_t GetFormatRangeIndex(const PixelFormat pixelFormat);
+  // FIX: switch the return type here to enums
+  // extern uint32_t GetNumericFormat(const PixelFormat pixelFormat);
+  // FIX: switch the return type here to enums
+  // extern uint32_t GetCompressionScheme(const PixelFormat pixelFormat);
+
+  inline constexpr PixelFormatLayout GetPixelFormatLayout(const PixelFormat pixelFormat) noexcept
   {
-  public:
-    //! @brief Get the format-id of the pixel format (it basically strips all the extra meta data)
-    static uint32_t GetId(const PixelFormat pixelFormat);
+    return static_cast<PixelFormatLayout>((static_cast<int32_t>(pixelFormat) & PixelFormatFlags::BIT_MASK_LAYOUT) >>
+                                          PixelFormatFlags::BIT_INDEX_LAYOUT);
+  }
 
-    //! @brief Get the zero based index of this pixel format type.
-    //         Index zero means the first id defined by PixelFormat::ENUM_ID_BEGIN_RANGE
-    static uint32_t GetFormatRangeIndex(const PixelFormat pixelFormat);
-    // FIX: switch the return type here to enums
-    // static uint32_t GetNumericFormat(const PixelFormat pixelFormat);
-    // FIX: switch the return type here to enums
-    // static uint32_t GetCompressionScheme(const PixelFormat pixelFormat);
+  //! @brief Check if this is considered a compressed format
+  inline constexpr bool IsCompressed(const PixelFormat pixelFormat) noexcept
+  {
+    return PixelFormatLayoutUtil::IsCompressed(GetPixelFormatLayout(pixelFormat));
+  }
 
-    //! @brief Check if this is considered a compressed format
-    static bool IsCompressed(const PixelFormat pixelFormat);
+  //! @brief Check if this is considered a packed format
+  inline constexpr bool IsPacked(const PixelFormat pixelFormat) noexcept
+  {
+    return PixelFormatLayoutUtil::IsPacked(GetPixelFormatLayout(pixelFormat));
+  }
 
-    //! @brief Check if this is considered a packed format
-    static bool IsPacked(const PixelFormat pixelFormat);
+  //! @brief Given a pixel format id try to lookup the pixel format enum value.
+  //! @note  Returns the PixelFormat value or PixelFormat::Undefined if the lookup fails (or if asked to lookup the undefined value)
+  extern PixelFormat TryGetPixelFormatById(const uint32_t formatId) noexcept;
 
-    //! @brief Given a pixel format id try to lookup the pixel format enum value.
-    //! @note  Returns the PixelFormat value or PixelFormat::Undefined if the lookup fails (or if asked to lookup the undefined value)
-    static PixelFormat TryGetPixelFormatById(const uint32_t formatId);
+  //! @brief Given a pixel format bits try to lookup the pixel (beware this is a slow operation)
+  //! @note  Returns the PixelFormat value or PixelFormat::Undefined if the lookup fails (or if asked to lookup the undefined value)
+  extern PixelFormat TryFindPixelFormat(const uint32_t formatBits) noexcept;
 
-    //! @brief Given a pixel format bits try to lookup the pixel (beware this is a slow operation)
-    //! @note  Returns the PixelFormat value or PixelFormat::Undefined if the lookup fails (or if asked to lookup the undefined value)
-    static PixelFormat TryFindPixelFormat(const uint32_t formatBits);
+  //! @brief Check if a PixelFormatFlags is set in the pixel format
+  inline constexpr bool IsPixelFormatFlagSet(const PixelFormat pixelFormat, const PixelFormatFlags::Enum flag) noexcept
+  {
+    return (static_cast<uint32_t>(pixelFormat) & static_cast<uint32_t>(flag)) == static_cast<uint32_t>(flag);
+  }
 
-    //! @brief Check if a PixelFormatFlags is set in the pixel format
-    static bool IsPixelFormatFlagSet(const PixelFormat pixelFormat, const PixelFormatFlags::Enum flag)
-    {
-      return (static_cast<uint32_t>(pixelFormat) & static_cast<uint32_t>(flag)) == static_cast<uint32_t>(flag);
-    }
+  // @brief Tries to change the numeric format of the pixelformat
+  // @return PixelFormat::Undefined if the requested change is invalid
+  inline PixelFormat TrySetCompatiblePixelFormatFlag(const PixelFormat sourcePixelFormat, const PixelFormatFlags::Enum flag) noexcept
+  {
+    auto pixelFormat = static_cast<uint32_t>(sourcePixelFormat);
+    // Strip the numeric format
+    pixelFormat &= ~static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_NUMERIC_FORMAT);
+    pixelFormat |= static_cast<uint32_t>(flag);
+    return TryFindPixelFormat(pixelFormat);
+  }
 
-    // @brief Tries to change the numeric format of the pixelformat
-    // @return PixelFormat::Undefined if the requested change is invalid
-    static PixelFormat TrySetCompatiblePixelFormatFlag(const PixelFormat sourcePixelFormat, const PixelFormatFlags::Enum flag)
-    {
-      auto pixelFormat = static_cast<uint32_t>(sourcePixelFormat);
-      // Strip the numeric format
-      pixelFormat &= ~static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_NUMERIC_FORMAT);
-      pixelFormat |= static_cast<uint32_t>(flag);
-      return TryFindPixelFormat(pixelFormat);
-    }
+  inline constexpr uint32_t GetBytesPerPixel(const PixelFormat pixelFormat) noexcept
+  {
+    return PixelFormatLayoutUtil::GetBytesPerPixel(GetPixelFormatLayout(pixelFormat));
+  }
 
-    static constexpr PixelFormatLayout GetPixelFormatLayout(const PixelFormat pixelFormat)
-    {
-      return static_cast<PixelFormatLayout>((static_cast<int32_t>(pixelFormat) & PixelFormatFlags::BIT_MASK_LAYOUT) >>
-                                            PixelFormatFlags::BIT_INDEX_LAYOUT);
-    }
+  inline constexpr uint32_t CalcMinimumStride(const PxValueU widthPx, const PixelFormat pixelFormat) noexcept
+  {
+    return PixelFormatLayoutUtil::CalcMinimumStride(widthPx, GetPixelFormatLayout(pixelFormat));
+  }
 
-    static uint32_t GetBytesPerPixel(const PixelFormat pixelFormat)
-    {
-      return PixelFormatLayoutUtil::GetBytesPerPixel(GetPixelFormatLayout(pixelFormat));
-    }
+  inline constexpr uint32_t CalcMinimumStride(const PxValueU widthPx, const uint32_t bytesPerPixel) noexcept
+  {
+    return PixelFormatLayoutUtil::CalcMinimumStride(widthPx, bytesPerPixel);
+  }
 
-    static uint32_t CalcMinimumStride(const uint32_t width, const PixelFormat pixelFormat)
-    {
-      return PixelFormatLayoutUtil::CalcMinimumStride(width, GetPixelFormatLayout(pixelFormat));
-    }
+  inline uint32_t CalcMinimumStride(const PxValueU widthPx, const PixelFormat pixelFormat, const StrideRequirement strideRequirement)
+  {
+    return PixelFormatLayoutUtil::CalcMinimumStride(widthPx, GetPixelFormatLayout(pixelFormat), strideRequirement);
+  }
 
-    static uint32_t CalcMinimumStride(const uint32_t width, const uint32_t bytesPerPixel)
-    {
-      return PixelFormatLayoutUtil::CalcMinimumStride(width, bytesPerPixel);
-    }
+  inline uint32_t CalcMinimumStride(const PxValueU widthPx, const uint32_t bytesPerPixel, const StrideRequirement strideRequirement)
+  {
+    return PixelFormatLayoutUtil::CalcMinimumStride(widthPx, bytesPerPixel, strideRequirement);
+  }
 
-    static uint32_t CalcMinimumStride(const uint32_t width, const PixelFormat pixelFormat, const StrideRequirement strideRequirement)
-    {
-      return PixelFormatLayoutUtil::CalcMinimumStride(width, GetPixelFormatLayout(pixelFormat), strideRequirement);
-    }
+  inline constexpr uint32_t CalcMinimumStride(const PxSize1D widthPx, const PixelFormat pixelFormat) noexcept
+  {
+    return PixelFormatLayoutUtil::CalcMinimumStride(widthPx, GetPixelFormatLayout(pixelFormat));
+  }
 
-    static uint32_t CalcMinimumStride(const uint32_t width, const uint32_t bytesPerPixel, const StrideRequirement strideRequirement)
-    {
-      return PixelFormatLayoutUtil::CalcMinimumStride(width, bytesPerPixel, strideRequirement);
-    }
+  inline constexpr uint32_t CalcMinimumStride(const PxSize1D widthPx, const uint32_t bytesPerPixel) noexcept
+  {
+    return PixelFormatLayoutUtil::CalcMinimumStride(widthPx, bytesPerPixel);
+  }
 
-    static bool IsValidStride(const uint32_t width, const PixelFormat pixelFormat, const StrideRequirement strideRequirement,
-                              const uint32_t desiredStride)
-    {
-      return PixelFormatLayoutUtil::IsValidStride(width, GetPixelFormatLayout(pixelFormat), strideRequirement, desiredStride);
-    }
+  inline uint32_t CalcMinimumStride(const PxSize1D widthPx, const PixelFormat pixelFormat, const StrideRequirement strideRequirement)
+  {
+    return PixelFormatLayoutUtil::CalcMinimumStride(widthPx, GetPixelFormatLayout(pixelFormat), strideRequirement);
+  }
 
-    static bool IsValidStride(const uint32_t width, const uint32_t bytesPerPixel, const StrideRequirement strideRequirement,
-                              const uint32_t desiredStride)
-    {
-      return PixelFormatLayoutUtil::IsValidStride(width, bytesPerPixel, strideRequirement, desiredStride);
-    }
+  inline uint32_t CalcMinimumStride(const PxSize1D widthPx, const uint32_t bytesPerPixel, const StrideRequirement strideRequirement)
+  {
+    return PixelFormatLayoutUtil::CalcMinimumStride(widthPx, bytesPerPixel, strideRequirement);
+  }
 
-    //! @brief Extract the numeric format from the pixel format
-    static PixelFormatFlags::Enum GetNumericFormat(const PixelFormat pixelFormat)
-    {
-      return static_cast<PixelFormatFlags::Enum>(static_cast<uint32_t>(pixelFormat) &
-                                                 static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_NUMERIC_FORMAT));
-    }
 
-    static uint32_t GetChannelCount(const PixelFormat pixelFormat)
-    {
-      return PixelFormatLayoutUtil::GetChannelCount(GetPixelFormatLayout(pixelFormat));
-    }
+  [[deprecated("Utilize the PxSize1D or PxValueU variant instead")]] inline constexpr uint32_t
+    CalcMinimumStride(const uint32_t width, const PixelFormat pixelFormat) noexcept
+  {
+    return PixelFormatLayoutUtil::CalcMinimumStride(PxValueU::Create(width), GetPixelFormatLayout(pixelFormat));
+  }
 
-    //! @brief Try to transform the PixelFormatFlag of pixelFormat to the one supplied in pixelFormatFlags
-    //! @param pixelFormat if pixelFormat == PixelFormat::Undefined this returns PixelFormat::Undefined
-    //! @param pixelFormatFlags = the new pixelFormatFlags
-    static PixelFormat TryTransform(const PixelFormat pixelFormat, const PixelFormatFlags::Enum numericFormat);
+  [[deprecated("Utilize the PxSize1D or PxValueU variant instead")]] inline constexpr uint32_t
+    CalcMinimumStride(const uint32_t width, const uint32_t bytesPerPixel) noexcept
+  {
+    return PixelFormatLayoutUtil::CalcMinimumStride(PxValueU::Create(width), bytesPerPixel);
+  }
 
-    //! @brief Transform the given pixel format to the one that best matches the preferredChannelOrder.
-    //! @param pixelFormat if pixelFormat == PixelFormat::Undefined this returns PixelFormat::Undefined
-    //! @param preferredChannelOrder if preferredChannelOrder == PixelChannelOrder::Undefined this returns pixelFormat
-    static PixelFormat Transform(const PixelFormat pixelFormat, const PixelChannelOrder preferredChannelOrder);
-  };
+  [[deprecated("Utilize the PxSize1D or PxValueU variant instead")]] inline uint32_t
+    CalcMinimumStride(const uint32_t width, const PixelFormat pixelFormat, const StrideRequirement strideRequirement)
+  {
+    return PixelFormatLayoutUtil::CalcMinimumStride(PxValueU::Create(width), GetPixelFormatLayout(pixelFormat), strideRequirement);
+  }
+
+  [[deprecated("Utilize the PxSize1D or PxValueU variant instead")]] inline uint32_t
+    CalcMinimumStride(const uint32_t width, const uint32_t bytesPerPixel, const StrideRequirement strideRequirement)
+  {
+    return PixelFormatLayoutUtil::CalcMinimumStride(PxValueU::Create(width), bytesPerPixel, strideRequirement);
+  }
+
+
+  inline bool IsValidStride(const uint32_t width, const PixelFormat pixelFormat, const StrideRequirement strideRequirement,
+                            const uint32_t desiredStride)
+  {
+    return PixelFormatLayoutUtil::IsValidStride(width, GetPixelFormatLayout(pixelFormat), strideRequirement, desiredStride);
+  }
+
+  inline bool IsValidStride(const uint32_t width, const uint32_t bytesPerPixel, const StrideRequirement strideRequirement,
+                            const uint32_t desiredStride)
+  {
+    return PixelFormatLayoutUtil::IsValidStride(width, bytesPerPixel, strideRequirement, desiredStride);
+  }
+
+  inline bool IsValidStride(const PxSize1D widthPx, const PixelFormat pixelFormat, const StrideRequirement strideRequirement,
+                            const uint32_t desiredStride)
+  {
+    return PixelFormatLayoutUtil::IsValidStride(widthPx, GetPixelFormatLayout(pixelFormat), strideRequirement, desiredStride);
+  }
+
+  inline bool IsValidStride(const PxSize1D widthPx, const uint32_t bytesPerPixel, const StrideRequirement strideRequirement,
+                            const uint32_t desiredStride)
+  {
+    return PixelFormatLayoutUtil::IsValidStride(widthPx, bytesPerPixel, strideRequirement, desiredStride);
+  }
+
+  //! @brief Extract the numeric format from the pixel format
+  inline constexpr PixelFormatFlags::Enum GetNumericFormat(const PixelFormat pixelFormat) noexcept
+  {
+    return static_cast<PixelFormatFlags::Enum>(static_cast<uint32_t>(pixelFormat) & static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_NUMERIC_FORMAT));
+  }
+
+  inline constexpr uint32_t GetChannelCount(const PixelFormat pixelFormat) noexcept
+  {
+    return PixelFormatLayoutUtil::GetChannelCount(GetPixelFormatLayout(pixelFormat));
+  }
+
+  inline constexpr bool HasAlphaChannel(const PixelFormat pixelFormat) noexcept
+  {
+    return PixelFormatLayoutUtil::HasAlphaChannel(GetPixelFormatLayout(pixelFormat));
+  }
+
+  //! @brief Try to transform the PixelFormatFlag of pixelFormat to the one supplied in pixelFormatFlags
+  //! @param pixelFormat if pixelFormat == PixelFormat::Undefined this returns PixelFormat::Undefined
+  //! @param pixelFormatFlags = the new pixelFormatFlags
+  extern PixelFormat TryTransform(const PixelFormat pixelFormat, const PixelFormatFlags::Enum numericFormat) noexcept;
+
+  //! @brief Transform the given pixel format to the one that best matches the preferredChannelOrder.
+  //! @param pixelFormat if pixelFormat == PixelFormat::Undefined this returns PixelFormat::Undefined
+  //! @param preferredChannelOrder if preferredChannelOrder == PixelChannelOrder::Undefined this returns pixelFormat
+  extern PixelFormat Transform(const PixelFormat pixelFormat, const PixelChannelOrder preferredChannelOrder) noexcept;
 }
 
 #endif

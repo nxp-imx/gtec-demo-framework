@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_DP_DPPOINT2F_HPP
 #define FSLBASE_MATH_DP_DPPOINT2F_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Dp/DpValueF.hpp>
-#include <algorithm>
+#include <cmath>
 
 namespace Fsl
 {
@@ -53,6 +53,18 @@ namespace Fsl
       : X(x)
       , Y(y)
     {
+    }
+
+    //! @brief Calculates the length of the vector squared.
+    constexpr DpValueF LengthSquared() const noexcept
+    {
+      return (X * X) + (Y * Y);
+    }
+
+    //! @brief Calculates the length of the vector squared.
+    constexpr DpValueF Length() const
+    {
+      return DpValueF(std::sqrt((X.Value * X.Value) + (Y.Value * Y.Value)));
     }
 
     constexpr DpPoint2F& operator+=(const DpPoint2F arg) noexcept

@@ -46,7 +46,7 @@ namespace Fsl
 {
   namespace
   {
-    DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
+    DemoHostFeature CommonSetup(HostDemoAppSetup& rSetup)
     {
       std::deque<DemoHostFeatureName::Enum> hostFeatures;
       hostFeatures.push_back(DemoHostFeatureName::Stub);
@@ -65,7 +65,7 @@ namespace Fsl
   {
     void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup)
     {
-      const DemoHostFeature feature = CommenSetup(rSetup);
+      const DemoHostFeature feature = CommonSetup(rSetup);
       rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature);
     }
   }

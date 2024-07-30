@@ -41,15 +41,17 @@ namespace fmt
   struct formatter<Fsl::PxExtent3D>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::PxExtent3D& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{Width={} Height={} Depth={}}}", value.Width, value.Height, value.Depth);
+      return fmt::format_to(ctx.out(), "{{Width={} Height={} Depth={}}}", value.Width, value.Height, value.Depth);
     }
   };
 }

@@ -1,7 +1,7 @@
 #ifndef FSLBASE_SPAN_SPAN_HPP
 #define FSLBASE_SPAN_SPAN_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,354 +31,369 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Iterator/PointerIterator.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
 
 namespace Fsl
 {
   // This is similar to C++20 Span
   template <typename T>
-  class Span : public ReadOnlySpanBase
+  class Span
   {
   public:
-    using element_type = T;
-    using value_type = std::remove_cv_t<T>;
-    using size_type = std::size_t;
-    using difference_type = std::ptrdiff_t;
-    using pointer = T*;
-    using const_pointer = const T*;
-    using reference = T&;
-    using const_reference = const T&;
+    using element_type = typename std::span<T>::element_type;
+    using value_type = typename std::span<T>::value_type;
+    using size_type = typename std::span<T>::size_type;
+    using difference_type = typename std::span<T>::difference_type;
+    using pointer = typename std::span<T>::pointer;
+    using const_pointer = typename std::span<T>::const_pointer;
+    using reference = typename std::span<T>::reference;
+    using const_reference = typename std::span<T>::const_reference;
 
+    using iterator = typename std::span<T>::iterator;
+    //// c++23
+    // using const_iterator = typename std::span<const T>::const_iterator;
+    using reverse_iterator = typename std::span<const T>::reverse_iterator;
+    // using const_reverse_iterator = typename std::span<const T>::const_reverse_iterator;
 
-    using iterator = PointerIterator<T>;
-    using const_iterator = PointerConstIterator<T>;
-    using reverse_iterator = std::reverse_iterator<iterator>;
-    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    static constexpr std::size_t extent = std::span<T>::extent;
 
   protected:
-    pointer m_pData{nullptr};
-    size_type m_length{0u};
+    std::span<value_type> m_span;
 
   public:
     constexpr Span() noexcept = default;
     constexpr Span(const Span& other) noexcept = default;
-    //! @brief overload that allows you to create a Span from pointer and count that is noexcept.
-    //!        only use this in cases where you are 100% sure that your input is valid
-    explicit constexpr Span(pointer pData, size_type count, const OptimizationCheckFlag /*unused*/) noexcept
-      : m_pData(pData)
-      , m_length(count)
-    {
-      assert(pData != nullptr || count == 0u);
-    }
 
     explicit constexpr Span(pointer pData, size_type count) noexcept
-      : m_pData(pData)
-      , m_length(pData != nullptr ? count : 0u)
+      : m_span(SpanUtil::CreateStd(pData, count))
     {
-      FSLLOG3_DEBUG_INFO_IF(pData == nullptr && count != 0, "forcing count to zero");
     }
 
 
+    //! Allow direct construction from a std::span
+    constexpr Span(std::span<value_type> span) noexcept    // NOLINT(google-explicit-constructor)
+      : m_span(span)
+    {
+    }
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_pointer data() const noexcept
     {
-      return m_pData;
+      return m_span.data();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr pointer data() noexcept
     {
-      return m_pData;
+      return m_span.data();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr size_type size() const noexcept
     {
-      return m_length;
+      return m_span.size();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr size_type size_bytes() const noexcept
+    {
+      return m_span.size_bytes();
+    }
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr bool empty() const noexcept
     {
-      return m_length == 0;
+      return m_span.empty();
     }
 
     constexpr const_reference operator[](size_type pos) const noexcept
     {
       assert(pos < size());
-      assert(m_pData != nullptr);
-      return m_pData[pos];
+      return m_span[pos];
     }
 
     constexpr reference operator[](size_type pos) noexcept
     {
       assert(pos < size());
-      assert(m_pData != nullptr);
-      return m_pData[pos];
+      return m_span[pos];
     }
 
+    // From C++26
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_reference at(size_type pos) const
     {
       if (pos >= size())
       {
         throw std::out_of_range("pos out of range");
       }
-      assert(m_pData != nullptr);
-      return m_pData[pos];
+      return m_span[pos];
     }
 
+    // From C++26
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr reference at(size_type pos)
     {
       if (pos >= size())
       {
         throw std::out_of_range("pos out of range");
       }
-      assert(m_pData != nullptr);
-      return m_pData[pos];
+      return m_span[pos];
     }
 
-    constexpr size_type length() const noexcept
-    {
-      return m_length;
-    }
-
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_reference back() const noexcept
     {
       assert(!empty());
-      return m_pData[m_length - 1];
+      return m_span.back();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr reference back() noexcept
     {
       assert(!empty());
-      return m_pData[m_length - 1];
+      return m_span.back();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_reference front() const noexcept
     {
       assert(!empty());
-      return m_pData[0];
+      return m_span.front();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr reference front() noexcept
     {
       assert(!empty());
-      return m_pData[0];
+      return m_span.front();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr size_type write(const ReadOnlySpan<T>& srcSpan)
     {
-      if (srcSpan.length() > m_length)
+      if (srcSpan.length() > m_span.size())
       {
         throw std::out_of_range("span can not contain the srcSpan");
       }
-      for (size_type i = 0; i < srcSpan.length(); ++i)
-      {
-        m_pData[i] = srcSpan[i];
-      }
-      return srcSpan.length();
+      return m_span.write(srcSpan);
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr size_type write(const size_type dstIndex, const ReadOnlySpan<T>& srcSpan)
     {
-      assert(dstIndex < m_length);
+      assert(dstIndex < m_span.size());
       return subspan(dstIndex).write(srcSpan);
     }
 
-    //! @brief Returns a view of the subspan [pos, pos + rcount), where rcount is the smaller of count and size() - pos.
-    constexpr Span subspan(size_type pos = 0, size_type count = extent) const
+    //! @brief Returns a view of the subspan.  This verifies that the rules required by std::span.subspan are followed so we dont get
+    //!        undefined or worse behavior
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr Span subspan(const size_type offset, const size_type count = std::dynamic_extent) const
     {
-      if (pos > m_length)
+      // Verify the rules for subspan
+      if (offset > m_span.size())
       {
-        throw std::out_of_range("pos out of range");
+        throw std::out_of_range("offset is out of bounds");
       }
-      auto maxLength = (m_length - pos);
-      return Span(m_pData + pos, (count <= maxLength ? count : maxLength), OptimizationCheckFlag::NoCheck);
+      if (count > (m_span.size() - offset) && count != std::dynamic_extent)
+      {
+        throw std::out_of_range("offset+size is out of bounds");
+      }
+      return m_span.subspan(offset, count);
     }
 
-    //! @brief compare the Span to this Span
-    //! @note  This functionality is not present on C++20 span
-    constexpr int compare(Span value) const noexcept
+    //! A unsafe way to create a subspan.
+    //! @param offset = the offset to start at. It must be <= size().
+    //! @param count = the number of elements to include in the subspan. It must be <= (size() - offset).
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr Span unchecked_subspan(const size_type offset, const size_type count) const noexcept
     {
-      return ReadOnlySpan<T>(m_pData, m_length).compare(value);
+      assert(offset <= m_span.size());
+      assert(count <= (m_span.size() - offset));
+      return m_span.subspan(offset, count);
     }
 
-    //! @note  This functionality is not present on C++20 span
-    int compare(size_type pos1, size_type count1, Span v) const
+    //! A safe way to create a subspan. Any attempt to access outside the span will be clamped to the source size.
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr Span clamped_subspan(const size_type offset, const size_type count = std::dynamic_extent) const noexcept
     {
-      return subspan(pos1, count1).compare(v);
+      const auto clampedOffset = offset <= m_span.size() ? offset : m_span.size();
+      const auto maxLength = m_span.size() - clampedOffset;
+      FSLLOG3_DEBUG_INFO_IF(offset > m_span.size(), "offset out of bounds");
+      // FSLLOG3_DEBUG_INFO_IF(count > maxLength && count != std::dynamic_extent, "size out of bounds");
+      return m_span.subspan(clampedOffset, (count <= maxLength ? count : maxLength));
     }
 
-    //! @note  This functionality is not present on C++20 span
-    int compare(size_type pos1, size_type count1, Span v, size_type pos2, size_type count2) const
+    //! A safe way to create a subspan based on the first section of the span.
+    //! Any attempt to access outside the span will be clamped to the source size.
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr Span first(const size_type count) const
     {
-      return subspan(pos1, count1).compare(v.subspan(pos2, count2));
+      if (count > m_span.size())
+      {
+        throw std::out_of_range("count must be <= size()");
+      }
+      return m_span.first(count);
+    }
+
+    //! A unsafe way to create a subspan. count must be <= size()
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr Span unchecked_first(const size_type count) const noexcept
+    {
+      assert(count <= m_span.size());
+      return m_span.first(count);
+    }
+
+    //! A safe way to create a subspan based on the first section of the span.
+    //! Any attempt to access outside the span will be clamped to the source size.
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr Span clamped_first(const size_type count) const noexcept
+    {
+      const auto clampedCount = count <= m_span.size() ? count : m_span.size();
+      // FSLLOG3_DEBUG_INFO_IF(count > m_span.size(), "count out of bounds");
+      return m_span.first(clampedCount);
+    }
+
+    //! A safe way to create a subspan based on the last section of the span.
+    //! Any attempt to access outside the span will be clamped to the source size.
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr Span last(const size_type count) const
+    {
+      if (count > m_span.size())
+      {
+        throw std::out_of_range("count must be <= size()");
+      }
+      return m_span.last(count);
+    }
+
+    //! A unsafe way to create a subspan based on the last section of the span. count must be <= size()
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr Span unchecked_last(const size_type count) const noexcept
+    {
+      assert(count <= m_span.size());
+      return m_span.last(count);
+    }
+
+    //! A safe way to create a subspan based on the last section of the span.
+    //! Any attempt to access outside the span will be clamped to the source size.
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr Span clamped_last(const size_type count) const noexcept
+    {
+      const auto maxLength = count <= m_span.size() ? count : m_span.size();
+      // FSLLOG3_DEBUG_INFO_IF(count > m_span.size(), "count out of bounds");
+      return m_span.last(maxLength);
+    }
+
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr auto begin() noexcept
+    {
+      return m_span.begin();
+    }
+
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr auto end() noexcept
+    {
+      return m_span.end();
+    }
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr auto begin() const noexcept
+    {
+      return m_span.begin();
+    }
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr auto end() const noexcept
+    {
+      return m_span.end();
+    }
+
+    //// From C++23
+    //// NOLINTNEXTLINE(readability-identifier-naming)
+    // constexpr auto cbegin() const noexcept
+    //{
+    //   return m_span.cbegin();
+    // }
+
+    //// From C++23
+    //// NOLINTNEXTLINE(readability-identifier-naming)
+    // constexpr auto cend() const noexcept
+    //{
+    //   return m_span.cend();
+    // }
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr auto rbegin() noexcept
+    {
+      return m_span.rbegin();
+    }
+
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr auto rend() noexcept
+    {
+      return m_span.rend();
+    }
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr auto rbegin() const noexcept
+    {
+      return m_span.rbegin();
+    }
+
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr auto rend() const noexcept
+    {
+      return m_span.rend();
+    }
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr auto crbegin() const noexcept
+    {
+      return m_span.crbegin();
+    }
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr auto crend() const noexcept
+    {
+      return m_span.crend();
     }
 
     //! implicit conversion to ReadOnlySpan
     // NOLINTNEXTLINE(google-explicit-constructor)
     constexpr operator ReadOnlySpan<T>() const noexcept
     {
-      return ReadOnlySpan<T>(m_pData, m_length, OptimizationCheckFlag::NoCheck);
-    }
-
-    [[deprecated("Use AsReadOnlySpan")]] constexpr ReadOnlySpan<T> ToReadOnlySpan() const
-    {
-      return ReadOnlySpan<T>(m_pData, m_length);
+      return ReadOnlySpan<T>(m_span);
     }
 
     constexpr ReadOnlySpan<T> AsReadOnlySpan() const noexcept
     {
-      return ReadOnlySpan<T>(m_pData, m_length, OptimizationCheckFlag::NoCheck);
+      return ReadOnlySpan<T>(m_span);
     }
 
     //! @brief Returns a view of the subspan [pos, pos + rcount), where rcount is the smaller of count and size() - pos.
-    constexpr ReadOnlySpan<T> AsReadOnlySpan(size_type pos, size_type count = extent) const
+    constexpr ReadOnlySpan<T> AsReadOnlySpan(size_type pos, size_type count = std::dynamic_extent) const
     {
-      return ReadOnlySpan<T>(m_pData, m_length, OptimizationCheckFlag::NoCheck).subspan(pos, count);
-    }
-
-    constexpr iterator begin() noexcept
-    {
-#ifdef NDEBUG
-      return iterator(m_pData);
-#else
-      return {m_pData, m_pData, m_length};
-#endif
+      return subspan(pos, count);
     }
 
 
-    constexpr iterator end() noexcept
+    // NOLINTNEXTLINE(google-explicit-constructor)
+    constexpr operator std::span<T>() const noexcept
     {
-#ifdef NDEBUG
-      return iterator(m_pData + m_length);
-#else
-      return {m_pData + m_length, m_pData, m_length};
-#endif
+      return m_span;
     }
 
-    constexpr const_iterator begin() const noexcept
+    // NOLINTNEXTLINE(google-explicit-constructor)
+    constexpr operator std::span<const T>() const noexcept
     {
-#ifdef NDEBUG
-      return const_iterator(m_pData);
-#else
-      return {m_pData, m_pData, m_length};
-#endif
-    }
-
-    constexpr const_iterator end() const noexcept
-    {
-#ifdef NDEBUG
-      return const_iterator(m_pData + m_length);
-#else
-      return {m_pData + m_length, m_pData, m_length};
-#endif
-    }
-
-    constexpr const_iterator cbegin() const noexcept
-    {
-      return begin();
-    }
-
-    constexpr const_iterator cend() const noexcept
-    {
-      return end();
-    }
-
-    constexpr reverse_iterator rbegin() noexcept
-    {
-      return reverse_iterator(end());
-    }
-
-
-    constexpr reverse_iterator rend() noexcept
-    {
-      return reverse_iterator(begin());
-    }
-
-    constexpr const_reverse_iterator rbegin() const noexcept
-    {
-      return const_reverse_iterator(end());
-    }
-
-
-    constexpr const_reverse_iterator rend() const noexcept
-    {
-      return const_reverse_iterator(begin());
-    }
-
-    constexpr const_reverse_iterator crbegin() const noexcept
-    {
-      return rbegin();
-    }
-
-    constexpr const_reverse_iterator crend() const noexcept
-    {
-      return rend();
-    }
-
-  private:
-    constexpr int DoCompare(const_pointer pDataLhs, const_pointer pDataRhs, const size_type count) const noexcept
-    {
-      assert(count >= 0);
-      assert(pDataLhs != nullptr || count == 0);
-      assert(pDataRhs != nullptr || count == 0);
-      for (size_type i = 0; i < count; ++i)
-      {
-        auto res = pDataLhs[i] - pDataRhs[i];
-        if (res != 0)
-        {
-          return res;
-        }
-      }
-      return 0;
+      return m_span;
     }
   };
-
-  // Operator ==
-  //! @note  This functionality is not present on C++20 span
-  template <typename T>
-  inline bool operator==(const Span<T>& lhs, const Span<T>& rhs) noexcept
-  {
-    return lhs.compare(rhs) == 0;
-  }
-
-  // Operator !=
-  //! @note  This functionality is not present on C++20 span
-  template <typename T>
-  inline bool operator!=(const Span<T>& lhs, const Span<T>& rhs) noexcept
-  {
-    return !(lhs == rhs);
-  }
-
-  // Operator <
-  //! @note  This functionality is not present on C++20 span
-  template <typename T>
-  inline bool operator<(const Span<T>& lhs, const Span<T>& rhs) noexcept
-  {
-    return lhs.compare(rhs) < 0;
-  }
-
-  // Operator <=
-  //! @note  This functionality is not present on C++20 span
-  template <typename T>
-  inline bool operator<=(const Span<T>& lhs, const Span<T>& rhs) noexcept
-  {
-    return lhs.compare(rhs) <= 0;
-  }
-
-  // Operator >
-  template <typename T>
-  //! @note  This functionality is not present on C++20 span
-  inline bool operator>(const Span<T>& lhs, const Span<T>& rhs) noexcept
-  {
-    return rhs < lhs;
-  }
-
-  // Operator >=
-  template <typename T>
-  //! @note  This functionality is not present on C++20 span
-  inline bool operator>=(const Span<T>& lhs, const Span<T>& rhs) noexcept
-  {
-    return rhs <= lhs;
-  }
 }
 
 #endif

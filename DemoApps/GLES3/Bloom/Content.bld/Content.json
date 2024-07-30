@@ -21,7 +21,7 @@
         ]
       },
       {
-        "SourcePath" : "${ProjectRoot}/Resources/Source/BasicUI",
+        "SourcePath" : "${ProjectRoot}/Resources/Source/BasicUI/Gen/NonLinear",
         "Content": [
           "UIAtlas/License.json",
           "UIAtlas/UIAtlas_*dpi.bta",

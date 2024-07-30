@@ -68,14 +68,14 @@ namespace Fsl::GLES3
 
   GLShaderProgram::GLShaderProgram()
     : m_shaderType(0)
-    , m_handle(GLValues::INVALID_HANDLE)
+    , m_handle(GLValues::InvalidHandle)
   {
   }
 
 
   GLShaderProgram::GLShaderProgram(const GLint shaderType, const std::string& strShaderCode)
     : m_shaderType(shaderType)
-    , m_handle(GLValues::INVALID_HANDLE)
+    , m_handle(GLValues::InvalidHandle)
   {
     Reset(shaderType, strShaderCode);
   }
@@ -89,10 +89,10 @@ namespace Fsl::GLES3
 
   void GLShaderProgram::Reset() noexcept
   {
-    if (m_handle != GLValues::INVALID_HANDLE)
+    if (m_handle != GLValues::InvalidHandle)
     {
       glDeleteProgram(m_handle);
-      m_handle = GLValues::INVALID_HANDLE;
+      m_handle = GLValues::InvalidHandle;
     }
   }
 

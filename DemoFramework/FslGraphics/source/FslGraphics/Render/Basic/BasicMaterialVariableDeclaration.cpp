@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialVariableDeclaration.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialVariableElementFormatUtil.hpp>
@@ -256,7 +256,7 @@ namespace Fsl
 
   BasicMaterialVariableDeclarationSpan BasicMaterialVariableDeclaration::AsSpan() const
   {
-    return {ReadOnlySpanUtil::AsSpan(m_elements), m_stride, OptimizationCheckFlag::NoCheck};
+    return {SpanUtil::AsReadOnlySpan(m_elements), m_stride, OptimizationCheckFlag::NoCheck};
   }
 
 

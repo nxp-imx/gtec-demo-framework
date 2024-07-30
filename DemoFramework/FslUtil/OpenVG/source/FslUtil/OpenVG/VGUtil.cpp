@@ -41,22 +41,20 @@
 
 namespace Fsl::OpenVG
 {
-  void VGUtil::Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const Rectangle& srcRectangle)
+  void VGUtil::Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const PxRectangle& srcRectanglePx)
   {
     // We don't need to clear as we are going to overwrite everything anyway
     // We utilize PixelFormat::R8G8B8A8_UINT here since that is what vgReadPixels is filling it with
     // that also allows the convert method to detect if the the supplied pixelFormat is different and then
     // convert as necessary
-    rBitmap.Reset(PxExtent2D::Create(srcRectangle.Width(), srcRectangle.Height()), PixelFormat::R8G8B8A8_UINT, BitmapOrigin::LowerLeft,
-                  BitmapClearMethod::DontClear);
+    rBitmap.Reset(srcRectanglePx.GetSize(), PixelFormat::R8G8B8A8_UINT, BitmapOrigin::LowerLeft, BitmapClearMethod::DontClear);
 
     {
-      RawBitmapEx rawBitmap;
-      Bitmap::ScopedDirectAccess scopedAccess(rBitmap, rawBitmap);
-      vgReadPixels(rawBitmap.Content(), UncheckedNumericCast<VGint>(rawBitmap.Stride()), VG_sABGR_8888, srcRectangle.X(), srcRectangle.Y(),
-                   srcRectangle.Width(), srcRectangle.Height());
+      Bitmap::ScopedDirectReadWriteAccess scopedAccess(rBitmap);
+      vgReadPixels(scopedAccess.AsRawBitmap().Content(), UncheckedNumericCast<VGint>(scopedAccess.AsRawBitmap().Stride()), VG_sABGR_8888,
+                   srcRectanglePx.RawX(), srcRectanglePx.RawY(), srcRectanglePx.RawWidth(), srcRectanglePx.RawHeight());
       FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
-      RawBitmapUtil::FlipHorizontal(rawBitmap);
+      RawBitmapUtil::FlipHorizontal(scopedAccess.AsRawBitmap());
     }
 
     // Convert if necessary (convert will do nothing if the format is already correct)

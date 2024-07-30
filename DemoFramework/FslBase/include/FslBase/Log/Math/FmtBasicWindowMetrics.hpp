@@ -42,16 +42,18 @@ namespace fmt
   struct formatter<Fsl::BasicWindowMetrics>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::BasicWindowMetrics& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{PxExtent={} DpSize2D={} ExactDpi={} DensityDpi={} DensityScaleFactor={}}}", value.ExtentPx, value.SizeDp,
-                       value.ExactDpi, value.DensityDpi, value.DensityScaleFactor);
+      return fmt::format_to(ctx.out(), "{{PxExtent={} DpSize2D={} ExactDpi={} DensityDpi={} DensityScaleFactor={}}}", value.ExtentPx, value.SizeDp,
+                            value.ExactDpi, value.DensityDpi, value.DensityScaleFactor);
     }
   };
 }

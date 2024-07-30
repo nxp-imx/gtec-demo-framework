@@ -111,31 +111,37 @@ namespace Fsl::UI
     }
 
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline bool empty() const
     {
       return m_children.empty();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline typename collection_type::queue_type::size_type size() const noexcept
     {
       return m_children.size();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline typename collection_type::queue_type::const_iterator begin() const noexcept
     {
       return m_children.begin();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline typename collection_type::queue_type::iterator begin() noexcept
     {
       return m_children.begin();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline typename collection_type::queue_type::const_iterator end() const noexcept
     {
       return m_children.end();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline typename collection_type::queue_type::iterator end() noexcept
     {
       return m_children.end();

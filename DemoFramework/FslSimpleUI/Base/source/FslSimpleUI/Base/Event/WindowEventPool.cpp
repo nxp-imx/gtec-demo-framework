@@ -43,8 +43,8 @@ namespace Fsl::UI
 {
   namespace
   {
-    const std::size_t MAX_CAPACITY = 1024;
-    const std::size_t NUM_ENTRIES_TO_GROW = 8;
+    constexpr std::size_t MaxCapacity = 1024;
+    constexpr std::size_t NumEntriesToGrow = 8;
 
     template <typename T>
     void GrowPool(std::deque<std::shared_ptr<T>>& rDeque, const std::size_t entries)
@@ -54,48 +54,50 @@ namespace Fsl::UI
         rDeque.push_back(std::make_shared<T>());
       }
     }
+
   }
 
 
   WindowEventPool::WindowEventPool()
   {
-    GrowPool(m_poolWindowInputClickEvent, NUM_ENTRIES_TO_GROW);
-    GrowPool(m_poolWindowSelectEvent, NUM_ENTRIES_TO_GROW);
-    GrowPool(m_poolWindowContentChangedEvent, NUM_ENTRIES_TO_GROW);
+    GrowPool(m_poolWindowMouseOverEvent, NumEntriesToGrow);
+    GrowPool(m_poolWindowInputClickEvent, NumEntriesToGrow);
+    GrowPool(m_poolWindowSelectEvent, NumEntriesToGrow);
+    GrowPool(m_poolWindowContentChangedEvent, NumEntriesToGrow);
   }
 
 
-  WindowEventPool::~WindowEventPool() = default;
+  WindowEventPool::~WindowEventPool() noexcept = default;
 
 
-  std::shared_ptr<WindowMouseOverEvent> WindowEventPool::AcquireWindowMouseOverEvent(const int32_t sourceId, const int32_t sourceSubId,
-                                                                                     const EventTransactionState& state, const bool isRepeat,
-                                                                                     const PxPoint2& screenPositionPx)
+  std::shared_ptr<WindowMouseOverEvent> WindowEventPool::AcquireWindowMouseOverEvent(const MillisecondTickCount32 timestamp, const int32_t sourceId,
+                                                                                     const int32_t sourceSubId, const EventTransactionState& state,
+                                                                                     const bool isRepeat, const PxPoint2& screenPositionPx)
   {
     if (m_poolWindowMouseOverEvent.empty())
     {
-      GrowPool(m_poolWindowMouseOverEvent, NUM_ENTRIES_TO_GROW);
+      GrowPool(m_poolWindowMouseOverEvent, NumEntriesToGrow);
     }
 
     auto obj = m_poolWindowMouseOverEvent.front();
     m_poolWindowMouseOverEvent.pop_front();
-    obj->SYS_Construct(sourceId, sourceSubId, state, isRepeat, screenPositionPx);
+    obj->SYS_Construct(timestamp, sourceId, sourceSubId, state, isRepeat, screenPositionPx);
     return obj;
   }
 
 
-  std::shared_ptr<WindowInputClickEvent> WindowEventPool::AcquireWindowInputClickEvent(const int32_t sourceId, const int32_t sourceSubId,
-                                                                                       const EventTransactionState state, const bool isRepeat,
-                                                                                       const PxPoint2& screenPositionPx)
+  std::shared_ptr<WindowInputClickEvent> WindowEventPool::AcquireWindowInputClickEvent(const MillisecondTickCount32 timestamp, const int32_t sourceId,
+                                                                                       const int32_t sourceSubId, const EventTransactionState state,
+                                                                                       const bool isRepeat, const PxPoint2& screenPositionPx)
   {
     if (m_poolWindowInputClickEvent.empty())
     {
-      GrowPool(m_poolWindowInputClickEvent, NUM_ENTRIES_TO_GROW);
+      GrowPool(m_poolWindowInputClickEvent, NumEntriesToGrow);
     }
 
     auto obj = m_poolWindowInputClickEvent.front();
     m_poolWindowInputClickEvent.pop_front();
-    obj->SYS_Construct(sourceId, sourceSubId, state, isRepeat, screenPositionPx);
+    obj->SYS_Construct(timestamp, sourceId, sourceSubId, state, isRepeat, screenPositionPx);
     return obj;
   }
 
@@ -110,7 +112,7 @@ namespace Fsl::UI
   {
     if (m_poolWindowSelectEvent.empty())
     {
-      GrowPool(m_poolWindowSelectEvent, NUM_ENTRIES_TO_GROW);
+      GrowPool(m_poolWindowSelectEvent, NumEntriesToGrow);
     }
 
     auto obj = m_poolWindowSelectEvent.front();
@@ -129,7 +131,7 @@ namespace Fsl::UI
   {
     if (m_poolWindowContentChangedEvent.empty())
     {
-      GrowPool(m_poolWindowContentChangedEvent, NUM_ENTRIES_TO_GROW);
+      GrowPool(m_poolWindowContentChangedEvent, NumEntriesToGrow);
     }
 
     auto obj = m_poolWindowContentChangedEvent.front();
@@ -139,7 +141,7 @@ namespace Fsl::UI
   }
 
 
-  void WindowEventPool::Release(const std::shared_ptr<WindowEvent>& event)
+  void WindowEventPool::Release(const std::shared_ptr<WindowEvent>& event) noexcept
   {
     if (!event)
     {
@@ -167,75 +169,23 @@ namespace Fsl::UI
   }
 
 
-  void WindowEventPool::Release(const std::shared_ptr<WindowMouseOverEvent>& event)
+  void WindowEventPool::Release(const std::shared_ptr<WindowMouseOverEvent>& event) noexcept
   {
-    if (!event)
-    {
-      return;
-    }
-    event->SYS_Destruct();
-    if (m_poolWindowMouseOverEvent.size() < MAX_CAPACITY)
-    {
-      m_poolWindowMouseOverEvent.push_back(event);
-    }
-    else
-    {
-      FSLLOG3_WARNING("Pool capacity reached for WindowMouseOverEvent");
-    }
+    ReleaseToPool(m_poolWindowMouseOverEvent, event, MaxCapacity);
   }
 
-
-  void WindowEventPool::Release(const std::shared_ptr<WindowInputClickEvent>& event)
+  void WindowEventPool::Release(const std::shared_ptr<WindowInputClickEvent>& event) noexcept
   {
-    if (!event)
-    {
-      return;
-    }
-    event->SYS_Destruct();
-    if (m_poolWindowInputClickEvent.size() < MAX_CAPACITY)
-    {
-      m_poolWindowInputClickEvent.push_back(event);
-    }
-    else
-    {
-      FSLLOG3_WARNING("Pool capacity reached for WindowInputClickEvent");
-    }
+    ReleaseToPool(m_poolWindowInputClickEvent, event, MaxCapacity);
   }
 
-
-  void WindowEventPool::Release(const std::shared_ptr<WindowSelectEvent>& event)
+  void WindowEventPool::Release(const std::shared_ptr<WindowSelectEvent>& event) noexcept
   {
-    if (!event)
-    {
-      return;
-    }
-    event->SYS_Destruct();
-    if (m_poolWindowSelectEvent.size() < MAX_CAPACITY)
-    {
-      m_poolWindowSelectEvent.push_back(event);
-    }
-    else
-    {
-      FSLLOG3_WARNING("Pool capacity reached for WindowSelectEvent");
-    }
+    ReleaseToPool(m_poolWindowSelectEvent, event, MaxCapacity);
   }
 
-
-  void WindowEventPool::Release(const std::shared_ptr<WindowContentChangedEvent>& event)
+  void WindowEventPool::Release(const std::shared_ptr<WindowContentChangedEvent>& event) noexcept
   {
-    if (!event)
-    {
-      return;
-    }
-    event->SYS_Destruct();
-
-    if (m_poolWindowContentChangedEvent.size() < MAX_CAPACITY)
-    {
-      m_poolWindowContentChangedEvent.push_back(event);
-    }
-    else
-    {
-      FSLLOG3_WARNING("Pool capacity reached for WindowContentChangedEvent");
-    }
+    ReleaseToPool(m_poolWindowContentChangedEvent, event, MaxCapacity);
   }
 }

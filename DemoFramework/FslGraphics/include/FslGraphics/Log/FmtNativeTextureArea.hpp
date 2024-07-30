@@ -40,15 +40,17 @@ namespace fmt
   struct formatter<Fsl::NativeTextureArea>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::NativeTextureArea& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{X0={} Y0={} X1={} Y1={}}}", value.X0, value.Y0, value.X1, value.Y1);
+      return fmt::format_to(ctx.out(), "{{X0={} Y0={} X1={} Y1={}}}", value.X0, value.Y0, value.X1, value.Y1);
     }
   };
 }

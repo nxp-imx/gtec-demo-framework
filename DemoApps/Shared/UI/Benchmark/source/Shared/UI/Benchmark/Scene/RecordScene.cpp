@@ -41,6 +41,7 @@
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/UniformStackLayout.hpp>
+#include <FslSimpleUI/Base/UIColors.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
 #include <Shared/UI/Benchmark/App/TestAppFactory.hpp>
 #include <Shared/UI/Benchmark/App/TestAppHost.hpp>
@@ -55,7 +56,7 @@ namespace Fsl
   RecordScene::RecordScene(const SceneCreateInfo& createInfo, std::shared_ptr<InputRecordingManager> inputRecordingManager)
     : BasicTestScene(createInfo)
     , m_inputRecordingManager(std::move(inputRecordingManager))
-    , m_anim(createInfo.UIExtension->GetContext()->UITransitionCache, UI::DefaultAnim::ColorChangeTime)
+    , m_anim(UI::DefaultAnim::ColorChangeTime)
   {
     TryLoad();
 
@@ -203,8 +204,8 @@ namespace Fsl
     m_ui.ButtonRecord->SetEnabled(m_state == State::Ready || m_state == State::Recording);
     m_ui.ButtonBack->SetEnabled(AllowBackKey());
 
-    m_anim.ColorButtonBack.SetValue(m_state == State::Ready || m_state == State::Playing ? Color::White() : Color::TransparentWhite());
-    m_anim.ColorButtonRecord.SetValue(m_state == State::Recording ? Color::Red() : Color::White());
+    m_anim.ColorButtonBack.SetValue(m_state == State::Ready || m_state == State::Playing ? UI::UIColors::White() : UI::UIColors::TransparentWhite());
+    m_anim.ColorButtonRecord.SetValue(m_state == State::Recording ? UI::UIColors::Red() : UI::UIColors::White());
     m_anim.Update(demoTime.ElapsedTime);
 
     m_ui.ButtonRecord->SetBaseColor(m_anim.ColorButtonRecord.GetValue());

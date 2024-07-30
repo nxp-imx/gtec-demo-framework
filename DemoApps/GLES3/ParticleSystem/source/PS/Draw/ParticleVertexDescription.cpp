@@ -38,7 +38,7 @@ namespace Fsl
 {
   VertexDeclarationArray<7> ParticleVertexDescription::GetVertexDeclarationArray()
   {
-    constexpr std::array<VertexElement, 7> elements = {
+    constexpr std::array<VertexElement, 7> Elements = {
       VertexElement(offsetof(Particle, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
       VertexElement(offsetof(Particle, Velocity), VertexElementFormat::Vector3, VertexElementUsage::Color, 0),
       VertexElement(offsetof(Particle, Energy), VertexElementFormat::Single, VertexElementUsage::Custom, 0),
@@ -47,6 +47,6 @@ namespace Fsl
       VertexElement(offsetof(Particle, StartSize), VertexElementFormat::Single, VertexElementUsage::Custom, 3),
       VertexElement(offsetof(Particle, EndSize), VertexElementFormat::Single, VertexElementUsage::Custom, 4),
     };
-    return {elements, sizeof(Particle)};
+    return {Elements, sizeof(Particle)};
   }
 }

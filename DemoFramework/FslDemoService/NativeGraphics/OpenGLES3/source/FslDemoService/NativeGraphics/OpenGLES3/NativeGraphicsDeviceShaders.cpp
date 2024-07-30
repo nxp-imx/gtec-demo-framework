@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,48 @@ namespace Fsl::GLES3
 {
   namespace
   {
-    constexpr const char* const g_vertexShader =
+    constexpr const char* const PositionColorVertexShader =
+      "#version 300 es\n"
+      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+      "precision highp float;\n"
+      "#else\n"
+      "precision mediump float;\n"
+      "#endif\n"
+      "uniform mat4 MatModelViewProj;\n"
+      "\n"
+      "layout(location = 0) in vec4 inVertexPosition;\n"
+      "layout(location = 1) in vec4 inVertexColor;\n"
+      "\n"
+      "out vec4 FragColor;\n"
+      "\n"
+      "void main()\n"
+      "{"
+      "  gl_Position = MatModelViewProj * inVertexPosition;\n"
+      "  FragColor = inVertexColor;\n"
+      "}";
+
+
+    constexpr const char* const PositionColorFragmentShader =
+      "#version 300 es\n"
+      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+      "precision highp float;\n"
+      "#else\n"
+      "precision mediump float;\n"
+      "#endif\n"
+      "\n"
+      "uniform sampler2D Texture;\n"
+      "\n"
+      "in vec4 FragColor;\n"
+      "\n"
+      "out vec4 o_fragColor;\n"
+      "\n"
+      "void main()\n"
+      "{\n"
+      "  o_fragColor = FragColor;\n"
+      "}\n";
+
+
+    constexpr const char* const PositionColorTextureVertexShader =
       "#version 300 es\n"
       "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
       "precision highp float;\n"
@@ -61,7 +102,7 @@ namespace Fsl::GLES3
       "}";
 
 
-    constexpr const char* const g_fragmentShader =
+    constexpr const char* const PositionColorTextureFragmentShader =
       "#version 300 es\n"
       "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
       "precision highp float;\n"
@@ -82,7 +123,7 @@ namespace Fsl::GLES3
       "}\n";
 
 
-    constexpr const char* const g_fragmentSdfShader =
+    constexpr const char* const PositionColorTextureSDFFragmentShader =
       "#version 300 es\n"
       "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
       "precision highp float;\n"
@@ -106,21 +147,35 @@ namespace Fsl::GLES3
       "}\n";
   }
 
-  ReadOnlySpan<uint8_t> NativeGraphicsDeviceShaders::GetVertexShader()
+  ReadOnlySpan<uint8_t> NativeGraphicsDeviceShaders::GetPositionColorVertexShader()
   {
     // +1 to include the zero termination.
-    return ReadOnlySpan<uint8_t>(reinterpret_cast<const uint8_t*>(g_vertexShader), strlen(g_vertexShader) + 1);
+    return ReadOnlySpan<uint8_t>(reinterpret_cast<const uint8_t*>(PositionColorVertexShader), strlen(PositionColorVertexShader) + 1);
   }
 
-  ReadOnlySpan<uint8_t> NativeGraphicsDeviceShaders::GetFragmentShader()
+  ReadOnlySpan<uint8_t> NativeGraphicsDeviceShaders::GetPositionColorFragmentShader()
   {
     // +1 to include the zero termination
-    return ReadOnlySpan<uint8_t>(reinterpret_cast<const uint8_t*>(g_fragmentShader), strlen(g_fragmentShader) + 1);
+    return ReadOnlySpan<uint8_t>(reinterpret_cast<const uint8_t*>(PositionColorFragmentShader), strlen(PositionColorFragmentShader) + 1);
   }
 
-  ReadOnlySpan<uint8_t> NativeGraphicsDeviceShaders::GetSdfFragmentShader()
+  ReadOnlySpan<uint8_t> NativeGraphicsDeviceShaders::GetPositionColorTextureVertexShader()
+  {
+    // +1 to include the zero termination.
+    return ReadOnlySpan<uint8_t>(reinterpret_cast<const uint8_t*>(PositionColorTextureVertexShader), strlen(PositionColorTextureVertexShader) + 1);
+  }
+
+  ReadOnlySpan<uint8_t> NativeGraphicsDeviceShaders::GetPositionColorTextureFragmentShader()
   {
     // +1 to include the zero termination
-    return ReadOnlySpan<uint8_t>(reinterpret_cast<const uint8_t*>(g_fragmentSdfShader), strlen(g_fragmentSdfShader) + 1);
+    return ReadOnlySpan<uint8_t>(reinterpret_cast<const uint8_t*>(PositionColorTextureFragmentShader),
+                                 strlen(PositionColorTextureFragmentShader) + 1);
+  }
+
+  ReadOnlySpan<uint8_t> NativeGraphicsDeviceShaders::GetPositionColorTextureSdfFragmentShader()
+  {
+    // +1 to include the zero termination
+    return ReadOnlySpan<uint8_t>(reinterpret_cast<const uint8_t*>(PositionColorTextureSDFFragmentShader),
+                                 strlen(PositionColorTextureSDFFragmentShader) + 1);
   }
 }

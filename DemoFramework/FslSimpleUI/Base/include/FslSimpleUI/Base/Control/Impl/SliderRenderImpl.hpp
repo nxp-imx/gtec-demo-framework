@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_IMPL_SLIDERRENDERIMPL_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_IMPL_SLIDERRENDERIMPL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,14 +36,15 @@
 #include <FslBase/Math/Dp/DpThickness.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Pixel/PxVector2.hpp>
-#include <FslGraphics/Color.hpp>
-#include <FslGraphics/Transition/TransitionColor.hpp>
 #include <FslSimpleUI/Base/Control/Logic/SliderPixelSpanInfo.hpp>
 #include <FslSimpleUI/Base/DefaultValues.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutOrientation.hpp>
 #include <FslSimpleUI/Base/LayoutDirection.hpp>
 #include <FslSimpleUI/Base/Mesh/ContentSpriteMesh.hpp>
 #include <FslSimpleUI/Base/Mesh/SizedSpriteMesh.hpp>
+#include <FslSimpleUI/Base/Transition/TransitionUIRenderColor.hpp>
+#include <FslSimpleUI/Base/UIColor.hpp>
+#include <FslSimpleUI/Base/UIColorConverter.hpp>
 #include <memory>
 
 namespace Fsl
@@ -54,7 +55,6 @@ namespace Fsl
   {
     class DrawCommandBuffer;
     struct PxAvailableSize;
-    struct RoutedEventArgs;
     class WindowMouseOverEvent;
 
     class SliderRenderImpl
@@ -62,48 +62,61 @@ namespace Fsl
       struct BackgroundGraphicsRecord
       {
         ContentSpriteMesh Sprite;
-        Color EnabledColor;
-        Color DisabledColor;
-        TransitionColor CurrentColor;
+        UIColor EnabledColor;
+        UIColor DisabledColor;
+        UIRenderColor EnabledRenderColor;
+        UIRenderColor DisabledRenderColor;
 
-        explicit BackgroundGraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, const Color& enabledColor, const Color& disabledColor,
-                                          TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type)
+        TransitionUIRenderColor CurrentColor;
+
+        explicit BackgroundGraphicsRecord(UIColorConverter colorConverter, const std::shared_ptr<IMeshManager>& meshManager,
+                                          const UIColor enabledColor, const UIColor disabledColor, const TimeSpan time, const TransitionType type)
           : Sprite(meshManager)
           , EnabledColor(enabledColor)
           , DisabledColor(disabledColor)
-          , CurrentColor(rTransitionCache, time, type)
+          , EnabledRenderColor(colorConverter.Convert(enabledColor))
+          , DisabledRenderColor(colorConverter.Convert(disabledColor))
+          , CurrentColor(time, type)
         {
         }
       };
+
       struct CursorGraphicsRecord
       {
         SizedSpriteMesh Sprite;
         DpPoint2 OriginDp;
         DpSize2D SizeDp;
-        Color EnabledColor;
-        Color DisabledColor;
-        TransitionColor CurrentColor;
+        UIColor EnabledColor;
+        UIColor DisabledColor;
+        UIRenderColor EnabledRenderColor;
+        UIRenderColor DisabledRenderColor;
+        TransitionUIRenderColor CurrentColor;
 
-        explicit CursorGraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, const Color& enabledColor, const Color& disabledColor,
-                                      TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type)
+        explicit CursorGraphicsRecord(UIColorConverter colorConverter, const std::shared_ptr<IMeshManager>& meshManager, const UIColor enabledColor,
+                                      const UIColor disabledColor, const TimeSpan time, const TransitionType type)
           : Sprite(meshManager)
           , EnabledColor(enabledColor)
           , DisabledColor(disabledColor)
-          , CurrentColor(rTransitionCache, time, type)
+          , EnabledRenderColor(colorConverter.Convert(enabledColor))
+          , DisabledRenderColor(colorConverter.Convert(disabledColor))
+          , CurrentColor(time, type)
         {
         }
       };
+
       struct OverlayGraphicsRecord
       {
         SizedSpriteMesh Sprite;
-        Color EnabledColor;
-        TransitionColor CurrentColor;
+        UIColor EnabledColor;
+        UIRenderColor EnabledRenderColor;
+        TransitionUIRenderColor CurrentColor;
 
-        explicit OverlayGraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, const Color& enabledColor, TransitionCache& rTransitionCache,
-                                       const TimeSpan& time, const TransitionType type)
+        explicit OverlayGraphicsRecord(UIColorConverter colorConverter, const std::shared_ptr<IMeshManager>& meshManager, const UIColor enabledColor,
+                                       const TimeSpan time, const TransitionType type)
           : Sprite(meshManager)
           , EnabledColor(enabledColor)
-          , CurrentColor(rTransitionCache, time, type)
+          , EnabledRenderColor(colorConverter.Convert(enabledColor))
+          , CurrentColor(time, type)
         {
         }
       };
@@ -126,6 +139,7 @@ namespace Fsl
         }
       };
 
+      UIColorConverter m_colorConverter;
       BackgroundGraphicsRecord m_background;
       CursorGraphicsRecord m_cursor;
       OverlayGraphicsRecord m_cursorOverlay;
@@ -136,7 +150,7 @@ namespace Fsl
       ArrangeCache m_arrangeCache;
 
     public:
-      explicit SliderRenderImpl(const std::shared_ptr<IMeshManager>& meshManager, TransitionCache& rTransitionCache);
+      explicit SliderRenderImpl(const UIColorConverter colorConverter, const std::shared_ptr<IMeshManager>& meshManager);
 
       bool GetEnableVerticalGraphicsRotation() const
       {
@@ -160,32 +174,34 @@ namespace Fsl
 
       bool SetCursorSprite(const std::shared_ptr<ISizedSprite>& value);
 
-      const Color& GetCursorColor() const
+      UIColor GetCursorColor() const
       {
         return m_cursor.EnabledColor;
       }
 
-      bool SetCursorColor(const Color& value)
+      bool SetCursorColor(const UIColor value)
       {
         const bool modified = value != m_cursor.EnabledColor;
         if (modified)
         {
           m_cursor.EnabledColor = value;
+          m_cursor.EnabledRenderColor = m_colorConverter.Convert(value);
         }
         return modified;
       }
 
-      const Color& GetCursorDisabledColor() const
+      UIColor GetCursorDisabledColor() const
       {
         return m_cursor.DisabledColor;
       }
 
-      bool SetCursorDisabledColor(const Color& value)
+      bool SetCursorDisabledColor(const UIColor value)
       {
         const bool modified = value != m_cursor.DisabledColor;
         if (modified)
         {
           m_cursor.DisabledColor = value;
+          m_cursor.DisabledRenderColor = m_colorConverter.Convert(value);
         }
         return modified;
       }
@@ -230,17 +246,18 @@ namespace Fsl
 
       bool SetCursorOverlaySprite(const std::shared_ptr<ISizedSprite>& value);
 
-      const Color& GetCursorOverlayColor() const
+      UIColor GetCursorOverlayColor() const
       {
         return m_cursorOverlay.EnabledColor;
       }
 
-      bool SetCursorOverlayColor(const Color& value)
+      bool SetCursorOverlayColor(const UIColor value)
       {
         const bool modified = value != m_cursorOverlay.EnabledColor;
         if (modified)
         {
           m_cursorOverlay.EnabledColor = value;
+          m_cursorOverlay.EnabledRenderColor = m_colorConverter.Convert(value);
         }
         return modified;
       }
@@ -254,42 +271,44 @@ namespace Fsl
 
       bool SetBackgroundSprite(const std::shared_ptr<IContentSprite>& value);
 
-      const Color& GetBackgroundColor() const
+      UIColor GetBackgroundColor() const
       {
         return m_background.EnabledColor;
       }
 
-      bool SetBackgroundColor(const Color& value)
+      bool SetBackgroundColor(const UIColor value)
       {
         const bool modified = value != m_background.EnabledColor;
         if (modified)
         {
           m_background.EnabledColor = value;
+          m_background.EnabledRenderColor = m_colorConverter.Convert(value);
         }
         return modified;
       }
 
-      const Color& GetBackgroundDisabledColor() const
+      UIColor GetBackgroundDisabledColor() const
       {
         return m_background.DisabledColor;
       }
 
-      bool SetBackgroundDisabledColor(const Color& value)
+      bool SetBackgroundDisabledColor(const UIColor value)
       {
         const bool modified = value != m_background.DisabledColor;
         if (modified)
         {
           m_background.DisabledColor = value;
+          m_background.DisabledRenderColor = m_colorConverter.Convert(value);
         }
         return modified;
       }
 
       // ------
 
-      void Draw(DrawCommandBuffer& commandBuffer, const PxVector2 dstPositionPxf, const Color finalColor, const PxValue cursorPositionPx,
+      void Draw(DrawCommandBuffer& commandBuffer, const PxVector2 dstPositionPxf, const UIRenderColor finalColor, const PxValue cursorPositionPx,
                 const bool isDragging, const SpriteUnitConverter& spriteUnitConverter);
 
-      void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent, const bool isEnabled);
+      void OnMouseOver(const std::shared_ptr<WindowMouseOverEvent>& theEvent, const bool isEnabled);
 
       PxSize2D Measure(const PxAvailableSize& availableSizePx);
       SliderPixelSpanInfo Arrange(const PxSize2D finalSizePx, const LayoutOrientation orientation, const LayoutDirection layoutDirection,

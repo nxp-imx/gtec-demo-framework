@@ -64,7 +64,7 @@ namespace Fsl::UI
       explicit ChannelMetaDataRecord(ChartChannelMetaData metaData);
 
       void SetLabel(const StringViewLite label);
-      void SetPrimaryColor(const Color color);
+      void SetPrimaryColor(const UIColor color);
     };
 
   public:
@@ -117,7 +117,7 @@ namespace Fsl::UI
     void ClearChannelMetaData(const uint32_t channelIndex);
     void SetChannelMetaData(const uint32_t channelIndex, const ChartChannelMetaData& metaData);
     void SetChannelMetaData(const uint32_t channelIndex, const StringViewLite label);
-    void SetChannelMetaData(const uint32_t channelIndex, const Color primaryColor);
+    void SetChannelMetaData(const uint32_t channelIndex, const UIColor primaryColor);
   };
 }
 

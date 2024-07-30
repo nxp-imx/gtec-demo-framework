@@ -1,7 +1,7 @@
 #ifndef FSLDATABINDING_BASE_INTERNAL_SERVICEBINDINGRECORD_HPP
 #define FSLDATABINDING_BASE_INTERNAL_SERVICEBINDINGRECORD_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Collections/TightHostedVector.hpp>
+#include <FslBase/Span/SpanUtil_Create.hpp>
 #include <FslDataBinding/Base/Bind/IComplexBinding.hpp>
 #include <FslDataBinding/Base/Binding.hpp>
 #include <FslDataBinding/Base/BindingMode.hpp>
@@ -74,7 +75,7 @@ namespace Fsl::DataBinding::Internal
   public:
     Internal::InstanceState Instance;
     // It's still public for erase atm
-    TightHostedVector<DataBindingInstanceHandle, 3> m_handles;
+    TightHostedVector<DataBindingInstanceHandle, 3> SysHandles;
     std::unique_ptr<Internal::IPropertyMethods> Methods;
 
     ServiceBindingRecord() = default;
@@ -111,38 +112,37 @@ namespace Fsl::DataBinding::Internal
     {
       if (m_source.Handle.IsValid())
       {
-        return m_handles.Empty(ServicePropertyVectorIndex::Sources) ? 1u : m_handles.Size(ServicePropertyVectorIndex::Sources);
+        return SysHandles.Empty(ServicePropertyVectorIndex::Sources) ? 1u : SysHandles.Size(ServicePropertyVectorIndex::Sources);
       }
       return 0u;
     }
 
     ReadOnlySpan<DataBindingInstanceHandle> TargetHandles() const noexcept
     {
-      return m_handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Targets);
+      return SysHandles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Targets);
     }
 
     void ClearTargetHandles() noexcept
     {
-      m_handles.Clear(Internal::ServicePropertyVectorIndex::Targets);
+      SysHandles.Clear(Internal::ServicePropertyVectorIndex::Targets);
     }
 
     ReadOnlySpan<DataBindingInstanceHandle> PropertyHandles() const noexcept
     {
-      return m_handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Properties);
+      return SysHandles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Properties);
     }
 
     void ClearPropertyHandles() noexcept
     {
-      m_handles.Clear(Internal::ServicePropertyVectorIndex::Properties);
+      SysHandles.Clear(Internal::ServicePropertyVectorIndex::Properties);
     }
 
     ReadOnlySpan<DataBindingInstanceHandle> SourceHandles() const noexcept
     {
       if (m_source.Handle.IsValid())
       {
-        return m_handles.Empty(ServicePropertyVectorIndex::Sources)
-                 ? ReadOnlySpan<DataBindingInstanceHandle>(&m_source.Handle, 1u, OptimizationCheckFlag::NoCheck)
-                 : m_handles.AsReadOnlySpan(ServicePropertyVectorIndex::Sources);
+        return SysHandles.Empty(ServicePropertyVectorIndex::Sources) ? SpanUtil::UncheckedCreateReadOnly(&m_source.Handle, 1u)
+                                                                     : SysHandles.AsReadOnlySpan(ServicePropertyVectorIndex::Sources);
       }
       return {};
     }
@@ -164,7 +164,7 @@ namespace Fsl::DataBinding::Internal
     void ClearSourceHandles() noexcept
     {
       m_source = {};
-      m_handles.Clear(Internal::ServicePropertyVectorIndex::Sources);
+      SysHandles.Clear(Internal::ServicePropertyVectorIndex::Sources);
     }
 
     //! Beware this only sets the source record. All linked information will have to be set elsewhere
@@ -181,7 +181,7 @@ namespace Fsl::DataBinding::Internal
         m_source = ServiceBindingSourceRecord(sourceHandles.front(), binding.ComplexBinding(), binding.Mode());
         if (sourceHandles.size() > 1u)
         {
-          m_handles.PushBack(Internal::ServicePropertyVectorIndex::Sources, sourceHandles);
+          SysHandles.PushBack(Internal::ServicePropertyVectorIndex::Sources, sourceHandles);
         }
       }
       catch (const std::exception&)

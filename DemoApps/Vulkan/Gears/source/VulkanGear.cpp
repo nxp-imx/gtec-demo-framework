@@ -61,34 +61,34 @@ namespace Fsl
     for (int i = 0; i < gearinfo.NumTeeth; ++i)
     {
       const float ta = static_cast<float>(i) * 2.0f * MathHelper::PI / static_cast<float>(gearinfo.NumTeeth);
-      const float cos_ta = std::cos(ta);
-      const float cos_ta_1da = std::cos(ta + da);
-      const float cos_ta_2da = std::cos(ta + 2 * da);
-      const float cos_ta_3da = std::cos(ta + 3 * da);
-      const float cos_ta_4da = std::cos(ta + 4 * da);
-      const float sin_ta = std::sin(ta);
-      const float sin_ta_1da = std::sin(ta + da);
-      const float sin_ta_2da = std::sin(ta + 2 * da);
-      const float sin_ta_3da = std::sin(ta + 3 * da);
-      const float sin_ta_4da = std::sin(ta + 4 * da);
+      const float cosTa = std::cos(ta);
+      const float cosTa1da = std::cos(ta + da);
+      const float cosTa2da = std::cos(ta + 2 * da);
+      const float cosTa3da = std::cos(ta + 3 * da);
+      const float cosTa4da = std::cos(ta + 4 * da);
+      const float sinTa = std::sin(ta);
+      const float sinTa1da = std::sin(ta + da);
+      const float sinTa2da = std::sin(ta + 2 * da);
+      const float sinTa3da = std::sin(ta + 3 * da);
+      const float sinTa4da = std::sin(ta + 4 * da);
 
-      float u1 = r2 * cos_ta_1da - r1 * cos_ta;
-      float v1 = r2 * sin_ta_1da - r1 * sin_ta;
+      float u1 = r2 * cosTa1da - r1 * cosTa;
+      float v1 = r2 * sinTa1da - r1 * sinTa;
       const float len = std::sqrt(u1 * u1 + v1 * v1);
       u1 /= len;
       v1 /= len;
-      const float u2 = r1 * cos_ta_3da - r2 * cos_ta_2da;
-      const float v2 = r1 * sin_ta_3da - r2 * sin_ta_2da;
+      const float u2 = r1 * cosTa3da - r2 * cosTa2da;
+      const float v2 = r1 * sinTa3da - r2 * sinTa2da;
 
 
       // front face
       glm::vec3 normal = glm::vec3(0.0f, 0.0f, 1.0f);
-      auto ix0 = NewVertex(vBuffer, r0 * cos_ta, r0 * sin_ta, halfGearWidth, normal);
-      auto ix1 = NewVertex(vBuffer, r1 * cos_ta, r1 * sin_ta, halfGearWidth, normal);
-      auto ix2 = NewVertex(vBuffer, r0 * cos_ta, r0 * sin_ta, halfGearWidth, normal);
-      auto ix3 = NewVertex(vBuffer, r1 * cos_ta_3da, r1 * sin_ta_3da, halfGearWidth, normal);
-      auto ix4 = NewVertex(vBuffer, r0 * cos_ta_4da, r0 * sin_ta_4da, halfGearWidth, normal);
-      auto ix5 = NewVertex(vBuffer, r1 * cos_ta_4da, r1 * sin_ta_4da, halfGearWidth, normal);
+      auto ix0 = NewVertex(vBuffer, r0 * cosTa, r0 * sinTa, halfGearWidth, normal);
+      auto ix1 = NewVertex(vBuffer, r1 * cosTa, r1 * sinTa, halfGearWidth, normal);
+      auto ix2 = NewVertex(vBuffer, r0 * cosTa, r0 * sinTa, halfGearWidth, normal);
+      auto ix3 = NewVertex(vBuffer, r1 * cosTa3da, r1 * sinTa3da, halfGearWidth, normal);
+      auto ix4 = NewVertex(vBuffer, r0 * cosTa4da, r0 * sinTa4da, halfGearWidth, normal);
+      auto ix5 = NewVertex(vBuffer, r1 * cosTa4da, r1 * sinTa4da, halfGearWidth, normal);
       NewFace(iBuffer, ix0, ix1, ix2);
       NewFace(iBuffer, ix1, ix3, ix2);
       NewFace(iBuffer, ix2, ix3, ix4);
@@ -96,21 +96,21 @@ namespace Fsl
 
       // front sides of teeth
       normal = glm::vec3(0.0f, 0.0f, 1.0f);
-      ix0 = NewVertex(vBuffer, r1 * cos_ta, r1 * sin_ta, halfGearWidth, normal);
-      ix1 = NewVertex(vBuffer, r2 * cos_ta_1da, r2 * sin_ta_1da, halfGearWidth, normal);
-      ix2 = NewVertex(vBuffer, r1 * cos_ta_3da, r1 * sin_ta_3da, halfGearWidth, normal);
-      ix3 = NewVertex(vBuffer, r2 * cos_ta_2da, r2 * sin_ta_2da, halfGearWidth, normal);
+      ix0 = NewVertex(vBuffer, r1 * cosTa, r1 * sinTa, halfGearWidth, normal);
+      ix1 = NewVertex(vBuffer, r2 * cosTa1da, r2 * sinTa1da, halfGearWidth, normal);
+      ix2 = NewVertex(vBuffer, r1 * cosTa3da, r1 * sinTa3da, halfGearWidth, normal);
+      ix3 = NewVertex(vBuffer, r2 * cosTa2da, r2 * sinTa2da, halfGearWidth, normal);
       NewFace(iBuffer, ix0, ix1, ix2);
       NewFace(iBuffer, ix1, ix3, ix2);
 
       // back face
       normal = glm::vec3(0.0f, 0.0f, -1.0f);
-      ix0 = NewVertex(vBuffer, r1 * cos_ta, r1 * sin_ta, -halfGearWidth, normal);
-      ix1 = NewVertex(vBuffer, r0 * cos_ta, r0 * sin_ta, -halfGearWidth, normal);
-      ix2 = NewVertex(vBuffer, r1 * cos_ta_3da, r1 * sin_ta_3da, -halfGearWidth, normal);
-      ix3 = NewVertex(vBuffer, r0 * cos_ta, r0 * sin_ta, -halfGearWidth, normal);
-      ix4 = NewVertex(vBuffer, r1 * cos_ta_4da, r1 * sin_ta_4da, -halfGearWidth, normal);
-      ix5 = NewVertex(vBuffer, r0 * cos_ta_4da, r0 * sin_ta_4da, -halfGearWidth, normal);
+      ix0 = NewVertex(vBuffer, r1 * cosTa, r1 * sinTa, -halfGearWidth, normal);
+      ix1 = NewVertex(vBuffer, r0 * cosTa, r0 * sinTa, -halfGearWidth, normal);
+      ix2 = NewVertex(vBuffer, r1 * cosTa3da, r1 * sinTa3da, -halfGearWidth, normal);
+      ix3 = NewVertex(vBuffer, r0 * cosTa, r0 * sinTa, -halfGearWidth, normal);
+      ix4 = NewVertex(vBuffer, r1 * cosTa4da, r1 * sinTa4da, -halfGearWidth, normal);
+      ix5 = NewVertex(vBuffer, r0 * cosTa4da, r0 * sinTa4da, -halfGearWidth, normal);
       NewFace(iBuffer, ix0, ix1, ix2);
       NewFace(iBuffer, ix1, ix3, ix2);
       NewFace(iBuffer, ix2, ix3, ix4);
@@ -118,51 +118,51 @@ namespace Fsl
 
       // back sides of teeth
       normal = glm::vec3(0.0, 0.0, -1.0f);
-      ix0 = NewVertex(vBuffer, r1 * cos_ta_3da, r1 * sin_ta_3da, -halfGearWidth, normal);
-      ix1 = NewVertex(vBuffer, r2 * cos_ta_2da, r2 * sin_ta_2da, -halfGearWidth, normal);
-      ix2 = NewVertex(vBuffer, r1 * cos_ta, r1 * sin_ta, -halfGearWidth, normal);
-      ix3 = NewVertex(vBuffer, r2 * cos_ta_1da, r2 * sin_ta_1da, -halfGearWidth, normal);
+      ix0 = NewVertex(vBuffer, r1 * cosTa3da, r1 * sinTa3da, -halfGearWidth, normal);
+      ix1 = NewVertex(vBuffer, r2 * cosTa2da, r2 * sinTa2da, -halfGearWidth, normal);
+      ix2 = NewVertex(vBuffer, r1 * cosTa, r1 * sinTa, -halfGearWidth, normal);
+      ix3 = NewVertex(vBuffer, r2 * cosTa1da, r2 * sinTa1da, -halfGearWidth, normal);
       NewFace(iBuffer, ix0, ix1, ix2);
       NewFace(iBuffer, ix1, ix3, ix2);
 
       // draw outward faces of teeth
       normal = glm::vec3(v1, -u1, 0.0f);
-      ix0 = NewVertex(vBuffer, r1 * cos_ta, r1 * sin_ta, halfGearWidth, normal);
-      ix1 = NewVertex(vBuffer, r1 * cos_ta, r1 * sin_ta, -halfGearWidth, normal);
-      ix2 = NewVertex(vBuffer, r2 * cos_ta_1da, r2 * sin_ta_1da, halfGearWidth, normal);
-      ix3 = NewVertex(vBuffer, r2 * cos_ta_1da, r2 * sin_ta_1da, -halfGearWidth, normal);
+      ix0 = NewVertex(vBuffer, r1 * cosTa, r1 * sinTa, halfGearWidth, normal);
+      ix1 = NewVertex(vBuffer, r1 * cosTa, r1 * sinTa, -halfGearWidth, normal);
+      ix2 = NewVertex(vBuffer, r2 * cosTa1da, r2 * sinTa1da, halfGearWidth, normal);
+      ix3 = NewVertex(vBuffer, r2 * cosTa1da, r2 * sinTa1da, -halfGearWidth, normal);
       NewFace(iBuffer, ix0, ix1, ix2);
       NewFace(iBuffer, ix1, ix3, ix2);
 
-      normal = glm::vec3(cos_ta, sin_ta, 0.0f);
-      ix0 = NewVertex(vBuffer, r2 * cos_ta_1da, r2 * sin_ta_1da, halfGearWidth, normal);
-      ix1 = NewVertex(vBuffer, r2 * cos_ta_1da, r2 * sin_ta_1da, -halfGearWidth, normal);
-      ix2 = NewVertex(vBuffer, r2 * cos_ta_2da, r2 * sin_ta_2da, halfGearWidth, normal);
-      ix3 = NewVertex(vBuffer, r2 * cos_ta_2da, r2 * sin_ta_2da, -halfGearWidth, normal);
+      normal = glm::vec3(cosTa, sinTa, 0.0f);
+      ix0 = NewVertex(vBuffer, r2 * cosTa1da, r2 * sinTa1da, halfGearWidth, normal);
+      ix1 = NewVertex(vBuffer, r2 * cosTa1da, r2 * sinTa1da, -halfGearWidth, normal);
+      ix2 = NewVertex(vBuffer, r2 * cosTa2da, r2 * sinTa2da, halfGearWidth, normal);
+      ix3 = NewVertex(vBuffer, r2 * cosTa2da, r2 * sinTa2da, -halfGearWidth, normal);
       NewFace(iBuffer, ix0, ix1, ix2);
       NewFace(iBuffer, ix1, ix3, ix2);
 
       normal = glm::vec3(v2, -u2, 0.0f);
-      ix0 = NewVertex(vBuffer, r2 * cos_ta_2da, r2 * sin_ta_2da, halfGearWidth, normal);
-      ix1 = NewVertex(vBuffer, r2 * cos_ta_2da, r2 * sin_ta_2da, -halfGearWidth, normal);
-      ix2 = NewVertex(vBuffer, r1 * cos_ta_3da, r1 * sin_ta_3da, halfGearWidth, normal);
-      ix3 = NewVertex(vBuffer, r1 * cos_ta_3da, r1 * sin_ta_3da, -halfGearWidth, normal);
+      ix0 = NewVertex(vBuffer, r2 * cosTa2da, r2 * sinTa2da, halfGearWidth, normal);
+      ix1 = NewVertex(vBuffer, r2 * cosTa2da, r2 * sinTa2da, -halfGearWidth, normal);
+      ix2 = NewVertex(vBuffer, r1 * cosTa3da, r1 * sinTa3da, halfGearWidth, normal);
+      ix3 = NewVertex(vBuffer, r1 * cosTa3da, r1 * sinTa3da, -halfGearWidth, normal);
       NewFace(iBuffer, ix0, ix1, ix2);
       NewFace(iBuffer, ix1, ix3, ix2);
 
-      normal = glm::vec3(cos_ta, sin_ta, 0.0f);
-      ix0 = NewVertex(vBuffer, r1 * cos_ta_3da, r1 * sin_ta_3da, halfGearWidth, normal);
-      ix1 = NewVertex(vBuffer, r1 * cos_ta_3da, r1 * sin_ta_3da, -halfGearWidth, normal);
-      ix2 = NewVertex(vBuffer, r1 * cos_ta_4da, r1 * sin_ta_4da, halfGearWidth, normal);
-      ix3 = NewVertex(vBuffer, r1 * cos_ta_4da, r1 * sin_ta_4da, -halfGearWidth, normal);
+      normal = glm::vec3(cosTa, sinTa, 0.0f);
+      ix0 = NewVertex(vBuffer, r1 * cosTa3da, r1 * sinTa3da, halfGearWidth, normal);
+      ix1 = NewVertex(vBuffer, r1 * cosTa3da, r1 * sinTa3da, -halfGearWidth, normal);
+      ix2 = NewVertex(vBuffer, r1 * cosTa4da, r1 * sinTa4da, halfGearWidth, normal);
+      ix3 = NewVertex(vBuffer, r1 * cosTa4da, r1 * sinTa4da, -halfGearWidth, normal);
       NewFace(iBuffer, ix0, ix1, ix2);
       NewFace(iBuffer, ix1, ix3, ix2);
 
       // draw inside radius cylinder
-      ix0 = NewVertex(vBuffer, r0 * cos_ta, r0 * sin_ta, -halfGearWidth, glm::vec3(-cos_ta, -sin_ta, 0.0f));
-      ix1 = NewVertex(vBuffer, r0 * cos_ta, r0 * sin_ta, halfGearWidth, glm::vec3(-cos_ta, -sin_ta, 0.0f));
-      ix2 = NewVertex(vBuffer, r0 * cos_ta_4da, r0 * sin_ta_4da, -halfGearWidth, glm::vec3(-cos_ta_4da, -sin_ta_4da, 0.0f));
-      ix3 = NewVertex(vBuffer, r0 * cos_ta_4da, r0 * sin_ta_4da, halfGearWidth, glm::vec3(-cos_ta_4da, -sin_ta_4da, 0.0f));
+      ix0 = NewVertex(vBuffer, r0 * cosTa, r0 * sinTa, -halfGearWidth, glm::vec3(-cosTa, -sinTa, 0.0f));
+      ix1 = NewVertex(vBuffer, r0 * cosTa, r0 * sinTa, halfGearWidth, glm::vec3(-cosTa, -sinTa, 0.0f));
+      ix2 = NewVertex(vBuffer, r0 * cosTa4da, r0 * sinTa4da, -halfGearWidth, glm::vec3(-cosTa4da, -sinTa4da, 0.0f));
+      ix3 = NewVertex(vBuffer, r0 * cosTa4da, r0 * sinTa4da, halfGearWidth, glm::vec3(-cosTa4da, -sinTa4da, 0.0f));
       NewFace(iBuffer, ix0, ix1, ix2);
       NewFace(iBuffer, ix1, ix3, ix2);
     }

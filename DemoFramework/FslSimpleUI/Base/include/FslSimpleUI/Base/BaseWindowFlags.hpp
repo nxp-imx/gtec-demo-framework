@@ -40,6 +40,7 @@ namespace Fsl::UI
   struct BaseWindowFlags
   {
     static constexpr const int BitShiftBaseWindowFlags = WindowFlags::BitsReserved;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static constexpr const uint32_t MASK_WindowFlags = (1 << WindowFlags::BitsReserved) - 1;
 
     enum Enum

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,8 +50,8 @@ namespace Fsl
 
   namespace
   {
-    const Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 0.0f);
-    const Vector3 DEFAULT_CAMERA_TARGET(-4.0f, 0.0f, 0.0f);
+    constexpr Vector3 DefaultCameraPosition(0.0f, 0.0f, 0.0f);
+    constexpr Vector3 DefaultCameraTarget(-4.0f, 0.0f, 0.0f);
 
 
     const char* GetTonemapperShaderName(const Tonemapper::Enum tonemapper)
@@ -96,7 +96,7 @@ namespace Fsl
 
     const auto options = config.GetOptions<OptionParser>();
 
-    m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+    m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
 
     const auto contentManager = GetContentManager();
 
@@ -155,7 +155,7 @@ namespace Fsl
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
-        m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+        m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
         event.Handled();
       }
       break;
@@ -280,9 +280,9 @@ namespace Fsl
     glUseProgram(program.Get());
 
     // Load the matrices
-    assert(location.ViewMatrix != GLValues::INVALID_LOCATION);
-    assert(location.ProjMatrix != GLValues::INVALID_LOCATION);
-    assert(location.SkyboxSampler != GLValues::INVALID_LOCATION);
+    assert(location.ViewMatrix != GLValues::InvalidLocation);
+    assert(location.ProjMatrix != GLValues::InvalidLocation);
+    assert(location.SkyboxSampler != GLValues::InvalidLocation);
 
     glUniformMatrix4fv(location.ViewMatrix, 1, 0, vertexUboData.MatView.DirectAccess());
     glUniformMatrix4fv(location.ProjMatrix, 1, 0, vertexUboData.MatProj.DirectAccess());
@@ -310,7 +310,7 @@ namespace Fsl
     glUseProgram(program.Get());
 
     // The LDR shader dont use exposure
-    if (location.Exposure != GLValues::INVALID_LOCATION)
+    if (location.Exposure != GLValues::InvalidLocation)
     {
       glUniform1f(location.Exposure, m_menuUI.GetExposure());
     }
@@ -374,35 +374,35 @@ namespace Fsl
     // A C
     // A = 1.0
 
-    constexpr const float size = 1.0f;
-    constexpr const float x0 = -size;
-    constexpr const float x1 = size;
-    constexpr const float y0 = -size;
-    constexpr const float y1 = size;
-    constexpr const float zPos = 0.0f;
+    constexpr const float Size = 1.0f;
+    constexpr const float X0 = -Size;
+    constexpr const float X1 = Size;
+    constexpr const float Y0 = -Size;
+    constexpr const float Y1 = Size;
+    constexpr const float ZPos = 0.0f;
 
-    constexpr const float u0 = 0.0f;
-    constexpr const float u1 = 1.0f;
-    constexpr const float v0 = 0.0f;
-    constexpr const float v1 = 1.0f;
+    constexpr const float U0 = 0.0f;
+    constexpr const float U1 = 1.0f;
+    constexpr const float V0 = 0.0f;
+    constexpr const float V1 = 1.0f;
 
-    constexpr const std::array<VertexPositionTexture, 6> vertices = {
+    constexpr const std::array<VertexPositionTexture, 6> Vertices = {
       // Floor
-      VertexPositionTexture(Vector3(x0, y1, zPos), Vector2(u0, v1)), VertexPositionTexture(Vector3(x0, y0, zPos), Vector2(u0, v0)),
-      VertexPositionTexture(Vector3(x1, y0, zPos), Vector2(u1, v0)),
+      VertexPositionTexture(Vector3(X0, Y1, ZPos), Vector2(U0, V1)), VertexPositionTexture(Vector3(X0, Y0, ZPos), Vector2(U0, V0)),
+      VertexPositionTexture(Vector3(X1, Y0, ZPos), Vector2(U1, V0)),
 
-      VertexPositionTexture(Vector3(x0, y1, zPos), Vector2(u0, v1)), VertexPositionTexture(Vector3(x1, y0, zPos), Vector2(u1, v0)),
-      VertexPositionTexture(Vector3(x1, y1, zPos), Vector2(y1, v1)),
+      VertexPositionTexture(Vector3(X0, Y1, ZPos), Vector2(U0, V1)), VertexPositionTexture(Vector3(X1, Y0, ZPos), Vector2(U1, V0)),
+      VertexPositionTexture(Vector3(X1, Y1, ZPos), Vector2(Y1, V1)),
     };
 
-    constexpr auto vertexDecl = VertexPositionTexture::GetVertexDeclarationArray();
+    constexpr auto VertexDecl = VertexPositionTexture::GetVertexDeclarationArray();
     std::vector<GLES3::GLVertexAttribLink> attribLink(2);
     attribLink[0] =
-      GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+      GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
     attribLink[1] =
-      GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+      GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
 
-    GLVertexBuffer vertexBuffer(vertices.data(), vertices.size(), GL_STATIC_DRAW);
+    GLVertexBuffer vertexBuffer(Vertices.data(), Vertices.size(), GL_STATIC_DRAW);
 
     // Prepare the vertex arrays
     GLVertexArray vertexArray(true);

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_THEME_BASIC_BASICTHEMECONTROLFACTORY_HPP
 #define FSLSIMPLEUI_THEME_BASIC_BASICTHEMECONTROLFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022-2023 NXP
+ * Copyright 2020, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,12 +35,11 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/ConstrainedValue.hpp>
 #include <FslBase/Math/Dp/DpSize2D.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
-#include <FslGraphics/ColorSpace.hpp>
 #include <FslGraphics/Render/NineSliceAtlasTexture2D.hpp>
 #include <FslGraphics/Sprite/IContentSprite.hpp>
 #include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslGraphics/Sprite/NineSliceSprite.hpp>
+#include <FslSimpleUI/Base/UIColorSpace.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslSimpleUI/Theme/Basic/BasicThemeColors.hpp>
 #include <memory>
@@ -83,7 +82,7 @@ namespace Fsl
 
       public:
         BasicThemeControlFactory(const std::shared_ptr<WindowContext>& context, const std::shared_ptr<BasicThemeResources>& themeResources,
-                                 const bool usePrimaryPalette, const ColorSpace colorSpace);
+                                 const bool usePrimaryPalette, const UI::UIColorSpace colorSpace);
         ~BasicThemeControlFactory() override;
 
         const std::shared_ptr<WindowContext>& GetContext() const final
@@ -92,7 +91,7 @@ namespace Fsl
         }
 
         const IThemeResources& GetResources() const final;
-        Color GetThemePrimaryDarkColor() const final;
+        UIColor GetThemePrimaryDarkColor() const final;
         DpThicknessF GetDefaultMarginDp(const ElementType elementType) const final;
 
 
@@ -111,7 +110,7 @@ namespace Fsl
 
         std::shared_ptr<Label> CreateLabel(const std::string& str, const FontType fontType) final
         {
-          return CreateLabel(StringViewLiteUtil::AsStringViewLite(str), fontType);
+          return CreateLabel(StringViewLite(str), fontType);
         }
 
 
@@ -131,7 +130,7 @@ namespace Fsl
         }
         std::shared_ptr<BackgroundLabelButton> CreateTextButton(const ButtonType buttonType, const std::string& str) final
         {
-          return CreateTextButton(buttonType, StringViewLiteUtil::AsStringViewLite(str));
+          return CreateTextButton(buttonType, StringViewLite(str));
         }
 
         // ----- CreateCheckBox
@@ -145,7 +144,7 @@ namespace Fsl
         }
         std::shared_ptr<CheckBox> CreateCheckBox(const std::string& str, const bool checked) final
         {
-          return CreateCheckBox(StringViewLiteUtil::AsStringViewLite(str), checked);
+          return CreateCheckBox(StringViewLite(str), checked);
         }
 
         // ----- CreateRadioButton
@@ -163,7 +162,7 @@ namespace Fsl
         std::shared_ptr<RadioButton> CreateRadioButton(const std::shared_ptr<RadioGroup>& radioGroup, const std::string& str,
                                                        const bool checked) final
         {
-          return CreateRadioButton(radioGroup, StringViewLiteUtil::AsStringViewLite(str), checked);
+          return CreateRadioButton(radioGroup, StringViewLite(str), checked);
         }
 
         // ----- CreateSwitch
@@ -177,7 +176,7 @@ namespace Fsl
         }
         std::shared_ptr<Switch> CreateSwitch(const std::string& str, const bool checked) final
         {
-          return CreateSwitch(StringViewLiteUtil::AsStringViewLite(str), checked);
+          return CreateSwitch(StringViewLite(str), checked);
         }
 
         // ----- CreateImage
@@ -252,6 +251,13 @@ namespace Fsl
         std::shared_ptr<FmtValueLabel<uint32_t>> CreateFmtValueLabel(const uint32_t value, std::string&& strFormat) final;
         std::shared_ptr<FmtValueLabel<uint32_t>> CreateFmtValueLabel(const uint32_t value, const char* const pszFormat) final;
         std::shared_ptr<FmtValueLabel<uint32_t>> CreateFmtValueLabel(const uint32_t value, const std::string& strFormat) final;
+
+        // ----- CreateFmtValueLabel<uint64_t>
+        std::shared_ptr<FmtValueLabel<uint64_t>> CreateFmtValueLabel(const uint64_t value) final;
+        std::shared_ptr<FmtValueLabel<uint64_t>> CreateFmtValueLabel(const uint64_t value, const StringViewLite& strViewFormat) final;
+        std::shared_ptr<FmtValueLabel<uint64_t>> CreateFmtValueLabel(const uint64_t value, std::string&& strFormat) final;
+        std::shared_ptr<FmtValueLabel<uint64_t>> CreateFmtValueLabel(const uint64_t value, const char* const pszFormat) final;
+        std::shared_ptr<FmtValueLabel<uint64_t>> CreateFmtValueLabel(const uint64_t value, const std::string& strFormat) final;
 
         // ----- CreateFmtValueLabel<float>
         std::shared_ptr<FmtValueLabel<float>> CreateFmtValueLabel(const float value) final;

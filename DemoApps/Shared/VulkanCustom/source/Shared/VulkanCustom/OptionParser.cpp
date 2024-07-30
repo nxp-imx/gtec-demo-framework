@@ -51,6 +51,7 @@ namespace Fsl
         VkPhysicalDevice = DEMO_APP_OPTION_BASE,
         VkValidate = DEMO_APP_OPTION_BASE + 1,
 
+        // NOLINTNEXTLINE(readability-identifier-naming)
         DEMO_APP_VULKAN_OPTION_BASE = (DEMO_APP_OPTION_BASE + 0x100)
       };
     };

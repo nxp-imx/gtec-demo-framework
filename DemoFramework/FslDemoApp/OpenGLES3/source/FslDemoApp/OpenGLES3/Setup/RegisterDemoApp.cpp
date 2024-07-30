@@ -50,18 +50,20 @@
 #include <FslUtil/OpenGLES3/DebugStrings.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <fmt/format.h>
+#include <memory>
 
 namespace Fsl
 {
   namespace
   {
-    DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup, const uint16_t majorVersion, const uint16_t minorVersion)
+    DemoHostFeature CommonSetup(HostDemoAppSetup& rSetup, const uint16_t majorVersion, const uint16_t minorVersion,
+                                const ColorSpaceType colorSpaceType)
     {
       // Use the EGLDemoHost for OpenGLES
       std::deque<DemoHostFeatureName::Enum> eglHostFeatures;
       eglHostFeatures.push_back(DemoHostFeatureName::OpenGLES);
       rSetup.TheHostRegistry.Register(eglHostFeatures, DemoHostSetupOpenGLES3::Get());
-      rSetup.TheServiceRegistry.Register<GraphicsServiceFactory>();
+      rSetup.TheServiceRegistry.Register(std::make_shared<GraphicsServiceFactory>(colorSpaceType));
       rSetup.TheServiceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<GLES3::NativeGraphicsService, INativeGraphicsService>>(
         ServicePriorityList::NativeGraphicsService());
       rSetup.TheServiceRegistry.Register<EGLHostServiceFactory>(ServicePriorityList::EGLHostService());
@@ -72,7 +74,7 @@ namespace Fsl
       return {DemoHostFeatureName::OpenGLES, DemoHostFeatureUtil::EncodeOpenGLESVersion(majorVersion, minorVersion)};
     }
 
-    DemoAppHostConfigEGL CommenSetup(const DemoAppHostConfigEGL& cfg, const OpenGLESMinorVersion& minorVersion)
+    DemoAppHostConfigEGL CommonSetup(const DemoAppHostConfigEGL& cfg, const OpenGLESMinorVersion& minorVersion)
     {
       DemoAppHostConfigEGL config(cfg);
       config.SetMinimumMiniorVersion(minorVersion.MinimumMinorVersion);
@@ -131,9 +133,9 @@ namespace Fsl
       // Register a formatter for common OpenGLES3 exceptions (from the libs we utilize)
       rSetup.CustomExceptionFormatter.Add(TryFormatException);
 
-      const DemoHostFeature feature = CommenSetup(rSetup, 3, minorVersion.MinorVersion);
+      const DemoHostFeature feature = CommonSetup(rSetup, 3, minorVersion.MinorVersion, demoAppSetup.CustomAppConfig.AppColorSpaceType);
 
-      const auto appHostConfig = std::make_shared<DemoAppHostConfigEGL>(CommenSetup(demoHostEGLConfig, minorVersion));
+      const auto appHostConfig = std::make_shared<DemoAppHostConfigEGL>(CommonSetup(demoHostEGLConfig, minorVersion));
 
       rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, appHostConfig);
     }

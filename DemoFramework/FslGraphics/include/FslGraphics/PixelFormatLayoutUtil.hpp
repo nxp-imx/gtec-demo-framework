@@ -32,102 +32,209 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Math/Pixel/PxSize1D.hpp>
 #include <FslGraphics/PixelChannelOrder.hpp>
 #include <FslGraphics/PixelFormatLayout.hpp>
+#include <FslGraphics/PixelFormatLayoutMetaData.hpp>
 #include <FslGraphics/StrideRequirement.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::PixelFormatLayoutUtil
 {
-  class PixelFormatLayoutUtil
+  constexpr int32_t GetBasicEncodedLayout(const PixelFormatLayout pixelFormatLayout) noexcept;
+  constexpr int32_t GetEncodedLayout1CompressionScheme(const PixelFormatLayout pixelFormatLayout) noexcept;
+  constexpr int32_t GetEncodedLayout0Packed(const PixelFormatLayout pixelFormatLayout) noexcept;
+
+  //! @brief Get the format-id of the pixel format (it basically strips all the extra meta data)
+  inline constexpr uint32_t GetId(const PixelFormatLayout pixelFormatLayout) noexcept
   {
-  public:
-    //! @brief Lookup the bytes per pixel of the pixelFormatLayout, beware that for compressed formats this return 0
-    static uint32_t GetBytesPerPixel(const PixelFormatLayout pixelFormatLayout)
-    {
-      if (GetBasicEncodedLayout(pixelFormatLayout) == PixelFormatLayoutFlags::ENCODED_LAYOUT0)
-      {
-        return (static_cast<uint32_t>(pixelFormatLayout) & PixelFormatLayoutFlags::BIT_MASK_ENCODED_LAYOUT0_BYTES_PER_PIXEL) >>
-               PixelFormatLayoutFlags::BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL;
-      }
+    return (static_cast<int32_t>(pixelFormatLayout) & PixelFormatLayoutFlags::BIT_MASK_FORMAT_ID);
+  }
 
-      FSLLOG3_DEBUG_WARNING("PixelFormatLayoutUtil::GetBytesPerPixel called on compressed pixel format");
-      return 0;
+  //! @brief Lookup the bytes per pixel of the pixelFormatLayout, beware that for compressed formats this return 0
+  inline constexpr uint32_t GetBytesPerPixel(const PixelFormatLayout pixelFormatLayout) noexcept
+  {
+    if (GetBasicEncodedLayout(pixelFormatLayout) == PixelFormatLayoutFlags::ENCODED_LAYOUT0)
+    {
+      return (static_cast<uint32_t>(pixelFormatLayout) & PixelFormatLayoutFlags::BIT_MASK_ENCODED_LAYOUT0_BYTES_PER_PIXEL) >>
+             PixelFormatLayoutFlags::BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL;
     }
 
-    static constexpr uint32_t CalcMinimumStride(const uint32_t width, const uint32_t bytesPerPixel)
+    FSLLOG3_DEBUG_WARNING("PixelFormatLayoutUtil::GetBytesPerPixel called on compressed pixel format");
+    return 0;
+  }
+
+  inline constexpr uint32_t CalcMinimumStride(const PxValueU widthPx, const uint32_t bytesPerPixel) noexcept
+  {
+    return widthPx.Value * bytesPerPixel;
+  }
+
+  inline constexpr uint32_t CalcMinimumStride(const PxValueU widthPx, const PixelFormatLayout pixelFormatLayout) noexcept
+  {
+    return CalcMinimumStride(widthPx, GetBytesPerPixel(pixelFormatLayout));
+  }
+
+  inline constexpr uint32_t CalcMinimumStride(const PxSize1D widthPx, const uint32_t bytesPerPixel) noexcept
+  {
+    return widthPx.RawUnsignedValue() * bytesPerPixel;
+  }
+
+  inline constexpr uint32_t CalcMinimumStride(const PxSize1D widthPx, const PixelFormatLayout pixelFormatLayout) noexcept
+  {
+    return CalcMinimumStride(widthPx, GetBytesPerPixel(pixelFormatLayout));
+  }
+
+  uint32_t CalcMinimumStride(const PxValueU widthPx, const PixelFormatLayout pixelFormatLayout, const StrideRequirement strideRequirement);
+  uint32_t CalcMinimumStride(const PxValueU widthPx, const uint32_t bytesPerPixel, const StrideRequirement strideRequirement);
+
+  inline uint32_t CalcMinimumStride(const PxSize1D widthPx, const PixelFormatLayout pixelFormatLayout, const StrideRequirement strideRequirement)
+  {
+    return CalcMinimumStride(widthPx.UnsignedValue(), pixelFormatLayout, strideRequirement);
+  }
+
+  inline uint32_t CalcMinimumStride(const PxSize1D widthPx, const uint32_t bytesPerPixel, const StrideRequirement strideRequirement)
+  {
+    return CalcMinimumStride(widthPx.UnsignedValue(), bytesPerPixel, strideRequirement);
+  }
+
+  bool IsValidStride(const uint32_t width, const PixelFormatLayout pixelFormatLayout, const StrideRequirement strideRequirement,
+                     const uint32_t desiredStride);
+  bool IsValidStride(const uint32_t width, const uint32_t bytesPerPixel, const StrideRequirement strideRequirement, const uint32_t desiredStride);
+
+  inline bool IsValidStride(const PxSize1D widthPx, const PixelFormatLayout pixelFormatLayout, const StrideRequirement strideRequirement,
+                            const uint32_t desiredStride)
+  {
+    return IsValidStride(widthPx.RawUnsignedValue(), pixelFormatLayout, strideRequirement, desiredStride);
+  }
+
+  inline bool IsValidStride(const PxSize1D widthPx, const uint32_t bytesPerPixel, const StrideRequirement strideRequirement,
+                            const uint32_t desiredStride)
+  {
+    return IsValidStride(widthPx.RawUnsignedValue(), bytesPerPixel, strideRequirement, desiredStride);
+  }
+
+  //! @brief Check if the formats can be converted to each other using a simple swizzle operation
+  inline constexpr bool IsSwizzleCompatible(const PixelFormatLayout lhs, const PixelFormatLayout rhs) noexcept
+  {
+    const auto srcId = GetId(lhs);
+    const auto dstId = GetId(rhs);
+    if (srcId >= static_cast<uint32_t>(PixelFormatLayout::ENUM_ID_RANGE_SIZE) ||
+        dstId >= static_cast<uint32_t>(PixelFormatLayout::ENUM_ID_RANGE_SIZE))
     {
-      return width * bytesPerPixel;
+      return false;
     }
 
+    return PixelFormatLayoutMetaData::Get(srcId).SwizzleCompatibility == PixelFormatLayoutMetaData::Get(dstId).SwizzleCompatibility;
+  }
 
-    static uint32_t CalcMinimumStride(const uint32_t width, const PixelFormatLayout pixelFormatLayout);
-    static uint32_t CalcMinimumStride(const uint32_t width, const PixelFormatLayout pixelFormatLayout, const StrideRequirement strideRequirement);
-    static uint32_t CalcMinimumStride(const uint32_t width, const uint32_t bytesPerPixel, const StrideRequirement strideRequirement);
-    static bool IsValidStride(const uint32_t width, const PixelFormatLayout pixelFormatLayout, const StrideRequirement strideRequirement,
-                              const uint32_t desiredStride);
-    static bool IsValidStride(const uint32_t width, const uint32_t bytesPerPixel, const StrideRequirement strideRequirement,
-                              const uint32_t desiredStride);
+  //! @brief Given a pixel format id try to lookup the pixel format enum value.
+  //! @note  Returns the PixelFormat value or PixelFormat::Undefined if the lookup fails (or if asked to lookup the undefined value)
+  inline constexpr PixelFormatLayout TryGetPixelFormatLayoutById(const uint32_t formatId) noexcept
+  {
+    return (formatId < static_cast<uint32_t>(PixelFormatLayout::ENUM_ID_RANGE_SIZE)) ? PixelFormatLayoutMetaData::Get(formatId).Layout
+                                                                                     : PixelFormatLayout::Undefined;
+  }
 
-    //! @brief Check if the formats can be converted to each other using a simple swizzle operation
-    static bool IsSwizzleCompatible(const PixelFormatLayout lhs, const PixelFormatLayout rhs);
+  //! @brief Check if this is considered a compressed format
+  inline constexpr bool IsCompressed(const PixelFormatLayout pixelFormatLayout) noexcept
+  {
+    return (GetBasicEncodedLayout(pixelFormatLayout) == PixelFormatLayoutFlags::ENCODED_LAYOUT1 &&
+            GetEncodedLayout1CompressionScheme(pixelFormatLayout) != PixelFormatLayoutFlags::CS_NONE);
+  }
 
-    //! @brief Given a pixel format id try to lookup the pixel format enum value.
-    //! @note  Returns the PixelFormat value or PixelFormat::Undefined if the lookup fails (or if asked to lookup the undefined value)
-    static PixelFormatLayout TryGetPixelFormatLayoutById(const uint32_t formatId);
+  //! @brief Check if this is considered a packed format
+  inline constexpr bool IsPacked(const PixelFormatLayout pixelFormatLayout) noexcept
+  {
+    return (GetBasicEncodedLayout(pixelFormatLayout) == PixelFormatLayoutFlags::ENCODED_LAYOUT0 &&
+            GetEncodedLayout0Packed(pixelFormatLayout) == PixelFormatLayoutFlags::Packed);
+  }
 
-    //! @brief Get the format-id of the pixel format (it basically strips all the extra meta data)
-    static uint32_t GetId(const PixelFormatLayout pixelFormatLayout)
-    {
-      return (static_cast<int32_t>(pixelFormatLayout) & PixelFormatLayoutFlags::BIT_MASK_FORMAT_ID);
-    }
 
-    //! @brief Check if this is considered a compressed format
-    static bool IsCompressed(const PixelFormatLayout pixelFormatLayout)
-    {
-      return (GetBasicEncodedLayout(pixelFormatLayout) == PixelFormatLayoutFlags::ENCODED_LAYOUT1 &&
-              GetEncodedLayout1CompressionScheme(pixelFormatLayout) != PixelFormatLayoutFlags::CS_NONE);
-    }
+  inline constexpr uint32_t GetChannelCount(const PixelFormatLayout pixelFormatLayout) noexcept
+  {
+    const auto srcId = GetId(pixelFormatLayout);
+    return srcId < static_cast<uint32_t>(PixelFormatLayout::ENUM_ID_RANGE_SIZE) ? PixelFormatLayoutMetaData::Get(srcId).Info.GetChannelCount() : 0u;
+  }
 
-    //! @brief Check if this is considered a packed format
-    static bool IsPacked(const PixelFormatLayout pixelFormatLayout)
-    {
-      return (GetBasicEncodedLayout(pixelFormatLayout) == PixelFormatLayoutFlags::ENCODED_LAYOUT0 &&
-              GetEncodedLayout0Packed(pixelFormatLayout) == PixelFormatLayoutFlags::Packed);
-    }
 
-    static uint32_t GetChannelCount(const PixelFormatLayout pixelFormatLayout);
+  //! @brief Check if the formats can be converted to each other using a simple swizzle operation
+  inline constexpr PixelChannelOrder GetPixelChannelOrder(const PixelFormatLayout lhs) noexcept
+  {
+    const auto srcId = GetId(lhs);
+    return srcId < static_cast<uint32_t>(PixelFormatLayout::ENUM_ID_RANGE_SIZE) ? PixelFormatLayoutMetaData::Get(srcId).ChannelOrder
+                                                                                : PixelChannelOrder::Undefined;
+  }
 
-    // *** bit extraction helper methods ***
+  //! @brief Check if the formats can be converted to each other using a simple swizzle operation
+  inline constexpr bool HasAlphaChannel(const PixelFormatLayout lhs) noexcept
+  {
+    const auto srcId = GetId(lhs);
+    return srcId < static_cast<uint32_t>(PixelFormatLayout::ENUM_ID_RANGE_SIZE) ? PixelFormatLayoutMetaData::Get(srcId).Info.HasAlphaChannel()
+                                                                                : false;
+  }
 
-    // @brief Extract the basic encoded layout (can only differentiate between layout0 and 1, not any extended encodings)
-    // @return PixelFormatLayoutFlags::ENCODED_LAYOUT0 or PixelFormatLayoutFlags::ENCODED_LAYOUT1
-    static constexpr int32_t GetBasicEncodedLayout(const PixelFormatLayout pixelFormatLayout)
-    {
-      return (static_cast<int32_t>(pixelFormatLayout) & PixelFormatLayoutFlags::BIT_MASK_ENCODED_LAYOUT_BIT0);
-    }
+  //! @brief Check if the formats can be converted to each other using a simple swizzle operation
+  // inline constexpr PixelChannelOrder HasAlphaChannel(const PixelFormatLayout lhs) noexcept
+  //{
+  //   const auto srcId = GetId(lhs);
+  //   return srcId < static_cast<uint32_t>(PixelFormatLayout::ENUM_ID_RANGE_SIZE) ? PixelFormatLayoutMetaData::Get(srcId).ChannelOrder
+  //                                                                               : false;
+  // }
 
-    // @brief Extract the encoded layout
-    // @return PixelFormatLayoutFlags::ENCODED_LAYOUT0 or PixelFormatLayoutFlags::ENCODED_LAYOUT1
-    static int32_t GetEncodedLayout0Packed(const PixelFormatLayout pixelFormatLayout)
-    {
-      assert(GetBasicEncodedLayout(pixelFormatLayout) == PixelFormatLayoutFlags::ENCODED_LAYOUT0);
-      return (static_cast<int32_t>(pixelFormatLayout) & PixelFormatLayoutFlags::BIT_MASK_ENCODED_LAYOUT0_PACKED);
-    }
 
-    // @brief Extract the encoded layout
-    // @return PixelFormatLayoutFlags::ENCODED_LAYOUT0 or PixelFormatLayoutFlags::ENCODED_LAYOUT1
-    static int32_t GetEncodedLayout1CompressionScheme(const PixelFormatLayout pixelFormatLayout)
-    {
-      assert(GetBasicEncodedLayout(pixelFormatLayout) == PixelFormatLayoutFlags::ENCODED_LAYOUT1);
-      return (static_cast<int32_t>(pixelFormatLayout) & PixelFormatLayoutFlags::BIT_MASK_ENCODED_LAYOUT1_COMPRESSION_SCHEME);
-    }
+  // *** bit extraction helper methods ***
 
-    //! @brief Transform the given pixel format layout to the one that best matches the preferredChannelOrder.
-    //! @param layout if layout == PixelFormatLayout::Undefined this returns PixelFormatLayout::Undefined
-    //! @param preferredChannelOrder if preferredChannelOrder == PixelChannelOrder::Undefined this returns layout
-    static PixelFormatLayout Transform(const PixelFormatLayout layout, const PixelChannelOrder preferredChannelOrder);
-  };
+  // @brief Extract the basic encoded layout (can only differentiate between layout0 and 1, not any extended encodings)
+  // @return PixelFormatLayoutFlags::ENCODED_LAYOUT0 or PixelFormatLayoutFlags::ENCODED_LAYOUT1
+  inline constexpr int32_t GetBasicEncodedLayout(const PixelFormatLayout pixelFormatLayout) noexcept
+  {
+    return (static_cast<int32_t>(pixelFormatLayout) & PixelFormatLayoutFlags::BIT_MASK_ENCODED_LAYOUT_BIT0);
+  }
+
+  // @brief Extract the encoded layout
+  // @return PixelFormatLayoutFlags::ENCODED_LAYOUT0 or PixelFormatLayoutFlags::ENCODED_LAYOUT1
+  inline constexpr int32_t GetEncodedLayout0Packed(const PixelFormatLayout pixelFormatLayout) noexcept
+  {
+    assert(GetBasicEncodedLayout(pixelFormatLayout) == PixelFormatLayoutFlags::ENCODED_LAYOUT0);
+    return (static_cast<int32_t>(pixelFormatLayout) & PixelFormatLayoutFlags::BIT_MASK_ENCODED_LAYOUT0_PACKED);
+  }
+
+  // @brief Extract the encoded layout
+  // @return PixelFormatLayoutFlags::ENCODED_LAYOUT0 or PixelFormatLayoutFlags::ENCODED_LAYOUT1
+  inline constexpr int32_t GetEncodedLayout1CompressionScheme(const PixelFormatLayout pixelFormatLayout) noexcept
+  {
+    assert(GetBasicEncodedLayout(pixelFormatLayout) == PixelFormatLayoutFlags::ENCODED_LAYOUT1);
+    return (static_cast<int32_t>(pixelFormatLayout) & PixelFormatLayoutFlags::BIT_MASK_ENCODED_LAYOUT1_COMPRESSION_SCHEME);
+  }
+
+  //! @brief Transform the given pixel format layout to the one that best matches the preferredChannelOrder.
+  //! @param layout if layout == PixelFormatLayout::Undefined this returns PixelFormatLayout::Undefined
+  //! @param preferredChannelOrder if preferredChannelOrder == PixelChannelOrder::Undefined this returns layout
+  PixelFormatLayout Transform(const PixelFormatLayout layout, const PixelChannelOrder preferredChannelOrder) noexcept;
+
+  [[deprecated("Utilize the PxSize1D or PxValueU variant instead")]] inline constexpr uint32_t
+    CalcMinimumStride(const uint32_t width, const uint32_t bytesPerPixel) noexcept
+  {
+    return CalcMinimumStride(PxValueU::Create(width), bytesPerPixel);
+  }
+
+  [[deprecated("Utilize the PxSize1D or PxValueU variant instead")]] inline constexpr uint32_t
+    CalcMinimumStride(const uint32_t width, const PixelFormatLayout pixelFormatLayout) noexcept
+  {
+    return CalcMinimumStride(PxValueU::Create(width), pixelFormatLayout);
+  }
+
+  [[deprecated("Utilize the PxSize1D or PxValueU variant instead")]] inline uint32_t
+    CalcMinimumStride(const uint32_t width, const PixelFormatLayout pixelFormatLayout, const StrideRequirement strideRequirement)
+  {
+    return CalcMinimumStride(PxValueU::Create(width), pixelFormatLayout, strideRequirement);
+  }
+
+  [[deprecated("Utilize the PxSize1D or PxValueU variant instead")]] inline uint32_t
+    CalcMinimumStride(const uint32_t width, const uint32_t bytesPerPixel, const StrideRequirement strideRequirement)
+  {
+    return CalcMinimumStride(PxValueU::Create(width), bytesPerPixel, strideRequirement);
+  }
 }
 
 #endif

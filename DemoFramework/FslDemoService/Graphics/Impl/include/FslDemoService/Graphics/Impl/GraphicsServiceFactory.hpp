@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslDemoService/Graphics/ColorSpaceType.hpp>
 #include <FslDemoService/Graphics/Impl/GraphicsService.hpp>
 #include <FslDemoService/Graphics/Impl/GraphicsServiceOptionParser.hpp>
 #include <FslService/Impl/ServiceSupportedInterfaceDeque.hpp>
@@ -42,10 +43,12 @@ namespace Fsl
   {
     ServiceCaps::Flags m_flags{ServiceCaps::Default};
     std::shared_ptr<GraphicsServiceOptionParser> m_optionParser;
+    ColorSpaceType m_colorSpace;
 
   public:
-    GraphicsServiceFactory()
+    explicit GraphicsServiceFactory(const ColorSpaceType colorSpace)
       : m_optionParser(std::make_shared<GraphicsServiceOptionParser>())
+      , m_colorSpace(colorSpace)
     {
     }
 
@@ -72,7 +75,7 @@ namespace Fsl
 
     std::shared_ptr<IService> Allocate(ServiceProvider& provider) final
     {
-      return std::make_shared<GraphicsService>(provider, m_optionParser);
+      return std::make_shared<GraphicsService>(provider, m_optionParser, m_colorSpace);
     }
   };
 }

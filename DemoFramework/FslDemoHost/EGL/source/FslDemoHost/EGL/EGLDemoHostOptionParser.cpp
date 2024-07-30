@@ -50,6 +50,8 @@ namespace Fsl
         BlueSize,
         AlphaSize,
         DepthSize,
+        SampleBuffers,
+        Samples,
         LogExtensions,
         LogConfigs
       };
@@ -96,6 +98,10 @@ namespace Fsl
                           OptionGroup::Host);
     rOptions.emplace_back("EGLDepthSize", OptionArgument::OptionRequired, CommandId::DepthSize, "Force EGL_DEPTH_SIZE to the given value",
                           OptionGroup::Host);
+    rOptions.emplace_back("EGLSampleBuffers", OptionArgument::OptionRequired, CommandId::SampleBuffers, "Force EGL_SAMPLE_BUFFERS to the given value",
+                          OptionGroup::Host);
+    rOptions.emplace_back("EGLSamples", OptionArgument::OptionRequired, CommandId::Samples, "Force EGL_SAMPLES to the given value",
+                          OptionGroup::Host);
     rOptions.emplace_back("EGLLogExtensions", OptionArgument::OptionNone, CommandId::LogExtensions, "Output the EGL extensions to the log",
                           OptionGroup::Host);
     rOptions.emplace_back("EGLLogConfigs", OptionArgument::OptionRequired, CommandId::LogConfigs,
@@ -122,6 +128,10 @@ namespace Fsl
       return AddSize(m_configAttributes, EGL_ALPHA_SIZE, strOptArg, "EGLAlphaSize can not be negative");
     case CommandId::DepthSize:
       return AddSize(m_configAttributes, EGL_DEPTH_SIZE, strOptArg, "EGLDepthSize can not be negative");
+    case CommandId::SampleBuffers:
+      return AddSize(m_configAttributes, EGL_SAMPLE_BUFFERS, strOptArg, "EGLSampleBuffers can not be negative");
+    case CommandId::Samples:
+      return AddSize(m_configAttributes, EGL_SAMPLES, strOptArg, "EGLSamples can not be negative");
     case CommandId::LogExtensions:
       m_logExtensions = true;
       return OptionParseResult::Parsed;

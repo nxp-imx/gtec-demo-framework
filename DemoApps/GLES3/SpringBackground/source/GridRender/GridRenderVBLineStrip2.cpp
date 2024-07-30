@@ -52,7 +52,7 @@ namespace Fsl
     , m_coordinates(((m_gridFinalSize.X + 2) * m_gridSize.Y) + ((m_gridFinalSize.Y + 2) * m_gridSize.X))
     , m_vertexBuffer(nullptr, m_coordinates.size(), VertexPositionColorF::AsVertexDeclarationSpan(), GL_STREAM_DRAW)
     , m_program(contentManager->ReadAllText("Shaders/LineShaderColor.vert"), contentManager->ReadAllText("Shaders/LineShaderColor.frag"))
-    , m_locWorldViewProjection(GLValues::INVALID_LOCATION)
+    , m_locWorldViewProjection(GLValues::InvalidLocation)
   {
     if ((gridSize.X & 1) != 0 || (gridSize.Y & 1) != 0)
     {

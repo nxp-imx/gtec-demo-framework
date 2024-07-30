@@ -34,10 +34,13 @@
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/VectorHelper.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslGraphics/Colors.hpp>
+#include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
+#include <FslGraphics/Render/Texture2D.hpp>
+#include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <GLES3/gl3.h>
-#include <iostream>
 
 namespace Fsl
 {
@@ -60,24 +63,34 @@ namespace Fsl
   VerletIntegration101::VerletIntegration101(const DemoAppConfig& config)
     : DemoAppGLES3(config)
     , m_uiEventListener(this)
-    , m_uiExtension(std::make_shared<UIDemoAppLegacyExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))
-    , m_batch(std::dynamic_pointer_cast<NativeBatch2D>(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D()))
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))
+    , m_graphicsService(config.DemoServiceProvider.Get<IGraphicsService>())
+    , m_batch(std::dynamic_pointer_cast<NativeBatch2D>(m_graphicsService->GetNativeBatch2D()))
+    , m_renderSystem(m_graphicsService->GetBasicRenderSystem())
     , m_rotation(0)
   {
     RegisterExtension(m_uiExtension);
 
     auto context = m_uiExtension->GetContext();
-    m_texFill = m_uiExtension->GetAtlasTexture2D("Fill");
-    m_texBall = m_uiExtension->GetAtlasTexture2D("SliderCursor");
-    m_texTest = m_uiExtension->GetAtlasTexture2D("Player/Stop");
 
+    const auto contentManager = GetContentManager();
+
+    BasicTextureAtlas customAtlas;
+    contentManager->Read(customAtlas, "Old/MainAtlas.bta");
+    auto texture = contentManager->ReadTexture("Old/MainAtlas.png");
+    Texture2D atlasTexture(m_graphicsService->GetNativeGraphics(), texture, Texture2DFilterHint::Smooth);
+    TextureAtlasMap textureAtlasMap(customAtlas);
+
+    m_texFill = AtlasTexture2D(atlasTexture, textureAtlasMap.GetAtlasTextureInfo("Fill"));
+    m_texBall = AtlasTexture2D(atlasTexture, textureAtlasMap.GetAtlasTextureInfo("SliderCursor"));
+    m_texTest = AtlasTexture2D(atlasTexture, textureAtlasMap.GetAtlasTextureInfo("Player/Stop"));
 
     auto screenResolution = config.WindowMetrics.GetSizePx();
     const auto safePercentage = PxSize1DF::Create(0.10f);
     const auto safeX = TypeConverter::UncheckedChangeTo<PxSize1D>(PxSize1DF(screenResolution.Width()) * safePercentage);
     const auto safeY = TypeConverter::UncheckedChangeTo<PxSize1D>(PxSize1DF(screenResolution.Height()) * safePercentage);
-    constexpr auto size2Px = PxSize1D::Create(2);
-    m_boundaryRect = PxRectangle(safeX, safeY, screenResolution.Width() - (size2Px * safeX), screenResolution.Height() - (size2Px * safeY));
+    constexpr auto Size2Px = PxSize1D::Create(2);
+    m_boundaryRect = PxRectangle(safeX, safeY, screenResolution.Width() - (Size2Px * safeX), screenResolution.Height() - (Size2Px * safeY));
 
     auto offsetX = static_cast<float>(safeX.RawValue());
     auto offsetY = static_cast<float>(safeY.RawValue());
@@ -130,7 +143,7 @@ namespace Fsl
 
     m_batch->DebugDrawRectangle(m_texFill, m_boundaryRect, Color(64, 64, 64, 255));
 
-    // m_batch->DebugDrawLine(m_texFill, dstFrom, dstRotated, Color::White());
+    // m_batch->DebugDrawLine(m_texFill, dstFrom, dstRotated, Colors::White());
 
     DrawSticks(m_particles, m_sticks);
     DrawParticles(m_particles);
@@ -209,7 +222,7 @@ namespace Fsl
 
   void VerletIntegration101::DrawSticks(const std::deque<Particle>& particles, const std::deque<Stick>& sticks)
   {
-    const auto color = Color::White();
+    const auto color = Colors::White();
     for (auto itr = sticks.begin(); itr != sticks.end(); ++itr)
     {
       auto from = particles[itr->PointIndex0].Position;
@@ -223,7 +236,7 @@ namespace Fsl
   {
     const Vector2 scale(0.2f, 0.2f);
     const Vector2 origin(static_cast<float>(m_texBall.GetSize().RawWidth()) * 0.5f, static_cast<float>(m_texBall.GetSize().RawHeight()) * 0.5f);
-    const auto color = Color::White();
+    const auto color = Colors::White();
 
     for (auto itr = particles.begin(); itr != particles.end(); ++itr)
     {

@@ -45,7 +45,7 @@ namespace Fsl
 {
   namespace
   {
-    DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
+    DemoHostFeature CommonSetup(HostDemoAppSetup& rSetup)
     {
       // Use the EGLDemoHost for OpenGLES
       std::deque<DemoHostFeatureName::Enum> eglHostFeatures;
@@ -61,7 +61,7 @@ namespace Fsl
   {
     void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup)
     {
-      const DemoHostFeature feature = CommenSetup(rSetup);
+      const DemoHostFeature feature = CommonSetup(rSetup);
       rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature);
     }
   }

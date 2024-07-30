@@ -1,0 +1,24 @@
+diff --git a/xCMakeLists.txt b//srcCMakeLists.txt
+index daf82fb..0121abd 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -24,6 +24,9 @@ set_target_properties(benchmark PROPERTIES
+   VERSION ${GENERIC_LIB_VERSION}
+   SOVERSION ${GENERIC_LIB_SOVERSION}
+ )
++if(MSVC)
++    set_property(TARGET benchmark PROPERTY DEBUG_POSTFIX d)
++endif()
+ target_include_directories(benchmark PUBLIC
+   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+ )
+@@ -72,6 +75,9 @@ set_target_properties(benchmark_main PROPERTIES
+   SOVERSION ${GENERIC_LIB_SOVERSION}
+   DEFINE_SYMBOL benchmark_EXPORTS
+ )
++if(MSVC)
++    set_property(TARGET benchmark_main PROPERTY DEBUG_POSTFIX d)
++endif()
+ target_link_libraries(benchmark_main PUBLIC benchmark::benchmark)
+ 
+ set(generated_dir "${PROJECT_BINARY_DIR}")

@@ -42,7 +42,7 @@ namespace Fsl
 {
   namespace
   {
-    const auto VERTEX_BUFFER_BIND_ID = 0;
+    constexpr auto VertexBufferBindId = 0;
 
     RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const Vulkan::VUDevice& device)
     {
@@ -346,7 +346,7 @@ namespace Fsl
   void MeshRenderNormals::Draw(const VkCommandBuffer hCmdBuffer)
   {
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.VB.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(hCmdBuffer, VertexBufferBindId, 1, m_resources.VB.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(hCmdBuffer, m_resources.VB.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 

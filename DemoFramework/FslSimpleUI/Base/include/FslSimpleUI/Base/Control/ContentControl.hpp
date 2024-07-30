@@ -54,7 +54,7 @@ namespace Fsl::UI
       return DoSetPadding(value);
     }
 
-    std::shared_ptr<BaseWindow> GetContent() const
+    const std::shared_ptr<BaseWindow>& GetContent() const
     {
       return DoGetContent();
     }

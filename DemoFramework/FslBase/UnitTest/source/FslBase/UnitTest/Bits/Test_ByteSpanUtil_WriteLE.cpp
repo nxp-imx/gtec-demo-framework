@@ -32,6 +32,7 @@
 #include <FslBase/Bits/ByteSpanUtil_ReadLE.hpp>
 #include <FslBase/Bits/ByteSpanUtil_WriteLE.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Span/SpanUtil_ValueCompare.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>
@@ -59,7 +60,7 @@ TEST(TestBits_ByteSpanUtil_WriteLE, WriteUInt8LE)
     auto writtenValue = ByteSpanUtil::ReadUInt8LE(dstSpan, i);
     EXPECT_EQ(value, writtenValue);
   }
-  EXPECT_EQ(srcSpan, dstSpan.AsReadOnlySpan());
+  EXPECT_TRUE(SpanUtil::ValueEquals(srcSpan, dstSpan.AsReadOnlySpan()));
 }
 
 
@@ -128,7 +129,7 @@ TEST(TestBits_ByteSpanUtil_WriteLE, WriteInt8LE)
     auto writtenValue = ByteSpanUtil::ReadInt8LE(dstSpan, i);
     EXPECT_EQ(value, writtenValue);
   }
-  EXPECT_EQ(srcSpan, dstSpan.AsReadOnlySpan());
+  EXPECT_TRUE(SpanUtil::ValueEquals(srcSpan, dstSpan.AsReadOnlySpan()));
 }
 
 
@@ -199,7 +200,7 @@ TEST(TestBits_ByteSpanUtil_WriteLE, WriteLE_UInt8)
     auto writtenValue = ByteSpanUtil::ReadUInt8LE(dstSpan, i);
     EXPECT_EQ(value, writtenValue);
   }
-  EXPECT_EQ(srcSpan, dstSpan.AsReadOnlySpan());
+  EXPECT_TRUE(SpanUtil::ValueEquals(srcSpan, dstSpan.AsReadOnlySpan()));
 }
 
 
@@ -268,7 +269,7 @@ TEST(TestBits_ByteSpanUtil_WriteLE, WriteLE_Int8)
     auto writtenValue = ByteSpanUtil::ReadInt8LE(dstSpan, i);
     EXPECT_EQ(value, writtenValue);
   }
-  EXPECT_EQ(srcSpan, dstSpan.AsReadOnlySpan());
+  EXPECT_TRUE(SpanUtil::ValueEquals(srcSpan, dstSpan.AsReadOnlySpan()));
 }
 
 

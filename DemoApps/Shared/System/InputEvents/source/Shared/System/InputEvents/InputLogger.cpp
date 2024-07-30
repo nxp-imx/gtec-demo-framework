@@ -31,6 +31,7 @@
 
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxPoint2.hpp>
+#include <FslBase/Log/Time/FmtMillisecondTickCount32.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslNativeWindow/Base/VirtualKeyToString.hpp>
 #include <FslNativeWindow/Base/VirtualMouseButtonToString.hpp>
@@ -63,7 +64,7 @@ namespace Fsl
   void InputLogger::OnKeyEvent(const KeyEvent& event)
   {
     auto strKey = Fsl::Debug::ToString(event.GetKey());
-    auto str = fmt::format("OnKeyEvent key: {} pressed: {}", strKey, event.IsPressed());
+    auto str = fmt::format("OnKeyEvent timestamp: {} key: {} pressed: {}", event.GetTimestamp(), strKey, event.IsPressed());
     FSLLOG3_INFO(str);
     m_console.push_back(str);
   }
@@ -73,7 +74,8 @@ namespace Fsl
   {
     auto strButton = Fsl::Debug::ToString(event.GetButton());
 
-    auto str = fmt::format("OnMouseButtonEvent key: {} pressed: {} position: {}", strButton, event.IsPressed(), event.GetPosition());
+    auto str = fmt::format("OnMouseButtonEvent timestamp: {} key: {} pressed: {} position: {}", event.GetTimestamp(), strButton, event.IsPressed(),
+                           event.GetPosition());
     FSLLOG3_INFO(str);
     m_console.push_back(str);
   }
@@ -81,7 +83,7 @@ namespace Fsl
 
   void InputLogger::OnMouseMoveEvent(const MouseMoveEvent& event)
   {
-    auto str = fmt::format("OnMouseMoveEvent position: {}", event.GetPosition());
+    auto str = fmt::format("OnMouseMoveEvent timestamp: {} position: {}", event.GetTimestamp(), event.GetPosition());
     FSLLOG3_INFO(str);
     m_console.push_back(str);
   }
@@ -89,7 +91,7 @@ namespace Fsl
 
   void InputLogger::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
-    auto str = fmt::format("OnMouseWheelEvent delta: {} position: {}", event.GetDelta(), event.GetPosition());
+    auto str = fmt::format("OnMouseWheelEvent timestamp: {} delta: {} position: {}", event.GetTimestamp(), event.GetDelta(), event.GetPosition());
     FSLLOG3_INFO(str);
     m_console.push_back(str);
   }
@@ -97,7 +99,7 @@ namespace Fsl
 
   void InputLogger::OnRawMouseMoveEvent(const RawMouseMoveEvent& event)
   {
-    auto str = fmt::format("OnRawMouseMoveEvent position: {}", event.GetPosition());
+    auto str = fmt::format("OnRawMouseMoveEvent timestamp: {} position: {}", event.GetTimestamp(), event.GetPosition());
     FSLLOG3_INFO(str);
     m_console.push_back(str);
   }

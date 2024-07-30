@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MathHelper_Clamp.hpp>
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDataBinding/Base/Bind/ConverterBinding.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
@@ -104,12 +104,12 @@ namespace Fsl
     // auto contentManager = config.DemoServiceProvider.Get<IContentManager>();
 
     {
-      constexpr float spacingX = 1;
-      constexpr float spacingY = 1;
-      constexpr float spacingZ = 1;
-      const float xStart = -spacingX * (static_cast<float>(m_instanceSetup.MaxInstancesX) / 2.0f);
-      const float yStart = spacingY * (static_cast<float>(m_instanceSetup.MaxInstancesY) / 2.0f);
-      const float zStart = spacingZ * (static_cast<float>(m_instanceSetup.MaxInstancesZ) / 2.0f);
+      constexpr float SpacingX = 1;
+      constexpr float SpacingY = 1;
+      constexpr float SpacingZ = 1;
+      const float xStart = -SpacingX * (static_cast<float>(m_instanceSetup.MaxInstancesX) / 2.0f);
+      const float yStart = SpacingY * (static_cast<float>(m_instanceSetup.MaxInstancesY) / 2.0f);
+      const float zStart = SpacingZ * (static_cast<float>(m_instanceSetup.MaxInstancesZ) / 2.0f);
       uint32_t dstIndex = 0;
       for (uint32_t z = 0; z < m_instanceSetup.MaxInstancesZ; ++z)
       {
@@ -117,9 +117,9 @@ namespace Fsl
         {
           for (uint32_t x = 0; x < m_instanceSetup.MaxInstancesX; ++x)
           {
-            float xPos = xStart + static_cast<float>(x) * spacingX;
-            float yPos = yStart - static_cast<float>(y) * spacingY;
-            float zPos = zStart - static_cast<float>(z) * spacingZ;
+            float xPos = xStart + static_cast<float>(x) * SpacingX;
+            float yPos = yStart - static_cast<float>(y) * SpacingY;
+            float zPos = zStart - static_cast<float>(z) * SpacingZ;
             m_instanceData[dstIndex] = MeshInstanceData(Matrix::CreateTranslation(xPos, yPos, zPos));
             ++dstIndex;
           }
@@ -173,7 +173,7 @@ namespace Fsl
   }
 
 
-  void ModelInstancingShared::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void ModelInstancingShared::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_ui.ButtonDefault)
     {
@@ -182,9 +182,8 @@ namespace Fsl
   }
 
 
-  void ModelInstancingShared::OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void ModelInstancingShared::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
     FSL_PARAM_NOT_USED(theEvent);
   }
 
@@ -238,7 +237,7 @@ namespace Fsl
 
   ReadOnlySpan<MeshInstanceData> ModelInstancingShared::GetInstanceSpan()
   {
-    return ReadOnlySpanUtil::AsSpan(m_instanceData, 0, GetInstanceCount());
+    return SpanUtil::AsReadOnlySpan(m_instanceData, 0, GetInstanceCount());
   }
 
 

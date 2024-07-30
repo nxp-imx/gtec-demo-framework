@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Transition/TransitionCache.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 #include <FslSimpleUI/Base/CustomContext.hpp>
+#include <FslSimpleUI/Base/UIColorConverter.hpp>
 #include <FslSimpleUI/Base/UIContext.hpp>
 
 namespace Fsl
@@ -58,11 +58,9 @@ namespace Fsl
       CustomContext<UIContext> TheUIContext;
 
       SpriteUnitConverter UnitConverter;
+      UIColorConverter ColorConverter;
 
-      TransitionCache UITransitionCache;
-
-
-      explicit BaseWindowContext(const std::shared_ptr<UIContext>& uiContext, const uint32_t densityDpi);
+      explicit BaseWindowContext(const std::shared_ptr<UIContext>& uiContext, const uint32_t densityDpi, const UIColorSpace colorSpace);
       ~BaseWindowContext();
 
 

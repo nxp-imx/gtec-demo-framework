@@ -1,15 +1,18 @@
 {
   "ContentBuilder" : {
     "Version": "1",
-    "Content.Sync": {
-      "SourcePath" : "${ProjectRoot}/Resources/Source/DFSimpleUI101",
-      "Content": [
-        "TextureAtlas/License.json",
-        "TextureAtlas/MainAtlas.bta",
-        "TextureAtlas/MainAtlas.fbk",
-        "TextureAtlas/MainAtlas.png",
-        "TextureAtlas/MainAtlasSmallFont.fbk"
-      ]
-    }
+    "Content.SyncList": [
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/DFSimpleUI101",
+        "Content": [
+          "TextureAtlas/License.json",
+          "TextureAtlas/MainAtlas.bta",
+          "TextureAtlas/MainAtlas.png",
+          "TextureAtlas/MainAtlas_Font.nbf",
+          "TextureAtlas/MainAtlas_Header.nbf",
+          "TextureAtlas/MainAtlas_SmallFont.nbf"
+        ]
+      }
+    ]
   }
 }

@@ -48,8 +48,8 @@ namespace Fsl
     struct ComplexStackLayoutWindowRecord : GenericWindowCollectionRecordBase
     {
       LayoutUnitType UnitType{LayoutUnitType::Auto};
-      PxValue PositionPx{};
-      PxSize1D SizePx{};
+      PxValue PositionPx;
+      PxSize1D SizePx;
       float LayoutSizeMagic{};
 
       explicit ComplexStackLayoutWindowRecord(const std::shared_ptr<BaseWindow>& window)
@@ -70,7 +70,9 @@ namespace Fsl
 
 
     public:
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyOrientation;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertySpacing;
 
       explicit ComplexStackLayout(const std::shared_ptr<BaseWindowContext>& context);

@@ -33,7 +33,7 @@
 
 namespace Fsl::DataBinding::Internal
 {
-  // Be careful if you change these valus as they are encoded inside the Internal::InstanceState
+  // Be careful if you change these values as they are encoded inside the Internal::InstanceState
   enum class PropertyMethodsImplType
   {
     NotAvailable = 0,
@@ -41,6 +41,8 @@ namespace Fsl::DataBinding::Internal
     ATypedDependencyProperty = 2,
     ATypedDependencyPropertyRef = 3,
     ObserverDependency = 4,
+    ATypedReadOnlyDependencyProperty = 5,
+    ATypedReadOnlyDependencyPropertyRef = 6,
   };
 }
 

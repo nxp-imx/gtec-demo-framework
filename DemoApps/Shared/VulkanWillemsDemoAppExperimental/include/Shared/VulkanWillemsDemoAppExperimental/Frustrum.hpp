@@ -68,6 +68,7 @@ namespace Fsl::Willems
       }
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     bool checkSphere(const glm::vec3& pos, float radius)
     {
       for (std::size_t i = 0; i < Planes.size(); ++i)

@@ -38,8 +38,8 @@
 namespace Fsl
 {
   class Bitmap;
-  class RawBitmap;
-  class RawTexture;
+  class ReadOnlyRawBitmap;
+  class ReadOnlyRawTexture;
 
   class ITextureService
   {
@@ -53,10 +53,10 @@ namespace Fsl
     virtual std::optional<Texture> TryGenerateMipMaps(const Texture& src, const TextureMipMapFilter filter) = 0;
 
     //! @brief Generate a new texture with mip maps based on the src
-    virtual std::optional<Texture> TryGenerateMipMaps(const RawBitmap& src, const TextureMipMapFilter filter) = 0;
+    virtual std::optional<Texture> TryGenerateMipMaps(const ReadOnlyRawBitmap& src, const TextureMipMapFilter filter) = 0;
 
     //! @brief Generate a new texture with mip maps based on the src
-    virtual std::optional<Texture> TryGenerateMipMaps(const RawTexture& src, const TextureMipMapFilter filter) = 0;
+    virtual std::optional<Texture> TryGenerateMipMaps(const ReadOnlyRawTexture& src, const TextureMipMapFilter filter) = 0;
 
     //! @brief Generate a new texture with mip maps based on the src
     virtual Texture GenerateMipMaps(const Bitmap& src, const TextureMipMapFilter filter) = 0;
@@ -65,10 +65,10 @@ namespace Fsl
     virtual Texture GenerateMipMaps(const Texture& src, const TextureMipMapFilter filter) = 0;
 
     //! @brief Generate a new texture with mip maps based on the src
-    virtual Texture GenerateMipMaps(const RawBitmap& src, const TextureMipMapFilter filter) = 0;
+    virtual Texture GenerateMipMaps(const ReadOnlyRawBitmap& src, const TextureMipMapFilter filter) = 0;
 
     //! @brief Generate a new texture with mip maps based on the src
-    virtual Texture GenerateMipMaps(const RawTexture& src, const TextureMipMapFilter filter) = 0;
+    virtual Texture GenerateMipMaps(const ReadOnlyRawTexture& src, const TextureMipMapFilter filter) = 0;
   };
 }
 

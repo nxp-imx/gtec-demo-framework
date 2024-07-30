@@ -73,8 +73,8 @@ namespace Fsl
   public:
     Quality TheQuality{Quality::Medium};
     RenderMode TheRenderMode{RenderMode::Col};
-    int32_t IterationsJ{DefaultValues::JULIA_DEFAULT_ITERATIONS};
-    int32_t IterationsM{DefaultValues::MANDELBROT_DEFAULT_ITERATIONS};
+    int32_t IterationsJ{DefaultValues::JuliaDefaultIterations};
+    int32_t IterationsM{DefaultValues::MandelbrotDefaultIterations};
     bool ForceUnroll{false};
     bool Show{false};
 

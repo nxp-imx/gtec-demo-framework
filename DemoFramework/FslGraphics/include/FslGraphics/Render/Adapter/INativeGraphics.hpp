@@ -41,22 +41,22 @@ namespace Fsl
   class IDynamicNativeTexture2D;
   class INativeIndexBuffer;
   class INativeTexture2D;
-  class RawBitmap;
-  class RawTexture;
+  class ReadOnlyRawBitmap;
+  class ReadOnlyRawTexture;
 
   class INativeGraphics
   {
   public:
     virtual ~INativeGraphics() = default;
 
-    //! @brief Create a immutable texture from a RawTexture
+    //! @brief Create a immutable texture from a ReadOnlyRawTexture
     //! @note  This should be the preferred creation method.
-    virtual std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+    virtual std::shared_ptr<INativeTexture2D> CreateTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                               const TextureFlags textureFlags) = 0;
 
-    //! @brief Create a mutable texture from a RawTexture
+    //! @brief Create a mutable texture from a ReadOnlyRawTexture
     //! @note Only use this if you need to be able to update the texture dynamically. On some API's its much more expensive.
-    virtual std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+    virtual std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                                             const TextureFlags textureFlags) = 0;
   };
 }

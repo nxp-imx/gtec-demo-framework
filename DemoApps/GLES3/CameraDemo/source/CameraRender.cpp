@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,8 @@
 
 #include "CameraRender.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -51,11 +52,11 @@ namespace Fsl
 
   namespace
   {
-    constexpr GLuint g_hVertexLoc = 0;
-    constexpr GLuint g_hVertexTexLoc = 1;
+    constexpr GLuint VertexLoc = 0;
+    constexpr GLuint VertexTexLoc = 1;
 
-    constexpr std::array<GLBindAttribLocation, 2> g_shaderAttributeArray = {GLBindAttribLocation(g_hVertexLoc, "g_vPosition"),
-                                                                            GLBindAttribLocation(g_hVertexTexLoc, "g_vTexCoord")};
+    constexpr std::array<GLBindAttribLocation, 2> ShaderAttributeArray = {GLBindAttribLocation(VertexLoc, "g_vPosition"),
+                                                                          GLBindAttribLocation(VertexTexLoc, "g_vTexCoord")};
 
     // Vertices
     // cameraPlaneVertices[0,1,2] = X,Y,Z Vertex 1
@@ -79,11 +80,11 @@ namespace Fsl
     // Allocate space for the target bitmap
     m_bitmapBuffer.resize(cameraExtent.Height.Value * cameraStride);
 
-    // RawBitmap(pContent, width, height, pixelFormat, stride, origin)
+    // ReadOnlyRawBitmap(pContent, width, height, pixelFormat, stride, origin)
 
     // Compile the shader program, the shaders are located in the Content Folder
     m_program.Reset(contentManager->ReadAllText("Shader.vert"), contentManager->ReadAllText("Shader.frag"),
-                    ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray));
+                    SpanUtil::AsReadOnlySpan(ShaderAttributeArray));
     const GLuint hProgram = m_program.Get();
 
     GLuint buffer = 0;
@@ -112,14 +113,14 @@ namespace Fsl
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferData(GL_ARRAY_BUFFER, UncheckedNumericCast<GLsizeiptr>(sizeof(GLfloat) * m_cameraPlaneVertices.size()), m_cameraPlaneVertices.data(),
                  GL_STATIC_DRAW);
-    glEnableVertexAttribArray(g_hVertexLoc);
-    glVertexAttribPointer(g_hVertexLoc, 3, GL_FLOAT, 0, 0, nullptr);
+    glEnableVertexAttribArray(VertexLoc);
+    glVertexAttribPointer(VertexLoc, 3, GL_FLOAT, 0, 0, nullptr);
 
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * g_cameraPlaneTexCoords.size(), g_cameraPlaneTexCoords.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(g_hVertexTexLoc);
-    glVertexAttribPointer(g_hVertexTexLoc, 2, GL_FLOAT, 0, 0, nullptr);
+    glEnableVertexAttribArray(VertexTexLoc);
+    glVertexAttribPointer(VertexTexLoc, 2, GL_FLOAT, 0, 0, nullptr);
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -154,7 +155,8 @@ namespace Fsl
   void CameraRender::Draw(const DemoTime& /*demoTime*/)
   {
     // Configure a 'RawBitmapEx' based on the camera settings and point it to m_bitmapBuffer.data()
-    RawBitmapEx targetBitmap(m_bitmapBuffer.data(), m_camera.GetExtent(), m_camera.GetPixelFormat(), m_camera.GetStride(), BitmapOrigin::UpperLeft);
+    RawBitmapEx targetBitmap(RawBitmapEx::Create(SpanUtil::AsSpan(m_bitmapBuffer), m_camera.GetExtent(), m_camera.GetPixelFormat(),
+                                                 m_camera.GetStride(), BitmapOrigin::UpperLeft));
 
     bool hasNewFrame = m_camera.TryRender(targetBitmap, m_frameId);
 

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_SLIDER_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_SLIDER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ namespace Fsl::UI
   public:
     explicit Slider(const std::shared_ptr<WindowContext>& context)
       : SliderBase<T>(context)
-      , m_impl(context->TheUIContext.Get()->MeshManager, context->UITransitionCache)
+      , m_impl(context->ColorConverter, context->TheUIContext.Get()->MeshManager)
     {
       // We need to be draw enabled, accept click input and receive a notification on init
       this->Enable(WindowFlags(WindowFlags::DrawEnabled | WindowFlags::ClickInput | WindowFlags::MouseOver));
@@ -109,12 +109,12 @@ namespace Fsl::UI
       }
     }
 
-    const Color& GetCursorColor() const
+    UIColor GetCursorColor() const
     {
       return m_impl.GetCursorColor();
     }
 
-    void SetCursorColor(const Color& value)
+    void SetCursorColor(const UIColor value)
     {
       if (m_impl.SetCursorColor(value))
       {
@@ -122,12 +122,12 @@ namespace Fsl::UI
       }
     }
 
-    const Color& GetCursorDisabledColor() const
+    UIColor GetCursorDisabledColor() const
     {
       return m_impl.GetCursorDisabledColor();
     }
 
-    void SetCursorDisabledColor(const Color& value)
+    void SetCursorDisabledColor(const UIColor value)
     {
       if (m_impl.SetCursorDisabledColor(value))
       {
@@ -150,12 +150,12 @@ namespace Fsl::UI
       }
     }
 
-    const Color& GetCursorOverlayColor() const
+    UIColor GetCursorOverlayColor() const
     {
       return m_impl.GetCursorOverlayColor();
     }
 
-    void SetCursorOverlayColor(const Color& value)
+    void SetCursorOverlayColor(const UIColor value)
     {
       if (m_impl.SetCursorOverlayColor(value))
       {
@@ -178,12 +178,12 @@ namespace Fsl::UI
       }
     }
 
-    const Color& GetBackgroundColor() const
+    UIColor GetBackgroundColor() const
     {
       return m_impl.GetBackgroundColor();
     }
 
-    void SetBackgroundColor(const Color& value)
+    void SetBackgroundColor(const UIColor value)
     {
       if (m_impl.SetBackgroundColor(value))
       {
@@ -191,12 +191,12 @@ namespace Fsl::UI
       }
     }
 
-    const Color& GetBackgroundDisabledColor() const
+    UIColor GetBackgroundDisabledColor() const
     {
       return m_impl.GetBackgroundDisabledColor();
     }
 
-    void SetBackgroundDisabledColor(const Color& value)
+    void SetBackgroundDisabledColor(const UIColor value)
     {
       if (m_impl.SetBackgroundDisabledColor(value))
       {
@@ -215,9 +215,9 @@ namespace Fsl::UI
     }
 
   protected:
-    void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) final
+    void OnMouseOver(const std::shared_ptr<WindowMouseOverEvent>& theEvent) final
     {
-      m_impl.OnMouseOver(args, theEvent, this->IsEnabled());
+      m_impl.OnMouseOver(theEvent, this->IsEnabled());
     }
 
     PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final

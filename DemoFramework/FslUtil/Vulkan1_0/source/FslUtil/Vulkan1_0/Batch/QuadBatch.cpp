@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017, 2022 NXP
+ * Copyright 2017, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,10 +54,12 @@ namespace Fsl::Vulkan
 {
   namespace
   {
-    // const uint32_t DEFAULT_COMMAND_BUFFER_COUNT = 2;
-    const uint32_t QUAD_MIN_BATCH_SIZE = 2048;
-    const int32_t INTERNAL_QUAD_VERTEX_COUNT = 6;
-
+    namespace LocalConfig
+    {
+      // const uint32_t DEFAULT_COMMAND_BUFFER_COUNT = 2;
+      constexpr uint32_t QuadMinBatchSize = 2048;
+      constexpr int32_t InternalQuadVertexCount = 6;
+    }
 
     VUBufferMemory CreateBuffer(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkDeviceSize bufferByteSize,
                                 const VkBufferUsageFlags usageFlags, const VkMemoryPropertyFlags memoryPropertyFlags)
@@ -173,8 +175,8 @@ namespace Fsl::Vulkan
     : m_vertexShaderBinary(std::move(vertexShaderBinary))
     , m_fragmentShaderBinary(std::move(fragmentShaderBinary))
     , m_sdfFragmentShaderBinary(std::move(sdfFragmentShaderBinary))
-    , m_quadCapacity(std::max(quadCapacityHint, QUAD_MIN_BATCH_SIZE))
-    //, m_vertexCapacity(INTERNAL_QUAD_VERTEX_COUNT * m_quadCapacity)
+    , m_quadCapacity(std::max(quadCapacityHint, LocalConfig::QuadMinBatchSize))
+    //, m_vertexCapacity(LocalConfig::InternalQuadVertexCount * m_quadCapacity)
     , m_logEnabled(logEnabled)
     , m_pushConstantsDefault(SdfFontUtil::CalcSmooth(4.0f, 1.0f))
   {
@@ -315,12 +317,12 @@ namespace Fsl::Vulkan
     uint32_t remainingQuads = length;
     while (pSrcVertices < pSrcVerticesEnd)
     {
-      auto current = rRender.VertexBuffers.NextFree(remainingQuads * INTERNAL_QUAD_VERTEX_COUNT);
+      auto current = rRender.VertexBuffers.NextFree(remainingQuads * LocalConfig::InternalQuadVertexCount);
 
       auto* pDst = current.pMapped;
       auto* pDstEnd = current.pMapped + current.VertexCapacity;
 
-      static_assert(INTERNAL_QUAD_VERTEX_COUNT == 6, "the code below expects the internal quad vertex count to be six");
+      static_assert(LocalConfig::InternalQuadVertexCount == 6, "the code below expects the internal quad vertex count to be six");
       while (pDst < pDstEnd)
       {
         // Expand the quad to two counter clockwise triangles
@@ -333,7 +335,7 @@ namespace Fsl::Vulkan
         pDst[5] = pSrcVertices[1];
 
         pSrcVertices += 4;
-        pDst += INTERNAL_QUAD_VERTEX_COUNT;
+        pDst += LocalConfig::InternalQuadVertexCount;
         --remainingQuads;
       }
 
@@ -520,30 +522,30 @@ namespace Fsl::Vulkan
       const VkPipelineCache hPipelineCache = m_deviceResource.PipelineCache.Get();
       const VkPipelineLayout pipelineLayout = m_deviceResource.PipelineLayout.Get();
       const VkPipelineLayout pipelineLayoutSdf = m_deviceResource.PipelineLayoutSdf.Get();
-      constexpr BasicCullMode cullMode = BasicCullMode::Back;
-      constexpr BasicFrontFace frontFace = BasicFrontFace::CounterClockwise;
+      constexpr BasicCullMode CullMode = BasicCullMode::Back;
+      constexpr BasicFrontFace FrontFace = BasicFrontFace::CounterClockwise;
 
       m_dependentResource.IsValid = true;
       m_dependentResource.MaxFramesInFlight = maxFramesInFlight;
       m_dependentResource.PipelineAdditive =
         ConfigHelper::CreateGraphicsPipeline(device, hVertexShader, hFragShader, pipelineLayout, hPipelineCache, renderPass, subpass, screenExtentPx,
-                                             BlendState::Additive, cullMode, frontFace, vertexDecl);
+                                             BlendState::Additive, CullMode, FrontFace, vertexDecl);
 
       m_dependentResource.PipelineAlphaBlend =
         ConfigHelper::CreateGraphicsPipeline(device, hVertexShader, hFragShader, pipelineLayout, hPipelineCache, renderPass, subpass, screenExtentPx,
-                                             BlendState::AlphaBlend, cullMode, frontFace, vertexDecl);
+                                             BlendState::AlphaBlend, CullMode, FrontFace, vertexDecl);
 
       m_dependentResource.PipelineNonPremultiplied =
         ConfigHelper::CreateGraphicsPipeline(device, hVertexShader, hFragShader, pipelineLayout, hPipelineCache, renderPass, subpass, screenExtentPx,
-                                             BlendState::NonPremultiplied, cullMode, frontFace, vertexDecl);
+                                             BlendState::NonPremultiplied, CullMode, FrontFace, vertexDecl);
 
       m_dependentResource.PipelineOpaque =
         ConfigHelper::CreateGraphicsPipeline(device, hVertexShader, hFragShader, pipelineLayout, hPipelineCache, renderPass, subpass, screenExtentPx,
-                                             BlendState::Opaque, cullMode, frontFace, vertexDecl);
+                                             BlendState::Opaque, CullMode, FrontFace, vertexDecl);
 
       m_dependentResource.PipelineSdf =
         ConfigHelper::CreateGraphicsPipeline(device, hVertexShader, hFragShaderSdf, pipelineLayoutSdf, hPipelineCache, renderPass, subpass,
-                                             screenExtentPx, BlendState::Sdf, cullMode, frontFace, vertexDecl);
+                                             screenExtentPx, BlendState::Sdf, CullMode, FrontFace, vertexDecl);
     }
     catch (const std::exception& ex)
     {
@@ -606,7 +608,7 @@ namespace Fsl::Vulkan
     {
       if (!rEntry.IsValid())
       {
-        rEntry.Reset(m_deviceResource.PhysicalDevice, device, m_deviceResource.DescriptorSetTexture.Get(), INTERNAL_QUAD_VERTEX_COUNT);
+        rEntry.Reset(m_deviceResource.PhysicalDevice, device, m_deviceResource.DescriptorSetTexture.Get(), LocalConfig::InternalQuadVertexCount);
       }
     }
   }

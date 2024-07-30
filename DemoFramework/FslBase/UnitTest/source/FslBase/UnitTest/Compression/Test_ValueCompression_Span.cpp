@@ -45,8 +45,8 @@ namespace
 
 TEST(TestCompression_ValueCompression_Span, ReadInt32)
 {
-  constexpr std::array<uint8_t, 5> temp{0, 1, 2, 3, 4};
-  ReadOnlySpan<uint8_t> remainingSpan(temp.data(), temp.size());
+  constexpr std::array<uint8_t, 5> Temp{0, 1, 2, 3, 4};
+  ReadOnlySpan<uint8_t> remainingSpan(Temp.data(), Temp.size());
 
   EXPECT_EQ(0, ValueCompression::ReadSimpleInt32(remainingSpan));
   EXPECT_EQ(-1, ValueCompression::ReadSimpleInt32(remainingSpan));
@@ -58,8 +58,8 @@ TEST(TestCompression_ValueCompression_Span, ReadInt32)
 
 TEST(TestCompression_ValueCompression_Span, ReadUInt32)
 {
-  constexpr std::array<uint8_t, 5> temp{0, 1, 2, 3, 4};
-  ReadOnlySpan<uint8_t> remainingSpan(temp.data(), temp.size());
+  constexpr std::array<uint8_t, 5> Temp{0, 1, 2, 3, 4};
+  ReadOnlySpan<uint8_t> remainingSpan(Temp.data(), Temp.size());
 
   EXPECT_EQ(0u, ValueCompression::ReadSimpleUInt32(remainingSpan));
   EXPECT_EQ(1u, ValueCompression::ReadSimpleUInt32(remainingSpan));
@@ -71,8 +71,8 @@ TEST(TestCompression_ValueCompression_Span, ReadUInt32)
 
 TEST(TestCompression_ValueCompression_Span, ReadInt16)
 {
-  constexpr std::array<uint8_t, 5> temp{0, 1, 2, 3, 4};
-  ReadOnlySpan<uint8_t> remainingSpan(temp.data(), temp.size());
+  constexpr std::array<uint8_t, 5> Temp{0, 1, 2, 3, 4};
+  ReadOnlySpan<uint8_t> remainingSpan(Temp.data(), Temp.size());
 
   EXPECT_EQ(0, ValueCompression::ReadSimpleInt16(remainingSpan));
   EXPECT_EQ(-1, ValueCompression::ReadSimpleInt16(remainingSpan));
@@ -84,8 +84,8 @@ TEST(TestCompression_ValueCompression_Span, ReadInt16)
 
 TEST(TestCompression_ValueCompression_Span, ReadUInt16)
 {
-  constexpr std::array<uint8_t, 5> temp{0, 1, 2, 3, 4};
-  ReadOnlySpan<uint8_t> remainingSpan(temp.data(), temp.size());
+  constexpr std::array<uint8_t, 5> Temp{0, 1, 2, 3, 4};
+  ReadOnlySpan<uint8_t> remainingSpan(Temp.data(), Temp.size());
 
   EXPECT_EQ(0u, ValueCompression::ReadSimpleUInt16(remainingSpan));
   EXPECT_EQ(1u, ValueCompression::ReadSimpleUInt16(remainingSpan));

@@ -40,15 +40,15 @@ namespace Fsl::UI
   }
 
 
-  void WindowInputClickEvent::SYS_Construct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat,
-                                            const PxPoint2& screenPositionPx)
+  void WindowInputClickEvent::SYS_Construct(const MillisecondTickCount32 timestamp, const int32_t sourceId, const int32_t sourceSubId,
+                                            const EventTransactionState state, const bool isRepeat, const PxPoint2& screenPositionPx) noexcept
   {
-    WindowInputEvent::SYS_DoConstruct(sourceId, sourceSubId, state, isRepeat);
+    WindowInputEvent::SYS_DoConstruct(timestamp, sourceId, sourceSubId, state, isRepeat);
     m_screenPositionPx = screenPositionPx;
   }
 
 
-  void WindowInputClickEvent::SYS_Destruct()
+  void WindowInputClickEvent::SYS_Destruct() noexcept
   {
     m_screenPositionPx = {};
     WindowInputEvent::SYS_Destruct();

@@ -59,6 +59,9 @@ namespace Fsl::GLES2
       case VertexElementFormat::X8Y8Z8W8_UINT:
       case VertexElementFormat::X8Y8Z8W8_UNORM:
         return GL_UNSIGNED_BYTE;
+      case VertexElementFormat::X16Y16Z16W16_UINT:
+      case VertexElementFormat::X16Y16Z16W16_UNORM:
+        return GL_UNSIGNED_SHORT;
       default:
         throw NotSupportedException("Unknown VertexElementFormat");
       }
@@ -77,11 +80,13 @@ namespace Fsl::GLES2
       case VertexElementFormat::X8_UINT:
       case VertexElementFormat::X8Y8_UINT:
       case VertexElementFormat::X8Y8Z8_UINT:
+      case VertexElementFormat::X16Y16Z16W16_UINT:
         return GL_FALSE;
       case VertexElementFormat::X8_UNORM:
       case VertexElementFormat::X8Y8_UNORM:
       case VertexElementFormat::X8Y8Z8_UNORM:
       case VertexElementFormat::X8Y8Z8W8_UNORM:
+      case VertexElementFormat::X16Y16Z16W16_UNORM:
         return GL_TRUE;
       default:
         throw NotSupportedException("Unknown VertexElementFormat");

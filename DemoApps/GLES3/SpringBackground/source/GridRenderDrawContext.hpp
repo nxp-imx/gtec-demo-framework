@@ -42,6 +42,7 @@ namespace Fsl
   struct GridRenderDrawContext
   {
     const IBasicRenderSystem& RenderSystem;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     GLES3::NativeBatch2D* pBatch;
     AtlasTexture2D TexFill;
     Vector2 AreaSize;

@@ -61,10 +61,13 @@ namespace Fsl::DataBinding::Internal
       // Is set if there are pending changes
       HasPendingChanges = 0x40000000,
 
-
+      // NOLINTNEXTLINE(readability-identifier-naming)
       MASK_DataBindingInstanceType = 0x000000FF,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       MASK_DataBindingInstanceState = 0x00000F00,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       MASK_PropertyMethodsImplType = 0x0000F000,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       MASK_PropertyChangeState = 0x00030000
     };
 

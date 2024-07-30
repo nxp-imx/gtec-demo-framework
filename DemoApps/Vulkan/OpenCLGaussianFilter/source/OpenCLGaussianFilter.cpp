@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/TypeConverter.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
-#include <FslDemoApp/Base/Service/BitmapConverter/IBitmapConverter.hpp>
+#include <FslDemoService/BitmapConverter/IBitmapConverter.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
@@ -59,7 +59,7 @@ namespace Fsl
 {
   namespace
   {
-    const auto VERTEX_BUFFER_BIND_ID = 0;
+    constexpr auto VertexBufferBindId = 0;
 
 
     VulkanBasic::DemoAppVulkanSetup CreateSetup()
@@ -73,17 +73,17 @@ namespace Fsl
 
     void PrintInfo(const cl_platform_id rplatformId, const cl_device_id deviceId)
     {
-      constexpr const int arrSize = 4;
+      constexpr const int ArrSize = 4;
       // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-      const char* attributeNames[arrSize] = {"Name", "Vendor", "Version", "Profile"};
+      const char* attributeNames[ArrSize] = {"Name", "Vendor", "Version", "Profile"};
       // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-      const cl_platform_info attributeTypes[arrSize] = {CL_PLATFORM_NAME, CL_PLATFORM_VENDOR, CL_PLATFORM_VERSION, CL_PLATFORM_PROFILE};
+      const cl_platform_info attributeTypes[ArrSize] = {CL_PLATFORM_NAME, CL_PLATFORM_VENDOR, CL_PLATFORM_VERSION, CL_PLATFORM_PROFILE};
       // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-      const cl_device_info deviceAttributeTypes[arrSize] = {CL_DEVICE_NAME, CL_DEVICE_VENDOR, CL_DEVICE_VERSION, CL_DEVICE_PROFILE};
+      const cl_device_info deviceAttributeTypes[ArrSize] = {CL_DEVICE_NAME, CL_DEVICE_VENDOR, CL_DEVICE_VERSION, CL_DEVICE_PROFILE};
 
       FSLLOG3_INFO("\n-=-=-=- Platform and Device information -=-=-=-\n\n");
 
-      for (int count = 0; count < arrSize; ++count)
+      for (int count = 0; count < ArrSize; ++count)
       {
         const std::string info = OpenCL::OpenCLHelper::GetPlatformInfo<std::string>(rplatformId, attributeTypes[count]);
         const std::string deviceInfo = OpenCL::OpenCLHelper::GetDeviceInfo<std::string>(deviceId, deviceAttributeTypes[count]);
@@ -122,22 +122,21 @@ namespace Fsl
     void ProcessBitmapUsingOpenCL(Bitmap& rBitmap, const std::string& strProgram)
     {
       OpenCL::ContextEx context;
-      cl_device_id deviceId = nullptr;
-      context.Reset(CL_DEVICE_TYPE_GPU, &deviceId);
+      context.Reset(CL_DEVICE_TYPE_GPU);
 
-      RapidOpenCL1::CommandQueue commandQueue(context.Get(), deviceId, 0);
+      RapidOpenCL1::CommandQueue commandQueue(context.Get(), context.GetDeviceId(), 0);
 
-      PrintInfo(context.GetPlatformId(), deviceId);
+      PrintInfo(context.GetPlatformId(), context.GetDeviceId());
 
-      RapidOpenCL1::Program program = BuildProgram(context.Get(), deviceId, strProgram);
+      RapidOpenCL1::Program program = BuildProgram(context.Get(), context.GetDeviceId(), strProgram);
       RapidOpenCL1::Kernel kernel(program.Get(), "gaussian_filter");
 
-      const std::size_t size2d = rBitmap.Width() * rBitmap.Height();
+      const std::size_t size2d = rBitmap.RawUnsignedWidth() * rBitmap.RawUnsignedHeight();
       RapidOpenCL1::Buffer gaussMemInput(context.Get(), CL_MEM_READ_ONLY, size2d, nullptr);
       RapidOpenCL1::Buffer gaussMemOutput(context.Get(), CL_MEM_WRITE_ONLY, size2d, nullptr);
 
-      const auto width = static_cast<cl_int>(rBitmap.Width());
-      const auto height = static_cast<cl_int>(rBitmap.Height());
+      const auto width = UncheckedNumericCast<cl_int>(rBitmap.RawWidth());
+      const auto height = UncheckedNumericCast<cl_int>(rBitmap.RawHeight());
       const cl_int channels = 1;
       clSetKernelArg(kernel.Get(), 0, sizeof(cl_mem), gaussMemInput.GetPointer());     // input
       clSetKernelArg(kernel.Get(), 1, sizeof(cl_mem), gaussMemOutput.GetPointer());    // output
@@ -146,16 +145,16 @@ namespace Fsl
       clSetKernelArg(kernel.Get(), 4, sizeof(cl_int), &channels);                      // channels
 
       {
-        RawBitmapEx rawBitmap;
-        Bitmap::ScopedDirectAccess scopedAccess(rBitmap, rawBitmap);
-        auto* pImgData = static_cast<uint8_t*>(rawBitmap.Content());
+        Bitmap::ScopedDirectReadWriteAccess scopedAccess(rBitmap);
+        auto* pImgData = static_cast<uint8_t*>(scopedAccess.AsRawBitmap().Content());
 
-        constexpr const int dimension = 2;
-        const std::array<std::size_t, dimension> global = {rawBitmap.Width(), rawBitmap.Height()};
-        constexpr std::array<std::size_t, dimension> local = {16, 8};
+        constexpr const int Dimension = 2;
+        const std::array<std::size_t, Dimension> global = {scopedAccess.AsRawBitmap().RawUnsignedWidth(),
+                                                           scopedAccess.AsRawBitmap().RawUnsignedHeight()};
+        constexpr std::array<std::size_t, Dimension> Local = {16, 8};
         RAPIDOPENCL_CHECK(clEnqueueWriteBuffer(commandQueue.Get(), gaussMemInput.Get(), CL_TRUE, 0, size2d, pImgData, 0, nullptr, nullptr));
         RAPIDOPENCL_CHECK(
-          clEnqueueNDRangeKernel(commandQueue.Get(), kernel.Get(), dimension, nullptr, global.data(), local.data(), 0, nullptr, nullptr));
+          clEnqueueNDRangeKernel(commandQueue.Get(), kernel.Get(), Dimension, nullptr, global.data(), Local.data(), 0, nullptr, nullptr));
         RAPIDOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), gaussMemOutput.Get(), CL_TRUE, 0, size2d, pImgData, 0, nullptr, nullptr));
       }
     }
@@ -632,7 +631,7 @@ namespace Fsl
                             nullptr);
 
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(commandBuffer, VertexBufferBindId, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
 
     // Not efficient to render this way, but this is the way the OpenGLES3 sample did it.
     vkCmdDraw(commandBuffer, 4, 1, 0, 0);

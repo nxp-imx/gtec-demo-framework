@@ -32,8 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <FslBase/Math/Rectangle.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
@@ -44,6 +42,8 @@ namespace Fsl
   class INativeGraphicsBasic2D;
   class INativeBatch2D;
   class IBasicRenderSystem;
+  struct PxExtent2D;
+  struct PxRectangle;
 
   class INativeGraphicsService : public INativeGraphics
   {
@@ -55,7 +55,7 @@ namespace Fsl
 
     //! @brief Capture the current content of the display after a glFinish.
     //! @param rBitmap will be resized to the srcRectangle dimensions and filled with the content of the back buffer.
-    virtual void Capture(Bitmap& rBitmap, const Rectangle& srcRectangle) = 0;
+    virtual void Capture(Bitmap& rBitmap, const PxRectangle& srcRectanglePx) = 0;
 
     //! @brief Create a basic 2d instance
     virtual std::shared_ptr<INativeGraphicsBasic2D> CreateBasic2D(const PxExtent2D& extentPx) = 0;

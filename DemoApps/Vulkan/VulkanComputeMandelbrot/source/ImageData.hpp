@@ -110,7 +110,7 @@ namespace Fsl
       ScopedRawBitmapAccess& operator=(const ScopedRawBitmapAccess&) = delete;
 
       // Read only lock
-      ScopedRawBitmapAccess(const ImageData& imageData, RawBitmap& rRawBitmap)
+      ScopedRawBitmapAccess(const ImageData& imageData, ReadOnlyRawBitmap& rRawBitmap)
         : m_pImageData1(&imageData)
       //, m_pImageData2(nullptr)
       //, m_pRawBitmapEx(nullptr)
@@ -139,7 +139,7 @@ namespace Fsl
     };
 
   private:
-    RawBitmap Lock() const;
+    ReadOnlyRawBitmap Lock() const;
     // RawBitmapEx LockEx();
     void Unlock() const;
     // void UnlockEx(const RawBitmapEx& bitmap);

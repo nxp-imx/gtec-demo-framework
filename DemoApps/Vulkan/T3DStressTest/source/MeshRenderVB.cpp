@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,10 +37,10 @@ namespace Fsl
 {
   namespace
   {
-    const auto BASIC_LIGHT_COUNT = 4;
-    const auto MAX_LIGHT_COUNT = 10;
+    constexpr auto BasicLightCount = 4;
+    constexpr auto MaxLightCount = 10;
 
-    const auto VERTEX_BUFFER_BIND_ID = 0;
+    constexpr auto VertexBufferBindId = 0;
     // const auto INDEX_BUFFER_BIND_ID = 0;
 
     RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const Vulkan::VUDevice& device)
@@ -161,13 +161,13 @@ namespace Fsl
       info.VertexBuffer.Reset(bufferManager, mesh.AsReadOnlyFlexVertexSpan(), Vulkan::VMBufferUsage::STATIC);
 
       // Generate attribute description by matching shader layout with the vertex declarations
-      constexpr std::array<VertexElementUsage, 3> shaderAttribOrder = {VertexElementUsage::Position, VertexElementUsage::Normal,
+      constexpr std::array<VertexElementUsage, 3> ShaderAttribOrder = {VertexElementUsage::Position, VertexElementUsage::Normal,
                                                                        VertexElementUsage::TextureCoordinate};
-      static_assert(shaderAttribOrder.size() == info.AttributeDescription.size(), "We expect the sizes to match");
+      static_assert(ShaderAttribOrder.size() == info.AttributeDescription.size(), "We expect the sizes to match");
 
       for (std::size_t i = 0; i < info.AttributeDescription.size(); ++i)
       {
-        const auto& vertexDeclElement = info.VertexBuffer.GetVertexElement(shaderAttribOrder[i], 0);
+        const auto& vertexDeclElement = info.VertexBuffer.GetVertexElement(ShaderAttribOrder[i], 0);
 
         info.AttributeDescription[i].location = UncheckedNumericCast<uint32_t>(i);
         info.AttributeDescription[i].binding = 0;
@@ -367,7 +367,7 @@ namespace Fsl
     , m_lightCount(lightCount)
     , m_enableDepthTest(enableDepthTest)
   {
-    if (lightCount > MAX_LIGHT_COUNT)
+    if (lightCount > MaxLightCount)
     {
       throw std::invalid_argument("lightCount");
     }
@@ -387,7 +387,7 @@ namespace Fsl
     , m_lightCount(lightCount)
     , m_enableDepthTest(enableDepthTest)
   {
-    if (lightCount > MAX_LIGHT_COUNT)
+    if (lightCount > MaxLightCount)
     {
       throw std::invalid_argument("lightCount");
     }
@@ -400,10 +400,10 @@ namespace Fsl
   {
     FSLLOG3_VERBOSE("MeshRenderVB::OnBuildResources");
     FSLLOG3_VERBOSE("- OpaquePipeline");
-    m_dependentResources.OpaquePipeline = CreatePipeline(m_resources.PipelineLayout, context.SwapchainImageExtent, VertShader.Get(), FragShader.Get(),
-                                                         m_resources.VB, renderPass, m_topology, true, m_enableDepthTest);
+    m_dependentResources.OpaquePipeline = CreatePipeline(m_resources.PipelineLayout, context.SwapchainImageExtent, m_vertShader.Get(),
+                                                         m_fragShader.Get(), m_resources.VB, renderPass, m_topology, true, m_enableDepthTest);
     FSLLOG3_VERBOSE("- Pipeline");
-    m_dependentResources.Pipeline = CreatePipeline(m_resources.PipelineLayout, context.SwapchainImageExtent, VertShader.Get(), FragShader.Get(),
+    m_dependentResources.Pipeline = CreatePipeline(m_resources.PipelineLayout, context.SwapchainImageExtent, m_vertShader.Get(), m_fragShader.Get(),
                                                    m_resources.VB, renderPass, m_topology, false, m_enableDepthTest);
   }
 
@@ -426,7 +426,7 @@ namespace Fsl
   void MeshRenderVB::Draw(const VkCommandBuffer hCmdBuffer)
   {
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.VB.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(hCmdBuffer, VertexBufferBindId, 1, m_resources.VB.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdBindIndexBuffer(hCmdBuffer, m_resources.IB.GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
     vkCmdDrawIndexed(hCmdBuffer, m_resources.IB.GetIndexCount(), 1, 0, 0, 0);
   }
@@ -467,7 +467,7 @@ namespace Fsl
       throw std::invalid_argument("index");
     }
 
-    if (m_lightCount > BASIC_LIGHT_COUNT)
+    if (m_lightCount > BasicLightCount)
     {
       m_uboData.Light.L10.LightDirection[index] = PODVector4(lightDirection.X, lightDirection.Y, lightDirection.Z, 0.0f);
       return;
@@ -499,7 +499,7 @@ namespace Fsl
       throw std::invalid_argument("index");
     }
 
-    if (m_lightCount > BASIC_LIGHT_COUNT)
+    if (m_lightCount > BasicLightCount)
     {
       m_uboData.Light.L10.LightColor[index] = PODVector4(lightColor.X, lightColor.Y, lightColor.Z, 1.0f);
       return;

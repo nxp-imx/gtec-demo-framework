@@ -33,25 +33,20 @@
 
 namespace Fsl::UI
 {
-  bool WindowInputEvent::IsBegin() const
-  {
-    return GetState() == EventTransactionState::Begin;
-  }
-
-
-  WindowInputEvent::WindowInputEvent(const EventTypeId typeId, const EventDescription& eventDescription)
+  WindowInputEvent::WindowInputEvent(const EventTypeId typeId, const EventDescription& eventDescription) noexcept
     : WindowTransactionEvent(typeId, eventDescription)
   {
   }
 
 
-  void WindowInputEvent::SYS_DoConstruct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat)
+  void WindowInputEvent::SYS_DoConstruct(const MillisecondTickCount32 timestamp, const int32_t sourceId, const int32_t sourceSubId,
+                                         const EventTransactionState state, const bool isRepeat) noexcept
   {
-    WindowTransactionEvent::SYS_DoConstruct(sourceId, sourceSubId, state, isRepeat);
+    WindowTransactionEvent::SYS_DoConstruct(timestamp, sourceId, sourceSubId, state, isRepeat);
   }
 
 
-  void WindowInputEvent::SYS_Destruct()
+  void WindowInputEvent::SYS_Destruct() noexcept
   {
     WindowTransactionEvent::SYS_Destruct();
   }

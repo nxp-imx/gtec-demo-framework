@@ -44,7 +44,7 @@ using namespace Fsl;
 
 namespace
 {
-  class TestIO_Directory : public TestFixtureFslBaseContent
+  class TestIoDirectory : public TestFixtureFslBaseContent
   {
   protected:
     IO::Path m_helloWorldFilename;
@@ -53,7 +53,7 @@ namespace
     IO::Path m_notExistingDirectory;
 
   public:
-    TestIO_Directory()
+    TestIoDirectory()
       : m_helloWorldFilename(IO::Path::Combine(GetContentPath(), "HelloWorld.txt"))
       , m_testSubDirectory(IO::Path::Combine(GetContentPath(), "Test"))
       , m_testFileFilename(IO::Path::Combine(m_testSubDirectory, "TestFile.txt"))
@@ -64,7 +64,7 @@ namespace
 }
 
 
-TEST_F(TestIO_Directory, Exists_Content)
+TEST_F(TestIoDirectory, Exists_Content)
 {
   const IO::Path contentPath = GetContentPath();
   EXPECT_TRUE(IO::Directory::Exists(contentPath));
@@ -74,7 +74,7 @@ TEST_F(TestIO_Directory, Exists_Content)
 }
 
 
-TEST_F(TestIO_Directory, Exists_Content_File)
+TEST_F(TestIoDirectory, Exists_Content_File)
 {
   // This fails as its not a directory
   EXPECT_FALSE(IO::Directory::Exists(m_helloWorldFilename));
@@ -82,20 +82,20 @@ TEST_F(TestIO_Directory, Exists_Content_File)
   EXPECT_TRUE(IO::File::Exists(m_testFileFilename));
 }
 
-TEST_F(TestIO_Directory, NotExistingDirectory)
+TEST_F(TestIoDirectory, NotExistingDirectory)
 {
   EXPECT_FALSE(IO::Directory::Exists(m_notExistingDirectory));
   EXPECT_FALSE(IO::File::Exists(m_notExistingDirectory));
 }
 
 
-TEST_F(TestIO_Directory, GetCurrentWorkingDirectory)
+TEST_F(TestIoDirectory, GetCurrentWorkingDirectory)
 {
   EXPECT_NO_THROW(IO::Directory::GetCurrentWorkingDirectory());
 }
 
 
-TEST_F(TestIO_Directory, GetFiles_TopDirectory)
+TEST_F(TestIoDirectory, GetFiles_TopDirectory)
 {
   const IO::Path contentPath = GetContentPath();
 
@@ -125,7 +125,7 @@ TEST_F(TestIO_Directory, GetFiles_TopDirectory)
 }
 
 
-TEST_F(TestIO_Directory, GetFiles_AllDirectories)
+TEST_F(TestIoDirectory, GetFiles_AllDirectories)
 {
   const IO::Path contentPath = GetContentPath();
 
@@ -159,7 +159,7 @@ TEST_F(TestIO_Directory, GetFiles_AllDirectories)
 }
 
 
-TEST_F(TestIO_Directory, TryGetFiles_TopDirectoryOnly)
+TEST_F(TestIoDirectory, TryGetFiles_TopDirectoryOnly)
 {
   const IO::Path contentPath = GetContentPath();
 
@@ -169,7 +169,7 @@ TEST_F(TestIO_Directory, TryGetFiles_TopDirectoryOnly)
 }
 
 
-TEST_F(TestIO_Directory, TryGetFiles_AllDirectories)
+TEST_F(TestIoDirectory, TryGetFiles_AllDirectories)
 {
   const IO::Path contentPath = GetContentPath();
 

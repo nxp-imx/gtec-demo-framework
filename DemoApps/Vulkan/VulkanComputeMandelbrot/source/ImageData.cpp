@@ -32,6 +32,7 @@
 #include "ImageData.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <algorithm>
@@ -253,13 +254,14 @@ namespace Fsl
     return true;
   }
 
-  RawBitmap ImageData::Lock() const
+  ReadOnlyRawBitmap ImageData::Lock() const
   {
     // FIX: we assume the stride is 'minimal' here.
     // FIX: we currently know this is 2d image data
 
     const auto pixelFormat = Vulkan::VulkanConvert::ToPixelFormat(m_format);
-    return {m_data.data(), m_extent3D.width, m_extent3D.height, pixelFormat, BitmapOrigin::UpperLeft};
+    return ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(m_data), PxExtent2D::Create(m_extent3D.width, m_extent3D.height), pixelFormat,
+                                     BitmapOrigin::UpperLeft);
   }
 
   // RawBitmapEx ImageData::LockEx()

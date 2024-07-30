@@ -51,14 +51,14 @@ namespace
     constexpr IO::PathView FontBasicPath("Font/NormalAtlas/FontAtlas_Font.fbk");
   }
 
-  class TestFont_BitmapFontConverter : public TestFixtureFslGraphicsContent
+  class TestFontBitmapFontConverter : public TestFixtureFslGraphicsContent
   {
   protected:
     IO::Path m_fontAtlasPath;
     IO::Path m_fontBasicPath;
 
   public:
-    TestFont_BitmapFontConverter()
+    TestFontBitmapFontConverter()
       : m_fontAtlasPath(IO::Path::Combine(GetContentPath(), LocalConfig::FontAtlasPath))
       , m_fontBasicPath(IO::Path::Combine(GetContentPath(), LocalConfig::FontBasicPath))
     {
@@ -104,7 +104,7 @@ namespace
 }
 
 
-TEST_F(TestFont_BitmapFontConverter, Convert)
+TEST_F(TestFontBitmapFontConverter, Convert)
 {
   BasicTextureAtlas atlas;
   BinaryTextureAtlasLoader::Load(atlas, m_fontAtlasPath);

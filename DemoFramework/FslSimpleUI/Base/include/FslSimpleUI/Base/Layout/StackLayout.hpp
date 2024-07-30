@@ -46,7 +46,9 @@ namespace Fsl::UI
     DataBinding::TypedDependencyProperty<DpSize1DF> m_propertySpacingDp;
 
   public:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static DataBinding::DependencyPropertyDefinition PropertyOrientation;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static DataBinding::DependencyPropertyDefinition PropertySpacing;
 
     explicit StackLayout(const std::shared_ptr<BaseWindowContext>& context);

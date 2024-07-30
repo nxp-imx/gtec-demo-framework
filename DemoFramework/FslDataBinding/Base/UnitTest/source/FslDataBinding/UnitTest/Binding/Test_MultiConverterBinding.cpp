@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <FslDataBinding/Base/Bind/MultiConverterBinding.hpp>
 #include <array>
@@ -66,7 +66,7 @@ TEST(TestBind_MultiConverterBinding, NormalGet0Get1Set)
   std::array<DataBinding::Internal::PropertyGetInfo, 2> getters = {DataBinding::Internal::PropertyGetInfo(valFloat.GetImplType(), &valFloat),
                                                                    DataBinding::Internal::PropertyGetInfo(valUInt32.GetImplType(), &valUInt32)};
 
-  auto res = genericConvertingBinding.Convert(valInt32.GetImplType(), &valInt32, ReadOnlySpanUtil::AsSpan(getters));
+  auto res = genericConvertingBinding.Convert(valInt32.GetImplType(), &valInt32, SpanUtil::AsReadOnlySpan(getters));
 
   EXPECT_EQ(DataBinding::Internal::PropertySetResult::ValueChanged, res);
   EXPECT_EQ(int32_t(2 + 7), valInt32.Get());
@@ -87,7 +87,7 @@ TEST(TestBind_MultiConverterBinding, NormalGet0RefGet1Set)
   std::array<DataBinding::Internal::PropertyGetInfo, 2> getters = {DataBinding::Internal::PropertyGetInfo(valFloat.GetImplType(), &valFloat),
                                                                    DataBinding::Internal::PropertyGetInfo(valUInt32.GetImplType(), &valUInt32)};
 
-  auto res = genericConvertingBinding.Convert(valInt32.GetImplType(), &valInt32, ReadOnlySpanUtil::AsSpan(getters));
+  auto res = genericConvertingBinding.Convert(valInt32.GetImplType(), &valInt32, SpanUtil::AsReadOnlySpan(getters));
 
   EXPECT_EQ(DataBinding::Internal::PropertySetResult::ValueChanged, res);
   EXPECT_EQ(int32_t(2 + 7), valInt32.Get());
@@ -107,7 +107,7 @@ TEST(TestBind_MultiConverterBinding, NormalGet0Get1RefSet)
   std::array<DataBinding::Internal::PropertyGetInfo, 2> getters = {DataBinding::Internal::PropertyGetInfo(valFloat.GetImplType(), &valFloat),
                                                                    DataBinding::Internal::PropertyGetInfo(valUInt32.GetImplType(), &valUInt32)};
 
-  auto res = genericConvertingBinding.Convert(valInt32.GetImplType(), &valInt32, ReadOnlySpanUtil::AsSpan(getters));
+  auto res = genericConvertingBinding.Convert(valInt32.GetImplType(), &valInt32, SpanUtil::AsReadOnlySpan(getters));
 
   EXPECT_EQ(DataBinding::Internal::PropertySetResult::ValueChanged, res);
   EXPECT_EQ(int32_t(2 + 7), valInt32.Get());
@@ -127,7 +127,7 @@ TEST(TestBind_MultiConverterBinding, NormalGetRef0Get1RefSet)
   std::array<DataBinding::Internal::PropertyGetInfo, 2> getters = {DataBinding::Internal::PropertyGetInfo(valFloat.GetImplType(), &valFloat),
                                                                    DataBinding::Internal::PropertyGetInfo(valUInt32.GetImplType(), &valUInt32)};
 
-  auto res = genericConvertingBinding.Convert(valInt32.GetImplType(), &valInt32, ReadOnlySpanUtil::AsSpan(getters));
+  auto res = genericConvertingBinding.Convert(valInt32.GetImplType(), &valInt32, SpanUtil::AsReadOnlySpan(getters));
 
   EXPECT_EQ(DataBinding::Internal::PropertySetResult::ValueChanged, res);
   EXPECT_EQ(int32_t(2 + 7), valInt32.Get());
@@ -148,7 +148,7 @@ TEST(TestBind_MultiConverterBinding, NormalGet0Get1SetRef)
   std::array<DataBinding::Internal::PropertyGetInfo, 2> getters = {DataBinding::Internal::PropertyGetInfo(valFloat.GetImplType(), &valFloat),
                                                                    DataBinding::Internal::PropertyGetInfo(valUInt32.GetImplType(), &valUInt32)};
 
-  auto res = genericConvertingBinding.Convert(valInt32.GetImplType(), &valInt32, ReadOnlySpanUtil::AsSpan(getters));
+  auto res = genericConvertingBinding.Convert(valInt32.GetImplType(), &valInt32, SpanUtil::AsReadOnlySpan(getters));
 
   EXPECT_EQ(DataBinding::Internal::PropertySetResult::ValueChanged, res);
   EXPECT_EQ(int32_t(2 + 7), valInt32.Get());
@@ -169,7 +169,7 @@ TEST(TestBind_MultiConverterBinding, NormalGet0RefGet1SetRef)
   std::array<DataBinding::Internal::PropertyGetInfo, 2> getters = {DataBinding::Internal::PropertyGetInfo(valFloat.GetImplType(), &valFloat),
                                                                    DataBinding::Internal::PropertyGetInfo(valUInt32.GetImplType(), &valUInt32)};
 
-  auto res = genericConvertingBinding.Convert(valInt32.GetImplType(), &valInt32, ReadOnlySpanUtil::AsSpan(getters));
+  auto res = genericConvertingBinding.Convert(valInt32.GetImplType(), &valInt32, SpanUtil::AsReadOnlySpan(getters));
 
   EXPECT_EQ(DataBinding::Internal::PropertySetResult::ValueChanged, res);
   EXPECT_EQ(int32_t(2 + 7), valInt32.Get());
@@ -189,7 +189,7 @@ TEST(TestBind_MultiConverterBinding, NormalGet0Get1RefSetRef)
   std::array<DataBinding::Internal::PropertyGetInfo, 2> getters = {DataBinding::Internal::PropertyGetInfo(valFloat.GetImplType(), &valFloat),
                                                                    DataBinding::Internal::PropertyGetInfo(valUInt32.GetImplType(), &valUInt32)};
 
-  auto res = genericConvertingBinding.Convert(valInt32.GetImplType(), &valInt32, ReadOnlySpanUtil::AsSpan(getters));
+  auto res = genericConvertingBinding.Convert(valInt32.GetImplType(), &valInt32, SpanUtil::AsReadOnlySpan(getters));
 
   EXPECT_EQ(DataBinding::Internal::PropertySetResult::ValueChanged, res);
   EXPECT_EQ(int32_t(2 + 7), valInt32.Get());
@@ -209,7 +209,7 @@ TEST(TestBind_MultiConverterBinding, NormalGetRef0Get1RefSetRef)
   std::array<DataBinding::Internal::PropertyGetInfo, 2> getters = {DataBinding::Internal::PropertyGetInfo(valFloat.GetImplType(), &valFloat),
                                                                    DataBinding::Internal::PropertyGetInfo(valUInt32.GetImplType(), &valUInt32)};
 
-  auto res = genericConvertingBinding.Convert(valInt32.GetImplType(), &valInt32, ReadOnlySpanUtil::AsSpan(getters));
+  auto res = genericConvertingBinding.Convert(valInt32.GetImplType(), &valInt32, SpanUtil::AsReadOnlySpan(getters));
 
   EXPECT_EQ(DataBinding::Internal::PropertySetResult::ValueChanged, res);
   EXPECT_EQ(int32_t(2 + 7), valInt32.Get());

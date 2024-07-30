@@ -31,8 +31,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslGraphics3D/BasicRender/Adapter/INativeMaterialFactory.hpp>
 #include <FslGraphics3D/BasicRender/Material/BasicNativeMaterialManager.hpp>
 #include <FslGraphics3D/BasicRender/Shader/IBasicShaderLookup.hpp>

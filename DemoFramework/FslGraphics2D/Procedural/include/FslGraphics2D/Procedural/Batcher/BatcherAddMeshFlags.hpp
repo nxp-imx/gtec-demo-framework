@@ -44,12 +44,12 @@ namespace Fsl
     DontIncreaseZPos = 0x01,
   };
 
-  constexpr inline BatcherAddMeshFlags operator|(const BatcherAddMeshFlags lhs, const BatcherAddMeshFlags rhs)
+  inline constexpr BatcherAddMeshFlags operator|(const BatcherAddMeshFlags lhs, const BatcherAddMeshFlags rhs)
   {
     return static_cast<BatcherAddMeshFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
   }
 
-  constexpr inline BatcherAddMeshFlags operator&(const BatcherAddMeshFlags lhs, const BatcherAddMeshFlags rhs)
+  inline constexpr BatcherAddMeshFlags operator&(const BatcherAddMeshFlags lhs, const BatcherAddMeshFlags rhs)
   {
     return static_cast<BatcherAddMeshFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
   }
@@ -57,23 +57,23 @@ namespace Fsl
 
   namespace BatcherAddMeshFlagsUtil
   {
-    inline bool IsEnabled(const BatcherAddMeshFlags srcFlag, BatcherAddMeshFlags flag)
+    inline constexpr bool IsEnabled(const BatcherAddMeshFlags srcFlag, BatcherAddMeshFlags flag) noexcept
     {
       return (srcFlag & flag) == flag;
     }
 
-    inline void Enable(BatcherAddMeshFlags& rDstFlag, BatcherAddMeshFlags flag)
+    inline constexpr void Enable(BatcherAddMeshFlags& rDstFlag, BatcherAddMeshFlags flag) noexcept
     {
       rDstFlag = rDstFlag | flag;
     }
 
 
-    inline void Disable(BatcherAddMeshFlags& rDstFlag, BatcherAddMeshFlags flag)
+    inline constexpr void Disable(BatcherAddMeshFlags& rDstFlag, BatcherAddMeshFlags flag) noexcept
     {
       rDstFlag = rDstFlag & (static_cast<BatcherAddMeshFlags>(~static_cast<uint32_t>(flag)));
     }
 
-    inline void Set(BatcherAddMeshFlags& rDstFlag, BatcherAddMeshFlags flag, const bool enabled)
+    inline constexpr void Set(BatcherAddMeshFlags& rDstFlag, BatcherAddMeshFlags flag, const bool enabled) noexcept
     {
       rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (static_cast<BatcherAddMeshFlags>(~static_cast<uint32_t>(flag))));
     }

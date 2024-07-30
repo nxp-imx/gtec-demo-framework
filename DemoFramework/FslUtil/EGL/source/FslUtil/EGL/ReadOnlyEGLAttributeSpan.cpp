@@ -38,8 +38,8 @@ namespace Fsl::EGL
     m_hasAlphaChannelRequest = false;
     m_isHDRRequest = false;
 
-    auto itr = m_content.begin();
-    const auto itrEnd = m_content.end();
+    auto itr = Content.begin();
+    const auto itrEnd = Content.end();
     while (itr != itrEnd)
     {
       const auto attrib = *itr;

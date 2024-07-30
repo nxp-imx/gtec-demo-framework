@@ -40,11 +40,11 @@ namespace Fsl
 {
   class ContentManagerServiceFactory final : public IThreadLocalSingletonServiceFactory
   {
-    const IO::Path m_contentPath;
+    const IO::Path ContentPath;
 
   public:
     explicit ContentManagerServiceFactory(IO::Path contentPath)
-      : m_contentPath(std::move(contentPath))
+      : ContentPath(std::move(contentPath))
     {
     }
 
@@ -67,7 +67,7 @@ namespace Fsl
 
     std::shared_ptr<IService> Allocate(ServiceProvider& provider) final
     {
-      return std::make_shared<ContentManagerService>(provider, m_contentPath);
+      return std::make_shared<ContentManagerService>(provider, ContentPath);
     }
   };
 }

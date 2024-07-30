@@ -44,11 +44,17 @@ namespace Fsl
     protected:
       struct Vertex
       {
+        // NOLINTNEXTLINE(readability-identifier-naming)
         glm::vec3 m_pos{};
+        // NOLINTNEXTLINE(readability-identifier-naming)
         glm::vec2 m_tex{};
+        // NOLINTNEXTLINE(readability-identifier-naming)
         glm::vec3 m_normal{};
+        // NOLINTNEXTLINE(readability-identifier-naming)
         glm::vec3 m_color{};
+        // NOLINTNEXTLINE(readability-identifier-naming)
         glm::vec3 m_tangent{};
+        // NOLINTNEXTLINE(readability-identifier-naming)
         glm::vec3 m_binormal{};
 
         Vertex() = default;
@@ -77,8 +83,11 @@ namespace Fsl
 
       struct Dimension
       {
+        // NOLINTNEXTLINE(readability-identifier-naming)
         glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
+        // NOLINTNEXTLINE(readability-identifier-naming)
         glm::vec3 max = glm::vec3(std::numeric_limits<float>::min());
+        // NOLINTNEXTLINE(readability-identifier-naming)
         glm::vec3 size;
       };
 

@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <Shared/Camera/Adapter/Interface/ICameraAdapter.hpp>
 #include <Shared/Camera/System/Camera.hpp>
@@ -46,7 +47,7 @@ namespace Fsl::Helios
     {
       throw std::invalid_argument("CameraConfig.NativePixelFormat can not be PixelFormat::Undefined");
     }
-    if (cameraConfig.NativeStride < PixelFormatUtil::CalcMinimumStride(m_cameraConfig.Extent.Width.Value, m_cameraConfig.NativePixelFormat))
+    if (cameraConfig.NativeStride < PixelFormatUtil::CalcMinimumStride(m_cameraConfig.Extent.Width, m_cameraConfig.NativePixelFormat))
     {
       throw std::invalid_argument("CameraConfig.NativeStride is smaller than allowed");
     }
@@ -57,6 +58,13 @@ namespace Fsl::Helios
   }
 
   Camera::~Camera() = default;
+
+
+  PxSize2D Camera::GetSize() const noexcept
+  {
+    return TypeConverter::UncheckedTo<PxSize2D>(m_cameraConfig.Extent);
+  }
+
 
   bool Camera::TryRender(RawBitmapEx& rTargetBitmap, uint32_t& rFrameId)
   {

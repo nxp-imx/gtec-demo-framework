@@ -43,6 +43,9 @@ namespace Fsl
 {
   struct VertexPositionColor
   {
+    using position_type = Vector3;
+    using color_type = Fsl::Color;
+
     Vector3 Position;
     Fsl::Color Color;
 
@@ -63,10 +66,10 @@ namespace Fsl
 
     constexpr static VertexDeclarationArray<2> GetVertexDeclarationArray()
     {
-      constexpr BasicVertexDeclarationArray<2> elements = {
+      constexpr BasicVertexDeclarationArray<2> Elements = {
         VertexElement(offsetof(VertexPositionColor, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
         VertexElement(offsetof(VertexPositionColor, Color), VertexElementFormat::X8Y8Z8W8_UNORM, VertexElementUsage::Color, 0)};
-      return {elements, sizeof(VertexPositionColor)};
+      return {Elements, sizeof(VertexPositionColor)};
     }
 
 
@@ -74,8 +77,8 @@ namespace Fsl
     //              At least this workaround still gives us compile time validation of the vertex element data
     static VertexDeclarationSpan AsVertexDeclarationSpan()
     {
-      constexpr static VertexDeclarationArray<2> decl = GetVertexDeclarationArray();
-      return decl.AsReadOnlySpan();
+      constexpr static VertexDeclarationArray<2> Decl = GetVertexDeclarationArray();
+      return Decl.AsReadOnlySpan();
     }
 
     constexpr bool operator==(const VertexPositionColor& rhs) const noexcept

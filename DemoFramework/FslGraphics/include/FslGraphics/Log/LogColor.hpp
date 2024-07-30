@@ -32,14 +32,14 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Color.hpp>
+#include <FslGraphics/Log/LogColorChannelValueU8.hpp>
 #include <ostream>
 
 namespace Fsl
 {
   inline std::ostream& operator<<(std::ostream& o, const Color& value)
   {
-    return o << "{R=" << static_cast<uint32_t>(value.R()) << " G=" << static_cast<uint32_t>(value.G()) << " B=" << static_cast<uint32_t>(value.B())
-             << " A=" << static_cast<uint32_t>(value.A()) << "}";
+    return o << "{R=" << value.R() << " G=" << value.G() << " B=" << value.B() << " A=" << value.A() << "}";
   }
 }
 

@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "DataGeneratorData.hpp"
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <array>
 
 namespace Fsl
@@ -803,7 +803,7 @@ namespace Fsl
   {
     ReadOnlySpan<DataGeneratorDataRecord> DataSpan()
     {
-      return ReadOnlySpanUtil::AsSpan(g_entries);
+      return SpanUtil::AsReadOnlySpan(g_entries);
     }
   }
 

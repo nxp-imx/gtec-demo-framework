@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/FmtValueLabel.hpp>
@@ -101,8 +100,8 @@ namespace Fsl
     void SetProfileTime(const uint64_t time);
 
     // From EventListener
-    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
-    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
+    void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
+    void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
 
     void OnKeyEvent(const KeyEvent& event);
     void OnConfigurationChanged(const DemoWindowMetrics& windowMetrics);

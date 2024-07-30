@@ -31,8 +31,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <Shared/UI/Charts/ChartGridLinesTest.hpp>
 #include <fmt/format.h>
@@ -53,7 +52,7 @@ namespace Fsl
     {
       fmt::memory_buffer buffer;
       auto strView = DoGetDescriptionString(buffer, microseconds);
-      return StringViewLiteUtil::ToString(strView);
+      return std::string(strView);
     }
 
     struct ChartGridLineRecord
@@ -86,7 +85,7 @@ namespace Fsl
 
     for (std::size_t i = 0; i < g_grid.size(); ++i)
     {
-      m_gridLines[i] = UI::ChartGridLineInfo(g_grid[i].Microseconds, StringViewLiteUtil::AsStringViewLite(g_grid[i].Label));
+      m_gridLines[i] = UI::ChartGridLineInfo(g_grid[i].Microseconds, StringViewLite(g_grid[i].Label));
     }
   }
 
@@ -110,7 +109,7 @@ namespace Fsl
     const std::size_t indexFirst = std::distance(m_gridLines.begin(), itrFindMin);
     const std::size_t indexLast = std::distance(m_gridLines.begin(), itrFindMax);
 
-    return ReadOnlySpanUtil::AsSpan(m_gridLines, indexFirst, (indexLast - indexFirst));
+    return SpanUtil::AsReadOnlySpan(m_gridLines, indexFirst, (indexLast - indexFirst));
   }
 
 

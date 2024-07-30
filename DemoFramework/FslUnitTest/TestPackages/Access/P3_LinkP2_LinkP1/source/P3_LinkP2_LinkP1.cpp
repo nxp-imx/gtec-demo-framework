@@ -37,7 +37,9 @@
 namespace Fsl
 {
   // extern the functions from P1 + P2
+  // NOLINTNEXTLINE(readability-identifier-naming)
   extern int TestFunc_P1();
+  // NOLINTNEXTLINE(readability-identifier-naming)
   extern int TestFunc_P2LinkP1();
 }
 

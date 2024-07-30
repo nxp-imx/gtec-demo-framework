@@ -35,6 +35,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/Span/SpanUtil_ValueCompare.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Vertices/VertexElement.hpp>
 #include <FslGraphics/Vertices/VertexElementFormatUtil.hpp>
@@ -162,7 +163,7 @@ namespace Fsl
 
     constexpr bool operator==(const VertexDeclarationSpan& rhs) const noexcept
     {
-      return (m_vertexStride == rhs.m_vertexStride && m_span == rhs.m_span);
+      return (m_vertexStride == rhs.m_vertexStride && SpanUtil::ValueEquals(m_span, rhs.m_span));
     }
 
     constexpr bool operator!=(const VertexDeclarationSpan& rhs) const noexcept
@@ -171,11 +172,13 @@ namespace Fsl
     }
 
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const VertexElement* data() const noexcept
     {
       return m_span.data();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr uint32_t size() const noexcept
     {
       assert(m_span.size() <= 0xFFFFFFFFu);

@@ -32,7 +32,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
-#include <FslDemoApp/Util/Graphics/Service/ImageConverterLibrary/ImageConverterLibraryBasicService.hpp>
+#include <FslDemoApp/Util/Graphics/Service/ImageConverter/ImageConverterLibraryBasicService.hpp>
 #include <FslDemoHost/Base/Service/AsyncImage/AsyncImageServiceImpl.hpp>
 #include <FslDemoHost/Base/Service/AsyncImage/AsyncImageServiceProxy.hpp>
 #include <FslDemoHost/Base/Service/BitmapConverter/BitmapConverterService.hpp>
@@ -56,10 +56,9 @@
 #ifdef FSL_FEATURE_STB
 #include <FslDemoApp/Util/Graphics/Service/ImageLibrary/ImageLibrarySTBService.hpp>
 #endif
-#ifdef FSL_FEATURE_HALF
-#include <FslDemoApp/Util/Graphics/Service/ImageConverterLibrary/ImageConverterLibraryFP16Service.hpp>
+#ifdef FSL_FEATURE_IMAGECONVERTER_HDR
+#include <FslDemoService/ImageConverter/HDR/ImageConverterLibraryHDRService.hpp>
 #endif
-
 
 namespace Fsl
 {
@@ -77,13 +76,13 @@ namespace Fsl
 #ifdef FSL_FEATURE_STB
   using ImageLibraryServiceSTBFactory = ThreadLocalSingletonServiceFactoryTemplate<ImageLibrarySTBService, IImageLibraryService>;
 #endif
-#ifdef FSL_FEATURE_HALF
-  using ImageConverterLibraryFP16ServiceFactory =
-    ThreadLocalSingletonServiceFactoryTemplate<ImageConverterLibraryFP16Service, IImageConverterLibraryService>;
+#ifdef FSL_FEATURE_IMAGECONVERTER_HDR
+  using ImageConverterLibraryHDRServiceFactory =
+    ThreadLocalSingletonServiceFactoryTemplate2<ImageConverterLibraryHDRService, IImageConverterService, IImageToneMappingService>;
 #endif
 
   using ImageConverterLibraryBasicServiceFactory =
-    ThreadLocalSingletonServiceFactoryTemplate<ImageConverterLibraryBasicService, IImageConverterLibraryService>;
+    ThreadLocalSingletonServiceFactoryTemplate<ImageConverterLibraryBasicService, IImageConverterService>;
 
 
   namespace RegisterDemoAppUtilGraphics
@@ -115,8 +114,8 @@ namespace Fsl
       serviceRegistry.Register<ImageServiceFactory>(ServicePriorityList::ImageService());
 
       serviceRegistry.Register<ImageConverterLibraryBasicServiceFactory>(ServicePriorityList::ImageConverterLibraryService(), imageServiceGroup);
-#ifdef FSL_FEATURE_HALF
-      serviceRegistry.Register<ImageConverterLibraryFP16ServiceFactory>(ServicePriorityList::ImageConverterLibraryService(), imageServiceGroup);
+#ifdef FSL_FEATURE_IMAGECONVERTER_HDR
+      serviceRegistry.Register<ImageConverterLibraryHDRServiceFactory>(ServicePriorityList::ImageConverterLibraryService(), imageServiceGroup);
 #endif
 
       serviceRegistry.Register<BitmapConverterServiceFactory>(ServicePriorityList::BitmapConverterService(), imageServiceGroup);

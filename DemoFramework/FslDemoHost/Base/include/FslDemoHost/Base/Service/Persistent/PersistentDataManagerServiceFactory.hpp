@@ -39,12 +39,12 @@ namespace Fsl
 {
   class PersistentDataManagerServiceFactory final : public ThreadLocalSingletonServiceFactoryBase
   {
-    const IO::Path m_persistentDataPath;
+    const IO::Path PersistentDataPath;
 
   public:
     explicit PersistentDataManagerServiceFactory(IO::Path persistentDataPath)
       : ThreadLocalSingletonServiceFactoryBase(std::type_index(typeid(IPersistentDataManager)))
-      , m_persistentDataPath(std::move(persistentDataPath))
+      , PersistentDataPath(std::move(persistentDataPath))
     {
     }
 
@@ -57,7 +57,7 @@ namespace Fsl
 
     std::shared_ptr<IService> Allocate(ServiceProvider& provider) final
     {
-      return std::make_shared<PersistentDataManagerService>(provider, m_persistentDataPath);
+      return std::make_shared<PersistentDataManagerService>(provider, PersistentDataPath);
     }
   };
 }

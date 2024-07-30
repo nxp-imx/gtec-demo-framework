@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,10 +56,10 @@ namespace Fsl
 {
   namespace
   {
-    const auto VERTEX_BUFFER_BIND_ID = 0;
+    constexpr auto VertexBufferBindId = 0;
 
-    constexpr Vector3 DEFAULT_CAMERA_POSITION(4.0f, 1.0f, 7.0f);
-    constexpr Vector3 DEFAULT_CAMERA_TARGET(0.0f, 0.0f, 0.0f);
+    constexpr Vector3 DefaultCameraPosition(4.0f, 1.0f, 7.0f);
+    constexpr Vector3 DefaultCameraTarget(0.0f, 0.0f, 0.0f);
 
     IO::Path GetTextureFile(const VkPhysicalDeviceFeatures& features)
     {
@@ -382,30 +382,37 @@ namespace Fsl
       VulkanBasic::DemoAppVulkanSetup setup;
       return setup;
     }
+
+
+    IO::Path GetAtlasName(const bool hasSRGBFramebuffer, const IO::PathView path)
+    {
+      return IO::Path::Combine(hasSRGBFramebuffer ? "Linear" : "NonLinear", path);
+    }
   }
 
 
   SRGBFramebuffer::SRGBFramebuffer(const DemoAppConfig& config)
     : VulkanBasic::DemoAppVulkanBasic(config, CreateSetup())
     , m_hasSRGBFramebuffer(GetSurfaceFormatInfo().Format == VK_FORMAT_B8G8R8A8_SRGB)
-    , m_colorSpace(!m_hasSRGBFramebuffer ? ColorSpace::SRGBNonLinear : ColorSpace::SRGBLinear)
+    , m_colorSpace(!m_hasSRGBFramebuffer ? UI::UIColorSpace::SRGBNonLinear : UI::UIColorSpace::SRGBLinear)
     , m_bufferManager(
         std::make_shared<Vulkan::VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
     , m_uiEventListener(this)    // The UI listener forwards call to 'this' object
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi",
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(),
+                                                         GetAtlasName(m_hasSRGBFramebuffer, IO::PathView("UIAtlas/UIAtlas_160dpi")),
                                                          UIDemoAppExtension::CreateConfig(m_colorSpace)))    // Prepare the extension
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
     , m_mouseCaptureEnabled(false)
     , m_state(State::Split2)
-    , m_splitX(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
-    , m_splitSceneWidthL(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
-    , m_splitSceneWidthR(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
-    , m_splitSceneAlphaL(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
-    , m_splitSceneAlphaR(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
+    , m_splitX(TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_splitSceneWidthL(TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_splitSceneWidthR(TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_splitSceneAlphaL(TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
+    , m_splitSceneAlphaR(TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
   {
-    m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+    m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
 
     const auto contentManager = GetContentManager();
 
@@ -448,7 +455,7 @@ namespace Fsl
     m_splitSceneAlphaR.ForceComplete();
   }
 
-  void SRGBFramebuffer::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void SRGBFramebuffer::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_leftCB || theEvent->GetSource() == m_rightCB)
     {
@@ -528,7 +535,7 @@ namespace Fsl
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
-        m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+        m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
         event.Handled();
       }
       break;
@@ -707,8 +714,8 @@ namespace Fsl
 
     const float alphaL = m_splitSceneAlphaL.GetValue();
     const float alphaR = m_splitSceneAlphaR.GetValue();
-    m_labelLeft->SetFontColor(Color(alphaL, alphaL, alphaL, alphaL));
-    m_labelRight->SetFontColor(Color(alphaR, alphaR, alphaR, alphaR));
+    m_labelLeft->SetFontColor(UI::UIColor(alphaL, alphaL, alphaL, alphaL));
+    m_labelRight->SetFontColor(UI::UIColor(alphaR, alphaR, alphaR, alphaR));
   }
 
 
@@ -717,7 +724,7 @@ namespace Fsl
     const auto windowSizePx = GetWindowSizePx();
 
     const VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(commandBuffer, VertexBufferBindId, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
 
     const auto splitX = static_cast<int32_t>(std::round(m_splitX.GetValue()));
     const int32_t remainderX = windowSizePx.RawWidth() - splitX;

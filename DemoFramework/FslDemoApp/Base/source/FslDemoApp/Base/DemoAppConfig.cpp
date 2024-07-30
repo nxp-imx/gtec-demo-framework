@@ -29,7 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
+#include <fmt/format.h>
 #include <utility>
 
 namespace Fsl
@@ -47,4 +49,16 @@ namespace Fsl
 
 
   DemoAppConfig::~DemoAppConfig() = default;
+
+  void DemoAppConfig::UpdateWindowMetrics(const DemoWindowMetrics& windowMetrics)
+  {
+    WindowMetrics = windowMetrics;
+    ScreenResolution = TypeConverter::To<Point2>(windowMetrics.ExtentPx);
+  }
+
+
+  std::string DemoAppConfig::GetGetOptionsErrorMessage(const std::string_view str)
+  {
+    return fmt::format("GetOptions() did not match the requested type {}", str);
+  }
 }

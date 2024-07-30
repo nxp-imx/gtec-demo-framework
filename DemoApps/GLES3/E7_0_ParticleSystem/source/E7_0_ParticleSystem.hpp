@@ -56,18 +56,19 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class E7_0_ParticleSystem : public DemoAppGLES3
   {
     struct UserData
     {
       //
-      GLint lifetimeLoc{0};
-      GLint startPositionLoc{0};
-      GLint endPositionLoc{0};
-      GLint timeLoc{0};
-      GLint colorLoc{0};
-      GLint centerPositionLoc{0};
-      GLint samplerLoc{0};
+      GLint LifetimeLoc{0};
+      GLint StartPositionLoc{0};
+      GLint EndPositionLoc{0};
+      GLint TimeLoc{0};
+      GLint ColorLoc{0};
+      GLint CenterPositionLoc{0};
+      GLint SamplerLoc{0};
 
       // Texture handle
       GLES3::GLTexture Texture;
@@ -76,7 +77,7 @@ namespace Fsl
       float particleData[NUM_PARTICLES * PARTICLE_SIZE]{};    // NOLINT[modernize-avoid-c-arrays]
 
       // Current time
-      float time{1.0f};
+      float Time{1.0f};
 
       UserData()
       {

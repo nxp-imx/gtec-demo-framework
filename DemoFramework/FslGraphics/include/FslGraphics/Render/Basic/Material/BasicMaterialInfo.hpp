@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_RENDER_BASIC_MATERIAL_BASICMATERIALINFO_HPP
 #define FSLGRAPHICS_RENDER_BASIC_MATERIAL_BASICMATERIALINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
 #include <FslBase/Math/Pixel/PxViewport.hpp>
 #include <FslGraphics/Render/Basic/BasicCullMode.hpp>
 #include <FslGraphics/Render/Basic/BasicFrontFace.hpp>
+#include <FslGraphics/Render/Basic/BasicPrimitiveTopology.hpp>
 #include <FslGraphics/Render/Basic/BasicViewportMode.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialDepthInfo.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
@@ -48,14 +49,26 @@ namespace Fsl
     BasicMaterialDepthInfo Depth;
     BasicViewportMode ViewportMode{BasicViewportMode::Fullscreen};
     PxViewport Viewport;
+    BasicPrimitiveTopology PrimitiveTopology{BasicPrimitiveTopology::TriangleList};
 
     constexpr BasicMaterialInfo() noexcept = default;
+
     constexpr BasicMaterialInfo(const BlendState blend, const BasicCullMode cullMode, const BasicFrontFace cullFrontFace,
                                 const BasicMaterialDepthInfo& depthInfo) noexcept
       : Blend(blend)
       , CullMode(cullMode)
       , CullFrontFace(cullFrontFace)
       , Depth(depthInfo)
+    {
+    }
+
+    constexpr BasicMaterialInfo(const BlendState blend, const BasicCullMode cullMode, const BasicFrontFace cullFrontFace,
+                                const BasicMaterialDepthInfo& depthInfo, const BasicPrimitiveTopology primitiveTopology) noexcept
+      : Blend(blend)
+      , CullMode(cullMode)
+      , CullFrontFace(cullFrontFace)
+      , Depth(depthInfo)
+      , PrimitiveTopology(primitiveTopology)
     {
     }
 
@@ -70,11 +83,23 @@ namespace Fsl
     {
     }
 
+    constexpr BasicMaterialInfo(const BlendState blend, const BasicCullMode cullMode, const BasicFrontFace cullFrontFace,
+                                const BasicMaterialDepthInfo& depthInfo, const BasicViewportMode viewportMode, const PxViewport& viewport,
+                                const BasicPrimitiveTopology primitiveTopology) noexcept
+      : Blend(blend)
+      , CullMode(cullMode)
+      , CullFrontFace(cullFrontFace)
+      , Depth(depthInfo)
+      , ViewportMode(viewportMode)
+      , Viewport(viewport)
+      , PrimitiveTopology(primitiveTopology)
+    {
+    }
 
     constexpr bool operator==(const BasicMaterialInfo& rhs) const noexcept
     {
       return Blend == rhs.Blend && CullMode == rhs.CullMode && CullFrontFace == rhs.CullFrontFace && Depth == rhs.Depth &&
-             ViewportMode == rhs.ViewportMode && Viewport == rhs.Viewport;
+             ViewportMode == rhs.ViewportMode && Viewport == rhs.Viewport && PrimitiveTopology == rhs.PrimitiveTopology;
     }
 
     constexpr bool operator!=(const BasicMaterialInfo& rhs) const noexcept

@@ -38,7 +38,7 @@
 
 namespace Fsl
 {
-  namespace DemoHost_Internal
+  namespace DemoHostInternal
   {
     // DemoAppFactoryTemplate
     template <typename T>

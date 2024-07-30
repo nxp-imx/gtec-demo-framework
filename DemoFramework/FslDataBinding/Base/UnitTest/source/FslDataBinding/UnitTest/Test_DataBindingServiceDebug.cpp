@@ -46,6 +46,7 @@ using namespace Fsl;
 
 namespace
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class Test_DataBindingServiceDebug : public TestFixtureFslBaseContent
   {
   };

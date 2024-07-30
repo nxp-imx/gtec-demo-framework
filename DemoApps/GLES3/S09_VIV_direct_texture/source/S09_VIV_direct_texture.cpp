@@ -31,7 +31,7 @@
 
 #include "S09_VIV_direct_texture.hpp"
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <EGL/egl.h>
@@ -88,7 +88,7 @@ namespace Fsl
     , m_dataIndex(0)
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
-    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray));
+    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), SpanUtil::AsReadOnlySpan(g_shaderAttributeArray));
 
     const GLuint programHandle = m_program.Get();
     GL_CHECK(glUseProgram(programHandle));

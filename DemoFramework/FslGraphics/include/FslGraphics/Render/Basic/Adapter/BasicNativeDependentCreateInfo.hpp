@@ -40,6 +40,7 @@ namespace Fsl
   struct BasicNativeDependentCreateInfo
   {
     const PxExtent2D ExtentPx;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const BasicNativeDependentCustomCreateInfo* pCustomCreateInfo;
 
     BasicNativeDependentCreateInfo(const PxExtent2D& extentPx, const BasicNativeDependentCustomCreateInfo* const pCustomCreateInfo2)

@@ -35,13 +35,21 @@ namespace Fsl::Willems::MeshLoader
 {
   enum class VertexLayout
   {
+    // NOLINTNEXTLINE(readability-identifier-naming)
     VERTEX_LAYOUT_POSITION = 0x0,
+    // NOLINTNEXTLINE(readability-identifier-naming)
     VERTEX_LAYOUT_NORMAL = 0x1,
+    // NOLINTNEXTLINE(readability-identifier-naming)
     VERTEX_LAYOUT_COLOR = 0x2,
+    // NOLINTNEXTLINE(readability-identifier-naming)
     VERTEX_LAYOUT_UV = 0x3,
+    // NOLINTNEXTLINE(readability-identifier-naming)
     VERTEX_LAYOUT_TANGENT = 0x4,
+    // NOLINTNEXTLINE(readability-identifier-naming)
     VERTEX_LAYOUT_BITANGENT = 0x5,
+    // NOLINTNEXTLINE(readability-identifier-naming)
     VERTEX_LAYOUT_DUMMY_FLOAT = 0x6,
+    // NOLINTNEXTLINE(readability-identifier-naming)
     VERTEX_LAYOUT_DUMMY_VEC4 = 0x7
   };
 }

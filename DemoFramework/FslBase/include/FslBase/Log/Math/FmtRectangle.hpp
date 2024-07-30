@@ -40,15 +40,17 @@ namespace fmt
   struct formatter<Fsl::Rectangle>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::Rectangle& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{X={} Y={} Width={} Height={}}}", value.X(), value.Y(), value.Width(), value.Height());
+      return fmt::format_to(ctx.out(), "{{X={} Y={} Width={} Height={}}}", value.X(), value.Y(), value.Width(), value.Height());
     }
   };
 }

@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 
 
 namespace Fsl
@@ -46,7 +46,7 @@ namespace Fsl
     // The hair density
     float m_hairDensity;
     // The size of the fur texture (pow 2 value, if too large it will crash the app)
-    Point2 m_furTextureDimensions;
+    PxSize2D m_furTextureSize;
 
     int m_torusMajorSegments;
     int m_torusMinorSegments;
@@ -80,9 +80,9 @@ namespace Fsl
     void SetHairLength(const float value);
     float GetHairDensity() const;
     void SetHairDensity(const float value);
-    Point2 GetFurTextureDimensions() const;
-    void SetFurTextureDimensions(const Point2 value);
-    void SetFurTextureDimensions(const int32_t value);
+    PxSize2D GetFurTextureSize() const;
+    void SetFurTextureSize(const PxSize2D value);
+    void SetFurTextureSize(const int32_t value);
     int GetTorusMajorSegments() const;
     void SetTorusMajorSegments(const int value);
     int GetTorusMinorSegments() const;

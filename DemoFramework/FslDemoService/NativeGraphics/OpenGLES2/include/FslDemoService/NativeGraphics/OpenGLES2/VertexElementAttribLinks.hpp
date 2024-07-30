@@ -33,7 +33,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES2/VertexAttribConfig.hpp>
 #include <FslUtil/OpenGLES2/GLVertexAttribLink.hpp>
 #include <FslUtil/OpenGLES2/GLVertexElementAttribConfig.hpp>
@@ -66,7 +66,7 @@ namespace Fsl
 
       ReadOnlySpan<GLVertexElementAttribConfig> AsSpan() const noexcept
       {
-        return ReadOnlySpanUtil::AsSpan(m_array.Entries, 0, m_array.Count, OptimizationCheckFlag::NoCheck);
+        return SpanUtil::UncheckedAsReadOnlySpan(m_array.Entries, 0, m_array.Count);
       }
 
       uint32_t VertexStride() const noexcept

@@ -37,6 +37,7 @@
 #include <FslSimpleUI/Base/UnitTest/TestFixtureFslSimpleUIUITree.hpp>
 #include <FslSimpleUI/Base/UnitTest/WindowMethodFlags.hpp>
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 class TestUITree_Window : public TestFixtureFslSimpleUIUITree
 {
 public:

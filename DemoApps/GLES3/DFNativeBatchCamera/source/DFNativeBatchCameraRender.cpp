@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <Shared/Camera/Platform/PlatformCameraSystem.hpp>
@@ -50,9 +51,8 @@ namespace Fsl
     {
       bool hasNewFrame = false;
       {    // Capture a frame into a bitmap
-        RawBitmapEx rawBitmap;
-        Bitmap::ScopedDirectAccess directAccess(rScratchpadBitmap, rawBitmap);
-        hasNewFrame = rCamera.TryRender(rawBitmap, rCameraFrameId);
+        Bitmap::ScopedDirectReadWriteAccess directAccess(rScratchpadBitmap);
+        hasNewFrame = rCamera.TryRender(directAccess.AsRawBitmap(), rCameraFrameId);
       }
 
       if (hasNewFrame)
@@ -68,7 +68,7 @@ namespace Fsl
   DFNativeBatchCameraRender::DFNativeBatchCameraRender()
     : m_cameraSystem(Helios::PlatformCameraSystem::CreateCameraSystem())
     , m_camera(m_cameraSystem.Create())
-    , m_cameraFrameBitmap(m_camera.GetExtent(), m_camera.GetPixelFormat(), m_camera.GetStride(), BitmapOrigin::LowerLeft)
+    , m_cameraFrameBitmap(m_camera.GetSize(), m_camera.GetPixelFormat(), m_camera.GetStride(), BitmapOrigin::LowerLeft)
     , m_cameraFrameId(0)
   {
     // Set the initial image
@@ -90,19 +90,19 @@ namespace Fsl
     // const Point2 nativeTexSize = m_nativeTexture.GetSize();
 
     // GLES3 native texture as native resolution
-    nativeBatch->Draw(m_nativeTexture, Vector2(0, 0), Color::White());
+    nativeBatch->Draw(m_nativeTexture, Vector2(0, 0), Colors::White());
 
     // GLES3 native texture handle at top right corner scaled to a 4th of its size
-    constexpr PxSize1D div4 = PxSize1D::Create(4);
-    PxPoint2 scaledSize(nativeTextureSize.Width() / div4, nativeTextureSize.Height() / div4);
+    constexpr PxSize1D Div4 = PxSize1D::Create(4);
+    PxPoint2 scaledSize(nativeTextureSize.Width() / Div4, nativeTextureSize.Height() / Div4);
     PxRectangle dstRectangle(resPx.Width() - scaledSize.X, PxValue(0), scaledSize.X, scaledSize.Y);
-    nativeBatch->Draw(GLES3::GLTextureInfo(m_nativeTexture.Get(), m_nativeTexture.GetSize()), dstRectangle, Color::White());
+    nativeBatch->Draw(GLES3::GLTextureInfo(m_nativeTexture.Get(), m_nativeTexture.GetSize()), dstRectangle, Colors::White());
 
     // API independent texture
     // const Point2 texSize = m_texture2D.GetSize();
-    // m_nativeBatch->Draw(m_texture2D, Vector2(res.X - texSize.X, offsetY), Color::White());
+    // m_nativeBatch->Draw(m_texture2D, Vector2(res.X - texSize.X, offsetY), Colors::White());
     // m_nativeBatch->Draw(m_texture2D, Rectangle(res.X - texSize.X - texSize.X / 2, offsetY + texSize.Y, texSize.X / 2, texSize.Y / 2),
-    // Color::White());
+    // Colors::White());
 
     nativeBatch->End();
   }

@@ -42,6 +42,13 @@ namespace Fsl::DataBinding::Internal
   public:
     using property_value_type = TPropertyValue;
 
+
+    bool IsReadOnly() const noexcept final
+    {
+      return false;
+    }
+
+
     std::type_index GetType() const final
     {
       return typeid(property_value_type);

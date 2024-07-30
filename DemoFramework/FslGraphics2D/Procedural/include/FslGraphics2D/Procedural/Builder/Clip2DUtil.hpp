@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Pixel/PxVector2.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <array>
 
 namespace Fsl::Clip2DUtil
@@ -88,7 +89,7 @@ namespace Fsl::Clip2DUtil
     assert(startIndex <= rCoordsPxf.size());
     assert(index <= rCoordsPxf.size());
     assert(startIndex <= index);
-    return ReadOnlySpan<PxVector2>(rCoordsPxf.data() + startIndex, index - startIndex, OptimizationCheckFlag::NoCheck);
+    return SpanUtil::UncheckedAsReadOnlySpan(rCoordsPxf, startIndex, index - startIndex);
   }
 }
 

@@ -30,7 +30,6 @@ SOFTWARE.
 #include <FslBase/Attributes.hpp>
 #include <FslBase/Math/MatrixFields.hpp>
 #include <FslBase/Math/Vector3.hpp>
-#include <algorithm>
 #include <cstddef>
 // #include <FslBase/OptimizationFlag.hpp>
 
@@ -55,7 +54,7 @@ namespace Fsl
 
     static constexpr size_type NumElements = 4 * 4;
 
-    constexpr size_type size() const noexcept    // NOLINT(readability-convert-member-functions-to-static)
+    constexpr size_type size() const noexcept    // NOLINT(readability-convert-member-functions-to-static,readability-identifier-naming)
     {
       return NumElements;
     }
@@ -88,7 +87,7 @@ namespace Fsl
     //  };
     //  float m[4 * 4];
     //};
-    float m[NumElements]{};    // NOLINT(modernize-avoid-c-arrays)
+    float m[NumElements]{};    // NOLINT(modernize-avoid-c-arrays,readability-identifier-naming)
 
   public:
     //! @brief Creates a empty matrix (all components are set to zero)

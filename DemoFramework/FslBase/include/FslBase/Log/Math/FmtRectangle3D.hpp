@@ -42,15 +42,17 @@ namespace fmt
   struct formatter<Fsl::Rectangle3D>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::Rectangle3D& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{Offset={} Extent={}}}", value.Offset, value.Extent);
+      return fmt::format_to(ctx.out(), "{{Offset={} Extent={}}}", value.Offset, value.Extent);
     }
   };
 }

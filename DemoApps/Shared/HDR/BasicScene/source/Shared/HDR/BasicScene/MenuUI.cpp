@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,22 +46,29 @@ namespace Fsl
     {
       constexpr ConstrainedValue<float> Exposure(1.0f, 0.0f, 10.0f);
     }
+
+
+    IO::Path GetAtlasName(const UI::UIColorSpace uiColorSpace, const IO::PathView path)
+    {
+      return IO::Path::Combine(uiColorSpace == UI::UIColorSpace::SRGBLinear ? "Linear" : "NonLinear", path);
+    }
   }
 
 
-  MenuUI::MenuUI(const DemoAppConfig& config, const ColorSpace uiColorSpace)
+  MenuUI::MenuUI(const DemoAppConfig& config, const UI::UIColorSpace uiColorSpace)
     : m_uiColorSpace(uiColorSpace)
     , m_uiEventListener(this)
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi",
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(),
+                                                         GetAtlasName(uiColorSpace, IO::PathView("UIAtlas/UIAtlas_160dpi")),
                                                          UIDemoAppExtension::CreateConfig(m_uiColorSpace)))
     , m_state(SceneState::Invalid)
-    , m_scene1LabelAlpha(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
-    , m_scene2LabelAlpha(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
-    , m_menuTextLDR("LDR scene")
+    , m_scene1LabelAlpha(TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
+    , m_scene2LabelAlpha(TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
+    , m_menuTextLDR("SDR scene")
     , m_menuTextHDR("HDR scene")
-    , m_captionTopLeft("LDR")
+    , m_captionTopLeft("SDR")
     , m_captionTopRight("HDR")
-    , SplitX(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , SplitX(TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
   {
     const auto options = config.GetOptions<OptionParser>();
     SetState(options->GetScene());
@@ -198,10 +205,8 @@ namespace Fsl
   }
 
 
-  void MenuUI::OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void MenuUI::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
-
     if (theEvent->IsHandled())
     {
       return;
@@ -258,11 +263,11 @@ namespace Fsl
     const float alpha2 = m_scene2LabelAlpha.GetValue();
     if (m_labelTopLeft)
     {
-      m_labelTopLeft->SetFontColor(Color(alpha1, alpha1, alpha1, alpha1));
+      m_labelTopLeft->SetFontColor(UI::UIColor(alpha1, alpha1, alpha1, alpha1));
     }
     if (m_labelTopRight)
     {
-      m_labelTopRight->SetFontColor(Color(alpha2, alpha2, alpha2, alpha2));
+      m_labelTopRight->SetFontColor(UI::UIColor(alpha2, alpha2, alpha2, alpha2));
     }
   }
 
@@ -468,7 +473,7 @@ namespace Fsl
   }
 
 
-  std::shared_ptr<UI::BaseWindow> MenuUI::CreateConfigDialog(const std::shared_ptr<UI::WindowContext>& context, const ColorSpace colorSpace)
+  std::shared_ptr<UI::BaseWindow> MenuUI::CreateConfigDialog(const std::shared_ptr<UI::WindowContext>& context, const UI::UIColorSpace colorSpace)
   {
     auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension, colorSpace);
     auto& factory = *uiControlFactory;

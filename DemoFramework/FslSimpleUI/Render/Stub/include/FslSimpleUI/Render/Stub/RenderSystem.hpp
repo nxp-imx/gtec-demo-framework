@@ -62,9 +62,9 @@ namespace Fsl::UI::RenderStub
     DrawCommandBuffer& AcquireDrawCommandBuffer(const bool clear) final;
     void ReleaseDrawCommandBuffer() final;
 
-    void PreDraw() final{};
+    void PreDraw() final {};
     void Draw(RenderPerformanceCapture* const pPerformanceCapture) final;
-    void PostDraw() final{};
+    void PostDraw() final {};
 
     RenderSystemStats GetStats() const final
     {

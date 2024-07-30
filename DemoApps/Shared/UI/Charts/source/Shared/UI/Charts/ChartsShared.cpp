@@ -70,12 +70,12 @@ namespace Fsl
 
     namespace LocalColor
     {
-      constexpr Color Median(0xFFC0C0C0);
+      constexpr UI::UIColor Median(PackedColor32(0xFFC0C0C0));
 
-      constexpr Color Green(0xFF7B9E05);        // green
-      constexpr Color LightBlue(0xFF3488A7);    // light blue
-      constexpr Color Orange(0xFFCC7000);       // orange
-      constexpr Color Red(0xFFA00000);          // red
+      constexpr UI::UIColor Green(PackedColor32(0xFF7B9E05));        // green
+      constexpr UI::UIColor LightBlue(PackedColor32(0xFF3488A7));    // light blue
+      constexpr UI::UIColor Orange(PackedColor32(0xFFCC7000));       // orange
+      constexpr UI::UIColor Red(PackedColor32(0xFFA00000));          // red
 
       // constexpr Color Profile0(0xFF7B9E05);    // green
       // constexpr Color Profile1(0xFF882807);    // brown
@@ -174,9 +174,8 @@ namespace Fsl
   ChartsShared::~ChartsShared() = default;
 
 
-  void ChartsShared::OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void ChartsShared::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
     if (theEvent->GetSource() == m_uiRecord.Menu.BtnDataGenOne)
     {
       m_dataGenerator.Mode = DataMode::GenerateOne;
@@ -195,9 +194,8 @@ namespace Fsl
     }
   }
 
-  void ChartsShared::OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void ChartsShared::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
     // if (theEvent->GetSource() == m_uiRecord.DrawOutlineCheckBox || theEvent->GetSource() == m_uiRecord.DrawShadowCheckBox)
     //{
     //  UpdateLinkedUIState();
@@ -274,7 +272,7 @@ namespace Fsl
 
       if (m_dataGenerator.TimeLeft.Ticks() <= 0)
       {
-        // float generatorDeltaTime = static_cast<float>(static_cast<double>(m_dataGenerator.TimePassed.Ticks()) / double(TimeInfo::TicksPerSecond));
+        // float generatorDeltaTime = static_cast<float>(static_cast<double>(m_dataGenerator.TimePassed.Ticks()) / double(TimeSpan::TicksPerSecond));
         const float generatorDeltaTime = demoTime.DeltaTime;
         m_dataGenerator.TimeLeft = LocalConfig::DataGeneratorPeriod;
         // m_dataGenerator.TimePassed = {};

@@ -71,19 +71,19 @@ namespace Fsl
   void MeshRenderBasic::Bind(const ShaderBase& shader)
   {
     ShaderVertexConfig shaderConfig = shader.GetShaderConfig();
-    if (shaderConfig.Position != GLValues::INVALID_LOCATION)
+    if (shaderConfig.Position != GLValues::InvalidLocation)
     {
       glVertexAttribPointer(shaderConfig.Position, 3, GL_FLOAT, GL_FALSE, 0, m_vertices.data());
       glEnableVertexAttribArray(shaderConfig.Position);
     }
 
-    if (shaderConfig.Normal != GLValues::INVALID_LOCATION)
+    if (shaderConfig.Normal != GLValues::InvalidLocation)
     {
       glVertexAttribPointer(shaderConfig.Normal, 3, GL_FLOAT, GL_FALSE, 0, m_normals.data());
       glEnableVertexAttribArray(shaderConfig.Normal);
     }
 
-    if (shaderConfig.TexCoord != GLValues::INVALID_LOCATION)
+    if (shaderConfig.TexCoord != GLValues::InvalidLocation)
     {
       glVertexAttribPointer(shaderConfig.TexCoord, 2, GL_FLOAT, GL_FALSE, 0, m_textureCoords.data());
       glEnableVertexAttribArray(shaderConfig.TexCoord);

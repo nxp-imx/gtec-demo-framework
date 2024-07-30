@@ -35,7 +35,7 @@
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 #include <FslBase/Math/SpanRange.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <unordered_map>
 #include <vector>
@@ -184,7 +184,7 @@ namespace Fsl
     ReadOnlySpan<uint32_t> TryGetChunkEntries(const uint16_t chunkX, const uint16_t chunkY) const noexcept
     {
       return (chunkX < m_gridCellCountX && chunkY < m_gridCellCountY)
-               ? ReadOnlySpanUtil::AsSpan(m_entries[chunkX + (chunkY * m_gridCellCountX)].Bucket)
+               ? SpanUtil::AsReadOnlySpan(m_entries[chunkX + (chunkY * m_gridCellCountX)].Bucket)
                : ReadOnlySpan<uint32_t>();
     }
 
@@ -192,7 +192,7 @@ namespace Fsl
     {
       assert(chunkX < m_gridCellCountX);
       assert(chunkY < m_gridCellCountY);
-      return ReadOnlySpanUtil::AsSpan(m_entries[chunkX + (chunkY * m_gridCellCountX)].Bucket);
+      return SpanUtil::AsReadOnlySpan(m_entries[chunkX + (chunkY * m_gridCellCountX)].Bucket);
     }
   };
 }

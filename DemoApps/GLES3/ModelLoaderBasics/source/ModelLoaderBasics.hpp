@@ -56,13 +56,13 @@ namespace Fsl
       GLES3::GLIndexBufferArray IndexBuffers;
       GLES3::GLVertexBufferArray VertexBuffers;
       GLES3::GLProgram Program;
-      GLint LocWorldView = GLES3::GLValues::INVALID_LOCATION;
-      GLint LocWorldViewProjection = GLES3::GLValues::INVALID_LOCATION;
-      GLint LocNormalMatrix = GLES3::GLValues::INVALID_LOCATION;
-      GLint LocTexture0 = GLES3::GLValues::INVALID_LOCATION;
-      GLint LocLightDirection = GLES3::GLValues::INVALID_LOCATION;
-      GLint LocLightColor = GLES3::GLValues::INVALID_LOCATION;
-      GLint LocAmbientColor = GLES3::GLValues::INVALID_LOCATION;
+      GLint LocWorldView = GLES3::GLValues::InvalidLocation;
+      GLint LocWorldViewProjection = GLES3::GLValues::InvalidLocation;
+      GLint LocNormalMatrix = GLES3::GLValues::InvalidLocation;
+      GLint LocTexture0 = GLES3::GLValues::InvalidLocation;
+      GLint LocLightDirection = GLES3::GLValues::InvalidLocation;
+      GLint LocLightColor = GLES3::GLValues::InvalidLocation;
+      GLint LocAmbientColor = GLES3::GLValues::InvalidLocation;
 
       std::array<GLES3::GLVertexAttribLink, 4> AttribLink{};
     };

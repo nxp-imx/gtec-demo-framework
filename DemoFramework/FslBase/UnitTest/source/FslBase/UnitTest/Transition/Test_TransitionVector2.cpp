@@ -30,7 +30,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Transition/TransitionCache.hpp>
 #include <FslBase/Transition/TransitionVector2.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
@@ -61,8 +60,7 @@ TEST(TestTransition_TransitionVector2, Construct_Default)
 
 TEST(TestTransition_TransitionVector2, Construct_CacheAndTimespan)
 {
-  TransitionCache cache;
-  TransitionVector2 transitionValue(cache, TimeSpan(10));
+  TransitionVector2 transitionValue(TimeSpan(10));
 
   EXPECT_TRUE(transitionValue.IsCompleted());
   EXPECT_EQ(TimeSpan(0), transitionValue.GetStartDelay());
@@ -75,7 +73,6 @@ TEST(TestTransition_TransitionVector2, Construct_CacheAndTimespan)
 
 TEST(TestTransition_TransitionVector2, SetTransitionTime)
 {
-  TransitionCache cache;
   TransitionVector2 transitionValue;
 
   EXPECT_TRUE(transitionValue.IsCompleted());
@@ -85,7 +82,7 @@ TEST(TestTransition_TransitionVector2, SetTransitionTime)
   EXPECT_EQ(Vector2(), transitionValue.GetActualValue());
   EXPECT_EQ(TimeSpan(0), transitionValue.GetTransitionTime());
 
-  transitionValue.SetTransitionTime(cache, TimeSpan(10));
+  transitionValue.SetTransitionTime(TimeSpan(10));
 
   EXPECT_TRUE(transitionValue.IsCompleted());
   EXPECT_EQ(TimeSpan(0), transitionValue.GetStartDelay());
@@ -97,8 +94,7 @@ TEST(TestTransition_TransitionVector2, SetTransitionTime)
 
 TEST(TestTransition_TransitionVector2, SetValue)
 {
-  TransitionCache cache;
-  TransitionVector2 transitionValue(cache, TimeSpan(2), TransitionType::Linear);
+  TransitionVector2 transitionValue(TimeSpan(2), TransitionType::Linear);
 
   const Vector2 value(42.0f, 20.0f);
 
@@ -133,8 +129,7 @@ TEST(TestTransition_TransitionVector2, SetValue)
 
 TEST(TestTransition_TransitionVector2, SetActualValue)
 {
-  TransitionCache cache;
-  TransitionVector2 transitionValue(cache, TimeSpan(2), TransitionType::Linear);
+  TransitionVector2 transitionValue(TimeSpan(2), TransitionType::Linear);
 
   const Vector2 value(42.0f, 20.0f);
   const Vector2 overrideValue(80.0f, 40.0f);
@@ -164,8 +159,7 @@ TEST(TestTransition_TransitionVector2, SetActualValue)
 
 TEST(TestTransition_TransitionVector2, SetStartDelay)
 {
-  TransitionCache cache;
-  TransitionVector2 transitionValue(cache, TimeSpan(2), TransitionType::Linear);
+  TransitionVector2 transitionValue(TimeSpan(2), TransitionType::Linear);
 
   const Vector2 value(42.0f, 20.0f);
 

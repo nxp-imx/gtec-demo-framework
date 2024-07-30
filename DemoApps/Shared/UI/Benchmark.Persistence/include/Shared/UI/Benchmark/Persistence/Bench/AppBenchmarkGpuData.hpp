@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkGpuRecord.hpp>
 #include <vector>
 
@@ -44,7 +44,7 @@ namespace Fsl
 
     AppBenchmarkGpuData() = default;
     explicit AppBenchmarkGpuData(const ReadOnlySpan<AppBenchmarkGpuRecord> span)
-      : Entries(ReadOnlySpanUtil::ToVector(span))
+      : Entries(SpanUtil::ToVector(span))
     {
     }
   };

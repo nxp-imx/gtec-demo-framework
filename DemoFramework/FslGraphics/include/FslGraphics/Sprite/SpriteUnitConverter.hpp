@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_SPRITE_SPRITEUNITCONVERTER_HPP
 #define FSLGRAPHICS_SPRITE_SPRITEUNITCONVERTER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022-2023 NXP
+ * Copyright 2020, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -227,6 +227,18 @@ namespace Fsl
       assert(scaledX >= 0.0f && scaledX <= float(std::numeric_limits<DpPoint2::raw_value_type>::max()));
       assert(scaledY >= 0.0f && scaledY <= float(std::numeric_limits<DpPoint2::raw_value_type>::max()));
       return DpPoint2::Create(static_cast<DpPoint2::raw_value_type>(scaledX), static_cast<DpPoint2::raw_value_type>(scaledY));
+    }
+
+
+    DpPoint2F ToDpPoint2F(const PxPoint2 valuePx) const noexcept
+    {
+      if (m_densityDpi == SpriteDpConfig::BaseDpi)
+      {
+        return DpPoint2F::Create(static_cast<float>(valuePx.X.Value), static_cast<float>(valuePx.Y.Value));
+      }
+      const float scaledX = static_cast<float>(valuePx.X.Value) * m_scalePxToDpf;
+      const float scaledY = static_cast<float>(valuePx.Y.Value) * m_scalePxToDpf;
+      return DpPoint2F::Create(scaledX, scaledY);
     }
 
 

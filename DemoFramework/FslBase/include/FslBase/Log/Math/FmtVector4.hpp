@@ -40,15 +40,17 @@ namespace fmt
   struct formatter<Fsl::Vector4>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::Vector4& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{X={} Y={} Z={} W={}}}", value.X, value.Y, value.Z, value.W);
+      return fmt::format_to(ctx.out(), "{{X={} Y={} Z={} W={}}}", value.X, value.Y, value.Z, value.W);
     }
   };
 }

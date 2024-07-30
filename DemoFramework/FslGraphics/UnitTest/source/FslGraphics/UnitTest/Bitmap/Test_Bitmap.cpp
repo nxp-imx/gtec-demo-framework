@@ -51,9 +51,15 @@ TEST(TestBitmap_Bitmap, Construct_Default)
 {
   Bitmap bitmap;
   EXPECT_FALSE(bitmap.IsValid());
-  EXPECT_EQ(0u, bitmap.Width());
-  EXPECT_EQ(0u, bitmap.Height());
-  EXPECT_EQ(PxSize2D(), bitmap.Size());
+  EXPECT_EQ(PxSize1D(), bitmap.Width());
+  EXPECT_EQ(PxSize1D(), bitmap.Height());
+  EXPECT_EQ(PxValueU(), bitmap.UnsignedWidth());
+  EXPECT_EQ(PxValueU(), bitmap.UnsignedHeight());
+  EXPECT_EQ(0, bitmap.RawWidth());
+  EXPECT_EQ(0, bitmap.RawHeight());
+  EXPECT_EQ(0u, bitmap.RawUnsignedWidth());
+  EXPECT_EQ(0u, bitmap.RawUnsignedHeight());
+  EXPECT_EQ(PxSize2D(), bitmap.GetSize());
   EXPECT_EQ(0u, bitmap.Stride());
   EXPECT_EQ(PxExtent2D(), bitmap.GetExtent());
   EXPECT_EQ(BitmapOrigin::UpperLeft, bitmap.GetOrigin());

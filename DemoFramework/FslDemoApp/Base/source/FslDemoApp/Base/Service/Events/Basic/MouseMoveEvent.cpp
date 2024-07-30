@@ -34,20 +34,21 @@
 
 namespace Fsl
 {
-  MouseMoveEvent::MouseMoveEvent(const PxPoint2& position, const VirtualMouseButtonFlags& mouseButtonFlags, const bool isTouch)
-    : BasicEvent(EventType::MouseMove, NativeWindowEventHelper::EncodePosition(position),
+  MouseMoveEvent::MouseMoveEvent(const MillisecondTickCount32 timestamp, const PxPoint2 position, const VirtualMouseButtonFlags mouseButtonFlags,
+                                 const bool isTouch) noexcept
+    : BasicEvent(EventType::MouseMove, timestamp, NativeWindowEventHelper::EncodePosition(position),
                  NativeWindowEventHelper::EncodeVirtualMouseButtonFlags(mouseButtonFlags), isTouch ? 1 : 0)
   {
   }
 
 
-  PxPoint2 MouseMoveEvent::GetPosition() const
+  PxPoint2 MouseMoveEvent::GetPosition() const noexcept
   {
     return NativeWindowEventHelper::DecodePosition(m_arg1);
   }
 
 
-  VirtualMouseButtonFlags MouseMoveEvent::GetMouseButtonFlags() const
+  VirtualMouseButtonFlags MouseMoveEvent::GetMouseButtonFlags() const noexcept
   {
     return NativeWindowEventHelper::DecodeVirtualMouseButtonFlags(m_arg2);
   }

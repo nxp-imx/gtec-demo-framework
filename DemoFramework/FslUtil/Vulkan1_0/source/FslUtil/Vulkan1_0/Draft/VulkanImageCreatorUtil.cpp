@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017, 2022 NXP
+ * Copyright 2017, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,10 +31,10 @@
 
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
-#include <FslGraphics/Bitmap/RawBitmap.hpp>
 #include <FslGraphics/Bitmap/RawCubeBitmap.hpp>
+#include <FslGraphics/Bitmap/ReadOnlyRawBitmap.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
-#include <FslGraphics/Texture/RawTexture.hpp>
+#include <FslGraphics/Texture/ReadOnlyRawTexture.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreatorUtil.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
@@ -62,7 +62,7 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
 {
   namespace
   {
-    inline void CopyToBuffer(VUBufferMemory& rStagingBuffer, const RawTexture& rawSrc)
+    inline void CopyToBuffer(VUBufferMemory& rStagingBuffer, const ReadOnlyRawTexture& rawSrc)
     {
       rStagingBuffer.Upload(0, rawSrc.GetContent(), rawSrc.GetByteSize());
     }
@@ -70,9 +70,8 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
 
     inline void CopyToBuffer(VUBufferMemory& rStagingBuffer, const Texture& src)
     {
-      RawTexture rawSrc;
-      Texture::ScopedDirectAccess directAccess(src, rawSrc);
-      CopyToBuffer(rStagingBuffer, rawSrc);
+      Texture::ScopedDirectReadAccess directAccess(src);
+      CopyToBuffer(rStagingBuffer, directAccess.AsRawTexture());
     }
 
 
@@ -131,7 +130,7 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
       return imageCreateInfo;
     }
 
-    //! @brief Create a image from a Bitmap or RawBitmap using staging
+    //! @brief Create a image from a Bitmap or ReadOnlyRawBitmap using staging
     template <typename TBitmap>
     void DoCreateBitmap(VUImage& rDstImage, Memory& rDstMemory, const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device,
                         const VkQueue queue, const VkCommandBuffer commandBuffer, const TBitmap& src, const VkAccessFlags accessMask,
@@ -309,7 +308,8 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
 
 
   void Create(VUImage& rDstImage, Memory& rDstMemory, const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkQueue queue,
-              const VkCommandBuffer commandBuffer, const RawBitmap& src, const VkAccessFlags accessMask, const VkImageUsageFlags imageUsageFlags)
+              const VkCommandBuffer commandBuffer, const ReadOnlyRawBitmap& src, const VkAccessFlags accessMask,
+              const VkImageUsageFlags imageUsageFlags)
   {
     DoCreateBitmap(rDstImage, rDstMemory, physicalDevice, device, queue, commandBuffer, src, accessMask, imageUsageFlags);
   }
@@ -330,7 +330,8 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
 
 
   void Create(VUImage& rDstImage, Memory& rDstMemory, const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkQueue queue,
-              const VkCommandBuffer commandBuffer, const RawTexture& src, const VkAccessFlags accessMask, const VkImageUsageFlags imageUsageFlags)
+              const VkCommandBuffer commandBuffer, const ReadOnlyRawTexture& src, const VkAccessFlags accessMask,
+              const VkImageUsageFlags imageUsageFlags)
   {
     DoCreateTexture(rDstImage, rDstMemory, physicalDevice, device, queue, commandBuffer, src, accessMask, imageUsageFlags);
   }
@@ -340,9 +341,9 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
                     const VkQueue queue, const VkCommandBuffer commandBuffer, const Bitmap& src, const VkAccessFlags accessMask,
                     const VkSampleCountFlagBits samples, const VkImageUsageFlags imageUsageFlags)
   {
-    RawBitmap srcRaw;
-    Bitmap::ScopedDirectAccess directAccess(src, srcRaw);
-    CreateLinear(rDstImage, rDstMemory, physicalDevice, device, queue, commandBuffer, srcRaw, accessMask, samples, imageUsageFlags);
+    const Bitmap::ScopedDirectReadAccess directAccess(src);
+    CreateLinear(rDstImage, rDstMemory, physicalDevice, device, queue, commandBuffer, directAccess.AsRawBitmap(), accessMask, samples,
+                 imageUsageFlags);
   }
 
   //! @brief Linear allocation of image data
@@ -351,7 +352,7 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
   //!             This image type is optimal for textures that gets updated by the CPU each frame.
   //!             However we currently transition it to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
   void CreateLinear(Vulkan::VUImage& rDstImage, Memory& rDstMemory, const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device,
-                    const VkQueue queue, const VkCommandBuffer commandBuffer, const RawBitmap& src, const VkAccessFlags accessMask,
+                    const VkQueue queue, const VkCommandBuffer commandBuffer, const ReadOnlyRawBitmap& src, const VkAccessFlags accessMask,
                     const VkSampleCountFlagBits samples, const VkImageUsageFlags imageUsageFlags)
   {
     FSL_PARAM_NOT_USED(accessMask);
@@ -366,8 +367,8 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
 
     const TextureInfo textureInfo(1, 1, 1);
     VkExtent3D srcExtent{};
-    srcExtent.width = src.Width();
-    srcExtent.height = src.Height();
+    srcExtent.width = src.RawUnsignedWidth();
+    srcExtent.height = src.RawUnsignedHeight();
     srcExtent.depth = 1;
 
     auto imageCreateInfo = FillLinearImageCreateInfo(VK_IMAGE_TYPE_2D, VulkanConvert::ToVkFormat(src.GetPixelFormat()), srcExtent, samples,
@@ -428,14 +429,14 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
                     const VkQueue queue, const VkCommandBuffer commandBuffer, const Texture& src, const VkAccessFlags accessMask,
                     const VkSampleCountFlagBits samples, const VkImageUsageFlags imageUsageFlags)
   {
-    RawTexture srcRaw;
-    Texture::ScopedDirectAccess directAccess(src, srcRaw);
-    CreateLinear(rDstImage, rDstMemory, physicalDevice, device, queue, commandBuffer, srcRaw, accessMask, samples, imageUsageFlags);
+    Texture::ScopedDirectReadAccess directAccess(src);
+    CreateLinear(rDstImage, rDstMemory, physicalDevice, device, queue, commandBuffer, directAccess.AsRawTexture(), accessMask, samples,
+                 imageUsageFlags);
   }
 
 
   void CreateLinear(Vulkan::VUImage& rDstImage, Memory& rDstMemory, const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device,
-                    const VkQueue queue, const VkCommandBuffer commandBuffer, const RawTexture& src, const VkAccessFlags accessMask,
+                    const VkQueue queue, const VkCommandBuffer commandBuffer, const ReadOnlyRawTexture& src, const VkAccessFlags accessMask,
                     const VkSampleCountFlagBits samples, const VkImageUsageFlags imageUsageFlags)
   {
     FSL_PARAM_NOT_USED(rDstImage);
@@ -463,14 +464,14 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
       throw NotSupportedException("We only support minimum stride bitmaps");
     }
 
-    RawBitmap srcRawBitmap;
-    Bitmap::ScopedDirectAccess directAccess(src, srcRawBitmap);
-    CreateUsingStaging(rDstImage, rDstMemory, physicalDevice, device, queue, commandBuffer, srcRawBitmap, accessMask, samples, imageUsageFlags);
+    const Bitmap::ScopedDirectReadAccess directAccess(src);
+    CreateUsingStaging(rDstImage, rDstMemory, physicalDevice, device, queue, commandBuffer, directAccess.AsRawBitmap(), accessMask, samples,
+                       imageUsageFlags);
   }
 
 
   void CreateUsingStaging(Vulkan::VUImage& rDstImage, Memory& rDstMemory, const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device,
-                          const VkQueue queue, const VkCommandBuffer commandBuffer, const RawBitmap& src, const VkAccessFlags accessMask,
+                          const VkQueue queue, const VkCommandBuffer commandBuffer, const ReadOnlyRawBitmap& src, const VkAccessFlags accessMask,
                           const VkSampleCountFlagBits samples, const VkImageUsageFlags imageUsageFlags)
   {
     FSL_PARAM_NOT_USED(accessMask);
@@ -478,7 +479,7 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
     const auto minimumStride = PixelFormatUtil::CalcMinimumStride(src.Width(), src.GetPixelFormat());
     if (minimumStride != src.Stride())
     {
-      throw UsageErrorException("We only support minimum stride RawBitmap");
+      throw UsageErrorException("We only support minimum stride ReadOnlyRawBitmapReadOnlyRawBitmap");
     }
 
     VkBufferCreateInfo bufferCreateInfo{};
@@ -494,8 +495,8 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
 
     const TextureInfo textureInfo(1, 1, 1);
     VkExtent3D srcExtent{};
-    srcExtent.width = src.Width();
-    srcExtent.height = src.Height();
+    srcExtent.width = src.RawUnsignedWidth();
+    srcExtent.height = src.RawUnsignedHeight();
     srcExtent.depth = 1;
 
     std::array<VkBufferImageCopy, 1> bufferImageCopy{};
@@ -540,7 +541,7 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
   {
     FSL_PARAM_NOT_USED(accessMask);
 
-    const auto minimumStride = PixelFormatUtil::CalcMinimumStride(src.Width(), src.GetPixelFormat());
+    const auto minimumStride = PixelFormatUtil::CalcMinimumStride(PxValueU::Create(src.Width()), src.GetPixelFormat());
     if (minimumStride != src.GetPosX().Stride() || minimumStride != src.GetNegX().Stride() || minimumStride != src.GetPosY().Stride() ||
         minimumStride != src.GetNegY().Stride() || minimumStride != src.GetPosZ().Stride() || minimumStride != src.GetNegZ().Stride())
     {
@@ -615,7 +616,7 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
 
 
   void CreateUsingStaging(VUImage& rDstImage, RapidVulkan::Memory& rDstMemory, const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device,
-                          const VkQueue queue, const VkCommandBuffer commandBuffer, const RawTexture& src, const VkAccessFlags accessMask,
+                          const VkQueue queue, const VkCommandBuffer commandBuffer, const ReadOnlyRawTexture& src, const VkAccessFlags accessMask,
                           const VkSampleCountFlagBits samples, const VkImageUsageFlags imageUsageFlags)
   {
     DoCreateUsingStaging(rDstImage, rDstMemory, physicalDevice, device, queue, commandBuffer, src, accessMask, samples, imageUsageFlags);
@@ -628,7 +629,7 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
   }
 
 
-  std::vector<VkBufferImageCopy> PrepareCopyRegions(const RawTexture& texture)
+  std::vector<VkBufferImageCopy> PrepareCopyRegions(const ReadOnlyRawTexture& texture)
   {
     return DoPrepareCopyRegions(texture);
   }

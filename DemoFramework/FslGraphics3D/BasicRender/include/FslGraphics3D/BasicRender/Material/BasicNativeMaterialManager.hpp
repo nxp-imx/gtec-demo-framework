@@ -76,7 +76,7 @@ namespace Fsl::Graphics3D
     BasicNativeMaterialManager(BasicNativeMaterialManager&& other) noexcept = delete;
     BasicNativeMaterialManager& operator=(BasicNativeMaterialManager&& other) noexcept = delete;
 
-    explicit BasicNativeMaterialManager(const IBasicShaderLookup& m_shaderLookup);
+    explicit BasicNativeMaterialManager(const IBasicShaderLookup& shaderLookup);
     ~BasicNativeMaterialManager() noexcept;
 
     bool IsValid() const noexcept

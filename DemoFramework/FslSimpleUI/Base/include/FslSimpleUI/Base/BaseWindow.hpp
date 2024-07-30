@@ -40,7 +40,7 @@
 #include <FslBase/Math/Vector2.hpp>
 #include <FslDataBinding/Base/Object/DependencyObject.hpp>
 #include <FslDataBinding/Base/Property/TypedDependencyProperty.hpp>
-#include <FslGraphics/Color.hpp>
+#include <FslGraphics/ColorsU16.hpp>
 #include <FslSimpleUI/Base/BaseWindowFlags.hpp>
 #include <FslSimpleUI/Base/DefaultValues.hpp>
 #include <FslSimpleUI/Base/DpLayoutSize1D.hpp>
@@ -49,8 +49,11 @@
 #include <FslSimpleUI/Base/ItemAlignment.hpp>
 #include <FslSimpleUI/Base/ItemVisibility.hpp>
 #include <FslSimpleUI/Base/LayoutCache.hpp>
+#include <FslSimpleUI/Base/Property/DependencyPropertyUIColor.hpp>
 #include <FslSimpleUI/Base/PxAvailableSize.hpp>
 #include <FslSimpleUI/Base/System/IEventListener.hpp>
+#include <FslSimpleUI/Base/UIColor.hpp>
+#include <FslSimpleUI/Base/UIColors.hpp>
 #include <memory>
 
 namespace Fsl
@@ -63,7 +66,6 @@ namespace Fsl
     struct PropertyTypeFlags;
     struct ResolutionChangedInfo;
     struct RoutedEvent;
-    struct RoutedEventArgs;
     struct UIDrawContext;
     class WindowEvent;
     class WindowEventPool;
@@ -75,6 +77,7 @@ namespace Fsl
     {
       using base_type = DataBinding::DependencyObject;
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       const std::shared_ptr<BaseWindowContext> m_context;
       std::shared_ptr<ITag> m_tag;
       int32_t m_tagValue{0};
@@ -88,24 +91,34 @@ namespace Fsl
       DataBinding::TypedDependencyProperty<DpThicknessF> m_propertyMarginDpf;
       DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyAlignmentX{ItemAlignment::Near};
       DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyAlignmentY{ItemAlignment::Near};
-      DataBinding::TypedDependencyProperty<Color> m_propertyBaseColor{Color::White()};
+      DependencyPropertyUIColor m_propertyBaseColor;
 
       BaseWindowFlags m_flags;
       LayoutCache m_layoutCache;
 
-      Color m_parentBaseColor{Color::White()};
-      Color m_cachedBaseColor{Color::White()};
+      UIRenderColor m_parentBaseColor{ColorsU16::White()};
+      UIRenderColor m_cachedBaseColor{ColorsU16::White()};
 
     public:
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyWidthDp;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyHeightDp;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyMinWidthDp;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyMinHeightDp;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyMaxWidthDp;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyMaxHeightDp;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyMarginDpf;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyAlignmentX;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyAlignmentY;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyBaseColor;
 
       BaseWindow(const BaseWindow&) = delete;
@@ -269,12 +282,12 @@ namespace Fsl
       bool SetAlignmentY(const ItemAlignment value);
 
 
-      Color GetBaseColor() const noexcept
+      UIColor GetBaseColor() const noexcept
       {
         return m_propertyBaseColor.Get();
       }
 
-      bool SetBaseColor(const Color value);
+      bool SetBaseColor(const UIColor value);
 
 
       ItemVisibility GetVisibility() const noexcept
@@ -347,7 +360,8 @@ namespace Fsl
 
       //! @brief This is only intended to be called internally from components reacting to the base color being changed to propagate it to the
       //! children.
-      void SYS_SetParentBaseColor(const Color color);
+      // NOLINTNEXTLINE(readability-identifier-naming)
+      void SYS_SetParentBaseColor(const UIRenderColor color);
 
 
       bool IsBusy() const noexcept
@@ -360,13 +374,13 @@ namespace Fsl
       {
       }
 
-      Color GetFinalBaseColor() const noexcept
+      UIRenderColor GetFinalBaseColor() const noexcept
       {
         return m_cachedBaseColor;
       }
 
 
-      Color GetParentBaseColor() const noexcept
+      UIRenderColor GetParentBaseColor() const noexcept
       {
         return m_parentBaseColor;
       }
@@ -385,34 +399,28 @@ namespace Fsl
       }
 
 
-      void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+      void OnClickInputPreview(const std::shared_ptr<WindowInputClickEvent>& theEvent) override
       {
-        FSL_PARAM_NOT_USED(args);
         FSL_PARAM_NOT_USED(theEvent);
       }
-      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+      void OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent) override
       {
-        FSL_PARAM_NOT_USED(args);
         FSL_PARAM_NOT_USED(theEvent);
       }
-      void OnMouseOverPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) override
+      void OnMouseOverPreview(const std::shared_ptr<WindowMouseOverEvent>& theEvent) override
       {
-        FSL_PARAM_NOT_USED(args);
         FSL_PARAM_NOT_USED(theEvent);
       }
-      void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) override
+      void OnMouseOver(const std::shared_ptr<WindowMouseOverEvent>& theEvent) override
       {
-        FSL_PARAM_NOT_USED(args);
         FSL_PARAM_NOT_USED(theEvent);
       }
-      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override
+      void OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent) override
       {
-        FSL_PARAM_NOT_USED(args);
         FSL_PARAM_NOT_USED(theEvent);
       }
-      void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override
+      void OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent) override
       {
-        FSL_PARAM_NOT_USED(args);
         FSL_PARAM_NOT_USED(theEvent);
       }
 
@@ -524,6 +532,7 @@ namespace Fsl
 
     public:
       //! @brief Do not call this, intended for internal UI framework use only
+      // NOLINTNEXTLINE(readability-identifier-naming)
       void SYS_MarkLayoutDirty()
       {
         SetLayoutDirty(true);

@@ -133,23 +133,9 @@ namespace Fsl
     PixelFormat m_pixelFormat;
 
   public:
-    UnsupportedPixelFormatException(const char* const psz, const PixelFormat pixelFormat)
-      : GraphicsException(psz)
-      , m_pixelFormat(pixelFormat)
-    {
-    }
-
-    UnsupportedPixelFormatException(const std::string& str, const PixelFormat pixelFormat)
-      : GraphicsException(str)
-      , m_pixelFormat(pixelFormat)
-    {
-    }
-
-    explicit UnsupportedPixelFormatException(const PixelFormat pixelFormat)
-      : GraphicsException("Unsupported pixel format")
-      , m_pixelFormat(pixelFormat)
-    {
-    }
+    UnsupportedPixelFormatException(const char* const psz, const PixelFormat pixelFormat);
+    UnsupportedPixelFormatException(const std::string& str, const PixelFormat pixelFormat);
+    explicit UnsupportedPixelFormatException(const PixelFormat pixelFormat);
 
     PixelFormat GetPixelFormat() const
     {
@@ -207,33 +193,16 @@ namespace Fsl
     PixelFormat m_toPixelFormat;
 
   public:
-    UnsupportedPixelFormatConversionException(const char* const psz, const PixelFormat fromPixelFormat, const PixelFormat toPixelFormat)
-      : ConversionException(psz)
-      , m_fromPixelFormat(fromPixelFormat)
-      , m_toPixelFormat(toPixelFormat)
-    {
-    }
+    UnsupportedPixelFormatConversionException(const char* const psz, const PixelFormat fromPixelFormat, const PixelFormat toPixelFormat);
+    UnsupportedPixelFormatConversionException(const std::string& str, const PixelFormat fromPixelFormat, const PixelFormat toPixelFormat);
+    UnsupportedPixelFormatConversionException(const PixelFormat fromPixelFormat, const PixelFormat toPixelFormat);
 
-    UnsupportedPixelFormatConversionException(const std::string& str, const PixelFormat fromPixelFormat, const PixelFormat toPixelFormat)
-      : ConversionException(str)
-      , m_fromPixelFormat(fromPixelFormat)
-      , m_toPixelFormat(toPixelFormat)
-    {
-    }
-
-    UnsupportedPixelFormatConversionException(const PixelFormat fromPixelFormat, const PixelFormat toPixelFormat)
-      : ConversionException("UnsupportedPixelFormatConversionException")
-      , m_fromPixelFormat(fromPixelFormat)
-      , m_toPixelFormat(toPixelFormat)
-    {
-    }
-
-    PixelFormat GetFromPixelFormat() const
+    PixelFormat GetFromPixelFormat() const noexcept
     {
       return m_fromPixelFormat;
     }
 
-    PixelFormat GetToPixelFormat() const
+    PixelFormat GetToPixelFormat() const noexcept
     {
       return m_toPixelFormat;
     }

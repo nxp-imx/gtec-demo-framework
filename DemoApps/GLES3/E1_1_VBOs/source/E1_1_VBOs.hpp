@@ -12,21 +12,22 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class E1_1_VBOs : public DemoAppGLES3
   {
     struct UserData
     {
       // VertexBufferObject Ids
-      std::array<GLuint, 4> vboIds{};
+      std::array<GLuint, 4> VboIds{};
       // x-offset uniform location
-      GLuint offsetLoc{0};
+      GLuint OffsetLoc{0};
 
       UserData()
       {
-        vboIds[0] = GLES3::GLValues::INVALID_HANDLE;
-        vboIds[1] = GLES3::GLValues::INVALID_HANDLE;
-        vboIds[2] = GLES3::GLValues::INVALID_HANDLE;
-        vboIds[3] = GLES3::GLValues::INVALID_HANDLE;
+        VboIds[0] = GLES3::GLValues::InvalidHandle;
+        VboIds[1] = GLES3::GLValues::InvalidHandle;
+        VboIds[2] = GLES3::GLValues::InvalidHandle;
+        VboIds[3] = GLES3::GLValues::InvalidHandle;
       }
     };
 

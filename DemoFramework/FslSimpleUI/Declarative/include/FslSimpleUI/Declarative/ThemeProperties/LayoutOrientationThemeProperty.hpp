@@ -42,7 +42,7 @@ namespace Fsl::UI::Declarative
   {
   public:
     LayoutOrientationThemeProperty()
-      : LayoutOrientationThemeProperty(PropertyName("theme:Orientation"))
+      : LayoutOrientationThemeProperty(PropertyName("theme_Orientation"))
     {
     }
 

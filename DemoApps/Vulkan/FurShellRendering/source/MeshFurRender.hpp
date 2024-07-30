@@ -42,8 +42,8 @@ namespace Fsl
   class MeshFurRender : public MeshRender
   {
   protected:
-    RapidVulkan::ShaderModule VertShader;
-    RapidVulkan::ShaderModule FragShader;
+    RapidVulkan::ShaderModule m_vertShader;
+    RapidVulkan::ShaderModule m_fragShader;
 
   public:
     MeshFurRender(const IContentManager& contentManager, const Vulkan::VUDevice& device, const IO::Path& shaderPath, const bool useHighPrecision,

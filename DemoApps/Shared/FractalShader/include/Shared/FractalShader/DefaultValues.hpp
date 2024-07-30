@@ -34,9 +34,9 @@
 namespace Fsl::DefaultValues
 {
   // If this is changed remember to modify the default shaders in the Vulkan sample.
-  constexpr const int JULIA_DEFAULT_ITERATIONS = 20;
+  constexpr const int JuliaDefaultIterations = 20;
   // If this is changed remember to modify the default shaders in the Vulkan sample.
-  constexpr const int MANDELBROT_DEFAULT_ITERATIONS = 35;
+  constexpr const int MandelbrotDefaultIterations = 35;
 }
 
 #endif

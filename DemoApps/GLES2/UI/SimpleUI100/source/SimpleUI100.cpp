@@ -109,7 +109,7 @@ namespace Fsl
   SimpleUI100::~SimpleUI100() = default;
 
 
-  void SimpleUI100::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void SimpleUI100::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_btnBack)
     {

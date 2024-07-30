@@ -34,7 +34,7 @@
 
 namespace Fsl
 {
-  void TestLib_FslUtil_Vulkan1_0__Dummy()
+  void TestLibFslUtilVulkan10Dummy()
   {
   }
 }

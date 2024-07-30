@@ -1,5 +1,66 @@
 # Releases
 
+## Release 6.4.0 (July 30, 2024)
+
+* Now require a compiler with [C++20](https://en.cppreference.com/w/cpp/compiler_support/20) support.
+* New OpenCL samples
+  * ColorSeg
+  * GaussianFilter
+  * Gray2Rgb
+  * MedianFilter
+  * MorphoDilate
+  * MorphoErode
+  * Rgb2Gray
+  * Rgb2Hsv
+  * Rgb888ToRgb565
+  * Rgb888ToUYVY
+  * SobelHFilter
+  * SobelVFilter
+* New OpenGL ES2 samples
+  * System.Gestures
+  * UI.RenderTest
+* New OpenGL ES3 samples
+  * System.Gestures
+  * UI.RenderTest
+  * UI.Gestures
+* New Vulkan samples
+  * System.EasingFunctions
+  * System.Gestures
+  * UI.RenderTest
+  * UI.Gestures
+* Added new demo app templates
+  * OpenGLES3.HDR  
+  * Vulkan.HDR  
+* New OpenGL ES 2+3 command line arguments
+  * ```--EGLSampleBuffers <arg>``` Force EGL_SAMPLE_BUFFERS to the given value
+  * ```--EGLSamples <arg>``` Force EGL_SAMPLES to the given value
+* FslSimpleUI
+  * Reworked the way colors are handled so we can better support SRGB and HDR rendering.
+    * All control color properties are now represented by UIColor instead of Color (16bit per channel and color space info).
+    * Rendering uses UIRenderColor which stores the colors using 16bit per channel mathing the frame buffer format (linear/non-linear).
+  * Basic gesture support.
+  * Basic scroll view with gesture support.
+  * FslSimpleUI.Delcarative updated to support most controls, it can also now dump a xsd from code describing the possibilities.
+  * The default theme texture atlas is now generated in two versions
+    * NonLinear (premultiply alpha is done directly on the non-linear SRGB colors, like we used to do)
+    * Linear (premultiply alpha is done by transforming the RGB colors to linear values and applying the alpha, then converting back to non-linear).
+  * Support for line rendering for charts.
+* Misc
+  * Clang tidy now enforces naming conventions.
+  * HDR screenshot support.
+  * ImageConverter service updated.
+  * Added FslDemoService.ImageConverter.HDR service.
+  * Added FslGraphics2D.PixelFormatConverter package.
+  * BasicRender line list+strip support.
+  * Stats sample now show CPU chars (GLES2, GLES3, Vulkan).
+  * TightBitmap added for the cases where you need to work on bitmap data where the data is tighly packed in memory.
+  * ```StringViewLite``` now utilize a ```std::string_view``` internally.
+  * ```ReadOnlySpan``` now utilize a ```std::span<const T>``` internally.
+  * ```Span``` now utilize a ```std::span<T>``` internally.
+  * Updated easing function in FslBase
+  * Many old classes now utilize span's instead of pointer, length.
+  * UIDemoAppLegacyExtension was removed and all samples using it updated to use UIDemoAppExtension.
+
 ## Release 6.3.1 (May 1, 2024)
 
 * Fixed Vulkan.Screenshot, so it captures it at the correct time.

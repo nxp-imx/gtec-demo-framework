@@ -47,13 +47,13 @@ namespace Fsl::IO
     m_content.Replace('\\', '/');
   }
 
-  Path::Path(const StringViewLite& str)
+  Path::Path(const StringViewLite str)
     : m_content(str)
   {
     m_content.Replace('\\', '/');
   }
 
-  Path::Path(const PathView& str)
+  Path::Path(const PathView str)
     : m_content(str)
   {
   }
@@ -78,7 +78,7 @@ namespace Fsl::IO
   }
 
 
-  Path& Path::operator=(const StringViewLite& str)
+  Path& Path::operator=(const StringViewLite str)
   {
     m_content = str;
     m_content.Replace('\\', '/');
@@ -86,7 +86,7 @@ namespace Fsl::IO
   }
 
 
-  Path& Path::operator=(const PathView& str)
+  Path& Path::operator=(const PathView str)
   {
     m_content = str;
     return *this;
@@ -98,13 +98,13 @@ namespace Fsl::IO
     m_content.Append(count, finalChar);
   }
 
-  void Path::Append(const StringViewLite& str)
+  void Path::Append(const StringViewLite str)
   {
     m_content.Append(str);
     m_content.Replace('\\', '/');
   }
 
-  void Path::Append(const PathView& str)
+  void Path::Append(const PathView str)
   {
     m_content.Append(str);
   }
@@ -115,12 +115,12 @@ namespace Fsl::IO
     m_content.Prepend(count, finalChar);
   }
 
-  void Path::Prepend(const PathView& str)
+  void Path::Prepend(const PathView str)
   {
     m_content.Prepend(str);
   }
 
-  void Path::Prepend(const StringViewLite& str)
+  void Path::Prepend(const StringViewLite str)
   {
     m_content.Prepend(str);
     m_content.Replace('\\', '/');
@@ -138,14 +138,14 @@ namespace Fsl::IO
   //}
 
 
-  bool Path::IsPathRooted(const PathView& path)
+  bool Path::IsPathRooted(const PathView path)
   {
     // A fairly simple check for rooted paths
     return !path.empty() && (path.starts_with('/') || StringUtil::Contains(path, ':'));
   }
 
 
-  Path Path::Combine(const PathView& path1, const PathView& path2)
+  Path Path::Combine(const PathView path1, const PathView path2)
   {
     if (Path::IsPathRooted(path2))
     {
@@ -172,7 +172,7 @@ namespace Fsl::IO
   }
 
 
-  PathView Path::GetDirectoryNameView(const PathView& path)
+  PathView Path::GetDirectoryNameView(const PathView path)
   {
     const int32_t index = StringUtil::LastIndexOf(path, '/');
     if (index <= 0)
@@ -183,7 +183,7 @@ namespace Fsl::IO
   }
 
 
-  PathView Path::GetFileNameView(const PathView& path)
+  PathView Path::GetFileNameView(const PathView path)
   {
     // locate the last index of '/'
     auto index = path.rfind('/');
@@ -199,7 +199,7 @@ namespace Fsl::IO
   }
 
 
-  PathView Path::GetFileNameWithoutExtensionView(const PathView& path)
+  PathView Path::GetFileNameWithoutExtensionView(const PathView path)
   {
     // locate the last index of '.'
     auto index = path.rfind('.');
@@ -219,7 +219,7 @@ namespace Fsl::IO
   }
 
 
-  PathView Path::GetExtensionView(const PathView& path)
+  PathView Path::GetExtensionView(const PathView path)
   {
     // locate the last index of '.'
     auto dotIndex = path.rfind('.');
@@ -240,7 +240,7 @@ namespace Fsl::IO
   }
 
 
-  Path Path::GetFullPath(const PathView& path)
+  Path Path::GetFullPath(const PathView path)
   {
     // We get the path from a external location, so we need to convert the string to a path
     return Path(Platform::GetFullPath(PathViewHelper::ToString(path)));

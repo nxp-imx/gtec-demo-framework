@@ -34,6 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Color.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <string>
 #include <utility>
 
@@ -45,7 +46,7 @@ namespace Fsl
     std::string Name;
     int32_t MinValue{0};
     int32_t MaxValue{0};
-    Color ColorHint{Color::White()};
+    Color ColorHint{Colors::White()};
 
     ProfilerCustomCounterDesc() = default;
 

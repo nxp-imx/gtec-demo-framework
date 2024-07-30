@@ -48,8 +48,8 @@ namespace Fsl
     using raw_value_type = value_type::raw_value_type;
 
   private:
-    value_type m_width{};
-    value_type m_height{};
+    value_type m_width;
+    value_type m_height;
 
   public:
     constexpr DpSize2D() noexcept = default;

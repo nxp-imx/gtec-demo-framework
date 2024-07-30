@@ -31,13 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslGraphics/Color.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslSimpleUI/Controls/Charts/Canvas/ChartCanvas1D.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/BoxPlotData.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/ChartDataLimits.hpp>
 #include <FslSimpleUI/Controls/Charts/Render/BoxPlotDrawInfo.hpp>
 #include <FslSimpleUI/Render/Base/ICustomDrawData.hpp>
+#include <FslSimpleUI/Render/Base/UIRenderColor.hpp>
 #include <array>
 #include <cassert>
 
@@ -49,7 +49,7 @@ namespace Fsl::UI::Render
     struct ChannelRecord
     {
       BoxPlotData BoxPlot;
-      Color PrimaryColor;
+      UIRenderColor PrimaryColor;
     };
 
   private:
@@ -61,7 +61,7 @@ namespace Fsl::UI::Render
     uint64_t ChangeId{0};
     Render::BoxPlotDrawInfo DrawInfo;
     ChartCanvas1D Canvas;
-    Color MedianColor;
+    UIRenderColor MedianColor;
 
 
     explicit BoxPlotDrawData(const SpriteUnitConverter& unitConverter)
@@ -71,7 +71,7 @@ namespace Fsl::UI::Render
 
     ReadOnlySpan<ChannelRecord> AsReadOnlySpan() const noexcept
     {
-      return ReadOnlySpanUtil::AsSpan(m_channels, 0, m_channelEntries, OptimizationCheckFlag::NoCheck);
+      return SpanUtil::UncheckedAsReadOnlySpan(m_channels, 0, m_channelEntries);
     }
 
     bool IsEmpty() const noexcept
@@ -84,7 +84,7 @@ namespace Fsl::UI::Render
       m_channelEntries = 0;
     }
 
-    void Add(const BoxPlotData& boxPlotData, const Color primaryColor) noexcept
+    void Add(const BoxPlotData& boxPlotData, const UIRenderColor primaryColor) noexcept
     {
       assert(m_channelEntries < m_channels.size());
       m_channels[m_channelEntries].BoxPlot = boxPlotData;

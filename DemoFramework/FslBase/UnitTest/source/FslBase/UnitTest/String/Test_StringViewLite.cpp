@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019, 2022 NXP
+ * Copyright 2019, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 
 #include <FslBase/Log/String/LogStringViewLite.hpp>
 #include <FslBase/String/StringViewLite.hpp>
-#include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <cstring>
 
@@ -1882,136 +1881,136 @@ TEST(TestString_StringViewLite, OperatorNotEqual_CString_RHS)
 TEST(TestString_StringViewLite, OperatorLessThan_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
 
   EXPECT_FALSE(StringViewLite("A") < pszNull);
-  EXPECT_FALSE(StringViewLite("A") < strViewNull);
+  EXPECT_FALSE(StringViewLite("A") < StrViewNull);
   EXPECT_TRUE(pszNull < StringViewLite("A"));
-  EXPECT_TRUE(strViewNull < StringViewLite("A"));
+  EXPECT_TRUE(StrViewNull < StringViewLite("A"));
 
   // Compare against empty string
   EXPECT_FALSE(StringViewLite("") < pszNull);
-  EXPECT_FALSE(StringViewLite("") < strViewNull);
+  EXPECT_FALSE(StringViewLite("") < StrViewNull);
   EXPECT_FALSE(pszNull < StringViewLite(""));
-  EXPECT_FALSE(strViewNull < StringViewLite(""));
+  EXPECT_FALSE(StrViewNull < StringViewLite(""));
 
   // Compare against null
-  EXPECT_FALSE(pszNull < strViewNull);
-  EXPECT_FALSE(strViewNull < pszNull);
-  EXPECT_FALSE(strViewNull < strViewNull);
+  EXPECT_FALSE(pszNull < StrViewNull);
+  EXPECT_FALSE(StrViewNull < pszNull);
+  EXPECT_FALSE(StrViewNull < StrViewNull);
 }
 
 
 TEST(TestString_StringViewLite, OperatorLessThanOrEqual_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
 
   EXPECT_FALSE(StringViewLite("A") <= pszNull);
-  EXPECT_FALSE(StringViewLite("A") <= strViewNull);
+  EXPECT_FALSE(StringViewLite("A") <= StrViewNull);
   EXPECT_TRUE(pszNull <= StringViewLite("A"));
-  EXPECT_TRUE(strViewNull <= StringViewLite("A"));
+  EXPECT_TRUE(StrViewNull <= StringViewLite("A"));
 
   // Compare against empty string
   EXPECT_TRUE(StringViewLite("") <= pszNull);
-  EXPECT_TRUE(StringViewLite("") <= strViewNull);
+  EXPECT_TRUE(StringViewLite("") <= StrViewNull);
   EXPECT_TRUE(pszNull <= StringViewLite(""));
-  EXPECT_TRUE(strViewNull <= StringViewLite(""));
+  EXPECT_TRUE(StrViewNull <= StringViewLite(""));
 
   // Compare against null
-  EXPECT_TRUE(pszNull <= strViewNull);
-  EXPECT_TRUE(strViewNull <= pszNull);
-  EXPECT_TRUE(strViewNull <= strViewNull);
+  EXPECT_TRUE(pszNull <= StrViewNull);
+  EXPECT_TRUE(StrViewNull <= pszNull);
+  EXPECT_TRUE(StrViewNull <= StrViewNull);
 }
 
 
 TEST(TestString_StringViewLite, OperatorGreaterThan_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
 
   EXPECT_TRUE(StringViewLite("A") > pszNull);
-  EXPECT_TRUE(StringViewLite("A") > strViewNull);
+  EXPECT_TRUE(StringViewLite("A") > StrViewNull);
   EXPECT_FALSE(pszNull > StringViewLite("A"));
-  EXPECT_FALSE(strViewNull > StringViewLite("A"));
+  EXPECT_FALSE(StrViewNull > StringViewLite("A"));
 
   // Compare against empty string
   EXPECT_FALSE(StringViewLite("") > pszNull);
-  EXPECT_FALSE(StringViewLite("") > strViewNull);
+  EXPECT_FALSE(StringViewLite("") > StrViewNull);
   EXPECT_FALSE(pszNull > StringViewLite(""));
-  EXPECT_FALSE(strViewNull > StringViewLite(""));
+  EXPECT_FALSE(StrViewNull > StringViewLite(""));
 
   // Compare against null
-  EXPECT_FALSE(pszNull > strViewNull);
-  EXPECT_FALSE(strViewNull > pszNull);
-  EXPECT_FALSE(strViewNull > strViewNull);
+  EXPECT_FALSE(pszNull > StrViewNull);
+  EXPECT_FALSE(StrViewNull > pszNull);
+  EXPECT_FALSE(StrViewNull > StrViewNull);
 }
 
 
 TEST(TestString_StringViewLite, OperatorGreaterThanOrEqual_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
 
   EXPECT_TRUE(StringViewLite("A") >= pszNull);
-  EXPECT_TRUE(StringViewLite("A") >= strViewNull);
+  EXPECT_TRUE(StringViewLite("A") >= StrViewNull);
   EXPECT_FALSE(pszNull >= StringViewLite("A"));
-  EXPECT_FALSE(strViewNull >= StringViewLite("A"));
+  EXPECT_FALSE(StrViewNull >= StringViewLite("A"));
 
   // Compare against empty string
   EXPECT_TRUE(StringViewLite("") >= pszNull);
-  EXPECT_TRUE(StringViewLite("") >= strViewNull);
+  EXPECT_TRUE(StringViewLite("") >= StrViewNull);
   EXPECT_TRUE(pszNull >= StringViewLite(""));
-  EXPECT_TRUE(strViewNull >= StringViewLite(""));
+  EXPECT_TRUE(StrViewNull >= StringViewLite(""));
 
   // Compare against null
-  EXPECT_TRUE(pszNull >= strViewNull);
-  EXPECT_TRUE(strViewNull >= pszNull);
-  EXPECT_TRUE(strViewNull >= strViewNull);
+  EXPECT_TRUE(pszNull >= StrViewNull);
+  EXPECT_TRUE(StrViewNull >= pszNull);
+  EXPECT_TRUE(StrViewNull >= StrViewNull);
 }
 
 
 TEST(TestString_StringViewLite, OperatorEqual_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
 
   EXPECT_FALSE(StringViewLite("A") == pszNull);
-  EXPECT_FALSE(StringViewLite("A") == strViewNull);
+  EXPECT_FALSE(StringViewLite("A") == StrViewNull);
   EXPECT_FALSE(pszNull == StringViewLite("A"));
-  EXPECT_FALSE(strViewNull == StringViewLite("A"));
+  EXPECT_FALSE(StrViewNull == StringViewLite("A"));
 
   // Compare against empty string
   EXPECT_TRUE(pszNull == StringViewLite(""));
-  EXPECT_TRUE(strViewNull == StringViewLite(""));
+  EXPECT_TRUE(StrViewNull == StringViewLite(""));
   EXPECT_TRUE(StringViewLite("") == pszNull);
-  EXPECT_TRUE(StringViewLite("") == strViewNull);
+  EXPECT_TRUE(StringViewLite("") == StrViewNull);
 
   // Compare against null
-  EXPECT_TRUE(pszNull == strViewNull);
-  EXPECT_TRUE(strViewNull == pszNull);
-  EXPECT_TRUE(strViewNull == strViewNull);
+  EXPECT_TRUE(pszNull == StrViewNull);
+  EXPECT_TRUE(StrViewNull == pszNull);
+  EXPECT_TRUE(StrViewNull == StrViewNull);
 }
 
 
 TEST(TestString_StringViewLite, OperatorNotEqual_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
 
   EXPECT_TRUE(StringViewLite("A") != pszNull);
-  EXPECT_TRUE(StringViewLite("A") != strViewNull);
+  EXPECT_TRUE(StringViewLite("A") != StrViewNull);
   EXPECT_TRUE(pszNull != StringViewLite("A"));
-  EXPECT_TRUE(strViewNull != StringViewLite("A"));
+  EXPECT_TRUE(StrViewNull != StringViewLite("A"));
 
   // Compare against empty string
   EXPECT_FALSE(pszNull != StringViewLite(""));
-  EXPECT_FALSE(strViewNull != StringViewLite(""));
+  EXPECT_FALSE(StrViewNull != StringViewLite(""));
   EXPECT_FALSE(StringViewLite("") != pszNull);
-  EXPECT_FALSE(StringViewLite("") != strViewNull);
+  EXPECT_FALSE(StringViewLite("") != StrViewNull);
 
   // Compare against null
-  EXPECT_FALSE(pszNull != strViewNull);
-  EXPECT_FALSE(strViewNull != pszNull);
-  EXPECT_FALSE(strViewNull != strViewNull);
+  EXPECT_FALSE(pszNull != StrViewNull);
+  EXPECT_FALSE(StrViewNull != pszNull);
+  EXPECT_FALSE(StrViewNull != StrViewNull);
 }

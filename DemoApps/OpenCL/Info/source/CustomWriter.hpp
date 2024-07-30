@@ -49,13 +49,13 @@ namespace Fsl
     }
 
     template <typename... Args>
-    void Print(const char* const pszFormat, const Args&... args) noexcept
+    void Print(fmt::format_string<Args...> formatString, const Args&... args) noexcept
     {
       try
       {
         m_buf.clear();
-        fmt::format_to(std::back_inserter(m_buf), m_indent);
-        fmt::format_to(std::back_inserter(m_buf), pszFormat, args...);
+        fmt::format_to(std::back_inserter(m_buf), "{}", m_indent);
+        fmt::vformat_to(std::back_inserter(m_buf), formatString, fmt::make_format_args(args...));
         m_buf.push_back(0);
         Logger::WriteLine(LogType::Info, m_buf.data());
       }

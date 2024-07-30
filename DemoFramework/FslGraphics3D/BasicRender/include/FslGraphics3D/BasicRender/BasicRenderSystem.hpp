@@ -230,17 +230,17 @@ namespace Fsl
                                                         const TextureFlags textureFlags) final;
       std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const Bitmap& bitmap, const Texture2DFilterHint filterHint,
                                                                       const TextureFlags textureFlags) final;
-      std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
+      std::shared_ptr<INativeTexture2D> CreateTexture2D(const ReadOnlyRawBitmap& bitmap, const Texture2DFilterHint filterHint,
                                                         const TextureFlags textureFlags) final;
-      std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
+      std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const ReadOnlyRawBitmap& bitmap, const Texture2DFilterHint filterHint,
                                                                       const TextureFlags textureFlags) final;
       std::shared_ptr<INativeTexture2D> CreateTexture2D(const Texture& texture, const Texture2DFilterHint filterHint,
                                                         const TextureFlags textureFlags) final;
       std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const Texture& texture, const Texture2DFilterHint filterHint,
                                                                       const TextureFlags textureFlags) final;
-      std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+      std::shared_ptr<INativeTexture2D> CreateTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                         const TextureFlags textureFlags) final;
-      std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+      std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                                       const TextureFlags textureFlags) final;
 
       PxExtent2D GetTextureExtentPx(const std::shared_ptr<INativeTexture2D>& texture) const noexcept final;

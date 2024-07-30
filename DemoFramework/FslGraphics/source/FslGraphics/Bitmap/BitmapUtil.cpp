@@ -29,17 +29,194 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
+#include <FslGraphics/Bitmap/SupportedConversionsHelper.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
+#include <FslGraphics/PixelFormatUtil2.hpp>
 #include <cassert>
-#include <limits>
 
 namespace Fsl
 {
   namespace
   {
+    // Supported conversions: From -> to
+    // - PixelFormatLayout::B8G8R8 -> PixelFormatLayout::B8G8R8A8
+    // - PixelFormatLayout::B8G8R8 -> PixelFormatLayout::R8G8B8
+    // - PixelFormatLayout::B8G8R8 -> PixelFormatLayout::R8G8B8A8
+    // - PixelFormatLayout::B8G8R8 -> PixelFormat::EX_ALPHA8_UNORM
+    // - PixelFormatLayout::B8G8R8 -> PixelFormat::EX_LUMINANCE8_UNORM
+
+    // - PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::B8G8R8
+    // - PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::R8G8B8
+    // - PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::R8G8B8A8
+    // - PixelFormatLayout::B8G8R8A8 -> PixelFormat::EX_ALPHA8_UNORM
+    // - PixelFormatLayout::B8G8R8A8 -> PixelFormat::EX_LUMINANCE8_UNORM
+
+    // - PixelFormatLayout::R8G8B8 -> PixelFormatLayout::B8G8R8
+    // - PixelFormatLayout::R8G8B8 -> PixelFormatLayout::B8G8R8A8
+    // - PixelFormatLayout::R8G8B8 -> PixelFormatLayout::R8G8B8A8
+    // - PixelFormatLayout::R8G8B8 -> PixelFormat::EX_ALPHA8_UNORM
+    // - PixelFormatLayout::R8G8B8 -> PixelFormat::EX_LUMINANCE8_UNORM
+
+    // - PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::B8G8R8
+    // - PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::B8G8R8A8
+    // - PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::R8G8B8
+    // - PixelFormatLayout::R8G8B8A8 -> PixelFormat::EX_ALPHA8_UNORM
+    // - PixelFormatLayout::R8G8B8A8 -> PixelFormat::EX_LUMINANCE8_UNORM
+
+    // - PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::B8G8R8A8
+    // - PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::R8G8B8A8
+
+    // - PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::B8G8R8A8
+    // - PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::R8G8B8A8
+
+    constexpr std::size_t CalcSupportedConversions() noexcept
+    {
+      constexpr std::size_t NumFormatsWithR8G8B8 = PixelFormatUtil::CountEntriesWithPixelLayout(PixelFormatLayout::R8G8B8);
+      constexpr std::size_t NumFormatsWithB8G8R8 = PixelFormatUtil::CountEntriesWithPixelLayout(PixelFormatLayout::B8G8R8);
+      constexpr std::size_t NumFormatsWithB8G8R8A8 = PixelFormatUtil::CountEntriesWithPixelLayout(PixelFormatLayout::B8G8R8A8);
+      constexpr std::size_t NumFormatsWithR8G8B8A8 = PixelFormatUtil::CountEntriesWithPixelLayout(PixelFormatLayout::R8G8B8A8);
+      std::size_t total = 0;
+
+      // PixelFormatLayout::B8G8R8 -> PixelFormatLayout::B8G8R8A8
+      total += NumFormatsWithB8G8R8 * NumFormatsWithB8G8R8A8;
+      // PixelFormatLayout::B8G8R8 -> PixelFormatLayout::R8G8B8
+      total += NumFormatsWithB8G8R8 * NumFormatsWithR8G8B8;
+      // PixelFormatLayout::B8G8R8 -> PixelFormatLayout::R8G8B8A8
+      total += NumFormatsWithB8G8R8 * NumFormatsWithR8G8B8A8;
+      // PixelFormatLayout::B8G8R8 -> PixelFormat::EX_ALPHA8_UNORM
+      total += NumFormatsWithB8G8R8;
+      // PixelFormatLayout::B8G8R8 -> PixelFormat::EX_LUMINANCE8_UNORM
+      total += NumFormatsWithB8G8R8;
+
+      // PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::B8G8R8
+      total += NumFormatsWithB8G8R8A8 * NumFormatsWithB8G8R8;
+      // PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::R8G8B8
+      total += NumFormatsWithB8G8R8A8 * NumFormatsWithR8G8B8;
+      // PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::R8G8B8A8
+      total += NumFormatsWithB8G8R8A8 * NumFormatsWithR8G8B8A8;
+      // PixelFormatLayout::B8G8R8A8 -> PixelFormat::EX_ALPHA8_UNORM
+      total += NumFormatsWithB8G8R8A8;
+      // PixelFormatLayout::B8G8R8A8 -> PixelFormat::EX_LUMINANCE8_UNORM
+      total += NumFormatsWithB8G8R8A8;
+
+      // PixelFormatLayout::R8G8B8 -> PixelFormatLayout::B8G8R8
+      total += NumFormatsWithR8G8B8 * NumFormatsWithB8G8R8;
+      // PixelFormatLayout::R8G8B8 -> PixelFormatLayout::B8G8R8A8
+      total += NumFormatsWithR8G8B8 * NumFormatsWithB8G8R8A8;
+      // PixelFormatLayout::R8G8B8 -> PixelFormatLayout::R8G8B8A8
+      total += NumFormatsWithR8G8B8 * NumFormatsWithR8G8B8A8;
+      // PixelFormatLayout::R8G8B8 -> PixelFormat::EX_ALPHA8_UNORM
+      total += NumFormatsWithR8G8B8;
+      // PixelFormatLayout::R8G8B8 -> PixelFormat::EX_LUMINANCE8_UNORM
+      total += NumFormatsWithR8G8B8;
+
+      // PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::B8G8R8
+      total += NumFormatsWithR8G8B8A8 * NumFormatsWithB8G8R8;
+      // PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::B8G8R8A8
+      total += NumFormatsWithR8G8B8A8 * NumFormatsWithB8G8R8A8;
+      // PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::R8G8B8
+      total += NumFormatsWithR8G8B8A8 * NumFormatsWithR8G8B8;
+      // PixelFormatLayout::R8G8B8A8 -> PixelFormat::EX_ALPHA8_UNORM
+      total += NumFormatsWithR8G8B8A8;
+      // PixelFormatLayout::R8G8B8A8 -> PixelFormat::EX_LUMINANCE8_UNORM
+      total += NumFormatsWithR8G8B8A8;
+
+
+      // PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::B8G8R8A8
+      total += NumFormatsWithB8G8R8A8;
+      // PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::R8G8B8A8
+      total += NumFormatsWithR8G8B8A8;
+
+      // PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::B8G8R8A8
+      total += NumFormatsWithB8G8R8A8;
+      // PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::R8G8B8A8
+      total += NumFormatsWithR8G8B8A8;
+      return total;
+    }
+
+    template <std::size_t TSupportedConversions>
+    class SupportedConversionsHelperEx final : public SupportedConversionsHelper<TSupportedConversions>
+    {
+    public:
+      using SupportedConversionsHelper<TSupportedConversions>::Write;
+
+      static constexpr std::array<SupportedConversion, TSupportedConversions> GenerateSupportedConversions()
+      {
+        std::array<SupportedConversion, TSupportedConversions> conversions{};
+        auto dstSpan = SpanUtil::AsSpan(conversions);
+
+        // PixelFormatLayout::B8G8R8 -> PixelFormatLayout::B8G8R8A8
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8, PixelFormatLayout::B8G8R8A8);
+        // PixelFormatLayout::B8G8R8 -> PixelFormatLayout::R8G8B8
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8, PixelFormatLayout::R8G8B8);
+        // PixelFormatLayout::B8G8R8 -> PixelFormatLayout::R8G8B8A8
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8, PixelFormatLayout::R8G8B8A8);
+        // PixelFormatLayout::B8G8R8 -> PixelFormat::EX_ALPHA8_UNORM
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8, PixelFormat::EX_ALPHA8_UNORM);
+        // PixelFormatLayout::B8G8R8 -> PixelFormat::EX_LUMINANCE8_UNORM
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8, PixelFormat::EX_LUMINANCE8_UNORM);
+
+        // PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::B8G8R8
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8A8, PixelFormatLayout::B8G8R8);
+        // PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::R8G8B8
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8A8, PixelFormatLayout::R8G8B8);
+        // PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::R8G8B8A8
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8A8, PixelFormatLayout::R8G8B8A8);
+        // PixelFormatLayout::B8G8R8A8 -> PixelFormat::EX_ALPHA8_UNORM
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8A8, PixelFormat::EX_ALPHA8_UNORM);
+        // PixelFormatLayout::B8G8R8A8 -> PixelFormat::EX_LUMINANCE8_UNORM
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8A8, PixelFormat::EX_LUMINANCE8_UNORM);
+
+        // PixelFormatLayout::R8G8B8 -> PixelFormatLayout::B8G8R8
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8, PixelFormatLayout::B8G8R8);
+        // PixelFormatLayout::R8G8B8 -> PixelFormatLayout::B8G8R8A8
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8, PixelFormatLayout::B8G8R8A8);
+        // PixelFormatLayout::R8G8B8 -> PixelFormatLayout::R8G8B8A8
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8, PixelFormatLayout::R8G8B8A8);
+        // PixelFormatLayout::R8G8B8 -> PixelFormat::EX_ALPHA8_UNORM
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8, PixelFormat::EX_ALPHA8_UNORM);
+        // PixelFormatLayout::R8G8B8 -> PixelFormat::EX_LUMINANCE8_UNORM
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8, PixelFormat::EX_LUMINANCE8_UNORM);
+
+        // PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::B8G8R8
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8A8, PixelFormatLayout::B8G8R8);
+        // PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::B8G8R8A8
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8A8, PixelFormatLayout::B8G8R8A8);
+        // PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::R8G8B8
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8A8, PixelFormatLayout::R8G8B8);
+        // PixelFormatLayout::R8G8B8A8 -> PixelFormat::EX_ALPHA8_UNORM
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8A8, PixelFormat::EX_ALPHA8_UNORM);
+        // PixelFormatLayout::R8G8B8A8 -> PixelFormat::EX_LUMINANCE8_UNORM
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8A8, PixelFormat::EX_LUMINANCE8_UNORM);
+
+        // PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::B8G8R8A8
+        dstSpan = Write(dstSpan, PixelFormat::EX_ALPHA8_UNORM, PixelFormatLayout::B8G8R8A8);
+        // PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::R8G8B8A8
+        dstSpan = Write(dstSpan, PixelFormat::EX_ALPHA8_UNORM, PixelFormatLayout::R8G8B8A8);
+
+        // PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::B8G8R8A8
+        dstSpan = Write(dstSpan, PixelFormat::EX_LUMINANCE8_UNORM, PixelFormatLayout::B8G8R8A8);
+        // PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::R8G8B8A8
+        dstSpan = Write(dstSpan, PixelFormat::EX_LUMINANCE8_UNORM, PixelFormatLayout::R8G8B8A8);
+
+        if (!dstSpan.empty())
+        {
+          throw InternalErrorException("the span was not filled");
+        }
+        return conversions;
+      }
+    };
+
+    // Compile time generate the list of actually supported conversions
+    constexpr auto SupportedConversions = SupportedConversionsHelperEx<CalcSupportedConversions()>::GenerateSupportedConversions();
+
+
     void Swizzle24To32Shrinking(RawBitmapEx& rBitmap, const std::size_t dstStride, const int srcIdx0, const int srcIdx1, const int srcIdx2,
                                 const uint8_t alpha)
     {
@@ -56,11 +233,10 @@ namespace Fsl
       // Generic slow swizzle for 24bpp to 32bpp formats
       const std::size_t srcStride = rBitmap.Stride();
       auto* pDstBitmap = static_cast<uint8_t*>(rBitmap.Content());
-      const uint8_t* const pDstBitmapEnd = pDstBitmap + (rBitmap.Height() * dstStride);
+      const uint8_t* const pDstBitmapEnd = pDstBitmap + (rBitmap.RawUnsignedHeight() * dstStride);
       const uint8_t* pSrcBitmap = pDstBitmap;
 
-      assert(rBitmap.Width() <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-      const int32_t width = static_cast<int32_t>(rBitmap.Width()) - 1;
+      const int32_t width = rBitmap.RawWidth() - 1;
       while (pDstBitmap < pDstBitmapEnd)
       {
         for (int32_t x = width; x >= 0; --x)
@@ -94,14 +270,13 @@ namespace Fsl
       assert(srcStride > 0 && rBitmap.Stride() > srcStride);
 
       // Generic slow swizzle for 32bpp to 24bpp formats
-      if (rBitmap.Height() > 0u)
+      if (rBitmap.RawUnsignedHeight() > 0u)
       {
         const std::size_t dstStride = rBitmap.Stride();
         auto* const pDstBitmapStart = static_cast<uint8_t*>(rBitmap.Content());
-        uint8_t* pDstBitmap = pDstBitmapStart + ((rBitmap.Height() - 1u) * dstStride);
-        const uint8_t* pSrcBitmap = pDstBitmapStart + ((rBitmap.Height() - 1u) * srcStride);
-        assert(rBitmap.Width() <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-        const int32_t width = static_cast<int32_t>(rBitmap.Width()) - 1;
+        uint8_t* pDstBitmap = pDstBitmapStart + ((rBitmap.RawUnsignedHeight() - 1u) * dstStride);
+        const uint8_t* pSrcBitmap = pDstBitmapStart + ((rBitmap.RawUnsignedHeight() - 1u) * srcStride);
+        const int32_t width = rBitmap.RawWidth() - 1;
 
         while (pDstBitmap >= pDstBitmapStart)
         {
@@ -134,14 +309,13 @@ namespace Fsl
       assert(srcStride > 0 && rBitmap.Stride() > srcStride);
 
       // Generic slow swizzle for 32bpp to 24bpp formats
-      if (rBitmap.Height() > 0u)
+      if (rBitmap.RawUnsignedHeight() > 0u)
       {
         const std::size_t dstStride = rBitmap.Stride();
         auto* const pDstBitmapStart = static_cast<uint8_t*>(rBitmap.Content());
-        uint8_t* pDstBitmap = pDstBitmapStart + ((rBitmap.Height() - 1u) * dstStride);
-        const uint8_t* pSrcBitmap = pDstBitmapStart + ((rBitmap.Height() - 1u) * srcStride);
-        assert(rBitmap.Width() <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-        const int32_t width = static_cast<int32_t>(rBitmap.Width()) - 1;
+        uint8_t* pDstBitmap = pDstBitmapStart + ((rBitmap.RawUnsignedHeight() - 1u) * dstStride);
+        const uint8_t* pSrcBitmap = pDstBitmapStart + ((rBitmap.RawUnsignedHeight() - 1u) * srcStride);
+        const int32_t width = rBitmap.RawWidth() - 1;
 
         while (pDstBitmap >= pDstBitmapStart)
         {
@@ -160,6 +334,11 @@ namespace Fsl
     }
   }
 
+  ReadOnlySpan<SupportedConversion> BitmapUtil::GetSupportedConversions() noexcept
+  {
+    return SpanUtil::AsReadOnlySpan(SupportedConversions);
+  }
+
 
   bool BitmapUtil::TryConvert(Bitmap& rBitmap, const PixelFormat desiredPixelFormat)
   {
@@ -170,9 +349,9 @@ namespace Fsl
       return true;
     }
 
-    if (rBitmap.Width() == 0 || rBitmap.Height() == 0)
+    if (rBitmap.RawWidth() == 0 || rBitmap.RawHeight() == 0)
     {
-      rBitmap.Reset(rBitmap.GetExtent(), desiredPixelFormat, rBitmap.GetPreferredStride(desiredPixelFormat), rBitmap.GetOrigin(),
+      rBitmap.Reset(rBitmap.GetSize(), desiredPixelFormat, rBitmap.GetPreferredStride(desiredPixelFormat), rBitmap.GetOrigin(),
                     BitmapClearMethod::DontModify);
       return true;
     }
@@ -196,15 +375,15 @@ namespace Fsl
       // RGB -> BGR
       // BGR -> RGB
       {
-        RawBitmapEx rawBitmap;
-        Bitmap::ScopedDirectAccess directAccess(rBitmap, rawBitmap);
-        RawBitmapUtil::Swizzle24(rawBitmap, 2, 1, 0);
+        Bitmap::ScopedDirectReadWriteAccess directAccess(rBitmap);
+        RawBitmapUtil::Swizzle24(directAccess.AsRawBitmap(), 2, 1, 0);
       }
       // Update the bitmap with the new pixel format
       // We use the unsafe variant here since that doesn't modify any padding (we are using the original content)
-      rBitmap.Reset(rBitmap.GetExtent(), desiredPixelFormat, rBitmap.Stride(), rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
+      rBitmap.Reset(rBitmap.GetSize(), desiredPixelFormat, rBitmap.Stride(), rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
       return true;
     }
+
     if ((srcPixelFormatLayout == PixelFormatLayout::R8G8B8A8 && desiredPixelFormatLayout == PixelFormatLayout::B8G8R8A8) ||
         (srcPixelFormatLayout == PixelFormatLayout::B8G8R8A8 && desiredPixelFormatLayout == PixelFormatLayout::R8G8B8A8))
     {
@@ -212,15 +391,15 @@ namespace Fsl
       // RGBA -> BGRA
       // BGRA -> RGBA
       {
-        RawBitmapEx rawBitmap;
-        Bitmap::ScopedDirectAccess directAccess(rBitmap, rawBitmap);
-        RawBitmapUtil::Swizzle32(rawBitmap, 2, 1, 0, 3);
+        Bitmap::ScopedDirectReadWriteAccess directAccess(rBitmap);
+        RawBitmapUtil::Swizzle32(directAccess.AsRawBitmap(), 2, 1, 0, 3);
       }
       // Update the bitmap with the new pixel format
       // We use the unsafe variant here since that doesn't modify any padding (we are using the original content)
-      rBitmap.Reset(rBitmap.GetExtent(), desiredPixelFormat, rBitmap.Stride(), rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
+      rBitmap.Reset(rBitmap.GetSize(), desiredPixelFormat, rBitmap.Stride(), rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
       return true;
     }
+
     if ((srcPixelFormatLayout == PixelFormatLayout::R8G8B8A8 && desiredPixelFormatLayout == PixelFormatLayout::B8G8R8) ||
         (srcPixelFormatLayout == PixelFormatLayout::B8G8R8A8 && desiredPixelFormatLayout == PixelFormatLayout::R8G8B8))
     {
@@ -232,13 +411,12 @@ namespace Fsl
       {
         // The swizzle32to24 method relies on the dstStride being <= the existing stride to support inplace swizzle
         {
-          RawBitmapEx rawBitmap;
-          Bitmap::ScopedDirectAccess directAccess(rBitmap, rawBitmap);
-          RawBitmapUtil::Swizzle32To24(rawBitmap, desiredPixelFormat, desiredStride, 2, 1, 0);
+          Bitmap::ScopedDirectReadWriteAccess directAccess(rBitmap);
+          RawBitmapUtil::Swizzle32To24(directAccess.AsRawBitmap(), desiredPixelFormat, desiredStride, 2, 1, 0);
         }
         // Update the bitmap with the new pixel format
         // We use the unsafe variant here since that doesn't modify any padding (we are using the original content)
-        rBitmap.Reset(rBitmap.GetExtent(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
+        rBitmap.Reset(rBitmap.GetSize(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
         return true;
       }
     }
@@ -253,13 +431,12 @@ namespace Fsl
       {
         // The swizzle32to24 method relies on the dstStride being <= the existing stride to support inplace swizzle
         {
-          RawBitmapEx rawBitmap;
-          Bitmap::ScopedDirectAccess directAccess(rBitmap, rawBitmap);
-          RawBitmapUtil::Swizzle32To24(rawBitmap, desiredPixelFormat, desiredStride, 0, 1, 2);
+          Bitmap::ScopedDirectReadWriteAccess directAccess(rBitmap);
+          RawBitmapUtil::Swizzle32To24(directAccess.AsRawBitmap(), desiredPixelFormat, desiredStride, 0, 1, 2);
         }
         // Update the bitmap with the new pixel format
         // We use the unsafe variant here since that doesn't modify any padding (we are using the original content)
-        rBitmap.Reset(rBitmap.GetExtent(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
+        rBitmap.Reset(rBitmap.GetSize(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
         return true;
       }
     }
@@ -273,14 +450,13 @@ namespace Fsl
       if (desiredStride <= rBitmap.Stride())
       {
         {
-          RawBitmapEx rawBitmap;
-          Bitmap::ScopedDirectAccess directAccess(rBitmap, rawBitmap);
-          Swizzle24To32Shrinking(rawBitmap, desiredStride, 2, 1, 0, 0xFF);
+          Bitmap::ScopedDirectReadWriteAccess directAccess(rBitmap);
+          Swizzle24To32Shrinking(directAccess.AsRawBitmap(), desiredStride, 2, 1, 0, 0xFF);
         }
         // This shrinks the bitmap size after the conversion since the desired stride is smaller than the existing one
         // Update the bitmap with the new pixel format
         // We use the unsafe variant here since that doesn't modify any padding (we are using the original content)
-        rBitmap.Reset(rBitmap.GetExtent(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
+        rBitmap.Reset(rBitmap.GetSize(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
         return true;
       }
 
@@ -289,11 +465,10 @@ namespace Fsl
       // Update the bitmap with the new pixel format
       // We use the unsafe variant here since that doesn't modify any padding (we are using the original content)
       const auto srcStride = rBitmap.Stride();
-      rBitmap.Reset(rBitmap.GetExtent(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
+      rBitmap.Reset(rBitmap.GetSize(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
       {
-        RawBitmapEx rawBitmap;
-        Bitmap::ScopedDirectAccess directAccess(rBitmap, rawBitmap);
-        Swizzle24To32Growing(rawBitmap, srcStride, 2, 1, 0, 0xFF);
+        Bitmap::ScopedDirectReadWriteAccess directAccess(rBitmap);
+        Swizzle24To32Growing(directAccess.AsRawBitmap(), srcStride, 2, 1, 0, 0xFF);
       }
       return true;
     }
@@ -307,14 +482,13 @@ namespace Fsl
       if (desiredStride <= rBitmap.Stride())
       {
         {
-          RawBitmapEx rawBitmap;
-          Bitmap::ScopedDirectAccess directAccess(rBitmap, rawBitmap);
-          Swizzle24To32Shrinking(rawBitmap, desiredStride, 0, 1, 2, 0xFF);
+          Bitmap::ScopedDirectReadWriteAccess directAccess(rBitmap);
+          Swizzle24To32Shrinking(directAccess.AsRawBitmap(), desiredStride, 0, 1, 2, 0xFF);
         }
         // This shrinks the bitmap size after the conversion since the desired stride is smaller than the existing one
         // Update the bitmap with the new pixel format
         // We use the unsafe variant here since that doesn't modify any padding (we are using the original content)
-        rBitmap.Reset(rBitmap.GetExtent(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
+        rBitmap.Reset(rBitmap.GetSize(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
         return true;
       }
 
@@ -323,11 +497,10 @@ namespace Fsl
       // Update the bitmap with the new pixel format
       // We use the unsafe variant here since that doesn't modify any padding (we are using the original content)
       const auto srcStride = rBitmap.Stride();
-      rBitmap.Reset(rBitmap.GetExtent(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
+      rBitmap.Reset(rBitmap.GetSize(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
       {
-        RawBitmapEx rawBitmap;
-        Bitmap::ScopedDirectAccess directAccess(rBitmap, rawBitmap);
-        Swizzle24To32Growing(rawBitmap, srcStride, 0, 1, 2, 0xFF);
+        Bitmap::ScopedDirectReadWriteAccess directAccess(rBitmap);
+        Swizzle24To32Growing(directAccess.AsRawBitmap(), srcStride, 0, 1, 2, 0xFF);
       }
       return true;
     }
@@ -337,27 +510,25 @@ namespace Fsl
       if (srcPixelFormatLayout == PixelFormatLayout::R8G8B8 || srcPixelFormatLayout == PixelFormatLayout::B8G8R8)
       {
         {
-          RawBitmapEx rawBitmap;
-          Bitmap::ScopedDirectAccess directAccess(rBitmap, rawBitmap);
-          RawBitmapUtil::Average24To8(rawBitmap, desiredPixelFormat, desiredStride, 0, 1, 2);
+          Bitmap::ScopedDirectReadWriteAccess directAccess(rBitmap);
+          RawBitmapUtil::Average24To8(directAccess.AsRawBitmap(), desiredPixelFormat, desiredStride, 0, 1, 2);
         }
         // This shrinks the bitmap size after the conversion since the desired stride is smaller than the existing one
         // Update the bitmap with the new pixel format
         // We use the unsafe variant here since that doesn't modify any padding (we are using the original content)
-        rBitmap.Reset(rBitmap.GetExtent(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
+        rBitmap.Reset(rBitmap.GetSize(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
         return true;
       }
       if (srcPixelFormatLayout == PixelFormatLayout::R8G8B8A8 || srcPixelFormatLayout == PixelFormatLayout::B8G8R8A8)
       {
         {
-          RawBitmapEx rawBitmap;
-          Bitmap::ScopedDirectAccess directAccess(rBitmap, rawBitmap);
-          RawBitmapUtil::Average32To8(rawBitmap, desiredPixelFormat, desiredStride, 0, 1, 2);
+          Bitmap::ScopedDirectReadWriteAccess directAccess(rBitmap);
+          RawBitmapUtil::Average32To8(directAccess.AsRawBitmap(), desiredPixelFormat, desiredStride, 0, 1, 2);
         }
         // This shrinks the bitmap size after the conversion since the desired stride is smaller than the existing one
         // Update the bitmap with the new pixel format
         // We use the unsafe variant here since that doesn't modify any padding (we are using the original content)
-        rBitmap.Reset(rBitmap.GetExtent(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
+        rBitmap.Reset(rBitmap.GetSize(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
         return true;
       }
     }
@@ -370,17 +541,15 @@ namespace Fsl
       // Update the bitmap with the new pixel format
       // We use the unsafe variant here since that doesn't modify any padding (we are using the original content)
       const auto srcStride = rBitmap.Stride();
-      rBitmap.Reset(rBitmap.GetExtent(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
+      rBitmap.Reset(rBitmap.GetSize(), desiredPixelFormat, desiredStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
       {
-        RawBitmapEx rawBitmap;
-        Bitmap::ScopedDirectAccess directAccess(rBitmap, rawBitmap);
-        ExpandAlpha8To32Growing(rawBitmap, srcStride);
+        Bitmap::ScopedDirectReadWriteAccess directAccess(rBitmap);
+        ExpandAlpha8To32Growing(directAccess.AsRawBitmap(), srcStride);
       }
       return true;
     }
     return false;
   }
-
 
   void BitmapUtil::Convert(Bitmap& rBitmap, const PixelFormat desiredPixelFormat)
   {
@@ -393,8 +562,7 @@ namespace Fsl
 
   void BitmapUtil::FlipHorizontal(Bitmap& rBitmap)
   {
-    RawBitmapEx rawBitmap;
-    Bitmap::ScopedDirectAccess directAccess(rBitmap, rawBitmap);
-    RawBitmapUtil::FlipHorizontal(rawBitmap);
+    Bitmap::ScopedDirectReadWriteAccess directAccess(rBitmap);
+    RawBitmapUtil::FlipHorizontal(directAccess.AsRawBitmap());
   }
 }

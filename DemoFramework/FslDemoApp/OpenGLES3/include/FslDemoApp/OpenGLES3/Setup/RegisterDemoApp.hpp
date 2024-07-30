@@ -71,7 +71,7 @@ namespace Fsl
                   const OpenGLESMinorVersion minorVersion = OpenGLESMinorVersion(0),
                   const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
     {
-      auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass>>();
+      auto appFactory = std::make_shared<DemoHostInternal::DemoAppFactoryTemplate<TAppClass>>();
       const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory);
       Register(rSetup, demoAppSetup, config, minorVersion);
     }
@@ -83,7 +83,7 @@ namespace Fsl
                   const OpenGLESMinorVersion minorVersion = OpenGLESMinorVersion(0),
                   const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
     {
-      auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass>>();
+      auto appFactory = std::make_shared<DemoHostInternal::DemoAppFactoryTemplate<TAppClass>>();
       auto appOptionParser = std::make_shared<TOptionParser>();
       const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory, appOptionParser);
       Register(rSetup, demoAppSetup, config, minorVersion);

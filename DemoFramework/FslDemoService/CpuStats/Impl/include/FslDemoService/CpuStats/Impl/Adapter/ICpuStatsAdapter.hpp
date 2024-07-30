@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslDemoService/CpuStats/CpuUsageRecord.hpp>
 
 namespace Fsl
 {
@@ -48,10 +49,10 @@ namespace Fsl
     virtual uint32_t GetCpuCount() const = 0;
 
     //! @brief Get the current usage for the given cpuIndex.
-    virtual bool TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex) const = 0;
+    virtual bool TryGetCpuUsage(CpuUsageRecord& rUsageRecord, const uint32_t cpuIndex) const = 0;
 
     //! @brief Get the total application CPU usage.
-    virtual bool TryGetApplicationCpuUsage(float& rUsagePercentage) const = 0;
+    virtual bool TryGetApplicationCpuUsage(CpuUsageRecord& rUsageRecord) const = 0;
 
     //! @brief Get the total application total ram usage.
     virtual bool TryGetApplicationRamUsage(uint64_t& rRamUsage) const = 0;

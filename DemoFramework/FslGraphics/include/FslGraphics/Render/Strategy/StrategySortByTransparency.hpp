@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_RENDER_STRATEGY_STRATEGYSORTBYTRANSPARENCY_HPP
 #define FSLGRAPHICS_RENDER_STRATEGY_STRATEGYSORTBYTRANSPARENCY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@ namespace Fsl
   class StrategySortByTransparency
   {
   public:
-    static constexpr const uint32_t VERTICES_PER_QUAD = 4;
+    static constexpr const uint32_t VerticesPerQuad = 4;
 
     using texture_info_type = TTextureInfo;
     using segment_type = BatchSegmentInfo<texture_info_type>;
@@ -78,27 +78,35 @@ namespace Fsl
     using vertex_span_type = VertexSpan<vertex_type>;
 
   private:
-    static constexpr const uint32_t EXPAND_QUAD_GROWTH = 1024;
-    static constexpr const uint32_t SAFETY = 1;
-    static constexpr const uint32_t MIN_QUADS = 1;
-    static constexpr const uint32_t NUM_BUFFERS = 2;
+    static constexpr const uint32_t ExpandQuadGrowth = 1024;
+    static constexpr const uint32_t Safety = 1;
+    static constexpr const uint32_t MinQuads = 1;
+    static constexpr const uint32_t NumBuffers = 2;
 
-    static_assert(MIN_QUADS > 0, "Min quads must be > 0");
-    static_assert(SAFETY > 0, "Safety must be > 0");
-    static_assert(NUM_BUFFERS == 2, "All of this class is hard-coded to expect two buffers");
+    static_assert(MinQuads > 0, "Min quads must be > 0");
+    static_assert(Safety > 0, "Safety must be > 0");
+    static_assert(NumBuffers == 2, "All of this class is hard-coded to expect two buffers");
 
     struct BufferPointers
     {
       // So the actual allocated vertices are calculated like this:
-      // OpaqueCount      = (pEndVertexOpaque - pNextVertexOpaque) - VERTICES_PER_QUAD;
+      // OpaqueCount      = (pEndVertexOpaque - pNextVertexOpaque) - VerticesPerQuad;
       // TransparentCount = (pEndVertexTransp - pStartVertexTransp);
+      // NOLINTNEXTLINE(readability-identifier-naming)
       vertex_type* pNextVertexOpaque{nullptr};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       vertex_type* pEndVertexOpaque{nullptr};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       vertex_type* pStartVertexTransp{nullptr};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       vertex_type* pEndVertexTransp{nullptr};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       segment_type* pCurrentSegmentOpaque{nullptr};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       segment_type* pEndSegmentOpaque{nullptr};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       segment_type* pStartSegmentTransp{nullptr};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       segment_type* pCurrentSegmentTransp{nullptr};
 
       inline bool IsValid(const std::vector<vertex_type>& quadVertices, const std::vector<segment_type>& segments) const
@@ -111,8 +119,8 @@ namespace Fsl
       {
         return (pNextVertexOpaque != nullptr && pStartVertexTransp != nullptr && pEndVertexOpaque != nullptr && pEndVertexTransp != nullptr &&
                 pNextVertexOpaque >= quadVertices.data() && pNextVertexOpaque <= pEndVertexOpaque &&
-                pEndVertexOpaque <= (quadVertices.data() + (quadVertices.size() / NUM_BUFFERS)) &&
-                pStartVertexTransp >= (quadVertices.data() + (quadVertices.size() / NUM_BUFFERS)) && pStartVertexTransp <= pEndVertexTransp &&
+                pEndVertexOpaque <= (quadVertices.data() + (quadVertices.size() / NumBuffers)) &&
+                pStartVertexTransp >= (quadVertices.data() + (quadVertices.size() / NumBuffers)) && pStartVertexTransp <= pEndVertexTransp &&
                 pEndVertexTransp <= (quadVertices.data() + quadVertices.size()));
       }
 
@@ -120,8 +128,8 @@ namespace Fsl
       {
         return (pCurrentSegmentOpaque != nullptr && pStartSegmentTransp != nullptr && pEndSegmentOpaque != nullptr &&
                 pCurrentSegmentTransp != nullptr && pCurrentSegmentOpaque >= segments.data() && pCurrentSegmentOpaque <= pEndSegmentOpaque &&
-                pEndSegmentOpaque <= (segments.data() + (segments.size() / NUM_BUFFERS)) &&
-                pStartSegmentTransp >= (segments.data() + (segments.size() / NUM_BUFFERS)) && pStartSegmentTransp <= pCurrentSegmentTransp &&
+                pEndSegmentOpaque <= (segments.data() + (segments.size() / NumBuffers)) &&
+                pStartSegmentTransp >= (segments.data() + (segments.size() / NumBuffers)) && pStartSegmentTransp <= pCurrentSegmentTransp &&
                 pCurrentSegmentTransp < (segments.data() + segments.size()));
       }
     };
@@ -129,8 +137,11 @@ namespace Fsl
     // Pointers for optimal access to tracking areas
     struct AddQuadPointers
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       vertex_type** ppNextDstVertex{nullptr};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       segment_type* pFirstDstSegment{nullptr};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       segment_type** ppCurrentDstSegment{nullptr};
       int32_t VertexAdd{0};
       int32_t SegmentAdd{0};
@@ -138,7 +149,7 @@ namespace Fsl
       bool IsValid(const std::vector<segment_type>& segments) const
       {
         return (ppNextDstVertex != nullptr && pFirstDstSegment != nullptr && ppCurrentDstSegment != nullptr && (*ppNextDstVertex) != nullptr &&
-                (*ppCurrentDstSegment) != nullptr && (VertexAdd == VERTICES_PER_QUAD || VertexAdd == -static_cast<int32_t>(VERTICES_PER_QUAD)) &&
+                (*ppCurrentDstSegment) != nullptr && (VertexAdd == VerticesPerQuad || VertexAdd == -static_cast<int32_t>(VerticesPerQuad)) &&
                 IsValidFirstDstSegment(segments));
       }
 
@@ -178,10 +189,10 @@ namespace Fsl
     StrategySortByTransparency& operator=(const StrategySortByTransparency&) = delete;
     StrategySortByTransparency& operator=(StrategySortByTransparency&& other) = delete;
 
-    // * NUM_BUFFERS because we store opaque and transparent in the same buffer
+    // * NumBuffers because we store opaque and transparent in the same buffer
     explicit StrategySortByTransparency(const uint32_t quadCapacity = 4096)
-      : m_quadVertices(static_cast<std::size_t>(std::max(quadCapacity, MIN_QUADS) + SAFETY) * VERTICES_PER_QUAD * NUM_BUFFERS)
-      , m_segments(static_cast<std::size_t>(std::max(quadCapacity, MIN_QUADS) + SAFETY) * NUM_BUFFERS)
+      : m_quadVertices(static_cast<std::size_t>(std::max(quadCapacity, MinQuads) + Safety) * VerticesPerQuad * NumBuffers)
+      , m_segments(static_cast<std::size_t>(std::max(quadCapacity, MinQuads) + Safety) * NumBuffers)
       , m_buffers(CreateBufferPointers(m_quadVertices, m_segments))
       , m_addQuad(CreateAddQuadPointers(m_buffers, BlendState::Opaque))
     {
@@ -227,8 +238,8 @@ namespace Fsl
     {
       assert(IsValid());
       // It must be >= four because we require room for at least one opaque and one transparent quad and one safety allocation in both ends
-      assert(m_segments.size() >= (2 * (MIN_QUADS + SAFETY)));
-      return static_cast<uint32_t>(m_segments.size() / NUM_BUFFERS) - SAFETY;
+      assert(m_segments.size() >= (2 * (MinQuads + Safety)));
+      return static_cast<uint32_t>(m_segments.size() / NumBuffers) - Safety;
     }
 
 
@@ -268,9 +279,9 @@ namespace Fsl
       assert(m_buffers.pNextVertexOpaque != nullptr);
       assert(m_buffers.pEndVertexOpaque != nullptr);
       assert(m_buffers.pEndVertexOpaque > m_buffers.pNextVertexOpaque);
-      assert((m_buffers.pEndVertexOpaque - VERTICES_PER_QUAD) >= m_buffers.pNextVertexOpaque);
+      assert((m_buffers.pEndVertexOpaque - VerticesPerQuad) >= m_buffers.pNextVertexOpaque);
 
-      return static_cast<uint32_t>((m_buffers.pEndVertexOpaque - m_buffers.pNextVertexOpaque) - VERTICES_PER_QUAD);
+      return static_cast<uint32_t>((m_buffers.pEndVertexOpaque - m_buffers.pNextVertexOpaque) - VerticesPerQuad);
     }
 
 
@@ -290,16 +301,16 @@ namespace Fsl
     {
       // If these assert fire it means we have a internal error
       assert(IsValid());
-      assert((GetOpaqueVertexCount() % VERTICES_PER_QUAD) == 0);
-      return GetOpaqueVertexCount() / VERTICES_PER_QUAD;
+      assert((GetOpaqueVertexCount() % VerticesPerQuad) == 0);
+      return GetOpaqueVertexCount() / VerticesPerQuad;
     }
 
     uint32_t GetTransparentQuadCount() const
     {
       // If these assert fire it means we have a internal error
       assert(IsValid());
-      assert((GetTransparentVertexCount() % VERTICES_PER_QUAD) == 0);
-      return GetTransparentVertexCount() / VERTICES_PER_QUAD;
+      assert((GetTransparentVertexCount() % VerticesPerQuad) == 0);
+      return GetTransparentVertexCount() / VerticesPerQuad;
     }
 
     vertex_span_type GetOpaqueSpan() const
@@ -308,17 +319,17 @@ namespace Fsl
       assert(IsValid());
       assert(m_buffers.pNextVertexOpaque != nullptr);
 
-      const auto pStartVertex = m_buffers.pNextVertexOpaque + VERTICES_PER_QUAD;
+      const auto pStartVertex = m_buffers.pNextVertexOpaque + VerticesPerQuad;
       const auto vertexCount = GetOpaqueVertexCount();
       // Check that the vertex count is inside the expected range
-      assert(vertexCount <= ((m_quadVertices.size() / NUM_BUFFERS) - SAFETY));
+      assert(vertexCount <= ((m_quadVertices.size() / NumBuffers) - Safety));
 
       // Verify that the pointers are inside the valid range
       // Opaque vertices are stored from the middle to the beginning of the quad vertex vector.
-      assert(vertexCount <= (m_quadVertices.size() / NUM_BUFFERS));
-      assert(pStartVertex == (m_quadVertices.data() + (m_quadVertices.size() / NUM_BUFFERS) - vertexCount));
-      assert((pStartVertex + vertexCount) == (m_quadVertices.data() + (m_quadVertices.size() / NUM_BUFFERS)));
-      assert(pStartVertex >= (m_quadVertices.data() + SAFETY));
+      assert(vertexCount <= (m_quadVertices.size() / NumBuffers));
+      assert(pStartVertex == (m_quadVertices.data() + (m_quadVertices.size() / NumBuffers) - vertexCount));
+      assert((pStartVertex + vertexCount) == (m_quadVertices.data() + (m_quadVertices.size() / NumBuffers)));
+      assert(pStartVertex >= (m_quadVertices.data() + Safety));
 
       return vertex_span_type(pStartVertex, vertexCount);
     }
@@ -330,15 +341,15 @@ namespace Fsl
       const auto vertexCount = GetTransparentVertexCount();
 
       // Check that the vertex count is inside the expected range
-      assert(vertexCount <= ((m_quadVertices.size() / NUM_BUFFERS) - SAFETY));
+      assert(vertexCount <= ((m_quadVertices.size() / NumBuffers) - Safety));
 
       // Verify that the pointers are inside the valid range
       // Transparent vertices are stored from the middle to the end of the quad vertex vector.
-      assert((m_quadVertices.size() % NUM_BUFFERS) == 0);
+      assert((m_quadVertices.size() % NumBuffers) == 0);
       assert(m_buffers.pStartVertexTransp != nullptr);
-      assert(m_buffers.pStartVertexTransp == (m_quadVertices.data() + (m_quadVertices.size() / NUM_BUFFERS)));
-      assert((m_buffers.pStartVertexTransp + vertexCount) == (m_quadVertices.data() + (m_quadVertices.size() / NUM_BUFFERS) + vertexCount));
-      assert((m_buffers.pStartVertexTransp + vertexCount) <= (m_quadVertices.data() + m_quadVertices.size() - SAFETY));
+      assert(m_buffers.pStartVertexTransp == (m_quadVertices.data() + (m_quadVertices.size() / NumBuffers)));
+      assert((m_buffers.pStartVertexTransp + vertexCount) == (m_quadVertices.data() + (m_quadVertices.size() / NumBuffers) + vertexCount));
+      assert((m_buffers.pStartVertexTransp + vertexCount) <= (m_quadVertices.data() + m_quadVertices.size() - Safety));
       return vertex_span_type(m_buffers.pStartVertexTransp, vertexCount);
     }
 
@@ -353,8 +364,8 @@ namespace Fsl
       auto pSegment = m_buffers.pEndSegmentOpaque - 1 - index;
 
       // Opaque segments are stored from the middle to the beginning of the segment vector.
-      assert(pSegment >= (m_segments.data() + SAFETY));
-      assert(pSegment < (m_segments.data() + (m_segments.size() / NUM_BUFFERS)));
+      assert(pSegment >= (m_segments.data() + Safety));
+      assert(pSegment < (m_segments.data() + (m_segments.size() / NumBuffers)));
 
       return *pSegment;
     }
@@ -369,9 +380,9 @@ namespace Fsl
       auto pSegment = m_buffers.pStartSegmentTransp + index;
 
       // Transparent segments are stored from the middle to the end of the segment vector.
-      assert((m_segments.size() % NUM_BUFFERS) == 0);
-      assert(pSegment >= (m_segments.data() + (m_segments.size() / NUM_BUFFERS)));
-      assert(pSegment < (m_segments.data() + m_segments.size() - SAFETY));
+      assert((m_segments.size() % NumBuffers) == 0);
+      assert(pSegment >= (m_segments.data() + (m_segments.size() / NumBuffers)));
+      assert(pSegment < (m_segments.data() + m_segments.size() - Safety));
       return *pSegment;
     }
 
@@ -425,7 +436,7 @@ namespace Fsl
     inline void AddQuad(const Vector2& vec0, const Vector2& vec1, const Vector2& vec2, const Vector2& vec3, const Vector2& texCoords0,
                         const Vector2& texCoords1, const Color& color)
     {
-      static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
+      static_assert(VerticesPerQuad == 4, "we assume four vertices per quad here");
 
       assert(IsValid());
 
@@ -434,8 +445,8 @@ namespace Fsl
       assert(pDstVertex != nullptr);
 
       // We expect the user called ensure capacity before starting to use this
-      assert(pDstVertex >= (m_quadVertices.data() + SAFETY));
-      assert((pDstVertex + VERTICES_PER_QUAD) <= (m_quadVertices.data() + m_quadVertices.size() - SAFETY));
+      assert(pDstVertex >= (m_quadVertices.data() + Safety));
+      assert((pDstVertex + VerticesPerQuad) <= (m_quadVertices.data() + m_quadVertices.size() - Safety));
 
       pDstVertex->Position.X = vec0.X;
       pDstVertex->Position.Y = vec0.Y;
@@ -465,19 +476,19 @@ namespace Fsl
 
       (*m_addQuad.ppNextDstVertex) = pDstVertex;
 
-      // We add the VERTICES_PER_QUAD here instead of m_addQuad.VertexAdd because this should always increase
+      // We add the VerticesPerQuad here instead of m_addQuad.VertexAdd because this should always increase
       assert(m_addQuad.ppCurrentDstSegment != nullptr);
       assert((*m_addQuad.ppCurrentDstSegment) != nullptr);
       assert((*m_addQuad.ppCurrentDstSegment) >= m_segments.data());
       assert((*m_addQuad.ppCurrentDstSegment) < (m_segments.data() + m_segments.size()));
 
-      (*m_addQuad.ppCurrentDstSegment)->VertexCount += VERTICES_PER_QUAD;
+      (*m_addQuad.ppCurrentDstSegment)->VertexCount += VerticesPerQuad;
     }
 
     inline void EnsureCapacity(const std::size_t desiredQuadCapacity)
     {
-      // * NUM_BUFFERS because we store both transparent and opaque in the same buffer
-      if ((static_cast<std::size_t>(desiredQuadCapacity + SAFETY) * NUM_BUFFERS) > m_segments.size())
+      // * NumBuffers because we store both transparent and opaque in the same buffer
+      if ((static_cast<std::size_t>(desiredQuadCapacity + Safety) * NumBuffers) > m_segments.size())
       {
         GrowCapacity(desiredQuadCapacity);
       }
@@ -486,7 +497,7 @@ namespace Fsl
     // inline void EnsureCapacityFor(const std::size_t elementsToEnsureCapacityFor)
     //{
     //  auto desiredQuadCapacity = (GetQuadCount() + elementsToEnsureCapacityFor);
-    //  if ((desiredQuadCapacity + SAFETY) > m_segments.size())
+    //  if ((desiredQuadCapacity + Safety) > m_segments.size())
     //  {
     //    GrowCapacity(desiredQuadCapacity);
     //  }
@@ -500,13 +511,13 @@ namespace Fsl
       auto activeBlendState = GetActiveBlendState();
 
       // we store both transparent and opaque in the same buffer and need room for the safety area
-      newMinimumQuadCapacity = (newMinimumQuadCapacity + SAFETY) * NUM_BUFFERS;
+      newMinimumQuadCapacity = (newMinimumQuadCapacity + Safety) * NumBuffers;
 
       // This should only be called to grow the capacity
       assert(newMinimumQuadCapacity >= m_segments.size());
 
-      const std::size_t newQuadCapacity = newMinimumQuadCapacity + EXPAND_QUAD_GROWTH;
-      const std::size_t newVertexCapacity = newQuadCapacity * VERTICES_PER_QUAD;
+      const std::size_t newQuadCapacity = newMinimumQuadCapacity + ExpandQuadGrowth;
+      const std::size_t newVertexCapacity = newQuadCapacity * VerticesPerQuad;
 
       assert(m_buffers.IsValid(m_quadVertices, m_segments));
 
@@ -545,8 +556,7 @@ namespace Fsl
         // Time to move the existing data if there is any
         // We start by moving the transparent and we move the 'right side' first to prevent overwrites and then we do the same for the opaque
         SafeMove(m_buffers.pStartVertexTransp, m_quadVertices.data(), endOffsetVertexTransp - vertexCountTransp, vertexCountTransp);
-        SafeMove(m_buffers.pNextVertexOpaque + VERTICES_PER_QUAD, m_quadVertices.data(), endOffsetVertexOpaque - vertexCountOpaque,
-                 vertexCountOpaque);
+        SafeMove(m_buffers.pNextVertexOpaque + VerticesPerQuad, m_quadVertices.data(), endOffsetVertexOpaque - vertexCountOpaque, vertexCountOpaque);
       }
 
       {
@@ -596,21 +606,21 @@ namespace Fsl
     {
       BufferPointers buffers;
       // We expect the buffer to contain at least two quads
-      assert(rQuadVertices.size() >= ((MIN_QUADS + SAFETY) * VERTICES_PER_QUAD));
-      // We expect the buffer to be able to contain exactly: (QUAD_CAPACITY + SAFETY) * VERTICES_PER_QUAD * NUM_BUFFERS
-      assert((rQuadVertices.size() % NUM_BUFFERS) == 0);
-      const auto vertexMidpoint = rQuadVertices.size() / NUM_BUFFERS;
+      assert(rQuadVertices.size() >= ((MinQuads + Safety) * VerticesPerQuad));
+      // We expect the buffer to be able to contain exactly: (QUAD_CAPACITY + Safety) * VerticesPerQuad * NumBuffers
+      assert((rQuadVertices.size() % NumBuffers) == 0);
+      const auto vertexMidpoint = rQuadVertices.size() / NumBuffers;
       buffers.pStartVertexTransp = rQuadVertices.data() + vertexMidpoint;
       buffers.pEndVertexTransp = buffers.pStartVertexTransp;
       buffers.pEndVertexOpaque = buffers.pStartVertexTransp;
-      buffers.pNextVertexOpaque = buffers.pStartVertexTransp - VERTICES_PER_QUAD;
+      buffers.pNextVertexOpaque = buffers.pStartVertexTransp - VerticesPerQuad;
 
       // We expect the buffer to contain at least this
-      assert(rSegments.size() >= ((MIN_QUADS + SAFETY) * NUM_BUFFERS));
-      // We expect the buffer to be able to contain exactly: (QUAD_CAPACITY + SAFETY) * NUM_BUFFERS
-      assert((rSegments.size() % NUM_BUFFERS) == 0);
+      assert(rSegments.size() >= ((MinQuads + Safety) * NumBuffers));
+      // We expect the buffer to be able to contain exactly: (QUAD_CAPACITY + Safety) * NumBuffers
+      assert((rSegments.size() % NumBuffers) == 0);
 
-      const auto segmentMidpoint = rSegments.size() / NUM_BUFFERS;
+      const auto segmentMidpoint = rSegments.size() / NumBuffers;
       buffers.pStartSegmentTransp = rSegments.data() + segmentMidpoint;
       buffers.pCurrentSegmentTransp = buffers.pStartSegmentTransp;
       buffers.pEndSegmentOpaque = buffers.pStartSegmentTransp;
@@ -633,7 +643,7 @@ namespace Fsl
         addQuad.pFirstDstSegment = rBuffers.pEndSegmentOpaque - 1;
         addQuad.ppNextDstVertex = &rBuffers.pNextVertexOpaque;
         addQuad.ppCurrentDstSegment = &rBuffers.pCurrentSegmentOpaque;
-        addQuad.VertexAdd = -static_cast<int32_t>(VERTICES_PER_QUAD);
+        addQuad.VertexAdd = -static_cast<int32_t>(VerticesPerQuad);
         addQuad.SegmentAdd = -1;
       }
       else
@@ -641,7 +651,7 @@ namespace Fsl
         addQuad.pFirstDstSegment = rBuffers.pStartSegmentTransp;
         addQuad.ppNextDstVertex = &rBuffers.pEndVertexTransp;
         addQuad.ppCurrentDstSegment = &rBuffers.pCurrentSegmentTransp;
-        addQuad.VertexAdd = static_cast<int32_t>(VERTICES_PER_QUAD);
+        addQuad.VertexAdd = static_cast<int32_t>(VerticesPerQuad);
         addQuad.SegmentAdd = 1;
       }
 
@@ -665,8 +675,8 @@ namespace Fsl
     inline bool IsValid() const
     {
       // Sanity checks
-      return (m_segments.size() >= ((MIN_QUADS + SAFETY) * NUM_BUFFERS)) && ((m_quadVertices.size() % NUM_BUFFERS) == 0) &&
-             ((m_segments.size() % NUM_BUFFERS) == 0) && ((m_quadVertices.size() / VERTICES_PER_QUAD) == m_segments.size()) &&
+      return (m_segments.size() >= ((MinQuads + Safety) * NumBuffers)) && ((m_quadVertices.size() % NumBuffers) == 0) &&
+             ((m_segments.size() % NumBuffers) == 0) && ((m_quadVertices.size() / VerticesPerQuad) == m_segments.size()) &&
              m_buffers.IsValid(m_quadVertices, m_segments) && m_addQuad.IsValid(m_segments);
     }
 
@@ -731,26 +741,6 @@ namespace Fsl
       assert(IsValid());
     }
   };
-
-  // FIX-LATER: Remove once we move to C++17
-  template <typename TTextureInfo>
-  const uint32_t StrategySortByTransparency<TTextureInfo>::VERTICES_PER_QUAD;    // NOLINT(readability-redundant-declaration)
-
-  // FIX-LATER: Remove once we move to C++17
-  template <typename TTextureInfo>
-  const uint32_t StrategySortByTransparency<TTextureInfo>::EXPAND_QUAD_GROWTH;    // NOLINT(readability-redundant-declaration)
-
-  // FIX-LATER: Remove once we move to C++17
-  template <typename TTextureInfo>
-  const uint32_t StrategySortByTransparency<TTextureInfo>::SAFETY;    // NOLINT(readability-redundant-declaration)
-
-  // FIX-LATER: Remove once we move to C++17
-  template <typename TTextureInfo>
-  const uint32_t StrategySortByTransparency<TTextureInfo>::MIN_QUADS;    // NOLINT(readability-redundant-declaration)
-
-  // FIX-LATER: Remove once we move to C++17
-  template <typename TTextureInfo>
-  const uint32_t StrategySortByTransparency<TTextureInfo>::NUM_BUFFERS;    // NOLINT(readability-redundant-declaration)
 }
 
 #endif

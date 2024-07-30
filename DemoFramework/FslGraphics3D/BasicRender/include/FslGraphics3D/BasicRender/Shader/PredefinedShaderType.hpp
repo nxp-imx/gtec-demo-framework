@@ -37,9 +37,11 @@ namespace Fsl::Graphics3D
 {
   enum class PredefinedShaderType : uint16_t
   {
-    Vertex = 0,
-    Fragment = 1,
-    FragmentSdf = 2,
+    PositionColorTextureVertex = 0,
+    PositionColorTextureFragment = 1,
+    PositionColorTextureSdfFragment = 2,
+    PositionColorVertex = 3,
+    PositionColorFragment = 4,
   };
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 #include <FslBase/Bits/BitsUtil.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Point2.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslResearch/SpatialGrid2D/SpatialHashGrid2DFixedBucketSize.hpp>
 #include <FslResearch/SpatialGrid2D/SpatialHashGrid2DMap.hpp>
@@ -194,13 +194,13 @@ namespace
   // -------------------------------------------------------------------------------------------------------------------------------------------------
 
   template <int32_t TCellSize, typename TGrid>
-  void BM_Grid_TryAdd(benchmark::State& state)
+  void BmGridTryAdd(benchmark::State& state)
   {
     auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.RawWidth(), LocalConfig::SizePx.RawHeight(), TCellSize, TCellSize);
     std::vector<DrawRecord> testData(LocalConfig::ObjectCount);
     FillVector(testData, LocalConfig::Seed, LocalConfig::SizePx);
 
-    const auto testDataSpan = ReadOnlySpanUtil::AsSpan(testData);
+    const auto testDataSpan = SpanUtil::AsReadOnlySpan(testData);
 
     // Perform setup here
     for (auto _ : state)
@@ -215,13 +215,13 @@ namespace
   }
 
   template <int32_t TCellSize, typename TGrid>
-  void BM_Grid_TryUncheckedAdd(benchmark::State& state)
+  void BmGridTryUncheckedAdd(benchmark::State& state)
   {
     auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.RawWidth(), LocalConfig::SizePx.RawHeight(), TCellSize, TCellSize);
     std::vector<DrawRecord> testData(LocalConfig::ObjectCount);
     FillVector(testData, LocalConfig::Seed, LocalConfig::SizePx);
 
-    const auto testDataSpan = ReadOnlySpanUtil::AsSpan(testData);
+    const auto testDataSpan = SpanUtil::AsReadOnlySpan(testData);
 
     // Perform setup here
     for (auto _ : state)
@@ -236,13 +236,13 @@ namespace
   }
 
   template <int32_t TCellSize, typename TGrid>
-  void BM_Grid_TryInsertAfterZPos(benchmark::State& state)
+  void BmGridTryInsertAfterZPos(benchmark::State& state)
   {
     auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.RawWidth(), LocalConfig::SizePx.RawHeight(), TCellSize, TCellSize);
     std::vector<DrawRecord> testData(LocalConfig::ObjectCount);
     FillVector(testData, LocalConfig::Seed, LocalConfig::SizePx);
 
-    const auto testDataSpan = ReadOnlySpanUtil::AsSpan(testData);
+    const auto testDataSpan = SpanUtil::AsReadOnlySpan(testData);
 
     // Perform setup here
     for (auto _ : state)
@@ -257,13 +257,13 @@ namespace
   }
 
   template <int32_t TCellSize, typename TGrid>
-  void BM_Grid_Clear(benchmark::State& state)
+  void BmGridClear(benchmark::State& state)
   {
     auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.RawWidth(), LocalConfig::SizePx.RawHeight(), TCellSize, TCellSize);
     std::vector<DrawRecord> testData(LocalConfig::ObjectCount);
     FillVector(testData, LocalConfig::Seed, LocalConfig::SizePx);
 
-    const auto testDataSpan = ReadOnlySpanUtil::AsSpan(testData);
+    const auto testDataSpan = SpanUtil::AsReadOnlySpan(testData);
 
     // Perform setup here
     for (auto _ : state)
@@ -279,19 +279,19 @@ namespace
 
 
   template <int32_t TCellSize, typename TGrid>
-  void BM_Grid_TryGetChunkEntriesRandom(benchmark::State& state)
+  void BmGridTryGetChunkEntriesRandom(benchmark::State& state)
   {
     auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.RawWidth(), LocalConfig::SizePx.RawHeight(), TCellSize, TCellSize);
     {
       std::vector<DrawRecord> testData(LocalConfig::ObjectCount);
       FillVector(testData, LocalConfig::Seed, LocalConfig::SizePx);
-      const auto testDataSpan = ReadOnlySpanUtil::AsSpan(testData);
+      const auto testDataSpan = SpanUtil::AsReadOnlySpan(testData);
       TryAdd(grid, testDataSpan);
     }
 
     std::vector<Point2> testChunks(LocalConfig::RandomChunkCount);
     FillVector(testChunks, LocalConfig::Seed, grid.GetCellCountX(), grid.GetCellCountY());
-    const auto testChunkSpan = ReadOnlySpanUtil::AsSpan(testChunks);
+    const auto testChunkSpan = SpanUtil::AsReadOnlySpan(testChunks);
 
     // Perform setup here
     for (auto _ : state)
@@ -303,19 +303,19 @@ namespace
 
 
   template <int32_t TCellSize, typename TGrid>
-  void BM_Grid_UncheckedGetChunkEntriesRandom(benchmark::State& state)
+  void BmGridUncheckedGetChunkEntriesRandom(benchmark::State& state)
   {
     auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.RawWidth(), LocalConfig::SizePx.RawHeight(), TCellSize, TCellSize);
     {
       std::vector<DrawRecord> testData(LocalConfig::ObjectCount);
       FillVector(testData, LocalConfig::Seed, LocalConfig::SizePx);
-      const auto testDataSpan = ReadOnlySpanUtil::AsSpan(testData);
+      const auto testDataSpan = SpanUtil::AsReadOnlySpan(testData);
       TryAdd(grid, testDataSpan);
     }
 
     std::vector<Point2> testChunks(LocalConfig::RandomChunkCount);
     FillVector(testChunks, LocalConfig::Seed, grid.GetCellCountX(), grid.GetCellCountY());
-    const auto testChunkSpan = ReadOnlySpanUtil::AsSpan(testChunks);
+    const auto testChunkSpan = SpanUtil::AsReadOnlySpan(testChunks);
 
     // Perform setup here
     for (auto _ : state)
@@ -334,38 +334,38 @@ namespace
 
 #ifdef LOCAL_BENCH_TRYADD
 #ifdef LOCAL_BENCH_UNORDEREDMAP
-BENCHMARK(BM_Grid_TryAdd<64, SpatialHashGrid2DUnorderedMap>);
-BENCHMARK(BM_Grid_TryAdd<128, SpatialHashGrid2DUnorderedMap>);
-BENCHMARK(BM_Grid_TryAdd<256, SpatialHashGrid2DUnorderedMap>);
-BENCHMARK(BM_Grid_TryAdd<512, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridTryAdd<64, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridTryAdd<128, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridTryAdd<256, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridTryAdd<512, SpatialHashGrid2DUnorderedMap>);
 #endif
 
 #ifdef LOCAL_BENCH_MAP
-BENCHMARK(BM_Grid_TryAdd<64, SpatialHashGrid2DMap>);
-BENCHMARK(BM_Grid_TryAdd<128, SpatialHashGrid2DMap>);
-BENCHMARK(BM_Grid_TryAdd<256, SpatialHashGrid2DMap>);
-BENCHMARK(BM_Grid_TryAdd<512, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridTryAdd<64, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridTryAdd<128, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridTryAdd<256, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridTryAdd<512, SpatialHashGrid2DMap>);
 #endif
 
 #ifdef LOCAL_BENCH_VECTOR
-BENCHMARK(BM_Grid_TryAdd<64, SpatialHashGrid2DVector>);
-BENCHMARK(BM_Grid_TryAdd<128, SpatialHashGrid2DVector>);
-BENCHMARK(BM_Grid_TryAdd<256, SpatialHashGrid2DVector>);
-BENCHMARK(BM_Grid_TryAdd<512, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridTryAdd<64, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridTryAdd<128, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridTryAdd<256, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridTryAdd<512, SpatialHashGrid2DVector>);
 #endif
 
 #ifdef LOCAL_BENCH_FIXED_BUCKET_SIZE_256
-BENCHMARK(BM_Grid_TryAdd<64, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_TryAdd<128, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_TryAdd<256, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_TryAdd<512, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridTryAdd<64, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridTryAdd<128, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridTryAdd<256, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridTryAdd<512, SpatialHashGrid2DFixedBucketSize<256>>);
 #endif
 
 #ifdef LOCAL_BENCH_FIXED_BUCKET_SIZE_32
-BENCHMARK(BM_Grid_TryAdd<64, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_TryAdd<128, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_TryAdd<256, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_TryAdd<512, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridTryAdd<64, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridTryAdd<128, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridTryAdd<256, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridTryAdd<512, SpatialHashGrid2DFixedBucketSize<32>>);
 #endif
 #endif
 
@@ -375,17 +375,17 @@ BENCHMARK(BM_Grid_TryAdd<512, SpatialHashGrid2DFixedBucketSize<32>>);
 
 #ifdef LOCAL_BENCH_TRYUNCHECKEDADD
 #ifdef LOCAL_BENCH_FIXED_BUCKET_SIZE_256
-BENCHMARK(BM_Grid_TryUncheckedAdd<64, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_TryUncheckedAdd<128, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_TryUncheckedAdd<256, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_TryUncheckedAdd<512, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridTryUncheckedAdd<64, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridTryUncheckedAdd<128, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridTryUncheckedAdd<256, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridTryUncheckedAdd<512, SpatialHashGrid2DFixedBucketSize<256>>);
 #endif
 
 #ifdef LOCAL_BENCH_FIXED_BUCKET_SIZE_32
-BENCHMARK(BM_Grid_TryUncheckedAdd<64, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_TryUncheckedAdd<128, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_TryUncheckedAdd<256, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_TryUncheckedAdd<512, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridTryUncheckedAdd<64, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridTryUncheckedAdd<128, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridTryUncheckedAdd<256, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridTryUncheckedAdd<512, SpatialHashGrid2DFixedBucketSize<32>>);
 #endif
 #endif
 
@@ -396,38 +396,38 @@ BENCHMARK(BM_Grid_TryUncheckedAdd<512, SpatialHashGrid2DFixedBucketSize<32>>);
 
 #ifdef LOCAL_BENCH_TRYINSERTAFTERZPOS
 #ifdef LOCAL_BENCH_UNORDEREDMAP
-BENCHMARK(BM_Grid_TryInsertAfterZPos<64, SpatialHashGrid2DUnorderedMap>);
-BENCHMARK(BM_Grid_TryInsertAfterZPos<128, SpatialHashGrid2DUnorderedMap>);
-BENCHMARK(BM_Grid_TryInsertAfterZPos<256, SpatialHashGrid2DUnorderedMap>);
-BENCHMARK(BM_Grid_TryInsertAfterZPos<512, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridTryInsertAfterZPos<64, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridTryInsertAfterZPos<128, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridTryInsertAfterZPos<256, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridTryInsertAfterZPos<512, SpatialHashGrid2DUnorderedMap>);
 #endif
 
 #ifdef LOCAL_BENCH_MAP
-BENCHMARK(BM_Grid_TryInsertAfterZPos<64, SpatialHashGrid2DMap>);
-BENCHMARK(BM_Grid_TryInsertAfterZPos<128, SpatialHashGrid2DMap>);
-BENCHMARK(BM_Grid_TryInsertAfterZPos<256, SpatialHashGrid2DMap>);
-BENCHMARK(BM_Grid_TryInsertAfterZPos<512, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridTryInsertAfterZPos<64, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridTryInsertAfterZPos<128, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridTryInsertAfterZPos<256, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridTryInsertAfterZPos<512, SpatialHashGrid2DMap>);
 #endif
 
 #ifdef LOCAL_BENCH_VECTOR
-BENCHMARK(BM_Grid_TryInsertAfterZPos<64, SpatialHashGrid2DVector>);
-BENCHMARK(BM_Grid_TryInsertAfterZPos<128, SpatialHashGrid2DVector>);
-BENCHMARK(BM_Grid_TryInsertAfterZPos<256, SpatialHashGrid2DVector>);
-BENCHMARK(BM_Grid_TryInsertAfterZPos<512, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridTryInsertAfterZPos<64, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridTryInsertAfterZPos<128, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridTryInsertAfterZPos<256, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridTryInsertAfterZPos<512, SpatialHashGrid2DVector>);
 #endif
 
 #ifdef LOCAL_BENCH_FIXED_BUCKET_SIZE_256
-BENCHMARK(BM_Grid_TryInsertAfterZPos<64, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_TryInsertAfterZPos<128, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_TryInsertAfterZPos<256, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_TryInsertAfterZPos<512, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridTryInsertAfterZPos<64, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridTryInsertAfterZPos<128, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridTryInsertAfterZPos<256, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridTryInsertAfterZPos<512, SpatialHashGrid2DFixedBucketSize<256>>);
 #endif
 
 #ifdef LOCAL_BENCH_FIXED_BUCKET_SIZE_32
-BENCHMARK(BM_Grid_TryInsertAfterZPos<64, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_TryInsertAfterZPos<128, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_TryInsertAfterZPos<256, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_TryInsertAfterZPos<512, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridTryInsertAfterZPos<64, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridTryInsertAfterZPos<128, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridTryInsertAfterZPos<256, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridTryInsertAfterZPos<512, SpatialHashGrid2DFixedBucketSize<32>>);
 #endif
 #endif
 
@@ -437,38 +437,38 @@ BENCHMARK(BM_Grid_TryInsertAfterZPos<512, SpatialHashGrid2DFixedBucketSize<32>>)
 
 #ifdef LOCAL_BENCH_CLEAR
 #ifdef LOCAL_BENCH_UNORDEREDMAP
-BENCHMARK(BM_Grid_Clear<64, SpatialHashGrid2DUnorderedMap>);
-BENCHMARK(BM_Grid_Clear<128, SpatialHashGrid2DUnorderedMap>);
-BENCHMARK(BM_Grid_Clear<256, SpatialHashGrid2DUnorderedMap>);
-BENCHMARK(BM_Grid_Clear<512, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridClear<64, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridClear<128, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridClear<256, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridClear<512, SpatialHashGrid2DUnorderedMap>);
 #endif
 
 #ifdef LOCAL_BENCH_MAP
-BENCHMARK(BM_Grid_Clear<64, SpatialHashGrid2DMap>);
-BENCHMARK(BM_Grid_Clear<128, SpatialHashGrid2DMap>);
-BENCHMARK(BM_Grid_Clear<256, SpatialHashGrid2DMap>);
-BENCHMARK(BM_Grid_Clear<512, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridClear<64, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridClear<128, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridClear<256, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridClear<512, SpatialHashGrid2DMap>);
 #endif
 
 #ifdef LOCAL_BENCH_VECTOR
-BENCHMARK(BM_Grid_Clear<64, SpatialHashGrid2DVector>);
-BENCHMARK(BM_Grid_Clear<128, SpatialHashGrid2DVector>);
-BENCHMARK(BM_Grid_Clear<256, SpatialHashGrid2DVector>);
-BENCHMARK(BM_Grid_Clear<512, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridClear<64, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridClear<128, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridClear<256, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridClear<512, SpatialHashGrid2DVector>);
 #endif
 
 #ifdef LOCAL_BENCH_FIXED_BUCKET_SIZE_256
-BENCHMARK(BM_Grid_Clear<64, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_Clear<128, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_Clear<256, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_Clear<512, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridClear<64, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridClear<128, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridClear<256, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridClear<512, SpatialHashGrid2DFixedBucketSize<256>>);
 #endif
 
 #ifdef LOCAL_BENCH_FIXED_BUCKET_SIZE_32
-BENCHMARK(BM_Grid_Clear<64, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_Clear<128, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_Clear<256, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_Clear<512, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridClear<64, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridClear<128, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridClear<256, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridClear<512, SpatialHashGrid2DFixedBucketSize<32>>);
 #endif
 #endif
 
@@ -478,38 +478,38 @@ BENCHMARK(BM_Grid_Clear<512, SpatialHashGrid2DFixedBucketSize<32>>);
 
 #ifdef LOCAL_BENCH_GETCHUNKENTRIES
 #ifdef LOCAL_BENCH_UNORDEREDMAP
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<64, SpatialHashGrid2DUnorderedMap>);
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<128, SpatialHashGrid2DUnorderedMap>);
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<256, SpatialHashGrid2DUnorderedMap>);
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<512, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<64, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<128, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<256, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<512, SpatialHashGrid2DUnorderedMap>);
 #endif
 
 #ifdef LOCAL_BENCH_MAP
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<64, SpatialHashGrid2DMap>);
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<128, SpatialHashGrid2DMap>);
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<256, SpatialHashGrid2DMap>);
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<512, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<64, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<128, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<256, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<512, SpatialHashGrid2DMap>);
 #endif
 
 #ifdef LOCAL_BENCH_VECTOR
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<64, SpatialHashGrid2DVector>);
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<128, SpatialHashGrid2DVector>);
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<256, SpatialHashGrid2DVector>);
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<512, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<64, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<128, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<256, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<512, SpatialHashGrid2DVector>);
 #endif
 
 #ifdef LOCAL_BENCH_FIXED_BUCKET_SIZE_256
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<64, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<128, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<256, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<512, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<64, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<128, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<256, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<512, SpatialHashGrid2DFixedBucketSize<256>>);
 #endif
 
 #ifdef LOCAL_BENCH_FIXED_BUCKET_SIZE_32
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<64, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<128, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<256, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<512, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<64, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<128, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<256, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridTryGetChunkEntriesRandom<512, SpatialHashGrid2DFixedBucketSize<32>>);
 #endif
 #endif
 
@@ -519,37 +519,37 @@ BENCHMARK(BM_Grid_TryGetChunkEntriesRandom<512, SpatialHashGrid2DFixedBucketSize
 
 #ifdef LOCAL_BENCH_UNCHECKEDGETCHUNKENTRIES
 #ifdef LOCAL_BENCH_UNORDEREDMAP
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<64, SpatialHashGrid2DUnorderedMap>);
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<128, SpatialHashGrid2DUnorderedMap>);
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<256, SpatialHashGrid2DUnorderedMap>);
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<512, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<64, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<128, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<256, SpatialHashGrid2DUnorderedMap>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<512, SpatialHashGrid2DUnorderedMap>);
 #endif
 
 #ifdef LOCAL_BENCH_MAP
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<64, SpatialHashGrid2DMap>);
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<128, SpatialHashGrid2DMap>);
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<256, SpatialHashGrid2DMap>);
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<512, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<64, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<128, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<256, SpatialHashGrid2DMap>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<512, SpatialHashGrid2DMap>);
 #endif
 
 #ifdef LOCAL_BENCH_VECTOR
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<64, SpatialHashGrid2DVector>);
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<128, SpatialHashGrid2DVector>);
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<256, SpatialHashGrid2DVector>);
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<512, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<64, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<128, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<256, SpatialHashGrid2DVector>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<512, SpatialHashGrid2DVector>);
 #endif
 
 #ifdef LOCAL_BENCH_FIXED_BUCKET_SIZE_256
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<64, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<128, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<256, SpatialHashGrid2DFixedBucketSize<256>>);
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<512, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<64, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<128, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<256, SpatialHashGrid2DFixedBucketSize<256>>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<512, SpatialHashGrid2DFixedBucketSize<256>>);
 #endif
 
 #ifdef LOCAL_BENCH_FIXED_BUCKET_SIZE_32
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<64, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<128, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<256, SpatialHashGrid2DFixedBucketSize<32>>);
-BENCHMARK(BM_Grid_UncheckedGetChunkEntriesRandom<512, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<64, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<128, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<256, SpatialHashGrid2DFixedBucketSize<32>>);
+BENCHMARK(BmGridUncheckedGetChunkEntriesRandom<512, SpatialHashGrid2DFixedBucketSize<32>>);
 #endif
 #endif

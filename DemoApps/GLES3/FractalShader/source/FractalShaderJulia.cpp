@@ -50,7 +50,7 @@ namespace Fsl
   FractalShaderJulia::FractalShaderJulia(const DemoAppConfig& config)
     : m_screenResolution(config.ScreenResolution)
     , m_config(config.GetOptions<OptionParser>()->GetConfig())
-    , m_locCoordinate(GLValues::INVALID_LOCATION)
+    , m_locCoordinate(GLValues::InvalidLocation)
     , m_helper(m_config, m_config.TheAnimationMode, config.DemoServiceProvider)
   {
     const std::shared_ptr<IContentManager> contentManager = config.DemoServiceProvider.Get<IContentManager>();

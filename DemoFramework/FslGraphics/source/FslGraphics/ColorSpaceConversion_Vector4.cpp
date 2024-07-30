@@ -36,14 +36,16 @@ namespace Fsl::ColorSpaceConversion
   //! @brief Convert a SRGB color to a linear color stored as a Vector4
   Vector4 ConvertSRGBToLinearVector4(const Color colorSRGB)
   {
-    return {ConvertSRGBToLinearFloat(colorSRGB.R()), ConvertSRGBToLinearFloat(colorSRGB.G()), ConvertSRGBToLinearFloat(colorSRGB.B()),
-            ConvertSRGBToLinearFloat(colorSRGB.A())};
+    // The alpha is a linear value so it should not be converted
+    return {ConvertSRGBToLinearFloat(colorSRGB.RawR()), ConvertSRGBToLinearFloat(colorSRGB.RawG()), ConvertSRGBToLinearFloat(colorSRGB.RawB()),
+            ConvertLinearUInt8ToLinearFloat(colorSRGB.RawA())};
   }
 
   //! @brief Convert a SRGB color to a linear color stored as a Vector4
   Color ConvertLinearToSRGBColor(const Vector4& colorLinear)
   {
+    // The alpha is a linear value so it should not be converted
     return {ConvertLinearToSRGBUInt8(colorLinear.X), ConvertLinearToSRGBUInt8(colorLinear.Y), ConvertLinearToSRGBUInt8(colorLinear.Z),
-            ConvertLinearToSRGBUInt8(colorLinear.W)};
+            ConvertLinearFloatToLinearUInt8(colorLinear.W)};
   }
 }

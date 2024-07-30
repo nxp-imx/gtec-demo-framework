@@ -43,7 +43,7 @@ namespace Fsl
     {
       // The real value is not acquired from a service
       constexpr uint16_t DefaultFixedUpdatesPerSecond = 60;
-      constexpr TimeSpan MaxFrameTime(TimeInfo::TicksPerSecond / 2);
+      constexpr TimeSpan MaxFrameTime(TimeSpan::TicksPerSecond / 2);
     }
   }
 
@@ -55,13 +55,13 @@ namespace Fsl
     {
       FixedUpdatesPerSecond = cappedFixedUpdatesPerSecond;
       ExpectedFixedFrameTime =
-        TimeSpan(static_cast<int64_t>(std::round(static_cast<double>(TimeInfo::TicksPerSecond) / static_cast<double>(FixedUpdatesPerSecond))));
+        TimeSpan(static_cast<int64_t>(std::round(static_cast<double>(TimeSpan::TicksPerSecond) / static_cast<double>(FixedUpdatesPerSecond))));
     }
     return wasChanged;
   }
 
 
-  DemoAppTiming::DemoAppTiming(const TimeSpan currentTimestamp, const TimeSpan forcedUpdateTime)
+  DemoAppTiming::DemoAppTiming(const TickCount currentTimestamp, const TimeSpan forcedUpdateTime)
     : m_config(LocalConfig::DefaultFixedUpdatesPerSecond, forcedUpdateTime, LocalConfig::MaxFrameTime)
   {
     m_timing.FixedTime.ExpectedFrameTime = m_config.ExpectedFixedFrameTime;
@@ -80,7 +80,7 @@ namespace Fsl
   }
 
 
-  void DemoAppTiming::ResetTimer(const TimeSpan currentTimestamp)
+  void DemoAppTiming::ResetTimer(const TickCount currentTimestamp)
   {
     m_timing.TimeThen = currentTimestamp;
     m_timing.FixedTime.CurrentAccumulatedTime = {};
@@ -96,7 +96,7 @@ namespace Fsl
   }
 
 
-  void DemoAppTiming::TimeNow(const TimeSpan currentTimestamp, const TimeStepMode timeStepMode)
+  void DemoAppTiming::TimeNow(const TickCount currentTimestamp, const TimeStepMode timeStepMode)
   {
     DoTimeNow(currentTimestamp, timeStepMode, true);
   }
@@ -112,15 +112,15 @@ namespace Fsl
   {
     if (m_timing.FixedTime.CurrentAccumulatedTime >= m_timing.FixedTime.ExpectedFrameTime)
     {
-      m_timing.FixedTime.AccumulatedTotalTime += m_timing.FixedTime.ExpectedFrameTime;
+      m_timing.FixedTime.AppTickCount += m_timing.FixedTime.ExpectedFrameTime;
       m_timing.FixedTime.CurrentAccumulatedTime -= m_timing.FixedTime.ExpectedFrameTime;
-      return {DemoTime(m_timing.FixedTime.AccumulatedTotalTime, m_timing.FixedTime.ExpectedFrameTime)};
+      return {DemoTime(m_timing.FixedTime.AppTickCount, m_timing.FixedTime.ExpectedFrameTime)};
     }
     return {};
   }
 
 
-  void DemoAppTiming::DoTimeNow(const TimeSpan currentTimestamp, const TimeStepMode timeStepMode, const bool allowForce)
+  void DemoAppTiming::DoTimeNow(const TickCount currentTimestamp, const TimeStepMode timeStepMode, const bool allowForce)
   {
     ConfigureTimeStepMode(timeStepMode);
 

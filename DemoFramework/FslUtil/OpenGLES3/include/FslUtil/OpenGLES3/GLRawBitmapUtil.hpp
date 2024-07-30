@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslGraphics/Bitmap/RawBitmap.hpp>
+#include <FslGraphics/Bitmap/ReadOnlyRawBitmap.hpp>
 #include <FslUtil/OpenGLES3/Common.hpp>
 #include <GLES3/gl3.h>
 
@@ -76,9 +76,9 @@ namespace Fsl::GLES3
     //! @brief Convert the rawBitmap to a texture description suitable for glTexImage2D
     //! @param exactMatch if this is true we require a exact texture format to pixel format match.
     //                    if false then we allow OpenGL to find something good enough.
-    static Result Convert(const RawBitmap& rawBitmap, const bool exactMatch)
+    static Result Convert(const ReadOnlyRawBitmap& rawBitmap, const bool exactMatch)
     {
-      return Convert(rawBitmap.GetPixelFormat(), rawBitmap.Width(), rawBitmap.Stride(), exactMatch);
+      return Convert(rawBitmap.GetPixelFormat(), rawBitmap.RawUnsignedWidth(), rawBitmap.Stride(), exactMatch);
     }
 
     //! @brief Convert the rawBitmap to a texture description suitable for glTexImage2D

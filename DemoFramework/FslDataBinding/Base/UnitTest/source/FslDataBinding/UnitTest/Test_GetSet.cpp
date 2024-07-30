@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -811,8 +811,8 @@ TEST(Test_GetSet, ChangeSource_OneWay_DepProperty_DepProperty_T1T0_T2T1_Constrai
   UTDependencyObject t1(dataBindingService);
   UTDependencyObject t2(dataBindingService);
 
-  constexpr ConstrainedValue<uint32_t> constraintsT1(32, 92);
-  t1.SetProperty0ValueConstraints(constraintsT1);
+  constexpr ConstrainedValue<uint32_t> ConstraintsT1(32, 92);
+  t1.SetProperty0ValueConstraints(ConstraintsT1);
 
   const uint32_t defaultValue = 0;
 
@@ -823,7 +823,7 @@ TEST(Test_GetSet, ChangeSource_OneWay_DepProperty_DepProperty_T1T0_T2T1_Constrai
 
   EXPECT_EQ(2u, dataBindingService->PendingChanges());
   EXPECT_EQ(defaultValue, t0.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Min(), t1.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Min(), t1.GetProperty0Value());
   EXPECT_EQ(defaultValue, t2.GetProperty0Value());
 
 
@@ -831,8 +831,8 @@ TEST(Test_GetSet, ChangeSource_OneWay_DepProperty_DepProperty_T1T0_T2T1_Constrai
 
   EXPECT_EQ(0u, dataBindingService->PendingChanges());
   EXPECT_EQ(defaultValue, t0.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Min(), t1.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Min(), t2.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Min(), t1.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Min(), t2.GetProperty0Value());
 
   // Changing the source value will update the target on the next execute
   const uint32_t newValue = 200;
@@ -840,15 +840,15 @@ TEST(Test_GetSet, ChangeSource_OneWay_DepProperty_DepProperty_T1T0_T2T1_Constrai
 
   EXPECT_EQ(1u, dataBindingService->PendingChanges());
   EXPECT_EQ(newValue, t0.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Min(), t1.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Min(), t2.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Min(), t1.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Min(), t2.GetProperty0Value());
 
   dataBindingService->ExecuteChanges();
 
   EXPECT_EQ(0u, dataBindingService->PendingChanges());
   EXPECT_EQ(newValue, t0.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Max(), t1.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Max(), t2.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Max(), t1.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Max(), t2.GetProperty0Value());
 }
 
 TEST(Test_GetSet, ChangeSource_OneWay_DepProperty_DepProperty_T1T0_T2T1_ConstraintsSetAfterBindButBeforeExecute)
@@ -866,20 +866,20 @@ TEST(Test_GetSet, ChangeSource_OneWay_DepProperty_DepProperty_T1T0_T2T1_Constrai
   t1.SetBinding(UTDependencyObject::Property0, t0.GetPropertyHandle(UTDependencyObject::Property0));
   t2.SetBinding(UTDependencyObject::Property0, t1.GetPropertyHandle(UTDependencyObject::Property0));
 
-  constexpr ConstrainedValue<uint32_t> constraintsT1(32, 92);
-  t1.SetProperty0ValueConstraints(constraintsT1);
+  constexpr ConstrainedValue<uint32_t> ConstraintsT1(32, 92);
+  t1.SetProperty0ValueConstraints(ConstraintsT1);
 
   EXPECT_EQ(2u, dataBindingService->PendingChanges());
   EXPECT_EQ(defaultValue, t0.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Min(), t1.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Min(), t1.GetProperty0Value());
   EXPECT_EQ(defaultValue, t2.GetProperty0Value());
 
   dataBindingService->ExecuteChanges();
 
   EXPECT_EQ(0u, dataBindingService->PendingChanges());
   EXPECT_EQ(defaultValue, t0.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Min(), t1.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Min(), t2.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Min(), t1.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Min(), t2.GetProperty0Value());
 
   // Changing the source value will update the target on the next execute
   const uint32_t newValue = 200;
@@ -887,15 +887,15 @@ TEST(Test_GetSet, ChangeSource_OneWay_DepProperty_DepProperty_T1T0_T2T1_Constrai
 
   EXPECT_EQ(1u, dataBindingService->PendingChanges());
   EXPECT_EQ(newValue, t0.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Min(), t1.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Min(), t2.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Min(), t1.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Min(), t2.GetProperty0Value());
 
   dataBindingService->ExecuteChanges();
 
   EXPECT_EQ(0u, dataBindingService->PendingChanges());
   EXPECT_EQ(newValue, t0.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Max(), t1.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Max(), t2.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Max(), t1.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Max(), t2.GetProperty0Value());
 }
 
 
@@ -918,20 +918,20 @@ TEST(Test_GetSet, ChangeSource_OneWay_DepProperty_DepProperty_T1T0_T2T1_Constrai
 
   dataBindingService->ExecuteChanges();
 
-  constexpr ConstrainedValue<uint32_t> constraintsT1(32, 92);
-  t1.SetProperty0ValueConstraints(constraintsT1);
+  constexpr ConstrainedValue<uint32_t> ConstraintsT1(32, 92);
+  t1.SetProperty0ValueConstraints(ConstraintsT1);
 
   EXPECT_EQ(1u, dataBindingService->PendingChanges());
   EXPECT_EQ(defaultValue, t0.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Min(), t1.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Min(), t1.GetProperty0Value());
   EXPECT_EQ(defaultValue, t2.GetProperty0Value());
 
   dataBindingService->ExecuteChanges();
 
   EXPECT_EQ(0u, dataBindingService->PendingChanges());
   EXPECT_EQ(defaultValue, t0.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Min(), t1.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Min(), t2.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Min(), t1.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Min(), t2.GetProperty0Value());
 
   // Changing the source value will update the target on the next execute
   const uint32_t newValue = 200;
@@ -939,15 +939,15 @@ TEST(Test_GetSet, ChangeSource_OneWay_DepProperty_DepProperty_T1T0_T2T1_Constrai
 
   EXPECT_EQ(1u, dataBindingService->PendingChanges());
   EXPECT_EQ(newValue, t0.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Min(), t1.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Min(), t2.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Min(), t1.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Min(), t2.GetProperty0Value());
 
   dataBindingService->ExecuteChanges();
 
   EXPECT_EQ(0u, dataBindingService->PendingChanges());
   EXPECT_EQ(newValue, t0.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Max(), t1.GetProperty0Value());
-  EXPECT_EQ(constraintsT1.Max(), t2.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Max(), t1.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT1.Max(), t2.GetProperty0Value());
 }
 
 TEST(Test_GetSet, DestroyBoundTarget_OneWay_DepProperty_DepProperty_PendingChanges)

@@ -86,11 +86,6 @@ namespace Fsl::UI
       return m_hMesh;
     }
 
-    void Set(const MeshHandle hMesh) noexcept
-    {
-      m_hMesh = hMesh;
-    }
-
     const std::shared_ptr<element_type>& GetSprite() const
     {
       return m_sprite;
@@ -182,6 +177,11 @@ namespace Fsl::UI
     std::weak_ptr<IMeshManager> GetMeshManager() const
     {
       return m_meshManager;
+    }
+
+    void UpdateMeshHandle(const MeshHandle hMesh) noexcept
+    {
+      m_hMesh = hMesh;
     }
 
   private:

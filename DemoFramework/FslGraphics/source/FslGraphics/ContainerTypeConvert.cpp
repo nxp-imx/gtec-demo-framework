@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/ContainerTypeConvert.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Texture/TextureBlobBuilder.hpp>
@@ -39,23 +40,7 @@ namespace Fsl::ContainerTypeConvert
 {
   Texture Convert(Bitmap&& bitmap)
   {
-    if (!bitmap.IsValid())
-    {
-      return {};
-    }
-
-    // Extract all relevant information about the bitmap
-    RawBitmap rawBitmap;
-    {
-      Bitmap::ScopedDirectAccess access(bitmap, rawBitmap);
-    }
-    // Beware the rawBitmap pointers are not valid anymore
-
-    std::vector<uint8_t> contentVector;
-    bitmap.ReleaseInto(contentVector);
-    // Bitmap has now been reset, so dont use it
-
-    return {std::move(contentVector), rawBitmap.GetExtent(), rawBitmap.GetPixelFormat(), rawBitmap.GetOrigin()};
+    return bitmap.IsValid() ? Texture(bitmap.Release()) : Texture();
   }
 
 
@@ -92,7 +77,7 @@ namespace Fsl::ContainerTypeConvert
     std::vector<uint8_t> contentVector;
     texture.ReleaseInto(contentVector);
     // Texture has now been reset, so dont use it
-
-    return {std::move(contentVector), PxExtent2D(extent.Width, extent.Height), pixelFormat, static_cast<uint32_t>(stride), origin};
+    return {std::move(contentVector), TypeConverter::To<PxSize2D>(PxExtent2D(extent.Width, extent.Height)), pixelFormat,
+            static_cast<uint32_t>(stride), origin};
   }
 }

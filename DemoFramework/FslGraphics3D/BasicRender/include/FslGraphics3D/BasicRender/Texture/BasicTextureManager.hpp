@@ -36,7 +36,7 @@
 #include <FslGraphics/Render/Basic/BasicRenderSystemEvent.hpp>
 #include <FslGraphics/Render/Basic/Texture/BasicTextureHandle.hpp>
 #include <FslGraphics/Render/Texture2DFilterHint.hpp>
-#include <FslGraphics/Texture/RawTexture.hpp>
+#include <FslGraphics/Texture/ReadOnlyRawTexture.hpp>
 #include <FslGraphics/TextureFlags.hpp>
 #include <FslGraphics3D/BasicRender/Adapter/NativeTextureFactoryCaps.hpp>
 #include <FslGraphics3D/BasicRender/Texture/BasicDynamicTextureTracker.hpp>
@@ -225,10 +225,10 @@ namespace Fsl::Graphics3D
     void OnRenderSystemEvent(const BasicRenderSystemEvent theEvent);
     void DestroyDependentResources();
 
-    std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+    std::shared_ptr<INativeTexture2D> CreateTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                       const TextureFlags textureFlags);
 
-    std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+    std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                                     const TextureFlags textureFlags);
 
 

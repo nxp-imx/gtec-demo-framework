@@ -55,7 +55,8 @@ namespace Fsl
     const DemoWindowMetrics WindowMetrics;
     const UIDemoAppRenderCreateInfo RenderCreateInfo;
 
-    std::shared_ptr<DemoPerformanceCapture> Profiler;           // This can be null
+    std::shared_ptr<DemoPerformanceCapture> Profiler;    // This can be null
+    // NOLINTNEXTLINE(readability-identifier-naming)
     UI::IRenderSystemFactory* pRenderSystemFactory{nullptr};    // This can be null
 
     ReadOnlySpan<std::shared_ptr<UI::IExternalModuleFactory>> ExternalModuleFactories;

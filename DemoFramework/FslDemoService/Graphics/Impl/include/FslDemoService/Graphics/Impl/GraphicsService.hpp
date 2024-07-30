@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslDemoService/Graphics/ColorSpaceType.hpp>
 #include <FslDemoService/Graphics/Control/IGraphicsServiceControl.hpp>
 #include <FslDemoService/Graphics/Control/IGraphicsServiceHost.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
@@ -43,6 +44,7 @@
 namespace Fsl
 {
   class GraphicsServiceOptionParser;
+  class IBitmapConverter;
   class INativeGraphicsService;
   class INativeGraphicsServiceControl;
   class INativeGraphicsBasic2D;
@@ -87,6 +89,8 @@ namespace Fsl
 
     using NativeGraphicsServiceDeque = std::deque<std::shared_ptr<INativeGraphicsService>>;
 
+    ColorSpaceType m_colorSpaceType;
+    std::shared_ptr<IBitmapConverter> m_bitmapConverter;
     std::shared_ptr<IProfilerService> m_profilerService;
     ScopedProfilerCustomCounterHandle m_hProfilerBatchDrawCalls;
     ScopedProfilerCustomCounterHandle m_hProfilerBatchVertices;
@@ -101,14 +105,21 @@ namespace Fsl
     bool m_preallocateBasic2D{true};
 
   public:
-    explicit GraphicsService(const ServiceProvider& serviceProvider, const std::shared_ptr<GraphicsServiceOptionParser>& optionParser);
+    explicit GraphicsService(const ServiceProvider& serviceProvider, const std::shared_ptr<GraphicsServiceOptionParser>& optionParser,
+                             const ColorSpaceType colorSpaceType);
     ~GraphicsService() final;
 
     void Update() final;
 
     // From IGraphicsService
-    void Capture(Bitmap& rBitmap, const PixelFormat desiredPixelFormat) final;
-    void Capture(Bitmap& rBitmap, const PixelFormat desiredPixelFormat, const Rectangle& srcRectangle) final;
+    ColorSpaceType GetColorSpaceType() const noexcept final
+    {
+      return m_colorSpaceType;
+    }
+
+    void Capture(Bitmap& rBitmap, const PixelFormat desiredPixelFormat, const BasicToneMapper toneMapper) final;
+    void Capture(Bitmap& rBitmap, const PixelFormat desiredPixelFormat, const BasicToneMapper toneMapper, const PxRectangle& srcRectanglePx) final;
+
     std::shared_ptr<IBasic2D> GetBasic2D() final;
     std::shared_ptr<INativeBatch2D> GetNativeBatch2D() final;
     std::shared_ptr<INativeGraphics> GetNativeGraphics() final;

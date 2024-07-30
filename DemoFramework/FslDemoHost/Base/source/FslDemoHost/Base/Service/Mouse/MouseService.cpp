@@ -93,7 +93,7 @@ namespace Fsl
 
   void MouseService::OnMouseButton(const NativeWindowEvent& event)
   {
-    VirtualMouseButton::Enum button = VirtualMouseButton::Undefined;
+    VirtualMouseButton button = VirtualMouseButton::Undefined;
     bool isPressed = false;
     bool isTouch = false;
     NativeWindowEventHelper::DecodeInputMouseButtonEvent(event, button, isPressed, m_position, isTouch);
@@ -101,21 +101,21 @@ namespace Fsl
     if (isPressed)
     {
       // Check if the button was unpressed before
-      if ((m_buttonState.Flags & button) == 0)
+      if (!m_buttonState.IsEnabled(button))
       {
-        m_buttonState.Flags |= button;
+        m_buttonState.SetFlag(button, true);
 
-        m_eventPoster->Post(MouseButtonEvent(button, isPressed, m_position, isTouch));
+        m_eventPoster->Post(MouseButtonEvent(event.Timestamp, button, isPressed, m_position, isTouch));
       }
     }
     else
     {
       // Check if the button was pressed before
-      if ((m_buttonState.Flags & static_cast<uint32_t>(button)) == static_cast<uint32_t>(button))
+      if (m_buttonState.IsEnabled(button))
       {
-        m_buttonState.Flags &= ~button;
+        m_buttonState.SetFlag(button, false);
 
-        m_eventPoster->Post(MouseButtonEvent(button, isPressed, m_position, isTouch));
+        m_eventPoster->Post(MouseButtonEvent(event.Timestamp, button, isPressed, m_position, isTouch));
       }
     }
   }
@@ -132,7 +132,7 @@ namespace Fsl
       mouseButtonFlags = m_buttonState;
     }
 
-    m_eventPoster->Post(MouseMoveEvent(m_position, mouseButtonFlags, isTouch));
+    m_eventPoster->Post(MouseMoveEvent(event.Timestamp, m_position, mouseButtonFlags, isTouch));
     // FSLLOG3_INFO("X: {} Y: {}", m_position.X, m_position.Y);
   }
 
@@ -142,7 +142,7 @@ namespace Fsl
     int32_t delta = 0;
     NativeWindowEventHelper::DecodeInputMouseWheelEvent(event, delta, m_position);
 
-    m_eventPoster->Post(MouseWheelEvent(delta, m_position));
+    m_eventPoster->Post(MouseWheelEvent(event.Timestamp, delta, m_position));
   }
 
 
@@ -155,7 +155,7 @@ namespace Fsl
     // if (mouseButtonFlags.IsUndefined())
     //  mouseButtonFlags = m_buttonState;
 
-    m_eventPoster->Post(RawMouseMoveEvent(newRawPosition, mouseButtonFlags));
+    m_eventPoster->Post(RawMouseMoveEvent(event.Timestamp, newRawPosition, mouseButtonFlags));
     // FSLLOG3_INFO("RawX: {} RawY: {}", m_rawPosition.X, m_rawPosition.Y);
 
     m_rawPosition += newRawPosition;

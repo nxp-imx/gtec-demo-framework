@@ -45,6 +45,7 @@ namespace Fsl::SceneFormat
     Tangent = 4,
     Bitangent = 5,
     //! Do not use its for internal use only
+    // NOLINTNEXTLINE(readability-identifier-naming)
     SYS_COUNT
   };
 }

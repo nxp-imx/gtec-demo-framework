@@ -39,21 +39,21 @@ namespace Fsl::EGL
 {
   class ReadOnlyEGLAttributeSpan
   {
-    static const EGLint g_emptySpan = EGL_NONE;
+    static const EGLint EmptySpan = EGL_NONE;
 
-    const ReadOnlySpan<EGLint> m_content;
+    const ReadOnlySpan<EGLint> Content;
 
     bool m_isHDRRequest{false};
     bool m_hasAlphaChannelRequest{false};
 
   public:
     explicit ReadOnlyEGLAttributeSpan()
-      : m_content(&g_emptySpan, 1)
+      : Content(&EmptySpan, 1)
     {
     }
 
     explicit ReadOnlyEGLAttributeSpan(const ReadOnlySpan<EGLint> span)
-      : m_content(span)
+      : Content(span)
     {
       ValidateSpanContent(span);
       CacheChecks();
@@ -69,9 +69,10 @@ namespace Fsl::EGL
       return m_isHDRRequest;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const EGLint* data() const noexcept
     {
-      return m_content.data();
+      return Content.data();
     }
 
   private:

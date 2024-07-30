@@ -60,10 +60,8 @@ namespace Fsl::UI
   }
 
 
-  void Button::OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+  void Button::OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
-
     if (!theEvent->IsSource(this))
     {
       return;

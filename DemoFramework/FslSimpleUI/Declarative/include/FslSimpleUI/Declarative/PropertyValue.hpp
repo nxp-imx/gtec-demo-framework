@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLite.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <fmt/format.h>
 #include <memory>
@@ -51,7 +50,7 @@ namespace Fsl::UI::Declarative
     }
 
     explicit PropertyValue(const StringViewLite name)
-      : PropertyValue(StringViewLiteUtil::ToString(name))
+      : m_name(name)
     {
     }
 
@@ -67,7 +66,7 @@ namespace Fsl::UI::Declarative
 
     StringViewLite AsStringViewLite() const noexcept
     {
-      return StringViewLiteUtil::AsStringViewLite(m_name);
+      return std::string_view(m_name);
     }
 
     bool operator==(const PropertyValue& other) const noexcept
@@ -80,6 +79,7 @@ namespace Fsl::UI::Declarative
       return m_name != other.m_name;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     int compare(const PropertyValue& value) const noexcept
     {
       return m_name.compare(value.m_name);

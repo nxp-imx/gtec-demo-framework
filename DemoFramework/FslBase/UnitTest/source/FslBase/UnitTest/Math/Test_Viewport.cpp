@@ -94,16 +94,16 @@ TEST(TestMath_Viewport, Construct_Rectangle)
 
 TEST(TestMath_Viewport, Construct_Rectangle2)
 {
-  constexpr float minDepth = 32.0f;
-  constexpr float maxDepth = 42.0f;
+  constexpr float MinDepth = 32.0f;
+  constexpr float MaxDepth = 42.0f;
   Rectangle rect(1, 2, 20, 21);
-  Viewport value(rect, minDepth, maxDepth);
+  Viewport value(rect, MinDepth, MaxDepth);
 
   EXPECT_EQ(value.X(), rect.X());
   EXPECT_EQ(value.Y(), rect.Y());
   EXPECT_EQ(value.Width(), rect.Width());
   EXPECT_EQ(value.Height(), rect.Height());
-  EXPECT_EQ(value.MinDepth(), minDepth);
-  EXPECT_EQ(value.MaxDepth(), maxDepth);
+  EXPECT_EQ(value.MinDepth(), MinDepth);
+  EXPECT_EQ(value.MaxDepth(), MaxDepth);
   EXPECT_EQ(value.GetAspectRatio(), static_cast<float>(rect.Width()) / static_cast<float>(rect.Height()));
 }

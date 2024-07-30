@@ -45,8 +45,8 @@ namespace Fsl
 
     static VertexDeclarationSpan AsVertexDeclarationSpan()
     {
-      static VertexDeclarationArray<7> decl = GetVertexDeclarationArray();
-      return decl.AsReadOnlySpan();
+      static VertexDeclarationArray<7> g_decl = GetVertexDeclarationArray();
+      return g_decl.AsReadOnlySpan();
     }
   };
 }

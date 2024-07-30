@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -459,8 +459,8 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_DepPr
   UTDependencyObject t0(dataBindingService);
   UTDependencyObject t1(dataBindingService);
 
-  constexpr ConstrainedValue<uint32_t> constraintsT0(40, 60);
-  t0.SetProperty0ValueConstraints(constraintsT0);
+  constexpr ConstrainedValue<uint32_t> ConstraintsT0(40, 60);
+  t0.SetProperty0ValueConstraints(ConstraintsT0);
 
   const uint32_t firstValue0 = 50;
   const uint32_t firstValue1 = 11;
@@ -472,7 +472,7 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_DepPr
   EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 
   EXPECT_TRUE(t0.SetProperty0Value(newValue1));
-  EXPECT_EQ(constraintsT0.Max(), t0.GetProperty0Value());
+  EXPECT_EQ(ConstraintsT0.Max(), t0.GetProperty0Value());
   EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 
   t1.SetBinding(UTDependencyObject::Property0, t0.GetPropertyHandle(UTDependencyObject::Property0), DataBinding::BindingMode::OneWay);
@@ -485,7 +485,7 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_DepPr
   EXPECT_EQ(0u, dataBindingService->PendingChanges());
   // We expect the 't1 value' as t0 is bound to t1
   const uint32_t expectedValue = firstValue1;
-  EXPECT_EQ(std::clamp(expectedValue, constraintsT0.Min(), constraintsT0.Max()), t0.GetProperty0Value());
+  EXPECT_EQ(std::clamp(expectedValue, ConstraintsT0.Min(), ConstraintsT0.Max()), t0.GetProperty0Value());
   EXPECT_EQ(expectedValue, t1.GetProperty0Value());
 }
 
@@ -497,8 +497,8 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_DepPr
   UTDependencyObject t0(dataBindingService);
   UTDependencyObject t1(dataBindingService);
 
-  constexpr ConstrainedValue<uint32_t> constraintsT0(40, 60);
-  t0.SetProperty0ValueConstraints(constraintsT0);
+  constexpr ConstrainedValue<uint32_t> ConstraintsT0(40, 60);
+  t0.SetProperty0ValueConstraints(ConstraintsT0);
 
   const uint32_t firstValue0 = 50;
   const uint32_t firstValue1 = 11;
@@ -515,7 +515,7 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_DepPr
 
   // Setting a value on a one way bound property is allowed, but the execute will overwrite it
   EXPECT_TRUE(t0.SetProperty0Value(newValue1));
-  EXPECT_EQ(std::clamp(newValue1, constraintsT0.Min(), constraintsT0.Max()), t0.GetProperty0Value());
+  EXPECT_EQ(std::clamp(newValue1, ConstraintsT0.Min(), ConstraintsT0.Max()), t0.GetProperty0Value());
   EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 
   // Execute all pending changes
@@ -524,7 +524,7 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_DepPr
   EXPECT_EQ(0u, dataBindingService->PendingChanges());
   // We expect the 't1 value' as t0 is bound to t1 (and the set is ignored due to the binding)
   const uint32_t expectedValue = firstValue1;
-  EXPECT_EQ(std::clamp(expectedValue, constraintsT0.Min(), constraintsT0.Max()), t0.GetProperty0Value());
+  EXPECT_EQ(std::clamp(expectedValue, ConstraintsT0.Min(), ConstraintsT0.Max()), t0.GetProperty0Value());
   EXPECT_EQ(expectedValue, t1.GetProperty0Value());
 }
 
@@ -536,8 +536,8 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_DepProperty_ConstrainedDepPr
   UTDependencyObject t0(dataBindingService);
   UTDependencyObject t1(dataBindingService);
 
-  constexpr ConstrainedValue<uint32_t> constraintsT1(40, 60);
-  t1.SetProperty0ValueConstraints(constraintsT1);
+  constexpr ConstrainedValue<uint32_t> ConstraintsT1(40, 60);
+  t1.SetProperty0ValueConstraints(ConstraintsT1);
 
   const uint32_t firstValue0 = 10;
   const uint32_t firstValue1 = 51;
@@ -563,7 +563,7 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_DepProperty_ConstrainedDepPr
   // We expect the 't1 value' as t0 is bound to t1
   const uint32_t expectedValue = firstValue1;
   EXPECT_EQ(expectedValue, t0.GetProperty0Value());
-  EXPECT_EQ(std::clamp(expectedValue, constraintsT1.Min(), constraintsT1.Max()), t1.GetProperty0Value());
+  EXPECT_EQ(std::clamp(expectedValue, ConstraintsT1.Min(), ConstraintsT1.Max()), t1.GetProperty0Value());
 }
 
 
@@ -574,8 +574,8 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_DepProperty_ConstrainedDepPr
   UTDependencyObject t0(dataBindingService);
   UTDependencyObject t1(dataBindingService);
 
-  constexpr ConstrainedValue<uint32_t> constraintsT1(40, 60);
-  t1.SetProperty0ValueConstraints(constraintsT1);
+  constexpr ConstrainedValue<uint32_t> ConstraintsT1(40, 60);
+  t1.SetProperty0ValueConstraints(ConstraintsT1);
 
   const uint32_t firstValue0 = 10;
   const uint32_t firstValue1 = 51;
@@ -602,7 +602,7 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_DepProperty_ConstrainedDepPr
   // We expect the 't1 value' as t0 is bound to t1 (and the set is ignored due to the binding)
   const uint32_t expectedValue = firstValue1;
   EXPECT_EQ(expectedValue, t0.GetProperty0Value());
-  EXPECT_EQ(std::clamp(expectedValue, constraintsT1.Min(), constraintsT1.Max()), t1.GetProperty0Value());
+  EXPECT_EQ(std::clamp(expectedValue, ConstraintsT1.Min(), ConstraintsT1.Max()), t1.GetProperty0Value());
 }
 
 
@@ -613,8 +613,8 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_DepPr
   UTDependencyObject t0(dataBindingService);
   UTDependencyObject t1(dataBindingService);
 
-  constexpr ConstrainedValue<uint32_t> constraintsT0(40, 60);
-  t0.SetProperty0ValueConstraints(constraintsT0);
+  constexpr ConstrainedValue<uint32_t> ConstraintsT0(40, 60);
+  t0.SetProperty0ValueConstraints(ConstraintsT0);
 
   const uint32_t firstValue0 = 50;
   const uint32_t firstValue1 = 11;
@@ -639,7 +639,7 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_DepPr
   EXPECT_EQ(0u, dataBindingService->PendingChanges());
   // We expect the 't1 value' as t0 is bound to t1
   const uint32_t expectedValue = newValue1;
-  EXPECT_EQ(std::clamp(expectedValue, constraintsT0.Min(), constraintsT0.Max()), t0.GetProperty0Value());
+  EXPECT_EQ(std::clamp(expectedValue, ConstraintsT0.Min(), ConstraintsT0.Max()), t0.GetProperty0Value());
   EXPECT_EQ(expectedValue, t1.GetProperty0Value());
 }
 
@@ -651,8 +651,8 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_DepPr
   UTDependencyObject t0(dataBindingService);
   UTDependencyObject t1(dataBindingService);
 
-  constexpr ConstrainedValue<uint32_t> constraintsT0(40, 60);
-  t0.SetProperty0ValueConstraints(constraintsT0);
+  constexpr ConstrainedValue<uint32_t> ConstraintsT0(40, 60);
+  t0.SetProperty0ValueConstraints(ConstraintsT0);
 
   const uint32_t firstValue0 = 50;
   const uint32_t firstValue1 = 11;
@@ -679,7 +679,7 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_DepPr
 
   // We expect the 't1 value' as t0 is bound to t1 (and the set is ignored due to the binding)
   const uint32_t expectedValue = newValue1;
-  EXPECT_EQ(std::clamp(expectedValue, constraintsT0.Min(), constraintsT0.Max()), t0.GetProperty0Value());
+  EXPECT_EQ(std::clamp(expectedValue, ConstraintsT0.Min(), ConstraintsT0.Max()), t0.GetProperty0Value());
   EXPECT_EQ(expectedValue, t1.GetProperty0Value());
 }
 
@@ -691,8 +691,8 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_DepProperty_ConstrainedDepPr
   UTDependencyObject t0(dataBindingService);
   UTDependencyObject t1(dataBindingService);
 
-  constexpr ConstrainedValue<uint32_t> constraintsT1(40, 60);
-  t1.SetProperty0ValueConstraints(constraintsT1);
+  constexpr ConstrainedValue<uint32_t> ConstraintsT1(40, 60);
+  t1.SetProperty0ValueConstraints(ConstraintsT1);
 
   const uint32_t firstValue0 = 10;
   const uint32_t firstValue1 = 51;
@@ -704,7 +704,7 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_DepProperty_ConstrainedDepPr
   EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 
   EXPECT_TRUE(t1.SetProperty0Value(newValue1));
-  const uint32_t clampedNewValue1 = std::clamp(newValue1, constraintsT1.Min(), constraintsT1.Max());
+  const uint32_t clampedNewValue1 = std::clamp(newValue1, ConstraintsT1.Min(), ConstraintsT1.Max());
   EXPECT_EQ(firstValue0, t0.GetProperty0Value());
   EXPECT_EQ(clampedNewValue1, t1.GetProperty0Value());
 
@@ -719,7 +719,7 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_DepProperty_ConstrainedDepPr
   // We expect the 't1 value' as t0 is bound to t1
   const uint32_t expectedValue = clampedNewValue1;
   EXPECT_EQ(expectedValue, t0.GetProperty0Value());
-  EXPECT_EQ(std::clamp(expectedValue, constraintsT1.Min(), constraintsT1.Max()), t1.GetProperty0Value());
+  EXPECT_EQ(std::clamp(expectedValue, ConstraintsT1.Min(), ConstraintsT1.Max()), t1.GetProperty0Value());
 }
 
 
@@ -730,8 +730,8 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_DepProperty_ConstrainedDepPr
   UTDependencyObject t0(dataBindingService);
   UTDependencyObject t1(dataBindingService);
 
-  constexpr ConstrainedValue<uint32_t> constraintsT1(40, 60);
-  t1.SetProperty0ValueConstraints(constraintsT1);
+  constexpr ConstrainedValue<uint32_t> ConstraintsT1(40, 60);
+  t1.SetProperty0ValueConstraints(ConstraintsT1);
 
   const uint32_t firstValue0 = 10;
   const uint32_t firstValue1 = 51;
@@ -748,7 +748,7 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_DepProperty_ConstrainedDepPr
 
   // Setting a value on a one way bound property fails
   EXPECT_TRUE(t1.SetProperty0Value(newValue1));
-  const uint32_t clampedNewValue1 = std::clamp(newValue1, constraintsT1.Min(), constraintsT1.Max());
+  const uint32_t clampedNewValue1 = std::clamp(newValue1, ConstraintsT1.Min(), ConstraintsT1.Max());
   EXPECT_EQ(firstValue0, t0.GetProperty0Value());
   EXPECT_EQ(clampedNewValue1, t1.GetProperty0Value());
 
@@ -759,7 +759,7 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_DepProperty_ConstrainedDepPr
   // We expect the 't1 value' as t0 is bound to t1 (and the set is ignored due to the binding)
   const uint32_t expectedValue = clampedNewValue1;
   EXPECT_EQ(expectedValue, t0.GetProperty0Value());
-  EXPECT_EQ(std::clamp(expectedValue, constraintsT1.Min(), constraintsT1.Max()), t1.GetProperty0Value());
+  EXPECT_EQ(std::clamp(expectedValue, ConstraintsT1.Min(), ConstraintsT1.Max()), t1.GetProperty0Value());
 }
 
 TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_ConstrainedDepProperty_ChangeSecondProperty1)
@@ -769,10 +769,10 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_Const
   UTDependencyObject t0(dataBindingService);
   UTDependencyObject t1(dataBindingService);
 
-  constexpr ConstrainedValue<uint32_t> constraintsT0(45, 70);
-  constexpr ConstrainedValue<uint32_t> constraintsT1(40, 60);
-  t0.SetProperty0ValueConstraints(constraintsT0);
-  t1.SetProperty0ValueConstraints(constraintsT1);
+  constexpr ConstrainedValue<uint32_t> ConstraintsT0(45, 70);
+  constexpr ConstrainedValue<uint32_t> ConstraintsT1(40, 60);
+  t0.SetProperty0ValueConstraints(ConstraintsT0);
+  t1.SetProperty0ValueConstraints(ConstraintsT1);
 
   const uint32_t firstValue0 = 50;
   const uint32_t firstValue1 = 51;
@@ -784,7 +784,7 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_Const
   EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 
   EXPECT_TRUE(t1.SetProperty0Value(newValue1));
-  const uint32_t clampedNewValue1 = std::clamp(newValue1, constraintsT1.Min(), constraintsT1.Max());
+  const uint32_t clampedNewValue1 = std::clamp(newValue1, ConstraintsT1.Min(), ConstraintsT1.Max());
   EXPECT_EQ(firstValue0, t0.GetProperty0Value());
   EXPECT_EQ(clampedNewValue1, t1.GetProperty0Value());
 
@@ -798,8 +798,8 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_Const
   EXPECT_EQ(0u, dataBindingService->PendingChanges());
   // We expect the 't1 value' as t0 is bound to t1
   const uint32_t expectedValue = clampedNewValue1;
-  EXPECT_EQ(std::clamp(expectedValue, constraintsT0.Min(), constraintsT0.Max()), t0.GetProperty0Value());
-  EXPECT_EQ(std::clamp(expectedValue, constraintsT1.Min(), constraintsT1.Max()), t1.GetProperty0Value());
+  EXPECT_EQ(std::clamp(expectedValue, ConstraintsT0.Min(), ConstraintsT0.Max()), t0.GetProperty0Value());
+  EXPECT_EQ(std::clamp(expectedValue, ConstraintsT1.Min(), ConstraintsT1.Max()), t1.GetProperty0Value());
 }
 
 
@@ -810,10 +810,10 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_Const
   UTDependencyObject t0(dataBindingService);
   UTDependencyObject t1(dataBindingService);
 
-  constexpr ConstrainedValue<uint32_t> constraintsT0(45, 70);
-  constexpr ConstrainedValue<uint32_t> constraintsT1(40, 60);
-  t0.SetProperty0ValueConstraints(constraintsT0);
-  t1.SetProperty0ValueConstraints(constraintsT1);
+  constexpr ConstrainedValue<uint32_t> ConstraintsT0(45, 70);
+  constexpr ConstrainedValue<uint32_t> ConstraintsT1(40, 60);
+  t0.SetProperty0ValueConstraints(ConstraintsT0);
+  t1.SetProperty0ValueConstraints(ConstraintsT1);
 
   const uint32_t firstValue0 = 50;
   const uint32_t firstValue1 = 51;
@@ -830,7 +830,7 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_Const
 
   // Setting a value on a one way bound property fails
   EXPECT_TRUE(t1.SetProperty0Value(newValue1));
-  const uint32_t clampedNewValue1 = std::clamp(newValue1, constraintsT1.Min(), constraintsT1.Max());
+  const uint32_t clampedNewValue1 = std::clamp(newValue1, ConstraintsT1.Min(), ConstraintsT1.Max());
   EXPECT_EQ(firstValue0, t0.GetProperty0Value());
   EXPECT_EQ(clampedNewValue1, t1.GetProperty0Value());
 
@@ -840,6 +840,6 @@ TEST(Test_GetSet_OneWayInitTest_NewBind, SetBinding_ConstrainedDepProperty_Const
   EXPECT_EQ(0u, dataBindingService->PendingChanges());
   // We expect the 't1 value' as t0 is bound to t1
   const uint32_t expectedValue = clampedNewValue1;
-  EXPECT_EQ(std::clamp(expectedValue, constraintsT0.Min(), constraintsT0.Max()), t0.GetProperty0Value());
-  EXPECT_EQ(std::clamp(expectedValue, constraintsT1.Min(), constraintsT1.Max()), t1.GetProperty0Value());
+  EXPECT_EQ(std::clamp(expectedValue, ConstraintsT0.Min(), ConstraintsT0.Max()), t0.GetProperty0Value());
+  EXPECT_EQ(std::clamp(expectedValue, ConstraintsT1.Min(), ConstraintsT1.Max()), t1.GetProperty0Value());
 }

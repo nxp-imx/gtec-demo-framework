@@ -192,9 +192,8 @@ namespace Fsl::Willems
       void* pData = nullptr;
       stagingMemory.MapMemory(0, memReqs.size, 0, &pData);
       {
-        RawTexture rawTexture;
-        Texture::ScopedDirectAccess directAccess(texture, rawTexture);
-        std::memcpy(pData, rawTexture.GetContent(), rawTexture.GetByteSize());
+        Texture::ScopedDirectReadAccess directAccess(texture);
+        std::memcpy(pData, directAccess.AsRawTexture().GetContent(), directAccess.AsRawTexture().GetByteSize());
       }
       stagingMemory.UnmapMemory();
 
@@ -385,8 +384,8 @@ namespace Fsl::Willems
       texMemory.MapMemory(0, memReqs.size, 0, &pData);
       {
         // Copy image data into memory
-        RawTexture rawTexture;
-        Texture::ScopedDirectAccess directAccess(texture, rawTexture);
+        Texture::ScopedDirectReadAccess directAccess(texture);
+        ReadOnlyRawTexture rawTexture = directAccess.AsRawTexture();
         // Copy image data into memory
         const auto blob0 = rawTexture.GetBlob(0);
         assert(blob0.Size == memReqs.size);

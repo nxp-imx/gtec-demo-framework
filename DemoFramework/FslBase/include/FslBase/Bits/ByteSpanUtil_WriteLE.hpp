@@ -1,7 +1,7 @@
 #ifndef FSLBASE_BITS_BYTESPANUTIL_WRITELE_HPP
 #define FSLBASE_BITS_BYTESPANUTIL_WRITELE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline Span<uint8_t>::size_type WriteUInt8LE(Span<uint8_t> dst, const uint8_t value)
   {
-    assert(dst.length() >= 1);
+    assert(dst.size() >= 1);
 
     dst[0] = value;
     return 1;
@@ -53,7 +53,7 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline Span<uint8_t>::size_type WriteInt8LE(Span<uint8_t> dst, const int8_t value)
   {
-    assert(dst.length() >= 1);
+    assert(dst.size() >= 1);
 
     dst[0] = static_cast<uint8_t>(value);
     return 1;
@@ -62,7 +62,7 @@ namespace Fsl::ByteSpanUtil
   //! @brief Write a uint16_t to the given span in little endian format
   constexpr inline Span<uint8_t>::size_type WriteUInt16LE(Span<uint8_t> dst, const uint16_t value)
   {
-    assert(dst.length() >= 2);
+    assert(dst.size() >= 2);
 
     dst[0] = static_cast<uint8_t>(value & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 8) & 0xFF);
@@ -72,7 +72,7 @@ namespace Fsl::ByteSpanUtil
   //! @brief Write a int16_t to the given span in little endian format
   constexpr inline Span<uint8_t>::size_type WriteInt16LE(Span<uint8_t> dst, const int16_t value)
   {
-    assert(dst.length() >= 2);
+    assert(dst.size() >= 2);
 
 
     dst[0] = static_cast<uint8_t>(value & 0xFF);
@@ -83,7 +83,7 @@ namespace Fsl::ByteSpanUtil
   //! @brief Write a uint32_t to the given span in little endian format
   constexpr inline Span<uint8_t>::size_type WriteUInt32LE(Span<uint8_t> dst, const uint32_t value)
   {
-    assert(dst.length() >= 4);
+    assert(dst.size() >= 4);
 
     dst[0] = static_cast<uint8_t>(value & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 8) & 0xFF);
@@ -95,7 +95,7 @@ namespace Fsl::ByteSpanUtil
   //! @brief Write a int32_t to the given span in little endian format
   constexpr inline Span<uint8_t>::size_type WriteInt32LE(Span<uint8_t> dst, const int32_t value)
   {
-    assert(dst.length() >= 4);
+    assert(dst.size() >= 4);
 
 
     dst[0] = static_cast<uint8_t>(value & 0xFF);
@@ -108,7 +108,7 @@ namespace Fsl::ByteSpanUtil
   //! @brief Write a uint64_t to the given span in little endian format
   constexpr inline Span<uint8_t>::size_type WriteUInt64LE(Span<uint8_t> dst, const uint64_t value)
   {
-    assert(dst.length() >= 8);
+    assert(dst.size() >= 8);
 
     dst[0] = static_cast<uint8_t>(value & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 8) & 0xFF);
@@ -124,7 +124,7 @@ namespace Fsl::ByteSpanUtil
   //! @brief Write a int64_t v the given span in little endian format
   constexpr inline Span<uint8_t>::size_type WriteInt64LE(Span<uint8_t> dst, const int64_t value)
   {
-    assert(dst.length() >= 8);
+    assert(dst.size() >= 8);
 
     dst[0] = static_cast<uint8_t>(value & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 8) & 0xFF);
@@ -145,7 +145,7 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline Span<uint8_t>::size_type WriteUInt8LE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const uint8_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteUInt8LE(dst.subspan(dstIndex), value);
   }
 
@@ -154,49 +154,49 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline Span<uint8_t>::size_type WriteInt8LE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int8_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteInt8LE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a uint16_t to the given dstIndex in little endian format
   constexpr inline Span<uint8_t>::size_type WriteUInt16LE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const uint16_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteUInt16LE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a int16_t to the given dstIndex in little endian format
   constexpr inline Span<uint8_t>::size_type WriteInt16LE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int16_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteInt16LE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a uint32_t to the given dstIndex in little endian format
   constexpr inline Span<uint8_t>::size_type WriteUInt32LE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const uint32_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteUInt32LE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a int32_t to the given dstIndex in little endian format
   constexpr inline Span<uint8_t>::size_type WriteInt32LE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int32_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteInt32LE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a uint64_t to the given dstIndex in little endian format
   constexpr inline Span<uint8_t>::size_type WriteUInt64LE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const uint64_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteUInt64LE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a int64_t v the given dstIndex in little endian format
   constexpr inline Span<uint8_t>::size_type WriteInt64LE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int64_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteUInt64LE(dst.subspan(dstIndex), value);
   }
 
@@ -208,7 +208,7 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const uint8_t value)
   {
-    assert(dst.length() >= 1);
+    assert(dst.size() >= 1);
 
     dst[0] = value;
     return 1;
@@ -219,7 +219,7 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const int8_t value)
   {
-    assert(dst.length() >= 1);
+    assert(dst.size() >= 1);
 
     dst[0] = static_cast<uint8_t>(value);
     return 1;
@@ -228,7 +228,7 @@ namespace Fsl::ByteSpanUtil
   //! @brief Write a uint16_t to the given span in little endian format
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const uint16_t value)
   {
-    assert(dst.length() >= 2);
+    assert(dst.size() >= 2);
 
     dst[0] = static_cast<uint8_t>(value & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 8) & 0xFF);
@@ -238,7 +238,7 @@ namespace Fsl::ByteSpanUtil
   //! @brief Write a int16_t to the given span in little endian format
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const int16_t value)
   {
-    assert(dst.length() >= 2);
+    assert(dst.size() >= 2);
 
     dst[0] = static_cast<uint8_t>(value & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 8) & 0xFF);
@@ -248,7 +248,7 @@ namespace Fsl::ByteSpanUtil
   //! @brief Write a uint32_t to the given span in little endian format
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const uint32_t value)
   {
-    assert(dst.length() >= 4);
+    assert(dst.size() >= 4);
 
     dst[0] = static_cast<uint8_t>(value & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 8) & 0xFF);
@@ -260,7 +260,7 @@ namespace Fsl::ByteSpanUtil
   //! @brief Write a int32_t to the given span in little endian format
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const int32_t value)
   {
-    assert(dst.length() >= 4);
+    assert(dst.size() >= 4);
 
     dst[0] = static_cast<uint8_t>(value & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 8) & 0xFF);
@@ -272,7 +272,7 @@ namespace Fsl::ByteSpanUtil
   //! @brief Write a uint64_t to the given span in little endian format
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const uint64_t value)
   {
-    assert(dst.length() >= 8);
+    assert(dst.size() >= 8);
 
     dst[0] = static_cast<uint8_t>(value & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 8) & 0xFF);
@@ -288,7 +288,7 @@ namespace Fsl::ByteSpanUtil
   //! @brief Write a int64_t v the given span in little endian format
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const int64_t value)
   {
-    assert(dst.length() >= 8);
+    assert(dst.size() >= 8);
 
     dst[0] = static_cast<uint8_t>(value & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 8) & 0xFF);
@@ -309,7 +309,7 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const uint8_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteLE(dst.subspan(dstIndex), value);
   }
 
@@ -318,49 +318,49 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int8_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteLE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a uint16_t to the given dstIndex in little endian format
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const uint16_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteLE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a int16_t to the given dstIndex in little endian format
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int16_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteLE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a uint32_t to the given dstIndex in little endian format
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const uint32_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteLE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a int32_t to the given dstIndex in little endian format
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int32_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteLE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a uint64_t to the given dstIndex in little endian format
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const uint64_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteLE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a int64_t v the given dstIndex in little endian format
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int64_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteLE(dst.subspan(dstIndex), value);
   }
 }

@@ -37,13 +37,13 @@
 namespace Fsl::GLES3
 {
   GLRenderBuffer::GLRenderBuffer()
-    : m_handle(GLValues::INVALID_HANDLE)
+    : m_handle(GLValues::InvalidHandle)
   {
   }
 
 
   GLRenderBuffer::GLRenderBuffer(const PxSize2D& size, const GLenum format)
-    : m_handle(GLValues::INVALID_HANDLE)
+    : m_handle(GLValues::InvalidHandle)
   {
     Reset(size, format);
   }
@@ -57,17 +57,17 @@ namespace Fsl::GLES3
 
   void GLRenderBuffer::Reset() noexcept
   {
-    if (m_handle != GLValues::INVALID_HANDLE)
+    if (m_handle != GLValues::InvalidHandle)
     {
       glDeleteRenderbuffers(1, &m_handle);
-      m_handle = GLValues::INVALID_HANDLE;
+      m_handle = GLValues::InvalidHandle;
     }
   }
 
 
   void GLRenderBuffer::Reset(const PxSize2D& size, const GLenum format)
   {
-    if (m_handle != GLValues::INVALID_HANDLE)
+    if (m_handle != GLValues::InvalidHandle)
     {
       Reset();
     }

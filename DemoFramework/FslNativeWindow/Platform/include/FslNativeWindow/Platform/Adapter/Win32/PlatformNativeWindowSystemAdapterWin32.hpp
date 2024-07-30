@@ -32,6 +32,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Time/MillisecondTickCount32.hpp>
 #include <FslNativeWindow/Platform/Adapter/PlatformNativeWindowSystemAdapter.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowAllocationFunction.hpp>
 #include <functional>
@@ -68,7 +69,7 @@ namespace Fsl
   private:
     void ScanGamepads();
   };
-}    // namespace Fsl
+}
 
 #endif
 #endif

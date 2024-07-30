@@ -47,9 +47,9 @@ namespace
 
 TEST(TestLog_MathPixel_LogPxTrimmedImage, Log)
 {
-  constexpr PxTrimmedImage value(PxSize2D::Create(1, 2), PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f), PxSize2DF::Create(7.0f, 8.0f));
+  constexpr PxTrimmedImage Value(PxSize2D::Create(1, 2), PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f), PxSize2DF::Create(7.0f, 8.0f));
 
   std::stringstream stream;
-  stream << value;
+  stream << Value;
   EXPECT_EQ(std::string("{SizePx={Width=1 Height=2} TrimMarginPxf={Left=3 Top=4 Right=5 Bottom=6} TrimmedSizePxf={Width=7 Height=8}}"), stream.str());
 }

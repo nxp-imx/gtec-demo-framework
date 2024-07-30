@@ -66,6 +66,7 @@ namespace Fsl
 
     struct ExtensionCompare
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       std::shared_ptr<IDemoAppExtension> m_ext;
 
       explicit ExtensionCompare(std::shared_ptr<IDemoAppExtension> ext)

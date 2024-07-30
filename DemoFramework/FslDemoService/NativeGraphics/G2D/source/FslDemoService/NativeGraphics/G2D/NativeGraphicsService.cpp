@@ -59,7 +59,7 @@ namespace Fsl::G2D
   }
 
 
-  void NativeGraphicsService::Capture(Bitmap& rBitmap, const Rectangle& srcRectangle)
+  void NativeGraphicsService::Capture(Bitmap& rBitmap, const PxRectangle& /*srcRectanglePx*/)
   {
     FSLLOG3_WARNING("G2D::NativeGraphicsService.Capture not implemented");
   }

@@ -40,16 +40,18 @@ namespace fmt
   struct formatter<Fsl::NativeNineSliceTextureArea>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::NativeNineSliceTextureArea& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{X0={} Y0={} X1={} Y1={} X2={} Y2={} X3={} Y3={}}}", value.X0, value.Y0, value.X1, value.Y1, value.X2, value.Y2,
-                       value.X3, value.Y3);
+      return fmt::format_to(ctx.out(), "{{X0={} Y0={} X1={} Y1={} X2={} Y2={} X3={} Y3={}}}", value.X0, value.Y0, value.X1, value.Y1, value.X2,
+                            value.Y2, value.X3, value.Y3);
     }
   };
 }

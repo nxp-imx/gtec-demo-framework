@@ -72,7 +72,7 @@ namespace Fsl
       }
     };
 
-    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays,readability-identifier-naming)
     BitFlagAndNameRecord g_bitflags_EGL_CONFORMANT[] = {
 #ifdef EGL_OPENGL_BIT
       DEFINE_BITFLAG_NAMERECORD(EGL_OPENGL_BIT),
@@ -92,7 +92,7 @@ namespace Fsl
     };
 
 
-    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays,readability-identifier-naming)
     BitFlagAndNameRecord g_bitflags_EGL_SURFACE_TYPE[] = {
 #ifdef EGL_MULTISAMPLE_RESOLVE_BOX_BIT
       DEFINE_BITFLAG_NAMERECORD(EGL_MULTISAMPLE_RESOLVE_BOX_BIT),
@@ -169,6 +169,7 @@ namespace Fsl
       return value == EGL_TRUE ? "EGL_TRUE" : "EGL_FALSE";
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     std::string GetAttributeValueString_EGL_COLOR_BUFFER_TYPE(const EGLint value)
     {
       switch (value)
@@ -183,12 +184,14 @@ namespace Fsl
     }
 
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     std::string GetAttributeValueString_EGL_CONFORMANT(const EGLint value)
     {
       return GetBitflagsString(value, g_bitflags_EGL_CONFORMANT, sizeof(g_bitflags_EGL_CONFORMANT) / sizeof(BitFlagAndNameRecord));
     }
 
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     std::string GetAttributeValueString_EGL_CONFIG_CAVEAT(const EGLint value)
     {
       switch (value)
@@ -206,6 +209,7 @@ namespace Fsl
       }
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     std::string GetAttributeValueString_EGL_TRANSPARENT_TYPE(const EGLint value)
     {
       switch (value)
@@ -220,6 +224,7 @@ namespace Fsl
     }
 
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     std::string GetAttributeValueString_EGL_SURFACE_TYPE(const EGLint value)
     {
       return GetBitflagsString(value, g_bitflags_EGL_SURFACE_TYPE, sizeof(g_bitflags_EGL_SURFACE_TYPE) / sizeof(BitFlagAndNameRecord));

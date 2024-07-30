@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Time/TimeSpan.hpp>
+#include <FslBase/Time/TickCount.hpp>
 
 namespace Fsl
 {
@@ -49,7 +49,7 @@ namespace Fsl
     HighResolutionTimer();
 
     //! @return Returns the current timestamp (beware this might offer a lower resolution value than using GetNativeTicks)
-    TimeSpan GetTimestamp() const noexcept;
+    TickCount GetTimestamp() const noexcept;
 
     //! @return the number of ticks per second
     uint64_t GetNativeTickFrequency() const noexcept

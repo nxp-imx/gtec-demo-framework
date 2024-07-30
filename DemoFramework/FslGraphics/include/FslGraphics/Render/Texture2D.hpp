@@ -32,10 +32,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Bitmap/Bitmap.hpp>
-#include <FslGraphics/Bitmap/RawBitmap.hpp>
+#include <FslGraphics/Bitmap/ReadOnlyRawBitmap.hpp>
 #include <FslGraphics/Render/BaseTexture2D.hpp>
 #include <FslGraphics/Render/Texture2DFilterHint.hpp>
-#include <FslGraphics/Texture/RawTexture.hpp>
+#include <FslGraphics/Texture/ReadOnlyRawTexture.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslGraphics/TextureFlags.hpp>
 
@@ -55,7 +55,7 @@ namespace Fsl
               const TextureFlags textureFlags = TextureFlags::NotDefined);
 
     //! @brief Create a initialized texture
-    Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
+    Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const ReadOnlyRawBitmap& bitmap, const Texture2DFilterHint filterHint,
               const TextureFlags textureFlags = TextureFlags::NotDefined);
 
     //! @brief Create a initialized texture
@@ -63,7 +63,7 @@ namespace Fsl
               const TextureFlags textureFlags = TextureFlags::NotDefined);
 
     //! @brief Create a initialized texture
-    Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawTexture& texture, const Texture2DFilterHint filterHint,
+    Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
               const TextureFlags textureFlags = TextureFlags::NotDefined);
 
     //! @brief Create a initialized texture
@@ -78,7 +78,7 @@ namespace Fsl
                const TextureFlags textureFlags = TextureFlags::NotDefined);
 
     //! @brief Reset the texture to contain the given bitmap (this is a very slow operation)
-    void Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
+    void Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const ReadOnlyRawBitmap& bitmap, const Texture2DFilterHint filterHint,
                const TextureFlags textureFlags = TextureFlags::NotDefined);
 
     //! @brief Reset the texture to contain the given bitmap (this is a very slow operation)
@@ -86,7 +86,7 @@ namespace Fsl
                const TextureFlags textureFlags = TextureFlags::NotDefined);
 
     //! @brief Reset the texture to contain the given bitmap (this is a very slow operation)
-    void Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawTexture& texture, const Texture2DFilterHint filterHint,
+    void Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                const TextureFlags textureFlags = TextureFlags::NotDefined);
     //! @brief Reset the texture to contain the given bitmap (this is a very slow operation)
     void Reset(std::shared_ptr<INativeTexture2D> native, const PxExtent2D extent, const PixelFormat pixelFormat);

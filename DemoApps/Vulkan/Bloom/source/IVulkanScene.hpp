@@ -48,8 +48,8 @@ namespace Fsl
   public:
     virtual ~IVulkanScene() = default;
 
-    virtual void OnBuildResources(const VulkanBasic::BuildResourcesContext& /*context*/, const VkRenderPass /*hRenderPass*/){};
-    virtual void OnFreeResources(){};
+    virtual void OnBuildResources(const VulkanBasic::BuildResourcesContext& /*context*/, const VkRenderPass /*hRenderPass*/) {};
+    virtual void OnFreeResources() {};
 
     virtual void Update(const DemoTime& demoTime, const Matrix& cameraViewMatrix, const Matrix& cameraRotation, const Vector3& rotation,
                         const PxSize2D& windowSizePx) = 0;

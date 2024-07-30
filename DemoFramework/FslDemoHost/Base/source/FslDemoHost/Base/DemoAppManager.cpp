@@ -32,7 +32,6 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslBase/Time/TimeSpanUtil.hpp>
 #include <FslDemoApp/Base/DemoAppFirewall.hpp>
 #include <FslDemoApp/Base/FrameInfo.hpp>
@@ -90,7 +89,7 @@ namespace Fsl
     m_profilerService = m_demoAppConfig.DemoServiceProvider.Get<IProfilerService>();
     m_cpuStatsService = m_demoAppConfig.DemoServiceProvider.TryGet<ICpuStatsService>();
     auto appInfo = m_demoAppConfig.DemoServiceProvider.Get<IAppInfoControlService>();
-    appInfo->SetAppName(StringViewLiteUtil::AsStringViewLite(m_demoAppSetup.ApplicationName));
+    appInfo->SetAppName(StringViewLite(m_demoAppSetup.ApplicationName));
 
     m_demoAppControl->SetRenderLoopMaxFramesInFlight(m_demoAppSetup.CustomAppConfig.MaxFramesInFlight);
 
@@ -323,10 +322,10 @@ namespace Fsl
       const auto averageTime = m_profilerService->GetAverageFrameTime();
       const auto averageTotalTime = TimeSpanUtil::FromMicroseconds(averageTime.TotalTime);
       const float frameFps = deltaFrameSwapCompletedTime.Ticks() > 0
-                               ? (static_cast<float>(TimeInfo::TicksPerSecond) / static_cast<float>(deltaFrameSwapCompletedTime.Ticks()))
+                               ? (static_cast<float>(TimeSpan::TicksPerSecond) / static_cast<float>(deltaFrameSwapCompletedTime.Ticks()))
                                : 0.0f;
       const float averageFps =
-        averageTotalTime.Ticks() > 0 ? (static_cast<float>(TimeInfo::TicksPerSecond) / static_cast<float>(averageTotalTime.Ticks())) : 0.0f;
+        averageTotalTime.Ticks() > 0 ? (static_cast<float>(TimeSpan::TicksPerSecond) / static_cast<float>(averageTotalTime.Ticks())) : 0.0f;
 
       if (m_logStatsFlags.IsFlagged(DemoAppStatsFlags::CPU) && m_cpuStatsService)
       {
@@ -474,9 +473,9 @@ namespace Fsl
       return DemoAppManagerProcessResult(DemoAppManagerProcessResult::Command::Draw);
     }
 
-    constexpr uint64_t defaultFramesPerSecond = 60;
+    constexpr uint64_t DefaultFramesPerSecond = 60;
     const uint64_t waitTimeLeft = m_onDemandRendering.WaitTimeInTicks - m_onDemandRendering.TimeInTicks;
-    const uint64_t defaultFrameTime = 1000000 / defaultFramesPerSecond;
+    const uint64_t defaultFrameTime = 1000000 / DefaultFramesPerSecond;
     const uint64_t sleepTime = defaultFrameTime <= waitTimeLeft ? defaultFrameTime : waitTimeLeft;
     ++m_onDemandRendering.SkipCount;
     return DemoAppManagerProcessResult(DemoAppManagerProcessResult::Command::SkipDrawSleep, sleepTime);

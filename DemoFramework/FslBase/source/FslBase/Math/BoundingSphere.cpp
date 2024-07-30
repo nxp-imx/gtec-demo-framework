@@ -299,8 +299,8 @@ namespace Fsl
       {
         const float distance = std::sqrt(sqDist);    // equal to diff.Length();
         Vector3 direction = diff / distance;
-        Vector3 G = center - radius * direction;
-        center = (G + point) / 2;
+        Vector3 g = center - radius * direction;
+        center = (g + point) / 2;
         radius = Vector3::Distance(point, center);
         sqRadius = radius * radius;
       }
@@ -321,7 +321,7 @@ namespace Fsl
   {
     Vector3 ocenterToaCenter = additional.Center - original.Center;
     const float distance = ocenterToaCenter.Length();
-    if (distance <= original.Radius + additional.Radius)      // intersect
+    if (distance <= original.Radius + additional.Radius)    // intersect
     {
       if (distance <= original.Radius - additional.Radius)    // original contain additional
       {
@@ -336,10 +336,10 @@ namespace Fsl
     }
     // else find center of new sphere and radius
     const float leftRadius = std::max(original.Radius - distance, additional.Radius);
-    const float Rightradius = std::max(original.Radius + distance, additional.Radius);
-    ocenterToaCenter = ocenterToaCenter + (((leftRadius - Rightradius) / (2 * ocenterToaCenter.Length())) * ocenterToaCenter);    //
+    const float rightradius = std::max(original.Radius + distance, additional.Radius);
+    ocenterToaCenter = ocenterToaCenter + (((leftRadius - rightradius) / (2 * ocenterToaCenter.Length())) * ocenterToaCenter);    //
 
-    rResult = BoundingSphere(original.Center + ocenterToaCenter, (leftRadius + Rightradius) / 2.0f);
+    rResult = BoundingSphere(original.Center + ocenterToaCenter, (leftRadius + rightradius) / 2.0f);
   }
 
 

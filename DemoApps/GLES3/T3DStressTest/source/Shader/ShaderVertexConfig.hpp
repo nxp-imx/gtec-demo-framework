@@ -43,23 +43,23 @@ namespace Fsl
     GLint TexCoord;
 
     ShaderVertexConfig()
-      : Position(GLES3::GLValues::INVALID_LOCATION)
-      , Normal(GLES3::GLValues::INVALID_LOCATION)
-      , TexCoord(GLES3::GLValues::INVALID_LOCATION)
+      : Position(GLES3::GLValues::InvalidLocation)
+      , Normal(GLES3::GLValues::InvalidLocation)
+      , TexCoord(GLES3::GLValues::InvalidLocation)
     {
     }
 
     explicit ShaderVertexConfig(const GLint position)
       : Position(position)
-      , Normal(GLES3::GLValues::INVALID_LOCATION)
-      , TexCoord(GLES3::GLValues::INVALID_LOCATION)
+      , Normal(GLES3::GLValues::InvalidLocation)
+      , TexCoord(GLES3::GLValues::InvalidLocation)
     {
     }
 
     ShaderVertexConfig(const GLint position, const GLint normal)
       : Position(position)
       , Normal(normal)
-      , TexCoord(GLES3::GLValues::INVALID_LOCATION)
+      , TexCoord(GLES3::GLValues::InvalidLocation)
     {
     }
 

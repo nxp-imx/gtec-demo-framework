@@ -43,7 +43,7 @@ namespace Fsl
   FurShaderMultiPass::FurShaderMultiPass(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& shaderPath,
                                          const bool useHighPrecision, const int lightCount)
     : FurShaderBase(contentManager, shaderPath, useHighPrecision, lightCount)
-    , m_locCurrentLayer(GLValues::INVALID_LOCATION)
+    , m_locCurrentLayer(GLValues::InvalidLocation)
   {
     const GLuint hProgram = Get();
 

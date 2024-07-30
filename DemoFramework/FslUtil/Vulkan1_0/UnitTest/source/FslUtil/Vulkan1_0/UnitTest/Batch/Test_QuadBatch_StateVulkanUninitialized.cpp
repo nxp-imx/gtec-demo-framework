@@ -32,7 +32,7 @@
 // Include gtest before anything that includes the polluted standard X11 header that cause all kind of issues withs its bad defines.
 #include <gtest/gtest.h>
 // Then include the rest
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslUtil/Vulkan1_0/Batch/QuadBatch.hpp>
 #include <FslUtil/Vulkan1_0/Batch/QuadBatchShaders.hpp>
 #include <FslUtil/Vulkan1_0/UnitTest/Helper/Common.hpp>
@@ -44,13 +44,19 @@ using namespace Fsl::Vulkan;
 
 namespace
 {
+
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class TestFixtureFslUtil_Vulkan1_0_TestQuadBatch : public TestFixtureFslUtil_Vulkan1_0
   {
   public:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     QuadBatch m_quadBatch;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     PxSize2D m_sizePx;
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     std::vector<VertexPositionColorTexture> m_verticesEmpty;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     std::vector<VertexPositionColorTexture> m_verticesSimple = {
       VertexPositionColorTexture(),
       VertexPositionColorTexture(),
@@ -58,13 +64,13 @@ namespace
       VertexPositionColorTexture(),
     };
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     VUTextureInfo m_textureInfoInvalid;
 
 
     TestFixtureFslUtil_Vulkan1_0_TestQuadBatch()
-      : m_quadBatch(ReadOnlySpanUtil::ToVector(QuadBatchShaders::GetVertexShader()),
-                    ReadOnlySpanUtil::ToVector(QuadBatchShaders::GetFragmentShader()),
-                    ReadOnlySpanUtil::ToVector(QuadBatchShaders::GetSdfFragmentShader()), 4096, true)
+      : m_quadBatch(SpanUtil::ToVector(QuadBatchShaders::GetVertexShader()), SpanUtil::ToVector(QuadBatchShaders::GetFragmentShader()),
+                    SpanUtil::ToVector(QuadBatchShaders::GetSdfFragmentShader()), 4096, true)
       , m_sizePx(PxSize2D::Create(640, 480))
     {
     }

@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/String/StringViewLite.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslUtil/OpenGLES3/GLBatch2D.hpp>
@@ -330,7 +329,7 @@ namespace Fsl
       void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasSpriteFont& font, const std::string& str, const Vector2& dstPositionPxf,
                       const Color& color) final
       {
-        DrawString(srcTexture, font, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color);
+        DrawString(srcTexture, font, StringViewLite(str), dstPositionPxf, color);
       }
 
       // ---------- 12
@@ -344,7 +343,7 @@ namespace Fsl
       void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasSpriteFont& font, const std::string& str, const Vector2& dstPositionPxf,
                       const Color& color, const Vector2& origin, const Vector2& scale) final
       {
-        DrawString(srcTexture, font, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color, origin, scale);
+        DrawString(srcTexture, font, StringViewLite(str), dstPositionPxf, color, origin, scale);
       }
       // ---------- 13
       void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasSpriteFont& font, const BitmapFontConfig& fontConfig,
@@ -357,7 +356,7 @@ namespace Fsl
       void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasSpriteFont& font, const BitmapFontConfig& fontConfig, const std::string& str,
                       const Vector2& dstPositionPxf, const Color& color) final
       {
-        DrawString(srcTexture, font, fontConfig, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color);
+        DrawString(srcTexture, font, fontConfig, StringViewLite(str), dstPositionPxf, color);
       }
       // ---------- 13 with clip
       void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasSpriteFont& font, const BitmapFontConfig& fontConfig,
@@ -370,7 +369,7 @@ namespace Fsl
       void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasSpriteFont& font, const BitmapFontConfig& fontConfig, const std::string& str,
                       const Vector2& dstPositionPxf, const Color& color, const PxClipRectangle& clipRectPx) final
       {
-        DrawString(srcTexture, font, fontConfig, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color, clipRectPx);
+        DrawString(srcTexture, font, fontConfig, StringViewLite(str), dstPositionPxf, color, clipRectPx);
       }
 
       // ---------- 14
@@ -388,7 +387,7 @@ namespace Fsl
       void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasSpriteFont& font, const std::string& str, const BitmapFontConfig& fontConfig,
                       const Vector2& dstPositionPxf, const Color& color, const Vector2& origin, const Vector2& scale) final
       {
-        DrawString(srcTexture, font, fontConfig, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color, origin, scale);
+        DrawString(srcTexture, font, fontConfig, StringViewLite(str), dstPositionPxf, color, origin, scale);
       }
 
       // ---------- 14 with clip
@@ -408,7 +407,7 @@ namespace Fsl
                       const Vector2& dstPositionPxf, const Color& color, const Vector2& origin, const Vector2& scale,
                       const PxClipRectangle& clipRectPx) final
       {
-        DrawString(srcTexture, font, fontConfig, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color, origin, scale, clipRectPx);
+        DrawString(srcTexture, font, fontConfig, StringViewLite(str), dstPositionPxf, color, origin, scale, clipRectPx);
       }
 
       // ---------- 15
@@ -422,7 +421,7 @@ namespace Fsl
 
       void DrawString(const SpriteFont& font, const std::string& str, const Vector2& dstPositionPxf, const Color& color) final
       {
-        DrawString(font, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color);
+        DrawString(font, StringViewLite(str), dstPositionPxf, color);
       }
 
       // ---------- 15 with clip
@@ -439,7 +438,7 @@ namespace Fsl
       void DrawString(const SpriteFont& font, const std::string& str, const Vector2& dstPositionPxf, const Color& color,
                       const PxClipRectangle& clipRectPx) final
       {
-        DrawString(font, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color, clipRectPx);
+        DrawString(font, StringViewLite(str), dstPositionPxf, color, clipRectPx);
       }
 
       // ---------- 16
@@ -456,7 +455,7 @@ namespace Fsl
       void DrawString(const SpriteFont& font, const std::string& str, const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
                       const Vector2& scale) final
       {
-        DrawString(font, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color, origin, scale);
+        DrawString(font, StringViewLite(str), dstPositionPxf, color, origin, scale);
       }
 
       // ---------- 16 with clip
@@ -473,7 +472,7 @@ namespace Fsl
       void DrawString(const SpriteFont& font, const std::string& str, const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
                       const Vector2& scale, const PxClipRectangle& clipRectPx) final
       {
-        DrawString(font, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color, origin, scale, clipRectPx);
+        DrawString(font, StringViewLite(str), dstPositionPxf, color, origin, scale, clipRectPx);
       }
 
       // ----------

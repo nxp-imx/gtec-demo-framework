@@ -33,31 +33,7 @@
 
 namespace Fsl::UI
 {
-  int32_t WindowTransactionEvent::GetSourceId() const
-  {
-    return m_sourceId;
-  }
-
-
-  int32_t WindowTransactionEvent::GetSourceSubId() const
-  {
-    return m_sourceSubId;
-  }
-
-
-  EventTransactionState WindowTransactionEvent::GetState() const
-  {
-    return m_state;
-  }
-
-
-  bool WindowTransactionEvent::IsRepeat() const
-  {
-    return m_isRepeat;
-  }
-
-
-  WindowTransactionEvent::WindowTransactionEvent(const EventTypeId typeId, const EventDescription& eventDescription)
+  WindowTransactionEvent::WindowTransactionEvent(const EventTypeId typeId, const EventDescription& eventDescription) noexcept
     : WindowEvent(typeId, eventDescription)
     , m_sourceId(0)
     , m_sourceSubId(0)
@@ -67,10 +43,11 @@ namespace Fsl::UI
   }
 
 
-  void WindowTransactionEvent::SYS_DoConstruct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state,
-                                               const bool isRepeat)
+  void WindowTransactionEvent::SYS_DoConstruct(const MillisecondTickCount32 timestamp, const int32_t sourceId, const int32_t sourceSubId,
+                                               const EventTransactionState state, const bool isRepeat) noexcept
   {
     WindowEvent::SYS_DoConstruct();
+    m_timestamp = timestamp;
     m_sourceId = sourceId;
     m_sourceSubId = sourceSubId;
     m_state = state;
@@ -78,8 +55,9 @@ namespace Fsl::UI
   }
 
 
-  void WindowTransactionEvent::SYS_Destruct()
+  void WindowTransactionEvent::SYS_Destruct() noexcept
   {
+    m_timestamp = {};
     m_sourceId = 0;
     m_sourceSubId = 0;
     m_state = EventTransactionState::End;

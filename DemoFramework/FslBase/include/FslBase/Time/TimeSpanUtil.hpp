@@ -1,7 +1,7 @@
 #ifndef FSLBASE_TIME_TIMESPANUTIL_HPP
 #define FSLBASE_TIME_TIMESPANUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,70 +40,70 @@ namespace Fsl::TimeSpanUtil
 {
   inline constexpr TimeSpan FromMicroseconds(const int32_t microseconds) noexcept
   {
-    return TimeSpan(UncheckedNumericCast<int64_t>(microseconds) * TimeInfo::TicksPerMicrosecond);
+    return TimeSpan(UncheckedNumericCast<int64_t>(microseconds) * TimeSpan::TicksPerMicrosecond);
   }
 
   inline constexpr TimeSpan FromMicroseconds(const uint32_t microseconds) noexcept
   {
-    return TimeSpan(UncheckedNumericCast<int64_t>(microseconds) * TimeInfo::TicksPerMicrosecond);
+    return TimeSpan(UncheckedNumericCast<int64_t>(microseconds) * TimeSpan::TicksPerMicrosecond);
   }
 
   inline constexpr TimeSpan FromMicroseconds(const int64_t microseconds)
   {
-    if (microseconds < (std::numeric_limits<int64_t>::min() / TimeInfo::TicksPerMicrosecond))
+    if (microseconds < (std::numeric_limits<int64_t>::min() / TimeSpan::TicksPerMicrosecond))
     {
       throw UnderflowException("ticks underflow");
     }
-    if (microseconds > (std::numeric_limits<int64_t>::max() / TimeInfo::TicksPerMicrosecond))
+    if (microseconds > (std::numeric_limits<int64_t>::max() / TimeSpan::TicksPerMicrosecond))
     {
       throw OverflowException("ticks overflow");
     }
-    return TimeSpan(microseconds * TimeInfo::TicksPerMicrosecond);
+    return TimeSpan(microseconds * TimeSpan::TicksPerMicrosecond);
   }
 
   inline constexpr TimeSpan FromMicroseconds(const uint64_t microseconds)
   {
-    if (microseconds > (std::numeric_limits<uint64_t>::max() / TimeInfo::TicksPerMicrosecond))
+    if (microseconds > (std::numeric_limits<uint64_t>::max() / TimeSpan::TicksPerMicrosecond))
     {
       throw OverflowException("ticks overflow");
     }
-    return TimeSpan(NumericCast<int64_t>(microseconds * TimeInfo::TicksPerMicrosecond));
+    return TimeSpan(NumericCast<int64_t>(microseconds * TimeSpan::TicksPerMicrosecond));
   }
 
   // -----------------------------------------------------------------------------------------------------------------------------------------------
 
   inline constexpr TimeSpan FromMilliseconds(const int32_t milliseconds) noexcept
   {
-    return TimeSpan(UncheckedNumericCast<int64_t>(milliseconds) * TimeInfo::TicksPerMillisecond);
+    return TimeSpan(UncheckedNumericCast<int64_t>(milliseconds) * TimeSpan::TicksPerMillisecond);
   }
 
   inline constexpr TimeSpan FromMilliseconds(const uint32_t milliseconds) noexcept
   {
-    return TimeSpan(UncheckedNumericCast<int64_t>(milliseconds) * TimeInfo::TicksPerMillisecond);
+    return TimeSpan(UncheckedNumericCast<int64_t>(milliseconds) * TimeSpan::TicksPerMillisecond);
   }
 
   inline constexpr TimeSpan FromMilliseconds(const int64_t milliseconds)
   {
-    if (milliseconds < (std::numeric_limits<int64_t>::min() / TimeInfo::TicksPerMillisecond))
+    if (milliseconds < (std::numeric_limits<int64_t>::min() / TimeSpan::TicksPerMillisecond))
     {
       throw UnderflowException("ticks underflow");
     }
-    if (milliseconds > (std::numeric_limits<int64_t>::max() / TimeInfo::TicksPerMillisecond))
+    if (milliseconds > (std::numeric_limits<int64_t>::max() / TimeSpan::TicksPerMillisecond))
     {
       throw OverflowException("ticks overflow");
     }
 
-    const int64_t ticks = milliseconds * TimeInfo::TicksPerMillisecond;
+    const int64_t ticks = milliseconds * TimeSpan::TicksPerMillisecond;
     return TimeSpan(NumericCast<int64_t>(ticks));
   }
 
   inline constexpr TimeSpan FromMilliseconds(const uint64_t milliseconds)
   {
-    if (milliseconds > (std::numeric_limits<uint64_t>::max() / TimeInfo::TicksPerMillisecond))
+    if (milliseconds > (std::numeric_limits<uint64_t>::max() / TimeSpan::TicksPerMillisecond))
     {
       throw OverflowException("ticks overflow");
     }
-    return TimeSpan(NumericCast<int64_t>(milliseconds * TimeInfo::TicksPerMillisecond));
+    return TimeSpan(NumericCast<int64_t>(milliseconds * TimeSpan::TicksPerMillisecond));
   }
 
 
@@ -111,11 +111,11 @@ namespace Fsl::TimeSpanUtil
 
   inline constexpr TimeSpan FromSeconds(const uint64_t seconds)
   {
-    if (seconds > (std::numeric_limits<uint64_t>::max() / TimeInfo::TicksPerSecond))
+    if (seconds > (std::numeric_limits<uint64_t>::max() / TimeSpan::TicksPerSecond))
     {
       throw OverflowException("ticks overflow");
     }
-    const uint64_t ticks = seconds * TimeInfo::TicksPerSecond;
+    const uint64_t ticks = seconds * TimeSpan::TicksPerSecond;
     return TimeSpan(NumericCast<int64_t>(ticks));
   }
 
@@ -123,7 +123,7 @@ namespace Fsl::TimeSpanUtil
 
   inline constexpr int32_t ToMicrosecondsInt32(const TimeSpan transitionTime)
   {
-    return NumericCast<int32_t>(transitionTime.Ticks() / TimeInfo::TicksPerMicrosecond);
+    return NumericCast<int32_t>(transitionTime.Ticks() / TimeSpan::TicksPerMicrosecond);
   }
 
   inline constexpr uint64_t ToMicrosecondsUInt64(const TimeSpan transitionTime)
@@ -133,19 +133,19 @@ namespace Fsl::TimeSpanUtil
       throw UnderflowException("ticks underflow");
     }
     const auto ticks = UncheckedNumericCast<uint64_t>(transitionTime.Ticks());
-    return ticks / TimeInfo::TicksPerMicrosecond;
+    return ticks / TimeSpan::TicksPerMicrosecond;
   }
 
   inline constexpr int64_t ToMicrosecondsInt64(const TimeSpan transitionTime) noexcept
   {
-    return transitionTime.Ticks() / TimeInfo::TicksPerMicrosecond;
+    return transitionTime.Ticks() / TimeSpan::TicksPerMicrosecond;
   }
 
   // -----------------------------------------------------------------------------------------------------------------------------------------------
 
   inline constexpr int32_t ToClampedMicrosecondsInt32(const TimeSpan transitionTime) noexcept
   {
-    return UncheckedNumericCast<int32_t>(MathHelper::Clamp(transitionTime.Ticks() / TimeInfo::TicksPerMicrosecond,
+    return UncheckedNumericCast<int32_t>(MathHelper::Clamp(transitionTime.Ticks() / TimeSpan::TicksPerMicrosecond,
                                                            UncheckedNumericCast<int64_t>(std::numeric_limits<int32_t>::min()),
                                                            UncheckedNumericCast<int64_t>(std::numeric_limits<int32_t>::max())));
   }
@@ -153,7 +153,7 @@ namespace Fsl::TimeSpanUtil
   inline constexpr uint64_t ToClampedMicrosecondsUInt64(const TimeSpan transitionTime) noexcept
   {
     const uint64_t ticks = transitionTime.Ticks() >= 0 ? UncheckedNumericCast<uint64_t>(transitionTime.Ticks()) : 0;
-    return ticks / TimeInfo::TicksPerMicrosecond;
+    return ticks / TimeSpan::TicksPerMicrosecond;
   }
 
   // -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -165,7 +165,7 @@ namespace Fsl::TimeSpanUtil
       throw UnderflowException("ticks underflow");
     }
     const auto ticks = UncheckedNumericCast<uint64_t>(transitionTime.Ticks());
-    return ticks / TimeInfo::TicksPerMillisecond;
+    return ticks / TimeSpan::TicksPerMillisecond;
   }
 
   // -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -173,28 +173,28 @@ namespace Fsl::TimeSpanUtil
   inline constexpr uint64_t ToClampedMillisecondsUInt64(const TimeSpan transitionTime) noexcept
   {
     const uint64_t ticks = transitionTime.Ticks() >= 0 ? UncheckedNumericCast<uint64_t>(transitionTime.Ticks()) : 0;
-    return ticks / TimeInfo::TicksPerMillisecond;
+    return ticks / TimeSpan::TicksPerMillisecond;
   }
 
   // -----------------------------------------------------------------------------------------------------------------------------------------------
 
   inline constexpr float ToMicrosecondsF(const TimeSpan transitionTime)
   {
-    return static_cast<float>(static_cast<double>(transitionTime.Ticks()) / static_cast<double>(TimeInfo::TicksPerMicrosecond));
+    return static_cast<float>(transitionTime.TotalMicroseconds());
   }
 
   // -----------------------------------------------------------------------------------------------------------------------------------------------
 
   inline constexpr float ToMillisecondsF(const TimeSpan transitionTime)
   {
-    return static_cast<float>(static_cast<double>(transitionTime.Ticks()) / static_cast<double>(TimeInfo::TicksPerMillisecond));
+    return static_cast<float>(transitionTime.TotalMilliseconds());
   }
 
   // -----------------------------------------------------------------------------------------------------------------------------------------------
 
   inline constexpr float ToSecondsF(const TimeSpan transitionTime)
   {
-    return static_cast<float>(static_cast<double>(transitionTime.Ticks()) / static_cast<double>(TimeInfo::TicksPerSecond));
+    return static_cast<float>(transitionTime.TotalSeconds());
   }
 }
 

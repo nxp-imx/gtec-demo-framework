@@ -92,7 +92,7 @@ namespace Fsl::Vulkan
   }
 
 
-  BasicNativeTextureHandle NativeGraphicsTextureFactory::CreateTexture(const RawTexture& texture, const Texture2DFilterHint filterHint,
+  BasicNativeTextureHandle NativeGraphicsTextureFactory::CreateTexture(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                                        const TextureFlags textureFlags, const bool isDynamic)
   {
     FSLLOG3_VERBOSE6("NativeGraphicsTextureFactory::CreateTexture");
@@ -135,7 +135,7 @@ namespace Fsl::Vulkan
   }
 
 
-  void NativeGraphicsTextureFactory::SetTextureData(const BasicNativeTextureHandle hTexture, const RawTexture& texture,
+  void NativeGraphicsTextureFactory::SetTextureData(const BasicNativeTextureHandle hTexture, const ReadOnlyRawTexture& texture,
                                                     const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
   {
     FSL_PARAM_NOT_USED(texture);

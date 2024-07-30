@@ -32,12 +32,14 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Rectangle.hpp>
+#include <FslGraphics/ToneMapping/BasicToneMapper.hpp>
 #include <FslGraphics/PixelFormat.hpp>
+#include <FslDemoService/Graphics/ColorSpaceType.hpp>
 #include <memory>
 
 namespace Fsl
 {
+  struct PxRectangle;
   class Bitmap;
   class IBasic2D;
   class IBasicRenderSystem;
@@ -49,17 +51,19 @@ namespace Fsl
   public:
     virtual ~IGraphicsService() = default;
 
+    virtual ColorSpaceType GetColorSpaceType() const noexcept = 0;
+
     //! @brief Capture the current content of the display after a glFinish.
     //! @param rBitmap will be resized to fit the screen
     //! @param pixelFormat the desired pixel format (R8G8B8A8_UINT or B8G8R8A8_UINT)
     //! @note  Throws a exception if rBitmap has a unsupported bitmap format
-    virtual void Capture(Bitmap& rBitmap, const PixelFormat pixelFormat) = 0;
+    virtual void Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const BasicToneMapper toneMapper) = 0;
 
     //! @brief Capture the current content of the display after a glFinish.
     //! @param rBitmap will be resized to the srcRectangle dimensions.
     //! @param pixelFormat the desired pixel format (R8G8B8A8_UINT or B8G8R8A8_UINT)
     //! @note  Throws a exception if rBitmap has a unsupported bitmap format
-    virtual void Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const Rectangle& srcRectangle) = 0;
+    virtual void Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const BasicToneMapper toneMapper, const PxRectangle& srcRectanglePx) = 0;
 
     //! @brief Get the basic 2D interface
     virtual std::shared_ptr<IBasic2D> GetBasic2D() = 0;

@@ -35,14 +35,16 @@
 
 namespace Fsl::UI::Declarative
 {
-  ThemeProperty::ThemeProperty(PropertyName name)
+  ThemeProperty::ThemeProperty(PropertyName name, const std::type_index& type)
     : m_name(std::move(name))
+    , m_type(type)
   {
   }
 
 
-  ThemeProperty::ThemeProperty(PropertyName name, std::vector<ThemePropertyValueRecord> validValues)
+  ThemeProperty::ThemeProperty(PropertyName name, const std::type_index& type, std::vector<ThemePropertyValueRecord> validValues)
     : m_name(std::move(name))
+    , m_type(type)
     , m_validValues(std::move(validValues))
   {
     ValidateProperties(m_validValues);

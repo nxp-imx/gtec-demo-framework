@@ -54,9 +54,9 @@ namespace Fsl
 
   namespace
   {
-    const auto MODELS_PATH = "Models";
+    constexpr auto ModelsPath = "Models";
 
-    const uint32_t VERTEX_BUFFER_BIND_ID = 0;
+    constexpr uint32_t VertexBufferBindId = 0;
 
     Vulkan::VUTexture CreateTexture(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue, const Texture& texture,
                                     const VkFilter filter, const VkSamplerAddressMode addressMode)
@@ -298,7 +298,7 @@ namespace Fsl
     }
 
     auto contentPath = contentManager->GetContentPath();
-    contentPath = IO::Path::Combine(contentPath, MODELS_PATH);
+    contentPath = IO::Path::Combine(contentPath, ModelsPath);
     const auto fullModelPath = IO::Path::Combine(contentPath, strFileName);
 
     FSLLOG3_INFO("Loading scene '{}'", fullModelPath);
@@ -311,7 +311,7 @@ namespace Fsl
       const auto bitmapOrigin = BitmapOrigin::LowerLeft;
 
       Bitmap bitmap;
-      auto texturePath = IO::Path::Combine(MODELS_PATH, strTextureFileName);
+      auto texturePath = IO::Path::Combine(ModelsPath, strTextureFileName);
 
       if (strTextureGloss.IsEmpty())
       {
@@ -321,15 +321,15 @@ namespace Fsl
       else
       {
         Bitmap bitmapGloss;
-        auto glossTexturePath = IO::Path::Combine(MODELS_PATH, strTextureGloss);
+        auto glossTexturePath = IO::Path::Combine(ModelsPath, strTextureGloss);
         FSLLOG3_INFO("- Diffuse '{}'", texturePath);
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM, bitmapOrigin);
         FSLLOG3_INFO("- Gloss '{}'", glossTexturePath);
         contentManager->Read(bitmapGloss, glossTexturePath, PixelFormat::R8G8B8A8_UNORM, bitmapOrigin);
         FSLLOG3_INFO("- Combining texture");
-        for (uint32_t y = 0; y < bitmap.Height(); ++y)
+        for (uint32_t y = 0; y < bitmap.RawUnsignedHeight(); ++y)
         {
-          for (uint32_t x = 0; x < bitmap.Width(); ++x)
+          for (uint32_t x = 0; x < bitmap.RawUnsignedWidth(); ++x)
           {
             auto col1 = bitmap.GetNativePixel(x, y);
             auto col2 = bitmapGloss.GetNativePixel(x, y);
@@ -345,7 +345,7 @@ namespace Fsl
 
       if (!strTextureSpecular.IsEmpty())
       {
-        auto specTexturePath = IO::Path::Combine(MODELS_PATH, strTextureSpecular);
+        auto specTexturePath = IO::Path::Combine(ModelsPath, strTextureSpecular);
         FSLLOG3_INFO("- Specular '{}'", specTexturePath);
         contentManager->Read(bitmap, specTexturePath, PixelFormat::R8G8B8A8_UNORM, bitmapOrigin);
         // m_textureSpecular.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
@@ -355,7 +355,7 @@ namespace Fsl
 
       if (!strTextureNormal.IsEmpty())
       {
-        auto normTexturePath = IO::Path::Combine(MODELS_PATH, strTextureNormal);
+        auto normTexturePath = IO::Path::Combine(ModelsPath, strTextureNormal);
         FSLLOG3_INFO("- Normal '{}'", normTexturePath);
         contentManager->Read(bitmap, normTexturePath, PixelFormat::R8G8B8A8_UNORM, bitmapOrigin);
         m_resources.TextureNormal =
@@ -495,7 +495,7 @@ namespace Fsl
     vkCmdBindPipeline(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.Pipeline.Get());
 
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(hCmdBuffer, VertexBufferBindId, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdBindIndexBuffer(hCmdBuffer, m_resources.Mesh.IndexBuffer.GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
     vkCmdDrawIndexed(hCmdBuffer, m_resources.Mesh.IndexBuffer.GetIndexCount(), 1, 0, 0, 0);
   }

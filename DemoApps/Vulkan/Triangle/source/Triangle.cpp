@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 #include "Triangle.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
@@ -57,14 +57,14 @@ namespace Fsl
     const bool g_configUseStaging = true;
 
     // Default fence timeout in nanoseconds
-    const auto DEFAULT_FENCE_TIMEOUT = 100000000000;
+    constexpr auto DefaultFenceTimeout = 100000000000;
 
-    const auto VERTEX_BUFFER_BIND_ID = 0;
+    constexpr auto VertexBufferBindId = 0;
 
     struct Vertex
     {
-      float position[3];    // NOLINT(modernize-avoid-c-arrays)
-      float color[3];       // NOLINT(modernize-avoid-c-arrays)
+      float Position[3];    // NOLINT(modernize-avoid-c-arrays)
+      float Color[3];       // NOLINT(modernize-avoid-c-arrays)
     };
 
     struct BasicMesh
@@ -121,7 +121,7 @@ namespace Fsl
       rQueue.Submit(1, &submitInfo, fence.Get());
 
       // Wait for the fence to signal that command buffer has finished executing
-      fence.WaitForFence(DEFAULT_FENCE_TIMEOUT);
+      fence.WaitForFence(DefaultFenceTimeout);
 
       rCommandBuffer.Reset();
     }
@@ -663,7 +663,7 @@ namespace Fsl
 
     // Bind triangle vertex buffer (contains position and colors)
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, mesh.Vertices.Content.Buffer.GetPointer(), &offsets);
+    vkCmdBindVertexBuffers(hCmdBuffer, VertexBufferBindId, 1, mesh.Vertices.Content.Buffer.GetPointer(), &offsets);
 
     // Bind triangle index buffer
     vkCmdBindIndexBuffer(hCmdBuffer, mesh.Indices.Content.Buffer.Get(), 0, VK_INDEX_TYPE_UINT32);
@@ -706,18 +706,18 @@ namespace Fsl
                                       Vertex{{0.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}};
 
     // Setup indices
-    constexpr std::array<uint32_t, 3> indices = {0, 1, 2};
-    const auto indexCount = UncheckedNumericCast<uint32_t>(indices.size());
+    constexpr std::array<uint32_t, 3> Indices = {0, 1, 2};
+    const auto indexCount = UncheckedNumericCast<uint32_t>(Indices.size());
 
     BasicMesh mesh =
-      PrepareMesh(device, rDeviceQueue, cmdPool, ReadOnlySpanUtil::AsSpan(vertices), ReadOnlySpanUtil::AsSpan(indices), useStagingBuffers);
+      PrepareMesh(device, rDeviceQueue, cmdPool, SpanUtil::AsReadOnlySpan(vertices), SpanUtil::AsReadOnlySpan(Indices), useStagingBuffers);
 
     // Vertex input binding
     VertexBuffer vertexBuffer;
     {
       vertexBuffer.Content = std::move(mesh.Vertices);
 
-      vertexBuffer.InputBinding.binding = VERTEX_BUFFER_BIND_ID;
+      vertexBuffer.InputBinding.binding = VertexBufferBindId;
       vertexBuffer.InputBinding.stride = sizeof(Vertex);
       vertexBuffer.InputBinding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
@@ -727,15 +727,15 @@ namespace Fsl
       //  layout (location = 1) in vec3 inColor;
       vertexBuffer.InputAttributes.resize(2);
       // Attribute location 0: Position
-      vertexBuffer.InputAttributes[0].binding = VERTEX_BUFFER_BIND_ID;
+      vertexBuffer.InputAttributes[0].binding = VertexBufferBindId;
       vertexBuffer.InputAttributes[0].location = 0;
       vertexBuffer.InputAttributes[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-      vertexBuffer.InputAttributes[0].offset = offsetof(Vertex, position);
+      vertexBuffer.InputAttributes[0].offset = offsetof(Vertex, Position);
       // Attribute location 1: Color
-      vertexBuffer.InputAttributes[1].binding = VERTEX_BUFFER_BIND_ID;
+      vertexBuffer.InputAttributes[1].binding = VertexBufferBindId;
       vertexBuffer.InputAttributes[1].location = 1;
       vertexBuffer.InputAttributes[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-      vertexBuffer.InputAttributes[1].offset = offsetof(Vertex, color);
+      vertexBuffer.InputAttributes[1].offset = offsetof(Vertex, Color);
     }
     IndexBuffer indexBuffer;
     {

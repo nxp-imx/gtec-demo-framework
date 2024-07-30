@@ -1,7 +1,7 @@
 #ifndef FSLDATABINDING_BASE_INTERNAL_TYPEDPROPERTYMETHODSUTIL_HPP
 #define FSLDATABINDING_BASE_INTERNAL_TYPEDPROPERTYMETHODSUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,8 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslDataBinding/Base/Internal/ATypedDependencyPropertyMethods.hpp>
 #include <FslDataBinding/Base/Internal/ATypedDependencyPropertyRefMethods.hpp>
+#include <FslDataBinding/Base/Internal/ATypedReadOnlyDependencyPropertyMethods.hpp>
+#include <FslDataBinding/Base/Internal/ATypedReadOnlyDependencyPropertyRefMethods.hpp>
 #include <FslDataBinding/Base/Internal/PropertyGetInfo.hpp>
 #include <FslDataBinding/Base/Internal/PropertyMethodsImplType.hpp>
 #include <FslDataBinding/Base/Internal/PropertySetResult.hpp>
@@ -57,6 +59,24 @@ namespace Fsl::DataBinding::Internal::TypedPropertyMethodsUtil
     case PropertyMethodsImplType::ATypedDependencyPropertyRef:
       {    // Try the ref get method
         const auto* const pTypedGetOperation = dynamic_cast<const ATypedDependencyPropertyRefMethods<TSource>*>(getter.pGet);
+        if (pTypedGetOperation != nullptr)
+        {
+          return pTypedGetOperation->Get();
+        }
+        break;
+      }
+    case PropertyMethodsImplType::ATypedReadOnlyDependencyProperty:
+      {    // Try the normal get method
+        const auto* const pTypedGetOperation = dynamic_cast<const ATypedReadOnlyDependencyPropertyMethods<TSource>*>(getter.pGet);
+        if (pTypedGetOperation != nullptr)
+        {
+          return pTypedGetOperation->Get();
+        }
+        break;
+      }
+    case PropertyMethodsImplType::ATypedReadOnlyDependencyPropertyRef:
+      {    // Try the ref get method
+        const auto* const pTypedGetOperation = dynamic_cast<const ATypedReadOnlyDependencyPropertyRefMethods<TSource>*>(getter.pGet);
         if (pTypedGetOperation != nullptr)
         {
           return pTypedGetOperation->Get();

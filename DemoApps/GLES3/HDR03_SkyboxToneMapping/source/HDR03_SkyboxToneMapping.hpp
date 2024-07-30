@@ -52,6 +52,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class HDR03_SkyboxToneMapping final : public DemoAppGLES3
   {
     struct VertexUBOData
@@ -65,7 +66,7 @@ namespace Fsl
     {
       GLint Exposure;
       TonemapProgramLocations()
-        : Exposure(GLES3::GLValues::INVALID_LOCATION)
+        : Exposure(GLES3::GLValues::InvalidLocation)
       {
       }
     };

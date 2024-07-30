@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/Vulkan/HDR/Setup/RegisterDemoApp.hpp>
 #include "HDR04_HDRFramebuffer.hpp"
 #include "OptionParserEx.hpp"
 
@@ -61,6 +61,6 @@ namespace Fsl
     // config.AddPreferedSurfaceFormat(SurfaceFormatInfo(VK_FORMAT_R16G16B16A16_SFLOAT, VK_COLOR_SPACE_EXTENDED_SRGB_NONLINEAR_EXT));
     config.AddPreferedSurfaceFormat(SurfaceFormatInfo(VK_FORMAT_B8G8R8A8_UNORM));
 
-    DemoAppRegister::Vulkan::Register<HDR04_HDRFramebuffer, OptionParserEx>(rSetup, "Vulkan.HDR04_HDRFramebuffer", config, customDemoAppConfig);
+    DemoAppRegister::Vulkan::HDR::Register<HDR04_HDRFramebuffer, OptionParserEx>(rSetup, "Vulkan.HDR04_HDRFramebuffer", config, customDemoAppConfig);
   }
 }

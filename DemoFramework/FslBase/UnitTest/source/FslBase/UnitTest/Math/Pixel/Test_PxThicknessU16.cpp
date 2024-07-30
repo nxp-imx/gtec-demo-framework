@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021, 2023 NXP
+ * Copyright 2021, 2023-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,28 +61,28 @@ TEST(TestMathPixel_PxThicknessU16, Default)
 
 TEST(TestMathPixel_PxThicknessU16, Values)
 {
-  constexpr auto left = PxValueU16(1);
-  constexpr auto top = PxValueU16(2);
-  constexpr auto right = PxValueU16(3);
-  constexpr auto bottom = PxValueU16(4);
-  PxThicknessU16 value(left, top, right, bottom);
+  constexpr auto Left = PxValueU16(1);
+  constexpr auto Top = PxValueU16(2);
+  constexpr auto Right = PxValueU16(3);
+  constexpr auto Bottom = PxValueU16(4);
+  PxThicknessU16 value(Left, Top, Right, Bottom);
 
-  EXPECT_EQ(left, value.Left);
-  EXPECT_EQ(top, value.Top);
-  EXPECT_EQ(right, value.Right);
-  EXPECT_EQ(bottom, value.Bottom);
-  EXPECT_EQ(static_cast<uint64_t>(left.Value + right.Value), value.SumX().Value);
-  EXPECT_EQ(static_cast<uint64_t>(top.Value + bottom.Value), value.SumY().Value);
+  EXPECT_EQ(Left, value.Left);
+  EXPECT_EQ(Top, value.Top);
+  EXPECT_EQ(Right, value.Right);
+  EXPECT_EQ(Bottom, value.Bottom);
+  EXPECT_EQ(static_cast<uint64_t>(Left.Value + Right.Value), value.SumX().Value);
+  EXPECT_EQ(static_cast<uint64_t>(Top.Value + Bottom.Value), value.SumY().Value);
 }
 
 TEST(TestMathPixel_PxThicknessU16, OperatorEqual)
 {
-  constexpr auto left = PxValueU16(1);
-  constexpr auto top = PxValueU16(2);
-  constexpr auto right = PxValueU16(3);
-  constexpr auto bottom = PxValueU16(4);
-  PxThicknessU16 value1(left, top, right, bottom);
-  PxThicknessU16 value2(left, top, right, bottom);
+  constexpr auto Left = PxValueU16(1);
+  constexpr auto Top = PxValueU16(2);
+  constexpr auto Right = PxValueU16(3);
+  constexpr auto Bottom = PxValueU16(4);
+  PxThicknessU16 value1(Left, Top, Right, Bottom);
+  PxThicknessU16 value2(Left, Top, Right, Bottom);
 
   EXPECT_EQ(value1, value2);
 }
@@ -90,12 +90,12 @@ TEST(TestMathPixel_PxThicknessU16, OperatorEqual)
 
 TEST(TestMathPixel_PxThicknessU16, OperatorNotEqual)
 {
-  constexpr auto left = PxValueU16(1);
-  constexpr auto top = PxValueU16(2);
-  constexpr auto right = PxValueU16(3);
-  constexpr auto bottom = PxValueU16(4);
-  PxThicknessU16 value1(left, top, right, bottom);
-  PxThicknessU16 value2(left, top, right, PxValueU16(5));
+  constexpr auto Left = PxValueU16(1);
+  constexpr auto Top = PxValueU16(2);
+  constexpr auto Right = PxValueU16(3);
+  constexpr auto Bottom = PxValueU16(4);
+  PxThicknessU16 value1(Left, Top, Right, Bottom);
+  PxThicknessU16 value2(Left, Top, Right, PxValueU16(5));
 
   EXPECT_NE(value1, value2);
 }

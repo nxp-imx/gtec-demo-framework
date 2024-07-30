@@ -68,21 +68,21 @@ namespace Fsl::GLES3
   }
 
   GLShader::GLShader()
-    : m_handle(GLValues::INVALID_HANDLE)
+    : m_handle(GLValues::InvalidHandle)
   {
   }
 
 
   GLShader::GLShader(const GLint shaderType, const std::string& strShaderCode)
     : m_shaderType(shaderType)
-    , m_handle(GLValues::INVALID_HANDLE)
+    , m_handle(GLValues::InvalidHandle)
   {
     Reset(shaderType, strShaderCode);
   }
 
   GLShader::GLShader(const GLint shaderType, const char* const pszShaderCode)
     : m_shaderType(shaderType)
-    , m_handle(GLValues::INVALID_HANDLE)
+    , m_handle(GLValues::InvalidHandle)
   {
     Reset(shaderType, pszShaderCode);
   }
@@ -96,10 +96,10 @@ namespace Fsl::GLES3
 
   void GLShader::Reset() noexcept
   {
-    if (m_handle != GLValues::INVALID_HANDLE)
+    if (m_handle != GLValues::InvalidHandle)
     {
       glDeleteShader(m_handle);
-      m_handle = GLValues::INVALID_HANDLE;
+      m_handle = GLValues::InvalidHandle;
       m_shaderType = 0;
     }
   }

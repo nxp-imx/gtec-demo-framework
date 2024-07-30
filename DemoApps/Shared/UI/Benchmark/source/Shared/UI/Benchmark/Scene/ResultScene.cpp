@@ -65,7 +65,7 @@ namespace Fsl
   {
     namespace LocalConfig
     {
-      constexpr Color ChartColor(0xFF3488A7);    // light blue
+      constexpr UI::UIColor ChartColor(PackedColor32(0xFF3488A7));    // light blue
     }
 
 

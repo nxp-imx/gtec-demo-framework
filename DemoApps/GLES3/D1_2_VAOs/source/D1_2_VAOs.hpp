@@ -14,6 +14,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class D1_2_VAOs : public DemoAppGLES3
   {
     GLES3::GLProgram m_program;

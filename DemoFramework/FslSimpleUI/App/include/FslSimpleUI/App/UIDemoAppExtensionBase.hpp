@@ -42,7 +42,6 @@ namespace Fsl
   class DemoPerformanceCapture;
   class IProfilerService;
   struct PxViewport;
-  class TransitionCache;
   struct UIDemoAppExtensionCreateInfo;
 
   namespace UI
@@ -54,14 +53,13 @@ namespace Fsl
     class IRenderSystemBase;
     class IWindowManager;
     class UIContext;
-    class UIManager;
+    class ActivitySystem;
   }
 
 
   class UIDemoAppExtensionBase : public DataBindingDemoAppExtension
   {
-    std::unique_ptr<UI::UIManager> m_uiManager;
-    std::shared_ptr<TransitionCache> m_transitionCache;
+    std::unique_ptr<UI::ActivitySystem> m_activitySystem;
     std::shared_ptr<DemoPerformanceCapture> m_demoPerformanceCapture;
 
     std::shared_ptr<IProfilerService> m_profilerService;
@@ -88,6 +86,7 @@ namespace Fsl
 
     void SetUseDrawCache(const bool useDrawCache);
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     virtual void SYS_SetRenderSystemViewport(const PxViewport& viewportPx);
 
     void RegisterEventListener(const std::shared_ptr<UI::IEventListener>& eventListener);
@@ -113,11 +112,6 @@ namespace Fsl
     //! @brief Check if the UI requires a redraw due to changes
     bool IsRedrawRequired() const noexcept;
 
-    TransitionCache& GetTransitionCache() const noexcept
-    {
-      return *m_transitionCache;
-    }
-
     const UI::IRenderSystemBase& GetRenderSystem() const;
     UI::IRenderSystemBase* TryGetRenderSystem();
 
@@ -126,6 +120,8 @@ namespace Fsl
 
     DemoPerformanceCapture* TryGetDemoPerformanceCapture() const;
     void DoDraw();
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
     bool SYS_GetUseYFlipTextureCoordinates() const noexcept;
     std::shared_ptr<UI::AExternalModule> DoGetExternalModule(const UI::ExternalModuleId& moduleId) const;
   };

@@ -50,7 +50,8 @@ namespace Fsl::UI
   using TDef = DataBinding::DependencyPropertyDefinition;
   using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
 
-  TDef TClass::PropertyBackgroundColor = TFactory::Create<Color, TClass, &TClass::GetBackgroundColor, &TClass::SetBackgroundColor>("BackgroundColor");
+  TDef TClass::PropertyBackgroundColor =
+    TFactory::Create<UIColor, TClass, &TClass::GetBackgroundColor, &TClass::SetBackgroundColor>("BackgroundColor");
 }
 
 namespace Fsl::UI
@@ -59,6 +60,7 @@ namespace Fsl::UI
     : ContentControl(context)
     , m_windowContext(context)
     , m_background(context->TheUIContext.Get()->MeshManager)
+    , m_propertyBackgroundColor(context->ColorConverter, DefaultColor::Palette::Primary)
   {
     Enable(WindowFlags::DrawEnabled);
   }
@@ -71,9 +73,9 @@ namespace Fsl::UI
     }
   }
 
-  bool Background::SetBackgroundColor(const Color value)
+  bool Background::SetBackgroundColor(const UIColor value)
   {
-    const bool changed = m_propertyBackgroundColor.Set(ThisDependencyObject(), value);
+    const bool changed = m_propertyBackgroundColor.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -85,7 +87,7 @@ namespace Fsl::UI
   {
     ContentControl::WinDraw(context);
 
-    const auto finalColor = GetFinalBaseColor() * m_propertyBackgroundColor.Get();
+    const auto finalColor = GetFinalBaseColor() * m_propertyBackgroundColor.InternalColor;
     context.CommandBuffer.Draw(m_background.Get(), context.TargetRect.Location(), RenderSizePx(), finalColor);
   }
 
@@ -150,7 +152,7 @@ namespace Fsl::UI
   DataBinding::DataBindingInstanceHandle Background::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
   {
     auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(
-      this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyBackgroundColor, m_propertyBackgroundColor));
+      this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyBackgroundColor, m_propertyBackgroundColor.ExternalColor));
     return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
   }
 
@@ -158,8 +160,8 @@ namespace Fsl::UI
   DataBinding::PropertySetBindingResult Background::TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
                                                                      const DataBinding::Binding& binding)
   {
-    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
-                                                                  DataBinding::PropLinkRefs(PropertyBackgroundColor, m_propertyBackgroundColor));
+    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(
+      this, ThisDependencyObject(), targetDef, binding, DataBinding::PropLinkRefs(PropertyBackgroundColor, m_propertyBackgroundColor.ExternalColor));
     return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
   }
 

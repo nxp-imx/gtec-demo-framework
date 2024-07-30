@@ -38,7 +38,9 @@ namespace Fsl
 {
   class AtlasFont
   {
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const BaseTexture2D m_atlasTexture;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const TextureAtlasSpriteFont m_textureAtlasSpriteFont;
 
   public:

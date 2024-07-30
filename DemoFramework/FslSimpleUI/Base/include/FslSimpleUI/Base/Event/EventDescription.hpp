@@ -41,7 +41,7 @@ namespace Fsl::UI
     const EventRoutingStrategy RoutingStrategy;
     const WindowFlags RequiredFlags;
 
-    EventDescription(const EventRoutingStrategy routingStrategy, const WindowFlags requiredFlags)
+    constexpr EventDescription(const EventRoutingStrategy routingStrategy, const WindowFlags requiredFlags) noexcept
       : RoutingStrategy(routingStrategy)
       , RequiredFlags(requiredFlags)
     {

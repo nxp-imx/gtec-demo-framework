@@ -32,14 +32,14 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/String/StringViewLite.hpp>
-#include <FslGraphics/Color.hpp>
+#include <FslSimpleUI/Base/UIColors.hpp>
 
 namespace Fsl
 {
   struct CpuProfileRecord
   {
     StringViewLite Label;
-    Color ItemColor{Color::White()};
+    UI::UIColor ItemColor{UI::UIColors::White()};
     uint32_t Index{0};
 
     constexpr CpuProfileRecord() = default;

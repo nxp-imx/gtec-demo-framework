@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017, 2022-2023 NXP
+ * Copyright 2017, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
-#include <FslGraphics/Color.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/Font/BitmapFontDecoder.hpp>
 #include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
@@ -69,15 +69,15 @@ namespace Fsl
     constexpr const IO::PathView VertexShaderName("vertex_only_ndc.vert.spv");
     constexpr const IO::PathView FragmentShaderName("red.frag.spv");
 
-    constexpr const IO::PathView PathFontAtlas("BasicUI/Font/NormalAtlas/FontAtlas.bta");
-    constexpr const IO::PathView PathFontInfoOld("BasicUI/Font/NormalAtlas/FontAtlas_Font.fbk");
-    constexpr const IO::PathView PathFontInfoNew("BasicUI/Font/NormalAtlas/FontAtlas_Font.nbf");
-    constexpr const IO::PathView PathFontTexture("BasicUI/Font/NormalAtlas/FontAtlas.png");
+    constexpr const IO::PathView PathFontAtlas("NonLinear/Font/NormalAtlas/FontAtlas.bta");
+    constexpr const IO::PathView PathFontInfoOld("NonLinear/Font/NormalAtlas/FontAtlas_Font.fbk");
+    constexpr const IO::PathView PathFontInfoNew("NonLinear/Font/NormalAtlas/FontAtlas_Font.nbf");
+    constexpr const IO::PathView PathFontTexture("NonLinear/Font/NormalAtlas/FontAtlas.png");
 
-    constexpr const IO::PathView PathSdfFontAtlas("BasicUI/Font/SdfAtlas/FontAtlas.bta");
-    constexpr const IO::PathView PathSdfFontInfoOld("BasicUI/Font/SdfAtlas/FontAtlas_Font.fbk");
-    constexpr const IO::PathView PathSdfFontInfoNew("BasicUI/Font/SdfAtlas/FontAtlas_Font.nbf");
-    constexpr const IO::PathView PathSdfFontTexture("BasicUI/Font/SdfAtlas/FontAtlas.png");
+    constexpr const IO::PathView PathSdfFontAtlas("Linear/Font/SdfAtlas/FontAtlas.bta");
+    constexpr const IO::PathView PathSdfFontInfoOld("Linear/Font/SdfAtlas/FontAtlas_Font.fbk");
+    constexpr const IO::PathView PathSdfFontInfoNew("Linear/Font/SdfAtlas/FontAtlas_Font.nbf");
+    constexpr const IO::PathView PathSdfFontTexture("Linear/Font/SdfAtlas/FontAtlas.png");
 
     constexpr const auto MainSubPass = 0;
 
@@ -89,9 +89,9 @@ namespace Fsl
   {
     Vulkan::VMVertexBuffer CreateVertexBuffer(const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager)
     {
-      constexpr std::array<VertexPosition, 3> vertices = {VertexPosition(-0.5f, 0.5f, 0.0f), VertexPosition(0.5f, 0.5f, 0.0f),
+      constexpr std::array<VertexPosition, 3> Vertices = {VertexPosition(-0.5f, 0.5f, 0.0f), VertexPosition(0.5f, 0.5f, 0.0f),
                                                           VertexPosition(0.0f, -0.5f, 0.0f)};
-      return {bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vertices), Vulkan::VMBufferUsage::STATIC};
+      return {bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(Vertices), Vulkan::VMBufferUsage::STATIC};
     }
 
 
@@ -267,7 +267,7 @@ namespace Fsl
       FSLLOG3_INFO("  BitmapFont '{}'", pathFontInfo);
       auto bytes = contentManager.ReadAllBytes(pathFontInfo);
 
-      return TextureAtlasSpriteFont(spriteNativeAreaCalc, textureExtentPx, BitmapFontDecoder::Decode(ReadOnlySpanUtil::AsSpan(bytes)), densityDpi);
+      return TextureAtlasSpriteFont(spriteNativeAreaCalc, textureExtentPx, BitmapFontDecoder::Decode(SpanUtil::AsReadOnlySpan(bytes)), densityDpi);
     }
 
     void ValidateFont(const TextureAtlasSpriteFont& lhs, const TextureAtlasSpriteFont& rhs)
@@ -363,7 +363,7 @@ namespace Fsl
     const auto sdfFragmentShaderBinary = contentManager.ReadBytes("QuadBatch/QuadBatchSdf.frag.spv");
 
     m_test = std::make_shared<QuadBatch>(vertexShaderBinary, fragmentShaderBinary, sdfFragmentShaderBinary, 100);
-    m_batch2DQuad = std::make_shared<QuadBatch>(vertexShaderBinary, fragmentShaderBinary, sdfFragmentShaderBinary, GenericBatch2D_DEFAULT_CAPACITY);
+    m_batch2DQuad = std::make_shared<QuadBatch>(vertexShaderBinary, fragmentShaderBinary, sdfFragmentShaderBinary, GenericBatch2DDefaultCapacity);
     m_batch2D = std::make_shared<Batch2D>(m_batch2DQuad, GetScreenExtent());
 
     m_test->CreateDeviceResources(m_physicalDevice, m_device.Get());
@@ -579,7 +579,7 @@ namespace Fsl
     const auto& textureNormalFont = m_resources.Textures.NormalFontTexture;
     const auto& textureSdfFont = m_resources.Textures.SdfFontTexture;
     {
-      auto col = Color::White();
+      auto col = Colors::White();
 
       std::array<VertexPositionColorTexture, 8> testQuad{};
       testQuad[0].Color = col;
@@ -659,11 +659,11 @@ namespace Fsl
 
     const auto colMovingPre = Color(0.7f, 0.7f, 0.7f, 0.7f);
 
-    const auto col1 = Color::Red();
-    const auto col2 = Color::Green();
-    const auto col3 = Color::Blue();
-    const auto col4 = Color::Olive();
-    const auto col5 = Color::White();
+    const auto col1 = Colors::Red();
+    const auto col2 = Colors::Green();
+    const auto col3 = Colors::Blue();
+    const auto col4 = Colors::Olive();
+    const auto col5 = Colors::White();
 
     const auto heightPx = windowSizePx.RawHeight();
 
@@ -685,22 +685,22 @@ namespace Fsl
 
     auto sizeInfo = normalFont.MeasureString(strInfo);
     rBatch2D->DrawString(textureNormalFont, normalFont, fontConfig, strInfo, Vector2(windowSizePx.RawWidth() - sizeInfo.RawWidth(), 0),
-                         Color::White());
+                         Colors::White());
 
     rBatch2D->DrawString(textureNormalFont, normalFont, fontConfig, "Hello World. P. (Normal) NonPremultipliedShader)", textOffsetPxf,
-                         Color::White());
+                         Colors::White());
     textOffsetPxf.Y += static_cast<float>(normalFont.LineSpacingPx().RawValue());
     rBatch2D->DrawString(textureNormalFont, normalFont, fontConfigZoom, "Hello World. P. (Normal 2.1x) NonPremultipliedShader)", textOffsetPxf,
-                         Color::White());
+                         Colors::White());
     textOffsetPxf.Y += static_cast<float>(normalFont.LineSpacingPx(fontConfigZoom).Value);
 
     rBatch2D->ChangeTo(BlendState::Sdf);
-    rBatch2D->DrawString(textureSdfFont, sdfFont, fontConfig, "Hello World. P. (SDF) SdfShader", textOffsetPxf, Color::White());
+    rBatch2D->DrawString(textureSdfFont, sdfFont, fontConfig, "Hello World. P. (SDF) SdfShader", textOffsetPxf, Colors::White());
     textOffsetPxf.Y += sdfFontLineSpacingPxf;
-    rBatch2D->DrawString(textureSdfFont, sdfFont, fontConfigZoom, "Hello World. P. (SDF 2.1x) SdfShader", textOffsetPxf, Color::White());
+    rBatch2D->DrawString(textureSdfFont, sdfFont, fontConfigZoom, "Hello World. P. (SDF 2.1x) SdfShader", textOffsetPxf, Colors::White());
     textOffsetPxf.Y += static_cast<float>(sdfFont.LineSpacingPx(fontConfigZoom).Value);
     rBatch2D->ChangeTo(BlendState::NonPremultiplied);
-    rBatch2D->DrawString(textureSdfFont, sdfFont, fontConfig, "Hello World. P. (SDF) NonPremultipliedShader)", textOffsetPxf, Color::White());
+    rBatch2D->DrawString(textureSdfFont, sdfFont, fontConfig, "Hello World. P. (SDF) NonPremultipliedShader)", textOffsetPxf, Colors::White());
     textOffsetPxf.Y += sdfFontLineSpacingPxf;
     rBatch2D->End();
 
@@ -756,9 +756,9 @@ namespace Fsl
                    PxAreaRectangleF::Create(m_currentPos2, heightPxf - (2 * Local::ForcedTexHeight), Local::ForcedTexWidth, Local::ForcedTexHeight),
                    colMovingPre);
     rBatch2D->Draw(texture4Pre, PxAreaRectangleF::Create(m_currentPos4.X, m_currentPos4.Y, Local::ForcedTexWidth, Local::ForcedTexHeight),
-                   Color::White());
+                   Colors::White());
     rBatch2D->Draw(texture4Pre, PxAreaRectangleF::Create(static_cast<float>(windowSizePx.RawWidth()) - 200.0f, 50.0f, 200.0f, 200.0f),
-                   Color::White());
+                   Colors::White());
     // rBatch2D->Draw(texture4, m_currentPos, Color(1.0f, 1.0f, 1.0f, 0.70f));
     rBatch2D->End();
 

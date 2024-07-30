@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,8 +43,8 @@ namespace Fsl::TestAtlasTextureGenerator
   {
     void FillWithTestPattern(Bitmap& rBitmap, const PxRectangleU32& dstRect)
     {
-      constexpr const uint32_t colorRed = 0xFFFF0000;
-      constexpr const uint32_t colorBlue = 0xFF0000FF;
+      constexpr const uint32_t ColorRed = 0xFFFF0000;
+      constexpr const uint32_t ColorBlue = 0xFF0000FF;
 
       const uint32_t xStart = dstRect.X.Value;
       const uint32_t xEnd = xStart + dstRect.Width.Value;
@@ -57,7 +57,7 @@ namespace Fsl::TestAtlasTextureGenerator
         uint32_t startCol = yMagic & 1;
         for (uint32_t x = xStart; x < xEnd; ++x)
         {
-          rBitmap.SetNativePixel(x, y, (startCol & 1) != 0u ? colorRed : colorBlue);
+          rBitmap.SetNativePixel(x, y, (startCol & 1) != 0u ? ColorRed : ColorBlue);
           ++startCol;
         }
         yMagic = ~yMagic;
@@ -67,27 +67,27 @@ namespace Fsl::TestAtlasTextureGenerator
 
   void PatchWithTestPattern(Bitmap& rBitmap)
   {
-    const auto extent = rBitmap.GetExtent();
+    const auto sizePx = rBitmap.GetSize();
     if (rBitmap.GetPixelFormat() != PixelFormat::R8G8B8A8_UNORM)
     {
       FSLLOG3_WARNING("Changing pixel format from {} to PixelFormat::R8G8B8A8_UNORM", rBitmap.GetPixelFormat());
       const auto origin = rBitmap.GetOrigin();
-      rBitmap.Reset(extent, PixelFormat::R8G8B8A8_UNORM, origin);
+      rBitmap.Reset(sizePx, PixelFormat::R8G8B8A8_UNORM, origin);
     }
     rBitmap.Clear();
 
-    FillWithTestPattern(rBitmap, PxRectangleU32(PxValueU(0), PxValueU(0), rBitmap.GetExtent().Width, rBitmap.GetExtent().Height));
+    FillWithTestPattern(rBitmap, PxRectangleU32(PxValueU(0), PxValueU(0), sizePx.UnsignedWidth(), sizePx.UnsignedHeight()));
   }
 
 
   void PatchWithTestPattern(Bitmap& rBitmap, const ITextureAtlas& sourceAtlas)
   {
-    const auto extent = rBitmap.GetExtent();
+    const auto sizePx = rBitmap.GetSize();
     if (rBitmap.GetPixelFormat() != PixelFormat::R8G8B8A8_UNORM)
     {
       FSLLOG3_WARNING("Changing pixel format from {} to PixelFormat::R8G8B8A8_UNORM", rBitmap.GetPixelFormat());
       const auto origin = rBitmap.GetOrigin();
-      rBitmap.Reset(extent, PixelFormat::R8G8B8A8_UNORM, origin);
+      rBitmap.Reset(sizePx, PixelFormat::R8G8B8A8_UNORM, origin);
     }
 
     rBitmap.Clear();
@@ -96,7 +96,7 @@ namespace Fsl::TestAtlasTextureGenerator
     for (uint32_t i = 0; i < count; ++i)
     {
       const NamedAtlasTexture& rEntry = sourceAtlas.GetEntry(i);
-      if (rEntry.TextureInfo.TrimmedRectPx.RawRight() > rBitmap.Width() || rEntry.TextureInfo.TrimmedRectPx.RawBottom() > rBitmap.Height())
+      if (rEntry.TextureInfo.TrimmedRectPx.Right() > rBitmap.UnsignedWidth() || rEntry.TextureInfo.TrimmedRectPx.Bottom() > rBitmap.UnsignedHeight())
       {
         throw NotSupportedException("rBitmap could not contain the source atlas entries");
       }
@@ -118,28 +118,27 @@ namespace Fsl::TestAtlasTextureGenerator
     rTexture = ContainerTypeConvert::Convert(std::move(tmpBitmap));
   }
 
-  Bitmap CreateTestPatternBitmap(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin, const ITextureAtlas& sourceAtlas)
+  Bitmap CreateTestPatternBitmap(const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin origin, const ITextureAtlas& sourceAtlas)
   {
-    Bitmap newBitmap(extent, pixelFormat, origin);
+    Bitmap newBitmap(sizePx, pixelFormat, origin);
     PatchWithTestPattern(newBitmap, sourceAtlas);
     return newBitmap;
   }
 
-  Bitmap CreateTestPatternBitmap(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+  Bitmap CreateTestPatternBitmap(const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin origin)
   {
-    Bitmap newBitmap(extent, pixelFormat, origin);
+    Bitmap newBitmap(sizePx, pixelFormat, origin);
     PatchWithTestPattern(newBitmap);
     return newBitmap;
   }
 
-  Texture CreateTestPatternTexture(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin,
-                                   const ITextureAtlas& sourceAtlas)
+  Texture CreateTestPatternTexture(const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin origin, const ITextureAtlas& sourceAtlas)
   {
-    return ContainerTypeConvert::Convert(CreateTestPatternBitmap(extent, pixelFormat, origin, sourceAtlas));
+    return ContainerTypeConvert::Convert(CreateTestPatternBitmap(sizePx, pixelFormat, origin, sourceAtlas));
   }
 
-  Texture CreateTestPatternTexture(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+  Texture CreateTestPatternTexture(const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin origin)
   {
-    return ContainerTypeConvert::Convert(CreateTestPatternBitmap(extent, pixelFormat, origin));
+    return ContainerTypeConvert::Convert(CreateTestPatternBitmap(sizePx, pixelFormat, origin));
   }
 }

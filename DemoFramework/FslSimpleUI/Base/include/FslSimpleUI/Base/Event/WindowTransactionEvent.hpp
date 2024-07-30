@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Time/MillisecondTickCount32.hpp>
 #include <FslSimpleUI/Base/Event/EventTransactionState.hpp>
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
 
@@ -38,21 +39,43 @@ namespace Fsl::UI
 {
   class WindowTransactionEvent : public WindowEvent
   {
+    MillisecondTickCount32 m_timestamp;
     int32_t m_sourceId;
     int32_t m_sourceSubId;
     EventTransactionState m_state;
     bool m_isRepeat;
 
   public:
-    int32_t GetSourceId() const;
-    int32_t GetSourceSubId() const;
-    EventTransactionState GetState() const;
-    bool IsRepeat() const;
+    MillisecondTickCount32 GetTimestamp() const noexcept
+    {
+      return m_timestamp;
+    }
+
+    int32_t GetSourceId() const noexcept
+    {
+      return m_sourceId;
+    }
+
+    int32_t GetSourceSubId() const noexcept
+    {
+      return m_sourceSubId;
+    }
+
+    EventTransactionState GetState() const noexcept
+    {
+      return m_state;
+    }
+
+    bool IsRepeat() const noexcept
+    {
+      return m_isRepeat;
+    }
 
   protected:
-    WindowTransactionEvent(const EventTypeId typeId, const EventDescription& eventDescription);
-    void SYS_DoConstruct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat);
-    void SYS_Destruct() override;
+    WindowTransactionEvent(const EventTypeId typeId, const EventDescription& eventDescription) noexcept;
+    void SYS_DoConstruct(const MillisecondTickCount32 timestamp, const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state,
+                         const bool isRepeat) noexcept;
+    void SYS_Destruct() noexcept override;
   };
 }
 

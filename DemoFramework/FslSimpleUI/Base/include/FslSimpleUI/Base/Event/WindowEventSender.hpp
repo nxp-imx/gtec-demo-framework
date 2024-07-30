@@ -43,7 +43,9 @@ namespace Fsl::UI
 
   class WindowEventSender final
   {
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const std::shared_ptr<WindowEventQueue> m_windowEventQueue;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const std::shared_ptr<ITreeNodeLocator> m_treeNodeLocator;
 
   public:

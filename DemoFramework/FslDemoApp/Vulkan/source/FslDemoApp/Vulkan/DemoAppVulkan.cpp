@@ -30,7 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslDemoApp/Base/Service/Host/IHostInfo.hpp>
 #include <FslDemoApp/Vulkan/DemoAppVulkan.hpp>
 #include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
@@ -106,9 +107,9 @@ namespace Fsl
       std::array<Vulkan::FeatureRequest, 1> hostExtensions = {
         Vulkan::FeatureRequest(VK_KHR_SWAPCHAIN_EXTENSION_NAME, Vulkan::FeatureRequirement::Mandatory)};
 
-      auto deviceConfig = PhysicalDeviceConfigUtil::BuildConfig(m_physicalDevice.Device, appHostConfig, ReadOnlySpanUtil::AsSpan(hostExtensions));
+      auto deviceConfig = PhysicalDeviceConfigUtil::BuildConfig(m_physicalDevice.Device, appHostConfig, SpanUtil::AsReadOnlySpan(hostExtensions));
       const PhysicalDeviceConfigUtil::DeviceConfigAsCharArrays deviceConfigEx(deviceConfig);
-      const ReadOnlySpan<const char*> extensions = ReadOnlySpanUtil::AsSpan(deviceConfigEx.Extensions);
+      const ReadOnlySpan<const char*> extensions = SpanUtil::AsReadOnlySpan(deviceConfigEx.Extensions);
 
       auto vulkanDeviceSetup = Vulkan::VulkanDeviceSetupUtil::CreateSetup(m_physicalDevice, m_surface, requiredFeatures, extensions,
                                                                           appHostConfig->TryGetDeviceCreationCustomizer().get());

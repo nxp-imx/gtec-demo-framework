@@ -70,10 +70,10 @@ namespace Fsl
     BitmapFontConfig FontConfig;
 
     //! This is the distance in pixels between each line of text.
-    PxValueU16 ScaledLineSpacingPx{};
+    PxValueU16 ScaledLineSpacingPx;
 
     //! The number of pixels from the absolute top of the line to the base of the characters.
-    PxValueU16 ScaledBaseLinePx{};
+    PxValueU16 ScaledBaseLinePx;
 
     SpriteFontInfo() = default;
     SpriteFontInfo(const SpriteMaterialInfo& spriteMaterialInfo, const PxValueU16 lineSpacingPx, const PxValueU16 baseLinePx, const uint32_t imageDpi,

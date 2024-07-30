@@ -40,15 +40,17 @@ namespace fmt
   struct formatter<Fsl::UI::DrawCommandType>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::UI::DrawCommandType& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{} ({})", Fsl::UI::Debug::ToString(value), static_cast<uint32_t>(value));
+      return fmt::format_to(ctx.out(), "{} ({})", Fsl::UI::Debug::ToString(value), static_cast<uint32_t>(value));
     }
   };
 }

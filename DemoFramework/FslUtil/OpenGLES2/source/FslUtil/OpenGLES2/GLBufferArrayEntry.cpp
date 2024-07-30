@@ -39,13 +39,13 @@
 namespace Fsl::GLES2
 {
   GLBufferArrayEntry::GLBufferArrayEntry()
-    : Handle(GLValues::INVALID_HANDLE)
+    : Handle(GLValues::InvalidHandle)
   {
   }
 
 
   bool GLBufferArrayEntry::IsValid() const
   {
-    return Handle != GLValues::INVALID_HANDLE;
+    return Handle != GLValues::InvalidHandle;
   }
 }

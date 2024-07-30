@@ -69,6 +69,7 @@ namespace Fsl
   public:
     virtual ~INativeBatch2D() = default;
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     virtual bool SYS_IsTextureCoordinateYFlipped() const = 0;
 
     //! @brief Set the screen resolution used by the batch2d instance

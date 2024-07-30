@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022-2023 NXP
+ * Copyright 2020, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,9 +39,10 @@
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/Font/BitmapFont.hpp>
 #include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
@@ -70,7 +71,7 @@ namespace Fsl
 
   namespace LocalConfig
   {
-    constexpr Color DividerColor(0x80FFFFFF);
+    constexpr UI::UIColor DividerColor(PackedColor32(0x80FFFFFF));
 
     constexpr uint32_t SliderDpiTickMin = 0u;
     constexpr uint32_t SliderDpiTickMax = 640u;
@@ -156,7 +157,7 @@ namespace Fsl
     , m_renderSystem(m_graphics->GetBasicRenderSystem())
     , m_nativeBatch(m_graphics->GetNativeBatch2D())
     , m_displayMetrics(config.WindowMetrics)
-    , m_exampleYPosition(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_exampleYPosition(TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
   {
     auto optionParser = config.GetOptions<OptionParser>();
     const bool enableTestPattern = optionParser->GetEnableTestPattern();
@@ -267,7 +268,7 @@ namespace Fsl
   Shared::~Shared() = default;
 
 
-  void Shared::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void Shared::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_uiRecord.BtnSetDefaultValues)
     {
@@ -275,7 +276,7 @@ namespace Fsl
     }
   }
 
-  void Shared::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void Shared::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_uiRecord.CheckBoxEmulateDpi)
     {
@@ -440,11 +441,11 @@ namespace Fsl
     const bool useTestAtlas = m_uiRecord.CheckBoxTestPattern->IsChecked();
 
     auto offsetDpWinPx = m_mainLayout->PointFrom(m_dummyDp.get(), PxPoint2());
-    auto offsetpxWinPx = m_mainLayout->PointFrom(m_dummyPx.get(), PxPoint2());
+    auto offsetPxWinPx = m_mainLayout->PointFrom(m_dummyPx.get(), PxPoint2());
     auto offsetTextWinPx = m_mainLayout->PointFrom(m_dummyText.get(), PxPoint2());
 
     auto rectDpWinPx = PxRectangle2D(offsetDpWinPx, m_dummyDp->RenderExtentPx());
-    auto rectPxWinPx = PxRectangle2D(offsetpxWinPx, m_dummyPx->RenderExtentPx());
+    auto rectPxWinPx = PxRectangle2D(offsetPxWinPx, m_dummyPx->RenderExtentPx());
     auto rectTextWinPx = PxRectangle2D(offsetTextWinPx, m_dummyText->RenderExtentPx());
 
     const bool pixelPerfect = m_uiRecord.CheckBoxPixelPerfect->IsChecked();
@@ -492,7 +493,7 @@ namespace Fsl
   {
     const auto dstAreaSizePx = TypeConverter::UncheckedTo<PxPoint2>(dstRect.Extent);
 
-    constexpr const Color fontColor = Color::White();
+    constexpr const Color FontColor = Colors::White();
     auto dstPositionPx = dstRect.Offset;
 
     const auto& fontAtlasTexture = !useTestAtlas ? resources.Font->GetAtlasTexture() : resources.AtlasTestTexture;
@@ -507,23 +508,23 @@ namespace Fsl
 
       dstPositionCaptionPx.X += PxValue::Create((dstAreaSizePx.X.Value - captionSizePx.RawWidth()) / 2);
 
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, caption, TypeConverter::UncheckedTo<Vector2>(dstPositionCaptionPx), fontColor);
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, caption, TypeConverter::UncheckedTo<Vector2>(dstPositionCaptionPx), FontColor);
     }
     {    // Draw the first line
       dstPositionPx.Y += lineSpacingPx * PxSize1D::Create(2);
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, LocalConfig::TextLine0, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), fontColor);
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, LocalConfig::TextLine0, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), FontColor);
     }
     {    // Draw the second line
       dstPositionPx.Y += lineSpacingPx;
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, LocalConfig::TextLine1, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), fontColor);
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, LocalConfig::TextLine1, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), FontColor);
     }
     {    // Draw the third line
       dstPositionPx.Y += lineSpacingPx;
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, LocalConfig::TextLine2, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), fontColor);
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, LocalConfig::TextLine2, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), FontColor);
     }
     {    // Draw the fourth line
       dstPositionPx.Y += lineSpacingPx;
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, LocalConfig::TextLine3, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), fontColor);
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, LocalConfig::TextLine3, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), FontColor);
     }
     {    // Draw the first info line
       dstPositionPx.Y += lineSpacingPx * PxSize1D::Create(2);
@@ -531,11 +532,11 @@ namespace Fsl
       m_fmtScratchpad.clear();
       fmt::format_to(std::back_inserter(m_fmtScratchpad), "TexDensity: {}", resources.Density);
       rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, StringViewLite(m_fmtScratchpad.data(), m_fmtScratchpad.size()),
-                              TypeConverter::UncheckedTo<Vector2>(dstPositionPx), fontColor);
+                              TypeConverter::UncheckedTo<Vector2>(dstPositionPx), FontColor);
     }
     {    // Draw the second info line
       dstPositionPx.Y += lineSpacingPx;
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, "Scale: 1.0", TypeConverter::UncheckedTo<Vector2>(dstPositionPx), fontColor);
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, "Scale: 1.0", TypeConverter::UncheckedTo<Vector2>(dstPositionPx), FontColor);
     }
   }
 
@@ -544,7 +545,7 @@ namespace Fsl
   {
     const auto dstAreaSizePx = TypeConverter::UncheckedTo<PxPoint2>(dstRect.Extent);
 
-    constexpr const Color fontColor = Color::White();
+    constexpr const Color FontColor = Colors::White();
     auto dstPositionPx = dstRect.Offset;
 
     const auto& fontAtlasTexture = !useTestAtlas ? resources.Font->GetAtlasTexture() : resources.AtlasTestTexture;
@@ -562,27 +563,27 @@ namespace Fsl
       dstPositionCaptionPx.X += PxValue::Create((dstAreaSizePx.X.Value - captionSizePx.RawWidth()) / 2);
 
       rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, fontConfig, caption, TypeConverter::UncheckedTo<Vector2>(dstPositionCaptionPx),
-                              fontColor);
+                              FontColor);
     }
     {    // Draw the first line
       dstPositionPx.Y += lineSpacingPx * PxSize1D::Create(2);
       rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, fontConfig, LocalConfig::TextLine0, TypeConverter::UncheckedTo<Vector2>(dstPositionPx),
-                              fontColor);
+                              FontColor);
     }
     {    // Draw the second line
       dstPositionPx.Y += lineSpacingPx;
-      constexpr StringViewLite text(LocalConfig::TextLine1);
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, fontConfig, text, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), fontColor);
+      constexpr StringViewLite Text(LocalConfig::TextLine1);
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, fontConfig, Text, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), FontColor);
     }
     {    // Draw the third line
       dstPositionPx.Y += lineSpacingPx;
-      constexpr StringViewLite text(LocalConfig::TextLine2);
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, fontConfig, text, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), fontColor);
+      constexpr StringViewLite Text(LocalConfig::TextLine2);
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, fontConfig, Text, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), FontColor);
     }
     {    // Draw the fourth line
       dstPositionPx.Y += lineSpacingPx;
-      constexpr StringViewLite text(LocalConfig::TextLine3);
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, fontConfig, text, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), fontColor);
+      constexpr StringViewLite Text(LocalConfig::TextLine3);
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, fontConfig, Text, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), FontColor);
     }
     {    // Draw the first info line
       dstPositionPx.Y += lineSpacingPx * PxSize1D::Create(2);
@@ -590,7 +591,7 @@ namespace Fsl
       m_fmtScratchpad.clear();
       fmt::format_to(std::back_inserter(m_fmtScratchpad), "TexDensity: {}", resources.Density);
       rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, fontConfig, StringViewLite(m_fmtScratchpad.data(), m_fmtScratchpad.size()),
-                              TypeConverter::UncheckedTo<Vector2>(dstPositionPx), fontColor);
+                              TypeConverter::UncheckedTo<Vector2>(dstPositionPx), FontColor);
     }
     {    // Draw the second info line
       dstPositionPx.Y += lineSpacingPx;
@@ -598,7 +599,7 @@ namespace Fsl
       m_fmtScratchpad.clear();
       fmt::format_to(std::back_inserter(m_fmtScratchpad), "Scale: {}", resources.ResolutionDensityScale);
       rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, fontConfig, StringViewLite(m_fmtScratchpad.data(), m_fmtScratchpad.size()),
-                              TypeConverter::UncheckedTo<Vector2>(dstPositionPx), fontColor);
+                              TypeConverter::UncheckedTo<Vector2>(dstPositionPx), FontColor);
     }
   }
 
@@ -608,7 +609,7 @@ namespace Fsl
   {
     const Vector2 dstAreaSizePx = TypeConverter::UncheckedTo<Vector2>(dstRect.Extent);
 
-    constexpr const Color fontColor = Color::White();
+    constexpr const Color FontColor = Colors::White();
     Vector2 dstPositionPx = TypeConverter::UncheckedTo<Vector2>(dstRect.Offset);
 
     const auto& fontAtlasTexture = !useTestAtlas ? resources.Font->GetAtlasTexture() : resources.AtlasTestTexture;
@@ -627,33 +628,33 @@ namespace Fsl
 
       dstPositionCaptionPx.X += (dstAreaSizePx.X - captionSizePx.X) / 2.0f;
 
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, caption, dstPositionCaptionPx, fontColor, origin, densityScale);
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, caption, dstPositionCaptionPx, FontColor, origin, densityScale);
     }
     {    // Draw the first line
       dstPositionPx.Y += lineSpacingPx * 2;
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, LocalConfig::TextLine0, dstPositionPx, fontColor, origin, densityScale);
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, LocalConfig::TextLine0, dstPositionPx, FontColor, origin, densityScale);
     }
     {    // Draw the second line
       dstPositionPx.Y += lineSpacingPx;
-      constexpr StringViewLite text(LocalConfig::TextLine1);
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, text, dstPositionPx, fontColor, origin, densityScale);
+      constexpr StringViewLite Text(LocalConfig::TextLine1);
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, Text, dstPositionPx, FontColor, origin, densityScale);
     }
     {    // Draw the third line
       dstPositionPx.Y += lineSpacingPx;
-      constexpr StringViewLite text(LocalConfig::TextLine2);
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, text, dstPositionPx, fontColor, origin, densityScale);
+      constexpr StringViewLite Text(LocalConfig::TextLine2);
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, Text, dstPositionPx, FontColor, origin, densityScale);
     }
     {    // Draw the fourth line
       dstPositionPx.Y += lineSpacingPx;
-      constexpr StringViewLite text(LocalConfig::TextLine3);
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, text, dstPositionPx, fontColor, origin, densityScale);
+      constexpr StringViewLite Text(LocalConfig::TextLine3);
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, Text, dstPositionPx, FontColor, origin, densityScale);
     }
     {    // Draw the first info line
       dstPositionPx.Y += lineSpacingPx * 2;
 
       m_fmtScratchpad.clear();
       fmt::format_to(std::back_inserter(m_fmtScratchpad), "TexDensity: {}", resources.Density);
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, StringViewLite(m_fmtScratchpad.data(), m_fmtScratchpad.size()), dstPositionPx, fontColor,
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, StringViewLite(m_fmtScratchpad.data(), m_fmtScratchpad.size()), dstPositionPx, FontColor,
                               origin, densityScale);
     }
     {    // Draw the second info line
@@ -661,7 +662,7 @@ namespace Fsl
 
       m_fmtScratchpad.clear();
       fmt::format_to(std::back_inserter(m_fmtScratchpad), "Scale: {}", resources.ResolutionDensityScale);
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, StringViewLite(m_fmtScratchpad.data(), m_fmtScratchpad.size()), dstPositionPx, fontColor,
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, StringViewLite(m_fmtScratchpad.data(), m_fmtScratchpad.size()), dstPositionPx, FontColor,
                               origin, densityScale);
     }
   }
@@ -689,15 +690,15 @@ namespace Fsl
     const auto dstAreaSizePx = TypeConverter::UncheckedTo<PxPoint2>(dstRect.Extent);
     const auto& fontAtlasTexture = !useTestAtlas ? resources.Font->GetAtlasTexture() : resources.AtlasTestTexture;
     const auto& bitmapFont = resources.Font->GetTextureAtlasSpriteFont();
-    constexpr StringViewLite text = LocalConfig::TextLine;
-    constexpr const Color fontColor = Color::White();
+    constexpr StringViewLite Text = LocalConfig::TextLine;
+    constexpr const Color FontColor = Colors::White();
     auto fontConfig = resources.FontConfig;
     fontConfig.Kerning = false;
 
     // Ensure capacity for our glyphs
-    if (m_glyphScratchpad.size() < text.size())
+    if (m_glyphScratchpad.size() < Text.size())
     {
-      m_glyphScratchpad.resize(text.size());
+      m_glyphScratchpad.resize(Text.size());
     }
 
     PxPoint2 dstPositionPx = dstRect.Offset;
@@ -705,77 +706,77 @@ namespace Fsl
     const auto scaledLineSpacingPx = bitmapFont.LineSpacingPx(fontConfig);
     const auto scaledBaseLinePx = bitmapFont.BaseLinePx(fontConfig);
 
-    constexpr auto baseLineColor = Color(0xFF404040);
+    constexpr auto BaseLineColor = Color(0xFF404040);
     {
       auto baseLinePx = dstPositionPx + PxPoint2(PxValue(0), scaledBaseLinePx);
       auto baseLine0Px = baseLinePx;
       auto baseLine1Px = baseLinePx + PxPoint2(dstAreaSizePx.X, PxValue(0));
-      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, baseLineColor);
+      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, BaseLineColor);
 
-      DrawTextNaiveScaling(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, text, dstPositionPx, fontColor, clipRectPxf);
+      DrawTextNaiveScaling(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, Text, dstPositionPx, FontColor, clipRectPxf);
       dstPositionPx.Y += scaledLineSpacingPx;
     }
     {
       auto baseLinePx = dstPositionPx + PxPoint2(PxValue(0), scaledBaseLinePx);
       auto baseLine0Px = baseLinePx;
       auto baseLine1Px = baseLinePx + PxPoint2(dstAreaSizePx.X, PxValue(0));
-      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, baseLineColor);
+      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, BaseLineColor);
 
-      DrawTextDstRoundedToFullPixels(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, text, dstPositionPx, fontColor, clipRectPxf);
+      DrawTextDstRoundedToFullPixels(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, Text, dstPositionPx, FontColor, clipRectPxf);
       dstPositionPx.Y += scaledLineSpacingPx;
     }
     {
       auto baseLinePx = dstPositionPx + PxPoint2(PxValue(0), scaledBaseLinePx);
       auto baseLine0Px = baseLinePx;
       auto baseLine1Px = baseLinePx + PxPoint2(dstAreaSizePx.X, PxValue(0));
-      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, baseLineColor);
+      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, BaseLineColor);
 
-      DrawTextBaseLineAware(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, text, dstPositionPx, fontColor, clipRectPxf);
+      DrawTextBaseLineAware(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, Text, dstPositionPx, FontColor, clipRectPxf);
       dstPositionPx.Y += scaledLineSpacingPx;
     }
     {
       auto baseLinePx = dstPositionPx + PxPoint2(PxValue(0), scaledBaseLinePx);
       auto baseLine0Px = baseLinePx;
       auto baseLine1Px = baseLinePx + PxPoint2(dstAreaSizePx.X, PxValue(0));
-      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, baseLineColor);
+      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, BaseLineColor);
 
-      DrawTextAlmostPixelPerfect(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, text, dstPositionPx, fontColor, clipRectPxf);
+      DrawTextAlmostPixelPerfect(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, Text, dstPositionPx, FontColor, clipRectPxf);
       dstPositionPx.Y += scaledLineSpacingPx;
     }
     {
       auto baseLinePx = dstPositionPx + PxPoint2(PxValue(0), scaledBaseLinePx);
       auto baseLine0Px = baseLinePx;
       auto baseLine1Px = baseLinePx + PxPoint2(dstAreaSizePx.X, PxValue(0));
-      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, baseLineColor);
+      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, BaseLineColor);
 
-      DrawTextAlmostPixelPerfect2(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, text, dstPositionPx, fontColor, clipRectPxf);
+      DrawTextAlmostPixelPerfect2(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, Text, dstPositionPx, FontColor, clipRectPxf);
       dstPositionPx.Y += scaledLineSpacingPx;
     }
     {
       auto baseLinePx = dstPositionPx + PxPoint2(PxValue(0), scaledBaseLinePx);
       auto baseLine0Px = baseLinePx;
       auto baseLine1Px = baseLinePx + PxPoint2(dstAreaSizePx.X, PxValue(0));
-      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, baseLineColor);
+      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, BaseLineColor);
 
-      DrawTextPixelPerfect(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, text, dstPositionPx, fontColor, clipRectPxf);
+      DrawTextPixelPerfect(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, Text, dstPositionPx, FontColor, clipRectPxf);
       dstPositionPx.Y += scaledLineSpacingPx;
     }
     {
       auto baseLinePx = dstPositionPx + PxPoint2(PxValue(0), scaledBaseLinePx);
       auto baseLine0Px = baseLinePx;
       auto baseLine1Px = baseLinePx + PxPoint2(dstAreaSizePx.X, PxValue(0));
-      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, baseLineColor);
+      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, BaseLineColor);
 
-      DrawTextRenderRules(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, text, dstPositionPx, fontColor, clipRectPxf);
+      DrawTextRenderRules(rNativeBatch, fontAtlasTexture, bitmapFont, fontConfig, Text, dstPositionPx, FontColor, clipRectPxf);
       dstPositionPx.Y += scaledLineSpacingPx;
     }
     {    // finally do a comparison with the NativeBatch rendering (which should be equal to the two above renderings)
       auto baseLinePx = dstPositionPx + PxPoint2(PxValue(0), scaledBaseLinePx);
       auto baseLine0Px = baseLinePx;
       auto baseLine1Px = baseLinePx + PxPoint2(dstAreaSizePx.X, PxValue(0));
-      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, baseLineColor);
+      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, BaseLineColor);
 
-      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, fontConfig, text, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), fontColor,
+      rNativeBatch.DrawString(fontAtlasTexture, bitmapFont, fontConfig, Text, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), FontColor,
                               clipRectPxf);
       dstPositionPx.Y += scaledLineSpacingPx;
     }
@@ -785,10 +786,10 @@ namespace Fsl
       auto baseLinePx = dstPositionPx + PxPoint2(PxValue(0), bitmapFont.BaseLinePx());
       auto baseLine0Px = baseLinePx;
       auto baseLine1Px = baseLinePx + PxPoint2(dstAreaSizePx.X, PxValue(0));
-      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, baseLineColor);
+      rNativeBatch.DebugDrawLine(m_texFill, baseLine0Px, baseLine1Px, BaseLineColor);
 
       // Draw the font unscaled
-      DrawText(rNativeBatch, fontAtlasTexture, bitmapFont, text, dstPositionPx, fontColor, clipRectPxf);
+      DrawText(rNativeBatch, fontAtlasTexture, bitmapFont, Text, dstPositionPx, FontColor, clipRectPxf);
       dstPositionPx.Y += bitmapFont.LineSpacingPx();
     }
   }

@@ -1,7 +1,7 @@
 #ifndef FSLDATABINDING_UNITTEST_FSLDATABINDING_BASE_UNITTEST_UTOBSERVABLECOLLECTION_HPP
 #define FSLDATABINDING_UNITTEST_FSLDATABINDING_BASE_UNITTEST_UTOBSERVABLECOLLECTION_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,15 +32,43 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDataBinding/Base/Object/ObservableDataSourceObject.hpp>
+#include <FslDataBinding/Base/Property/TypedReadOnlyDependencyProperty.hpp>
 #include <FslDataBinding/Base/ScopedDataSourceObject.hpp>
 
 namespace Fsl
 {
   class UTObservableCollection : public DataBinding::ObservableDataSourceObject
   {
+    using prop0_type = uint32_t;
+    using prop1_type = float;
+    DataBinding::TypedReadOnlyDependencyProperty<prop0_type> m_property0;
+    DataBinding::TypedReadOnlyDependencyProperty<prop1_type> m_property1;
+
   public:
     explicit UTObservableCollection(const std::shared_ptr<DataBinding::DataBindingService>& dataBinding);
     bool MarkAsChanged();
+
+    uint32_t GetProperty0Value() const noexcept
+    {
+      return m_property0.Get();
+    }
+
+    float GetProperty1Value() const noexcept
+    {
+      return m_property1.Get();
+    }
+
+    bool SetProperty0Value(const uint32_t value);
+    bool SetProperty1Value(const float value);
+
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    static DataBinding::DependencyPropertyDefinition Property0;
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    static DataBinding::DependencyPropertyDefinition Property1;
+
+  protected:
+    DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) final;
   };
 }
 

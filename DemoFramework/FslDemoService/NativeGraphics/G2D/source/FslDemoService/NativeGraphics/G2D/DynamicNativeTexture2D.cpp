@@ -36,14 +36,14 @@
 
 namespace Fsl::G2D
 {
-  DynamicNativeTexture2D::DynamicNativeTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint)
+  DynamicNativeTexture2D::DynamicNativeTexture2D(const ReadOnlyRawBitmap& bitmap, const Texture2DFilterHint filterHint)
   {
     FSLLOG3_WARNING("DynamicNativeTexture2D is a stub");
   }
 
   DynamicNativeTexture2D::~DynamicNativeTexture2D() = default;
 
-  void DynamicNativeTexture2D::SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+  void DynamicNativeTexture2D::SetData(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
   {
   }
 }

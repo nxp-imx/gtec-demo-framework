@@ -41,10 +41,10 @@
 
 namespace Fsl
 {
-  template <std::size_t N>
+  template <std::size_t TN>
   class BufferedFileParser
   {
-    std::array<char, N> m_buffer;
+    std::array<char, TN> m_buffer;
     uint32_t m_bufferIndex{0u};
     uint32_t m_bufferLength{0u};
 
@@ -63,7 +63,7 @@ namespace Fsl
     {
       assert(psz != nullptr);
       auto len = std::strlen(psz);
-      assert(len <= N);
+      assert(len <= TN);
       if (m_bufferLength < len)
       {
         FillBuffer(rFile);

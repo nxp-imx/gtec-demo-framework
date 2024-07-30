@@ -36,8 +36,8 @@
 namespace Fsl::UI
 {
   WindowContext::WindowContext(const std::shared_ptr<Fsl::UI::UIContext>& uiContext, std::shared_ptr<SpriteFont> defaultFont,
-                               const uint32_t densityDpi)
-    : BaseWindowContext(uiContext, densityDpi)
+                               const uint32_t densityDpi, const UIColorSpace colorSpace)
+    : BaseWindowContext(uiContext, densityDpi, colorSpace)
     , DefaultFont(std::move(defaultFont))
   {
     if (!DefaultFont)

@@ -44,6 +44,11 @@ namespace Fsl
 {
   struct VertexPositionColorNormalTexture
   {
+    using position_type = Vector3;
+    using color_type = Vector4;
+    using normal_type = Vector3;
+    using texture_coordinate_type = Vector2;
+
     Vector3 Position;
     Vector4 Color;
     Vector3 Normal;
@@ -71,13 +76,13 @@ namespace Fsl
 
     constexpr static VertexDeclarationArray<4> GetVertexDeclarationArray()
     {
-      constexpr BasicVertexDeclarationArray<4> elements = {
+      constexpr BasicVertexDeclarationArray<4> Elements = {
         VertexElement(offsetof(VertexPositionColorNormalTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
         VertexElement(offsetof(VertexPositionColorNormalTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
         VertexElement(offsetof(VertexPositionColorNormalTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0),
         VertexElement(offsetof(VertexPositionColorNormalTexture, TextureCoordinate), VertexElementFormat::Vector2,
                       VertexElementUsage::TextureCoordinate, 0)};
-      return {elements, sizeof(VertexPositionColorNormalTexture)};
+      return {Elements, sizeof(VertexPositionColorNormalTexture)};
     }
 
 
@@ -85,8 +90,8 @@ namespace Fsl
     //              At least this workaround still gives us compile time validation of the vertex element data
     static VertexDeclarationSpan AsVertexDeclarationSpan()
     {
-      constexpr static VertexDeclarationArray<4> decl = GetVertexDeclarationArray();
-      return decl.AsReadOnlySpan();
+      constexpr static VertexDeclarationArray<4> Decl = GetVertexDeclarationArray();
+      return Decl.AsReadOnlySpan();
     }
 
     constexpr bool operator==(const VertexPositionColorNormalTexture& rhs) const noexcept

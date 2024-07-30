@@ -301,8 +301,8 @@ namespace Fsl
     //! @brief Get the center of this rect
     constexpr PxPoint2 GetCenter() const noexcept
     {
-      constexpr value_type size2(2);
-      return {m_x + (m_width / size2), m_y + (m_height / size2)};
+      constexpr value_type Size2(2);
+      return {m_x + (m_width / Size2), m_y + (m_height / Size2)};
     }
 
     //! @brief Get the start location of this rect

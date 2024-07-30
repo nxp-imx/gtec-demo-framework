@@ -48,6 +48,7 @@ namespace Fsl::SceneFormat
     Vector4 = 3,
 
     //! Do not utilize this, its for internal use only
+    // NOLINTNEXTLINE(readability-identifier-naming)
     SYS_COUNT
   };
 }

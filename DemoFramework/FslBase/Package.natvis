@@ -1,5 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="Fsl::DpExtent2D">
+      <DisplayString>Width:{Width} Height:{Height}</DisplayString>
+  </Type>
+  <Type Name="Fsl::DpPoint2">
+      <DisplayString>X:{X} Y:{Y}</DisplayString>
+  </Type>
+  <Type Name="Fsl::DpPoint2F">
+      <DisplayString>X:{X} Y:{Y}</DisplayString>
+  </Type>
+  <Type Name="Fsl::DpPoint2U">
+      <DisplayString>X:{X} Y:{Y}</DisplayString>
+  </Type>
+  <Type Name="Fsl::DpSize1D">
+      <DisplayString>{m_value}</DisplayString>
+  </Type>
+  <Type Name="Fsl::DpSize2D">
+      <DisplayString>Width:{m_width} Height:{m_height}</DisplayString>
+  </Type>
+  <Type Name="Fsl::DpSize2DF">
+      <DisplayString>Width:{m_width} Height:{m_height}</DisplayString>
+  </Type>
+  <Type Name="Fsl::DpSize1DF">
+      <DisplayString>{m_value}</DisplayString>
+  </Type>
   <Type Name="Fsl::DpValue">
       <DisplayString>{Value}dp</DisplayString>
   </Type>
@@ -8,6 +32,69 @@
   </Type>
   <Type Name="Fsl::DpValueU">
       <DisplayString>{Value}dp</DisplayString>
+  </Type>
+  <Type Name="Fsl::DpThickness">
+      <DisplayString>Left:{m_left} Top:{m_top} Right:{m_right} Bottom:{m_bottom}</DisplayString>
+  </Type>
+  <Type Name="Fsl::DpThicknessF">
+      <DisplayString>Left:{m_left} Top:{m_top} Right:{m_right} Bottom:{m_bottom}</DisplayString>
+  </Type>
+  <Type Name="Fsl::DpThicknessU">
+      <DisplayString>Left:{Left} Top:{Top} Right:{Right} Bottom:{Bottom}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxExtent2D">
+      <DisplayString>Width:{Width} Height:{Height}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxExtent3D">
+      <DisplayString>Width:{Width} Height:{Height} Depth:{Depth}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxPoint2">
+      <DisplayString>X:{X} Y:{Y}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxPoint2U">
+      <DisplayString>X:{X} Y:{Y}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxRectangle">
+      <DisplayString>X:{m_x} Y:{m_y} Width:{m_width} Height:{m_height}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxRectangle2D">
+      <DisplayString>Offset:{Offset} Extent:{Extent}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxRectangleU16">
+      <DisplayString>X:{X} Y:{Y} Width:{Width} Height:{Height}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxRectangleU32">
+      <DisplayString>X:{X} Y:{Y} Width:{Width} Height:{Height}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxSize1D">
+      <DisplayString>{m_value}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxSize1DF">
+      <DisplayString>{m_value}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxSize2D">
+      <DisplayString>Width:{m_width} Height:{m_height}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxSize2DF">
+      <DisplayString>Width:{m_width} Height:{m_height}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxThickness">
+      <DisplayString>Left:{m_left} Top:{m_top} Right:{m_right} Bottom:{m_bottom}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxThicknessF">
+      <DisplayString>Left:{m_left} Top:{m_top} Right:{m_right} Bottom:{m_bottom}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxThicknessU">
+      <DisplayString>Left:{Left} Top:{Top} Right:{Right} Bottom:{Bottom}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxThicknessU16">
+      <DisplayString>Left:{Left} Top:{Top} Right:{Right} Bottom:{Bottom}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxTrimmedImage">
+      <DisplayString>SizePx:{SizePx} TrimMarginPxf:{TrimMarginPxf} TrimmedSizePxf:{TrimmedSizePxf}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxTrimmedNineSlice">
+      <DisplayString>SizePx:{SizePx} TrimMarginPxf:{TrimMarginPxf} TrimmedNineSlicePxf:{TrimmedNineSlicePxf} ContentMarginPx:{ContentMarginPx}</DisplayString>
   </Type>
   <Type Name="Fsl::PxValue">
       <DisplayString>{Value}px</DisplayString>
@@ -18,31 +105,26 @@
   <Type Name="Fsl::PxValueU">
       <DisplayString>{Value}px</DisplayString>
   </Type>
+  <Type Name="Fsl::PxValueU16">
+      <DisplayString>{Value}px</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxVector2">
+      <DisplayString>X:{X} Y:{Y}</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxViewport">
+      <DisplayString>X:{m_x} Y:{m_y} Width:{m_width} Height:{m_height} MinDepth:{m_minDepth} MaxDepth:{m_maxDepth}</DisplayString>
+  </Type>
   <Type Name="Fsl::CStringView">
       <DisplayString>{{str={m_psz,[m_length]} size={m_length} }}</DisplayString>
   </Type>
   <Type Name="Fsl::StringViewLite">
-      <DisplayString>{{str={m_pStr,[m_length]} size={m_length} }}</DisplayString>
+      <DisplayString>{m_view}</DisplayString>
   </Type>
   <Type Name="Fsl::Span&lt;*&gt;">
-    <DisplayString>{{ data={m_pData,[m_length]} size={m_length} }}</DisplayString>
-    <Expand>
-        <Item Name="size" ExcludeView="simple">m_length</Item>
-        <ArrayItems>
-          <Size>m_length</Size>
-          <ValuePointer>m_pData</ValuePointer>
-        </ArrayItems>
-    </Expand>
+    <DisplayString>{m_span}</DisplayString>
   </Type>
   <Type Name="Fsl::ReadOnlySpan&lt;*&gt;">
-    <DisplayString>{{data={m_pData,[m_length]} size={m_length} }}</DisplayString>
-    <Expand>
-        <Item Name="size" ExcludeView="simple">m_length</Item>
-        <ArrayItems>
-          <Size>m_length</Size>
-          <ValuePointer>m_pData</ValuePointer>
-        </ArrayItems>
-    </Expand>
+    <DisplayString>{m_span}</DisplayString>
   </Type>
   <Type Name="Fsl::ReadOnlyTypedFlexSpan&lt;*&gt;">
     <DisplayString>{{size={m_length} stride={m_stride}}}</DisplayString>
@@ -79,9 +161,6 @@
       -->
     </Expand>
   </Type>
-	<Type Name="Fsl::DpValue">
-		<DisplayString>{Value}dp</DisplayString>
-	</Type>
 	<Type Name="Fsl::CircularFixedSizeBuffer&lt;*&gt;">
     <DisplayString>{{size={m_entries}}}</DisplayString>
     <Expand>

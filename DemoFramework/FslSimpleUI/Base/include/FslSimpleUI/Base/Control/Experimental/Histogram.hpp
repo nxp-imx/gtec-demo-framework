@@ -64,7 +64,7 @@ namespace Fsl
       struct BarGraphics
       {
         NineSliceAtlasTexture2D NineSliceTexture;
-        Color PrimaryColor{DefaultColor::Palette::Primary};
+        UIColor PrimaryColor{DefaultColor::Palette::Primary};
       };
 
       struct BarRecord
@@ -123,12 +123,12 @@ namespace Fsl
         }
       }
 
-      const Color& GetBarColor() const
+      UIColor GetBarColor() const
       {
         return m_bar.PrimaryColor;
       }
 
-      void SetBarColor(const Color& value)
+      void SetBarColor(const UIColor value)
       {
         if (value != m_bar.PrimaryColor)
         {

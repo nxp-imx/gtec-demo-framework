@@ -33,7 +33,7 @@
 
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxValueU16.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslGraphics/Font/BasicFlatHashTable.hpp>
 #include <FslGraphics/Font/BitmapFontChar.hpp>
 #include <FslGraphics/Font/BitmapFontKerningFastLookup.hpp>
@@ -54,10 +54,10 @@ namespace Fsl
     BitmapFontKerningFastLookup m_kerningLookup;
 
     //! This is the distance in pixels between each line of text.
-    PxValueU16 m_lineSpacingPx{};
+    PxValueU16 m_lineSpacingPx;
 
     //! The number of pixels from the absolute top of the line to the base of the characters.
-    PxValueU16 m_baseLinePx{};
+    PxValueU16 m_baseLinePx;
 
     //! The name of the font type
     BitmapFontType m_fontType{BitmapFontType::Bitmap};

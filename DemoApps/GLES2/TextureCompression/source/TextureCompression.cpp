@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ namespace Fsl
 
   namespace
   {
-    const auto TEXTURE_PATH = "Textures/GPUSdkTest";
+    constexpr auto TexturePath = "Textures/GPUSdkTest";
 
     enum class CompressionSupport
     {
@@ -76,43 +76,62 @@ namespace Fsl
 
       // ASTC (Adaptive scalable texture compression)
       // https://www.khronos.org/registry/OpenGL/extensions/KHR/KHR_texture_compression_astc_hdr.txt
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasASTC_LDR{false};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasASTC_HDR{false};
       // https://www.khronos.org/registry/OpenGL/extensions/OES/OES_texture_compression_astc.txt
       // Extends GL_KHR_texture_compression_astc_ldr and GL_KHR_texture_compression_astc_hdr
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasASTC_OES{false};
       // https://www.khronos.org/registry/OpenGL/extensions/KHR/KHR_texture_compression_astc_sliced_3d.txt
       // Extends GL_KHR_texture_compression_astc_ldr
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasASTC_Sliced3D{false};
       // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_compression_astc_decode_mode.txt
       // Requires GL_KHR_texture_compression_astc_hdr, GL_KHR_texture_compression_astc_ldr or GL_OES_texture_compression_astc
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasASTC_DecodeMode{false};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasASTC_DecodeModeRGB9E5{false};
 
       // ATITC (ATI texture compression), also known as ATC
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasATITC1{false};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasATITC2{false};
 
       // ETC1 (Ericsson Texture Compression)
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasETC1{false};
 
       // ETC2 (Ericsson Texture Compression)
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasETC2_R8G8B8_UNORM_BLOCK{false};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasETC2_R8G8B8_SRGB_BLOCK{false};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasETC2_R8G8B8A1_UNORM_BLOCK{false};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasETC2_R8G8B8A1_SRGB_BLOCK{false};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasETC2_R8G8B8A8_UNORM_BLOCK{false};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasETC2_R8G8B8A8_SRGB_BLOCK{false};
 
       // PVRTC - PowerVR texture compression
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasPVRTC{false};
 
       // PVRTC2 - PowerVR texture compression
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasPVRTC2{false};
 
       // S3TC (S3 texture compression), also called DXTn, DXTC or BCn
       // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_compression_s3tc.txt
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasS3TC{false};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool HasS3TC_dxt1{false};
     };
 
@@ -188,7 +207,7 @@ namespace Fsl
 
     std::shared_ptr<UI::BaseWindow> CreateTextureControl(const CreateContext& context, const Texture& texture, const std::string& caption)
     {
-      constexpr UI::DpLayoutSize1D forcedSizeDp(DpValue(320));
+      constexpr UI::DpLayoutSize1D ForcedSizeDp(DpValue(320));
 
       Texture2D sourceTexture(context.GraphicsService.GetNativeGraphics(), texture, Texture2DFilterHint::Smooth);
 
@@ -202,7 +221,7 @@ namespace Fsl
       label->SetContentAlignmentX(UI::ItemAlignment::Center);
       label->SetContentAlignmentY(UI::ItemAlignment::Far);
       label->SetContent(caption);
-      label->SetWidth(forcedSizeDp);
+      label->SetWidth(ForcedSizeDp);
 
       auto tex = std::make_shared<UI::Image>(context.WindowContext);
       tex->SetScalePolicy(UI::ItemScalePolicy::FitKeepAR);
@@ -319,7 +338,7 @@ namespace Fsl
     void CreateTextureControlsIfSupported(std::deque<std::shared_ptr<UI::BaseWindow>>& rTextures, const CreateContext& context, const IO::Path& path,
                                           const PixelFormat switchPF, const Texture& notSupportedTexture)
     {
-      auto newPath = IO::Path::Combine(TEXTURE_PATH, path);
+      auto newPath = IO::Path::Combine(TexturePath, path);
 
       // If we are loading a compressed texture the 'contentManager' wont modify it and
       // the KTX loader does not report the origin correctly and always returns 'UpperLeft',

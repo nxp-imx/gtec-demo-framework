@@ -32,26 +32,15 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/String/CStringView.hpp>
-#include <fmt/core.h>
-#include <string>
+#include <fmt/format.h>
 
-namespace fmt
+namespace Fsl
 {
-  template <>
-  struct formatter<Fsl::CStringView>
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  inline auto format_as(const CStringView value) noexcept
   {
-    template <typename ParseContext>
-    constexpr auto parse(ParseContext& ctx)
-    {
-      return ctx.begin();
-    }
-
-    template <typename FormatContext>
-    auto format(const Fsl::CStringView& value, FormatContext& ctx)
-    {
-      return format_to(ctx.out(), value.AsStringView());
-    }
-  };
+    return value.AsStringView();
+  }
 }
 
 #endif

@@ -64,7 +64,7 @@ namespace Fsl
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFramebuffer);
 
     // OSTEP5 FIRST: use MRTs to output four colors to four buffers
-    glBindFramebuffer(GL_FRAMEBUFFER, m_userData.fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_userData.Fbo);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDrawBuffers(UncheckedNumericCast<GLsizei>(attachments.size()), attachments.data());
     DrawGeometry(sizePx.RawWidth(), sizePx.RawHeight());
@@ -87,23 +87,23 @@ namespace Fsl
     GL_CHECK(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &defaultFramebuffer));
 
     // OSTEP1 Setup fbo
-    GL_CHECK(glGenFramebuffers(1, &m_userData.fbo));
-    GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, m_userData.fbo));
+    GL_CHECK(glGenFramebuffers(1, &m_userData.Fbo));
+    GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, m_userData.Fbo));
 
     // OSTEP3 Setup four output buffers and attach to fbo
-    m_userData.textureHeight = m_userData.textureWidth = 400;
-    GL_CHECK(glGenTextures(4, &m_userData.colorTexId[0]));
+    m_userData.TextureHeight = m_userData.TextureWidth = 400;
+    GL_CHECK(glGenTextures(4, &m_userData.ColorTexId[0]));
     for (i = 0; i < 4; ++i)
     {
-      GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_userData.colorTexId[i]));
+      GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_userData.ColorTexId[i]));
 
-      GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_userData.textureWidth, m_userData.textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
+      GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_userData.TextureWidth, m_userData.TextureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr));
 
       // Set the filtering mode
       GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
       GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 
-      GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, attachments[i], GL_TEXTURE_2D, m_userData.colorTexId[i], 0));
+      GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, attachments[i], GL_TEXTURE_2D, m_userData.ColorTexId[i], 0));
     }
 
     // OSTEP4 Select the FBO as rendering target
@@ -153,38 +153,38 @@ namespace Fsl
   void E6_0_MultipleRenderTargets::BlitTextures(const int w, const int h)
   {
     // set the fbo for reading
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_userData.fbo);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_userData.Fbo);
 
     // Copy the output red buffer to lower left quadrant
     glReadBuffer(GL_COLOR_ATTACHMENT0);
-    glBlitFramebuffer(0, 0, m_userData.textureWidth, m_userData.textureHeight, 0, 0, w / 3, h / 3, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    glBlitFramebuffer(0, 0, m_userData.TextureWidth, m_userData.TextureHeight, 0, 0, w / 3, h / 3, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
     // Copy the output green buffer to lower right quadrant
     glReadBuffer(GL_COLOR_ATTACHMENT1);
-    glBlitFramebuffer(0, 0, m_userData.textureWidth, m_userData.textureHeight, w / 2, 0, w, h / 2, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    glBlitFramebuffer(0, 0, m_userData.TextureWidth, m_userData.TextureHeight, w / 2, 0, w, h / 2, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
     // Copy the output blue buffer to upper left quadrant
     glReadBuffer(GL_COLOR_ATTACHMENT2);
-    glBlitFramebuffer(0, 0, m_userData.textureWidth, m_userData.textureHeight, 0, h / 2, w / 2, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    glBlitFramebuffer(0, 0, m_userData.TextureWidth, m_userData.TextureHeight, 0, h / 2, w / 2, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
     // Copy the output gray buffer to upper right quadrant
     glReadBuffer(GL_COLOR_ATTACHMENT3);
-    glBlitFramebuffer(0, 0, m_userData.textureWidth, m_userData.textureHeight, w / 2, h / 2, w, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    glBlitFramebuffer(0, 0, m_userData.TextureWidth, m_userData.TextureHeight, w / 2, h / 2, w, h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
   }
 
 
   void E6_0_MultipleRenderTargets::Cleanup()
   {
-    if (m_userData.colorTexId[0] != GLValues::INVALID_HANDLE)
+    if (m_userData.ColorTexId[0] != GLValues::InvalidHandle)
     {
-      glDeleteTextures(4, &m_userData.colorTexId[0]);
-      m_userData.colorTexId[0] = GLValues::INVALID_HANDLE;
+      glDeleteTextures(4, &m_userData.ColorTexId[0]);
+      m_userData.ColorTexId[0] = GLValues::InvalidHandle;
     }
 
-    if (m_userData.fbo != GLValues::INVALID_HANDLE)
+    if (m_userData.Fbo != GLValues::InvalidHandle)
     {
-      glDeleteFramebuffers(1, &m_userData.fbo);
-      m_userData.fbo = GLValues::INVALID_HANDLE;
+      glDeleteFramebuffers(1, &m_userData.Fbo);
+      m_userData.Fbo = GLValues::InvalidHandle;
     }
   }
 }

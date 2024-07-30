@@ -101,10 +101,10 @@ namespace Fsl::GLES3
     auto itr = m_array.begin();
     while (itr != m_array.end())
     {
-      if (itr->Handle != GLValues::INVALID_HANDLE)
+      if (itr->Handle != GLValues::InvalidHandle)
       {
         glDeleteBuffers(1, &itr->Handle);
-        itr->Handle = GLValues::INVALID_HANDLE;
+        itr->Handle = GLValues::InvalidHandle;
         itr->Capacity = 0;
         itr->Usage = 0;
       }
@@ -216,7 +216,7 @@ namespace Fsl::GLES3
     }
 
     // If we don't have a handle -> allocate one
-    if (rArrayEntry.Handle == GLValues::INVALID_HANDLE)
+    if (rArrayEntry.Handle == GLValues::InvalidHandle)
     {
       GL_CHECK(glGenBuffers(1, &rArrayEntry.Handle));
     }
@@ -243,10 +243,10 @@ namespace Fsl::GLES3
         // Free the entries we are removing
         for (std::size_t i = capacity; i < m_array.size(); ++i)
         {
-          if (m_array[i].Handle != GLValues::INVALID_HANDLE)
+          if (m_array[i].Handle != GLValues::InvalidHandle)
           {
             glDeleteBuffers(1, &m_array[i].Handle);
-            m_array[i].Handle = GLValues::INVALID_HANDLE;
+            m_array[i].Handle = GLValues::InvalidHandle;
             m_array[i].Capacity = 0;
             m_array[i].Usage = 0;
           }

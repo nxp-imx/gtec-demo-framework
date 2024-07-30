@@ -1,7 +1,7 @@
 #ifndef FSLBASE_BITS_BYTESPANUTIL_READLE_HPP
 #define FSLBASE_BITS_BYTESPANUTIL_READLE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline uint8_t ReadUInt8LE(const ReadOnlySpan<uint8_t> src)
   {
-    assert(src.length() >= 1);
+    assert(src.size() >= 1);
     return src[0];
   }
 
@@ -51,28 +51,28 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline int8_t ReadInt8LE(const ReadOnlySpan<uint8_t> src)
   {
-    assert(src.length() >= 1);
+    assert(src.size() >= 1);
     return static_cast<int8_t>(src[0]);
   }
 
   //! @brief Read a uint16_t from the given index in little endian format
   constexpr inline uint16_t ReadUInt16LE(const ReadOnlySpan<uint8_t> src)
   {
-    assert(src.length() >= 2);
+    assert(src.size() >= 2);
     return static_cast<uint16_t>(static_cast<uint16_t>(src[0]) | (static_cast<uint16_t>(src[1]) << 8));
   }
 
   //! @brief Read a int16_t from the given index in little endian format
   constexpr inline int16_t ReadInt16LE(const ReadOnlySpan<uint8_t> src)
   {
-    assert(src.length() >= 2);
+    assert(src.size() >= 2);
     return static_cast<int16_t>(static_cast<uint16_t>(src[0]) | (static_cast<uint16_t>(src[1]) << 8));
   }
 
   //! @brief Read a uint32_t from the given index in little endian format
   constexpr inline uint32_t ReadUInt32LE(const ReadOnlySpan<uint8_t> src)
   {
-    assert(src.length() >= 4);
+    assert(src.size() >= 4);
     return static_cast<uint32_t>(static_cast<uint32_t>(src[0]) | (static_cast<uint32_t>(src[1]) << 8) | (static_cast<uint32_t>(src[2]) << 16) |
                                  (static_cast<uint32_t>(src[3]) << 24));
   }
@@ -80,7 +80,7 @@ namespace Fsl::ByteSpanUtil
   //! @brief Read a int32_t from the given index in little endian format
   constexpr inline int32_t ReadInt32LE(const ReadOnlySpan<uint8_t> src)
   {
-    assert(src.length() >= 4);
+    assert(src.size() >= 4);
     return static_cast<int32_t>(static_cast<uint32_t>(src[0]) | (static_cast<uint32_t>(src[1]) << 8) | (static_cast<uint32_t>(src[2]) << 16) |
                                 (static_cast<uint32_t>(src[3]) << 24));
   }
@@ -88,7 +88,7 @@ namespace Fsl::ByteSpanUtil
   //! @brief Read a uint64_t from the given index in little endian format
   constexpr inline uint64_t ReadUInt64LE(const ReadOnlySpan<uint8_t> src)
   {
-    assert(src.length() >= 8);
+    assert(src.size() >= 8);
     return static_cast<uint64_t>(static_cast<uint64_t>(src[0]) | (static_cast<uint64_t>(src[1]) << 8) | (static_cast<uint64_t>(src[2]) << 16) |
                                  (static_cast<uint64_t>(src[3]) << 24) | (static_cast<uint64_t>(src[4]) << 32) |
                                  (static_cast<uint64_t>(src[5]) << 40) | (static_cast<uint64_t>(src[6]) << 48) |
@@ -98,7 +98,7 @@ namespace Fsl::ByteSpanUtil
   //! @brief Read a int64_t from the given index in little endian format
   constexpr inline int64_t ReadInt64LE(const ReadOnlySpan<uint8_t> src)
   {
-    assert(src.length() >= 8);
+    assert(src.size() >= 8);
     return static_cast<int64_t>(static_cast<int64_t>(src[0]) | (static_cast<int64_t>(src[1]) << 8) | (static_cast<int64_t>(src[2]) << 16) |
                                 (static_cast<int64_t>(src[3]) << 24) | (static_cast<int64_t>(src[4]) << 32) | (static_cast<int64_t>(src[5]) << 40) |
                                 (static_cast<int64_t>(src[6]) << 48) | (static_cast<int64_t>(src[7]) << 56));
@@ -114,7 +114,7 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline uint8_t ReadUInt8LE(const ReadOnlySpan<uint8_t> src, const Span<uint8_t>::size_type index)
   {
-    assert(index < src.length());
+    assert(index < src.size());
     return ReadUInt8LE(src.subspan(index));
   }
 
@@ -123,48 +123,48 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline int8_t ReadInt8LE(const ReadOnlySpan<uint8_t> src, const Span<uint8_t>::size_type index)
   {
-    assert(index < src.length());
+    assert(index < src.size());
     return ReadInt8LE(src.subspan(index));
   }
 
   //! @brief Read a uint16_t from the given index in little endian format
   constexpr inline uint16_t ReadUInt16LE(const ReadOnlySpan<uint8_t> src, const Span<uint8_t>::size_type index)
   {
-    assert(index < src.length());
+    assert(index < src.size());
     return ReadUInt16LE(src.subspan(index));
   }
 
   //! @brief Read a int16_t from the given index in little endian format
   constexpr inline int16_t ReadInt16LE(const ReadOnlySpan<uint8_t> src, const Span<uint8_t>::size_type index)
   {
-    assert(index < src.length());
+    assert(index < src.size());
     return ReadInt16LE(src.subspan(index));
   }
 
   //! @brief Read a uint32_t from the given index in little endian format
   constexpr inline uint32_t ReadUInt32LE(const ReadOnlySpan<uint8_t> src, const Span<uint8_t>::size_type index)
   {
-    assert(index < src.length());
+    assert(index < src.size());
     return ReadUInt32LE(src.subspan(index));
   }
 
   //! @brief Read a int32_t from the given index in little endian format
   constexpr inline int32_t ReadInt32LE(const ReadOnlySpan<uint8_t> src, const Span<uint8_t>::size_type index)
   {
-    assert(index < src.length());
+    assert(index < src.size());
     return ReadInt32LE(src.subspan(index));
   }
 
   constexpr inline uint64_t ReadUInt64LE(const ReadOnlySpan<uint8_t> src, const Span<uint8_t>::size_type index)
   {
-    assert(index < src.length());
+    assert(index < src.size());
     return ReadUInt64LE(src.subspan(index));
   }
 
 
   constexpr inline int64_t ReadInt64LE(const ReadOnlySpan<uint8_t> src, const Span<uint8_t>::size_type index)
   {
-    assert(index < src.length());
+    assert(index < src.size());
     return ReadInt64LE(src.subspan(index));
   }
 }

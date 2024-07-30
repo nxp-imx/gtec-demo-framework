@@ -51,16 +51,16 @@ TEST(TestMathPixel_PxSize1DF, Construct_Default)
 
 TEST(TestMathPixel_PxSize1DF, Construct)
 {
-  constexpr const auto value = PxValueF::Create(3);
-  PxSize1DF testValue(value);
+  constexpr const auto Value = PxValueF::Create(3);
+  PxSize1DF testValue(Value);
 
-  EXPECT_EQ(value, testValue.Value());
+  EXPECT_EQ(Value, testValue.Value());
 }
 
 TEST(TestMathPixel_PxSize1DF, Construct_NegativeValue)
 {
-  constexpr const auto value = PxValueF::Create(-1);
-  PxSize1DF testValue(value);
+  constexpr const auto Value = PxValueF::Create(-1);
+  PxSize1DF testValue(Value);
 
   EXPECT_EQ(PxValueF::Create(0), testValue.Value());
 }

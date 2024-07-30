@@ -51,10 +51,10 @@ TEST(TestMathDp_DpValueU, Construct_Default)
 
 TEST(TestMathDp_DpValueU, Construct)
 {
-  constexpr const uint32_t testValue = 3;
-  DpValueU value(testValue);
+  constexpr const uint32_t TestValue = 3;
+  DpValueU value(TestValue);
 
-  EXPECT_EQ(testValue, value.Value);
+  EXPECT_EQ(TestValue, value.Value);
 }
 
 TEST(TestMathDp_DpValueU, Op_Equal)

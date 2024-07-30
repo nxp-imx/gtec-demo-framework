@@ -66,9 +66,9 @@ namespace Fsl
     ~ANativeGraphicsService() override;
 
     // INativeGraphicsService
-    std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+    std::shared_ptr<INativeTexture2D> CreateTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                       const TextureFlags textureFlags) final;
-    std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+    std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                                     const TextureFlags textureFlags) final;
     std::shared_ptr<IBasicRenderSystem> GetBasicRenderSystem() final;
 

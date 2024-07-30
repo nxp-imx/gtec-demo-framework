@@ -32,9 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/IO/Path.hpp>
-#include <FslGraphics/Transition/TransitionColor.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
+#include <FslSimpleUI/Base/Transition/TransitionUIColor.hpp>
 #include <Shared/UI/Benchmark/DemoAppExtensionForwarder.hpp>
 #include <Shared/UI/Benchmark/SceneAppInfo.hpp>
 #include <Shared/UI/Benchmark/SceneId.hpp>
@@ -87,7 +87,7 @@ namespace Fsl
     std::shared_ptr<UI::Layout> m_sceneLayout;
     //! We use this overlay for a 'brute-force' fade to black and fade in
     std::shared_ptr<UI::Image> m_overlayFillImage;
-    TransitionColor m_overlayColor;
+    UI::TransitionUIColor m_overlayColor;
     ServiceProvider m_serviceProvider;
     IO::Path m_settingsPath;
     std::shared_ptr<AppSettings> m_settings;
@@ -107,8 +107,8 @@ namespace Fsl
 
 
     // From EventListener
-    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
-    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
+    void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
+    void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
 
 
     void OnKeyEvent(const KeyEvent& event);

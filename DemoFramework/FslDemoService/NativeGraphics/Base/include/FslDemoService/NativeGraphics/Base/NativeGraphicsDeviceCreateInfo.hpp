@@ -40,7 +40,7 @@ namespace Fsl
   struct NativeGraphicsDeviceCreateInfo
   {
     const uint32_t MaxFramesInFlight;
-
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const NativeGraphicsCustomDeviceCreateInfo* pCustomCreateInfo;
 
     NativeGraphicsDeviceCreateInfo(const uint32_t maxFramesInFlight, const NativeGraphicsCustomDeviceCreateInfo* const pCustomCreateInfo2)

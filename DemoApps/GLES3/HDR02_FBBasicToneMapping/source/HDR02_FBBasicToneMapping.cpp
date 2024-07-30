@@ -51,8 +51,8 @@ namespace Fsl
 
   namespace
   {
-    const Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 0.0f);
-    const Vector3 DEFAULT_CAMERA_TARGET(0.0f, 0.0f, -4.0f);
+    constexpr Vector3 DefaultCameraPosition(0.0f, 0.0f, 0.0f);
+    constexpr Vector3 DefaultCameraTarget(0.0f, 0.0f, -4.0f);
 
     GLES3::GLTexture CreateTexture(const std::shared_ptr<IContentManager>& contentManager)
     {
@@ -78,7 +78,7 @@ namespace Fsl
 
   HDR02_FBBasicToneMapping::HDR02_FBBasicToneMapping(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_menuUI(config, ColorSpace::SRGBNonLinear)
+    , m_menuUI(config, UI::UIColorSpace::SRGBNonLinear)
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
@@ -86,7 +86,7 @@ namespace Fsl
   {
     RegisterExtension(m_menuUI.GetUIDemoAppExtension());
 
-    m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+    m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
 
     const auto contentManager = GetContentManager();
 
@@ -147,7 +147,7 @@ namespace Fsl
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
-        m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+        m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
         event.Handled();
       }
       break;
@@ -289,11 +289,11 @@ namespace Fsl
     glUseProgram(program.Get());
 
     // Load the matrices
-    assert(location.ModelMatrix != GLValues::INVALID_LOCATION);
-    assert(location.ViewMatrix != GLValues::INVALID_LOCATION);
-    assert(location.ProjMatrix != GLValues::INVALID_LOCATION);
-    assert(location.LightPositions != GLValues::INVALID_LOCATION);
-    assert(location.LightColors != GLValues::INVALID_LOCATION);
+    assert(location.ModelMatrix != GLValues::InvalidLocation);
+    assert(location.ViewMatrix != GLValues::InvalidLocation);
+    assert(location.ProjMatrix != GLValues::InvalidLocation);
+    assert(location.LightPositions != GLValues::InvalidLocation);
+    assert(location.LightColors != GLValues::InvalidLocation);
 
     glUniformMatrix4fv(location.ModelMatrix, 1, 0, m_vertexUboData.MatModel.DirectAccess());
     glUniformMatrix4fv(location.ViewMatrix, 1, 0, m_vertexUboData.MatView.DirectAccess());

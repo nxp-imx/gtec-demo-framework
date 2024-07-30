@@ -33,9 +33,8 @@
 
 #include <FslBase/Math/Pixel/PxThicknessU16.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/String/StringViewLite.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslGraphics/Font/BitmapFontChar.hpp>
 #include <FslGraphics/Font/BitmapFontKerning.hpp>
 #include <FslGraphics/Font/BitmapFontType.hpp>
@@ -83,10 +82,10 @@ namespace Fsl
     uint16_t m_size{};
 
     //! This is the distance in pixels between each line of text.
-    PxValueU16 m_lineSpacingPx{};
+    PxValueU16 m_lineSpacingPx;
 
     //! The number of pixels from the absolute top of the line to the base of the characters.
-    PxValueU16 m_baseLinePx{};
+    PxValueU16 m_baseLinePx;
 
     PxThicknessU16 m_paddingPx;
 
@@ -119,12 +118,12 @@ namespace Fsl
 
     StringViewLite GetName() const
     {
-      return StringViewLiteUtil::AsStringViewLite(m_name);
+      return std::string_view(m_name);
     }
 
     StringViewLite GetTextureName() const
     {
-      return StringViewLiteUtil::AsStringViewLite(m_textureName);
+      return std::string_view(m_textureName);
     }
 
     uint16_t GetDpi() const
@@ -164,7 +163,7 @@ namespace Fsl
 
     inline ReadOnlySpan<BitmapFontChar> GetChars() const
     {
-      return ReadOnlySpanUtil::AsSpan(m_chars);
+      return SpanUtil::AsReadOnlySpan(m_chars);
     }
 
     inline std::size_t GetKerningsCount() const
@@ -174,7 +173,7 @@ namespace Fsl
 
     inline ReadOnlySpan<BitmapFontKerning> GetKernings() const
     {
-      return ReadOnlySpanUtil::AsSpan(m_kernings);
+      return SpanUtil::AsReadOnlySpan(m_kernings);
     }
 
     SdfParams GetSdfParams() const

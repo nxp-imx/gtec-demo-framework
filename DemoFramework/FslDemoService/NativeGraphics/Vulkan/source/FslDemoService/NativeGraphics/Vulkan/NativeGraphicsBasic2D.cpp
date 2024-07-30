@@ -36,6 +36,7 @@
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/Color.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/Font/EmbeddedFont8x8.hpp>
 #include <cassert>
 
@@ -43,12 +44,15 @@ namespace Fsl::Vulkan
 {
   namespace
   {
-    const char MIN_VALUE = 33;
-    const char MAX_VALUE = 127;
+    namespace LocalConfig
+    {
+      constexpr char MinValue = 33;
+      constexpr char MaxValue = 127;
+    }
 
     inline bool IsValidChar(const int ch)
     {
-      return (ch >= static_cast<int>(MIN_VALUE) && ch <= static_cast<int>(MAX_VALUE));
+      return (ch >= static_cast<int>(LocalConfig::MinValue) && ch <= static_cast<int>(LocalConfig::MaxValue));
     }
   }
 
@@ -119,7 +123,7 @@ namespace Fsl::Vulkan
       return;
     }
 
-    const Color colorWhite = Color::White();
+    const Color colorWhite = Colors::White();
     Vector2 dstPos = dstPosition;
 
     // build the arrays needed to render
@@ -140,7 +144,7 @@ namespace Fsl::Vulkan
     {
       if (IsValidChar(static_cast<int>(*pSrc)))
       {
-        m_batch2D.Draw(m_resources.FontTexture, dstPos, m_charRects[*pSrc - MIN_VALUE], colorWhite);
+        m_batch2D.Draw(m_resources.FontTexture, dstPos, m_charRects[*pSrc - LocalConfig::MinValue], colorWhite);
       }
       FSLLOG3_WARNING_IF(*pSrc == 0, "Zero is not a valid character in a string!");
       dstPos.X += charWidth;
@@ -186,14 +190,14 @@ namespace Fsl::Vulkan
 
     // Create child images for each glyph and assign them to the valid chars
     {
-      const uint8_t firstChar = MIN_VALUE;
-      const uint8_t lastChar = MAX_VALUE;
-      const uint8_t numChars = (lastChar - firstChar) + 1;
+      constexpr uint8_t FirstChar = LocalConfig::MinValue;
+      constexpr uint8_t LastChar = LocalConfig::MaxValue;
+      const uint8_t numChars = (LastChar - FirstChar) + 1;
 
-      assert(EmbeddedFont8x8::MinCharacter() <= firstChar);
-      assert(EmbeddedFont8x8::MaxCharacter() >= lastChar);
+      assert(EmbeddedFont8x8::MinCharacter() <= FirstChar);
+      assert(EmbeddedFont8x8::MaxCharacter() >= LastChar);
 
-      const auto imageWidth = PxSize1D::Create(UncheckedNumericCast<int32_t>(fontBitmap.Width()));
+      const auto imageWidthPx = fontBitmap.Width();
       PxSize2D fontSize = EmbeddedFont8x8::CharacterSize();
       fontSize.AddWidth(PxSize1D::Create(2));
       fontSize.AddHeight(PxSize1D::Create(2));
@@ -203,7 +207,7 @@ namespace Fsl::Vulkan
       {
         m_charRects[i] = PxRectangle(srcX, srcY, fontSize.Width(), fontSize.Height());
         srcX += fontSize.Width();
-        if ((srcX + fontSize.Width()) > imageWidth)
+        if ((srcX + fontSize.Width()) > imageWidthPx)
         {
           srcX = {};
           srcY += fontSize.Height();
@@ -211,17 +215,17 @@ namespace Fsl::Vulkan
       }
     }
 
-    assert(fontBitmap.Width() >= 9);
-    assert(fontBitmap.Height() >= 9);
-    for (uint32_t y = fontBitmap.Height() - 9; y < fontBitmap.Height(); ++y)
+    assert(fontBitmap.RawWidth() >= 9);
+    assert(fontBitmap.RawHeight() >= 9);
+    for (uint32_t y = fontBitmap.RawUnsignedHeight() - 9; y < fontBitmap.RawUnsignedHeight(); ++y)
     {
-      for (uint32_t x = fontBitmap.Width() - 9; x < fontBitmap.Width(); ++x)
+      for (uint32_t x = fontBitmap.RawUnsignedWidth() - 9; x < fontBitmap.RawUnsignedWidth(); ++x)
       {
         fontBitmap.SetNativePixel(x, y, 0xFFFFFFFF);
       }
     }
     m_fillPixelRect =
-      PxRectangle::Create(UncheckedNumericCast<int32_t>(fontBitmap.Width()) - 4, UncheckedNumericCast<int32_t>(fontBitmap.Height()) - 4, 1, 1);
+      PxRectangle(fontBitmap.Width() - PxSize1D::Create(4), fontBitmap.Height() - PxSize1D::Create(4), PxSize1D::Create(1), PxSize1D::Create(1));
 
     VkSamplerCreateInfo samplerCreateInfo{};
     samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;

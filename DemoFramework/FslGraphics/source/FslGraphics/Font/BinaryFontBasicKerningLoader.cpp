@@ -52,13 +52,13 @@ namespace Fsl
 {
   namespace
   {
-    constexpr const uint32_t FILEHEADER_OFFSET_Magic = 0;
-    constexpr const uint32_t FILEHEADER_OFFSET_Version = FILEHEADER_OFFSET_Magic + 4;
-    constexpr const uint32_t FILEHEADER_OFFSET_Size = FILEHEADER_OFFSET_Version + 4;
-    constexpr const uint32_t SIZE_FILEHEADER = FILEHEADER_OFFSET_Size + 4;
+    constexpr const uint32_t FileheaderOffsetMagic = 0;
+    constexpr const uint32_t FileheaderOffsetVersion = FileheaderOffsetMagic + 4;
+    constexpr const uint32_t FileheaderOffsetSize = FileheaderOffsetVersion + 4;
+    constexpr const uint32_t SizeFileheader = FileheaderOffsetSize + 4;
 
-    constexpr const uint32_t HEADER_MAGIC = 0x004B4246;
-    constexpr const uint32_t EXPECTED_VERSION = 1;
+    constexpr const uint32_t HeaderMagic = 0x004B4246;
+    constexpr const uint32_t ExpectedVersion = 1;
 
     // const uint32_t MAX_ENCODED_VALUE_SIZE = 5;
 
@@ -82,23 +82,23 @@ namespace Fsl
 
     FBKHeader ReadAndValidateHeader(std::ifstream& rStream)
     {
-      std::array<uint8_t, SIZE_FILEHEADER> fileHeader{};
+      std::array<uint8_t, SizeFileheader> fileHeader{};
       // Try to read the file header
-      StreamRead(rStream, fileHeader.data(), SIZE_FILEHEADER);
+      StreamRead(rStream, fileHeader.data(), SizeFileheader);
 
       FBKHeader header;
-      header.Magic = ByteArrayUtil::ReadUInt32LE(fileHeader.data(), SIZE_FILEHEADER, FILEHEADER_OFFSET_Magic);
-      header.Version = ByteArrayUtil::ReadUInt32LE(fileHeader.data(), SIZE_FILEHEADER, FILEHEADER_OFFSET_Version);
-      header.Size = ByteArrayUtil::ReadUInt32LE(fileHeader.data(), SIZE_FILEHEADER, FILEHEADER_OFFSET_Size);
+      header.Magic = ByteArrayUtil::ReadUInt32LE(fileHeader.data(), SizeFileheader, FileheaderOffsetMagic);
+      header.Version = ByteArrayUtil::ReadUInt32LE(fileHeader.data(), SizeFileheader, FileheaderOffsetVersion);
+      header.Size = ByteArrayUtil::ReadUInt32LE(fileHeader.data(), SizeFileheader, FileheaderOffsetSize);
 
-      if (header.Magic != HEADER_MAGIC)
+      if (header.Magic != HeaderMagic)
       {
         throw FormatException("File not of the expected type");
       }
 
-      if (header.Version != EXPECTED_VERSION)
+      if (header.Version != ExpectedVersion)
       {
-        throw FormatException(fmt::format("Unsupported version {} expected {}", header.Version, EXPECTED_VERSION));
+        throw FormatException(fmt::format("Unsupported version {} expected {}", header.Version, ExpectedVersion));
       }
       return header;
     }

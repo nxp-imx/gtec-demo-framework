@@ -44,14 +44,15 @@ namespace Fsl::UI
     int32_t m_param2;
 
   public:
-    WindowContentChangedEvent();
+    WindowContentChangedEvent() noexcept;
 
-    uint32_t GetContentId() const;
-    int32_t GetParam1() const;
-    int32_t GetParam2() const;
+    uint32_t GetContentId() const noexcept;
+    int32_t GetParam1() const noexcept;
+    int32_t GetParam2() const noexcept;
 
   protected:
-    void SYS_Construct(const uint32_t contentId, const int32_t param1, const int32_t param2)
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    void SYS_Construct(const uint32_t contentId, const int32_t param1, const int32_t param2) noexcept
     {
       WindowEvent::SYS_DoConstruct();
       m_contentId = contentId;
@@ -59,7 +60,8 @@ namespace Fsl::UI
       m_param2 = param2;
     }
 
-    void SYS_Destruct() override
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    void SYS_Destruct() noexcept override
     {
       m_contentId = 0;
       m_param1 = 0;

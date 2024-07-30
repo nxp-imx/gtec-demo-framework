@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ namespace Fsl
   }
 
 
-  DynamicTexture2D::DynamicTexture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap,
+  DynamicTexture2D::DynamicTexture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const ReadOnlyRawBitmap& bitmap,
                                      const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
     : DynamicTexture2D()
   {
@@ -62,7 +62,7 @@ namespace Fsl
   }
 
 
-  DynamicTexture2D::DynamicTexture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawTexture& texture,
+  DynamicTexture2D::DynamicTexture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const ReadOnlyRawTexture& texture,
                                      const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
     : DynamicTexture2D()
   {
@@ -73,20 +73,19 @@ namespace Fsl
   void DynamicTexture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint,
                                const TextureFlags textureFlags)
   {
-    RawBitmap rawBitmap;
-    Bitmap::ScopedDirectAccess directAccess(bitmap, rawBitmap);
-    Reset(nativeGraphics, rawBitmap, filterHint, textureFlags);
+    const Bitmap::ScopedDirectReadAccess directAccess(bitmap);
+    Reset(nativeGraphics, directAccess.AsRawBitmap(), filterHint, textureFlags);
   }
 
 
-  void DynamicTexture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
-                               const TextureFlags textureFlags)
+  void DynamicTexture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const ReadOnlyRawBitmap& bitmap,
+                               const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
   {
     if (!bitmap.IsValid())
     {
       throw std::invalid_argument("bitmap is invalid");
     }
-    if (bitmap.Width() < 1 || bitmap.Height() < 1)
+    if (bitmap.RawUnsignedWidth() < 1u || bitmap.RawUnsignedHeight() < 1u)
     {
       throw std::invalid_argument("bitmap size is invalid");
     }
@@ -98,13 +97,12 @@ namespace Fsl
   void DynamicTexture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Texture& texture, const Texture2DFilterHint filterHint,
                                const TextureFlags textureFlags)
   {
-    RawTexture rawTexture;
-    Texture::ScopedDirectAccess directAccess(texture, rawTexture);
-    Reset(nativeGraphics, rawTexture, filterHint, textureFlags);
+    Texture::ScopedDirectReadAccess directAccess(texture);
+    Reset(nativeGraphics, directAccess.AsRawTexture(), filterHint, textureFlags);
   }
 
 
-  void DynamicTexture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawTexture& texture,
+  void DynamicTexture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const ReadOnlyRawTexture& texture,
                                const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
   {
     if (!nativeGraphics)
@@ -127,13 +125,12 @@ namespace Fsl
 
   void DynamicTexture2D::SetData(const Bitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
   {
-    RawBitmap rawBitmap;
-    Bitmap::ScopedDirectAccess directAccess(bitmap, rawBitmap);
-    SetData(rawBitmap, filterHint, textureFlags);
+    const Bitmap::ScopedDirectReadAccess directAccess(bitmap);
+    SetData(directAccess.AsRawBitmap(), filterHint, textureFlags);
   }
 
 
-  void DynamicTexture2D::SetData(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+  void DynamicTexture2D::SetData(const ReadOnlyRawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
   {
     if (!bitmap.IsValid())
     {
@@ -145,13 +142,12 @@ namespace Fsl
 
   void DynamicTexture2D::SetData(const Texture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
   {
-    RawTexture rawTexture;
-    Texture::ScopedDirectAccess scopedAccess(texture, rawTexture);
-    SetData(rawTexture, filterHint, textureFlags);
+    Texture::ScopedDirectReadAccess scopedAccess(texture);
+    SetData(scopedAccess.AsRawTexture(), filterHint, textureFlags);
   }
 
 
-  void DynamicTexture2D::SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+  void DynamicTexture2D::SetData(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
   {
     auto native = TryGetDynamicNativeTexture();
     if (!native)

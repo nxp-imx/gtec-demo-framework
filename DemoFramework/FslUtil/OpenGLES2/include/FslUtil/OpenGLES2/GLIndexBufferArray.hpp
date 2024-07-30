@@ -71,7 +71,7 @@ namespace Fsl::GLES2
     //! Transfer ownership from other to this
     GLIndexBufferArray(GLIndexBufferArray&& other) noexcept
       : GLBufferArray(std::move(other))    // NOLINT(bugprone-use-after-move)
-      , m_type(other.m_type)
+      , m_type(other.m_type)               // NOLINT(bugprone-use-after-move)
     {
       // Remove the data from other
       // NOLINTNEXTLINE(bugprone-use-after-move)

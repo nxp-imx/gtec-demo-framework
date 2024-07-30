@@ -55,12 +55,12 @@ namespace Fsl
 
     constexpr static VertexDeclarationArray<3> GetVertexDeclarationArray()
     {
-      constexpr std::array<VertexElement, 3> elements = {
+      constexpr std::array<VertexElement, 3> Elements = {
         VertexElement(offsetof(ParticleSnowGPU, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
         VertexElement(offsetof(ParticleSnowGPU, Velocity), VertexElementFormat::Vector3, VertexElementUsage::Custom, 0),
         VertexElement(offsetof(ParticleSnowGPU, Energy), VertexElementFormat::Single, VertexElementUsage::Custom, 1),
       };
-      return {elements, sizeof(ParticleSnowGPU)};
+      return {Elements, sizeof(ParticleSnowGPU)};
     }
 
 
@@ -68,8 +68,8 @@ namespace Fsl
     //              At least this workaround still gives us compile time validation of the vertex element data
     static VertexDeclarationSpan AsVertexDeclarationSpan()
     {
-      constexpr static VertexDeclarationArray<3> decl = GetVertexDeclarationArray();
-      return decl.AsReadOnlySpan();
+      constexpr static VertexDeclarationArray<3> Decl = GetVertexDeclarationArray();
+      return Decl.AsReadOnlySpan();
     }
   };
 }

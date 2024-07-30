@@ -72,15 +72,15 @@ namespace Fsl
     : ShaderBase(contentManager->ReadAllText(GetVert(shaderPath, useHighPrecision)),
                  contentManager->ReadAllText(GetFrag(shaderPath, useHighPrecision, lightCount)))
     , m_lightCount(lightCount)
-    , m_locWorld(GLValues::INVALID_LOCATION)
-    , m_locView(GLValues::INVALID_LOCATION)
-    , m_locProjection(GLValues::INVALID_LOCATION)
-    , m_locTexture0(GLValues::INVALID_LOCATION)
-    , m_locTexture1(GLValues::INVALID_LOCATION)
-    , m_locLightCount(GLValues::INVALID_LOCATION)
-    , m_locAmbientColor(GLValues::INVALID_LOCATION)
-    , m_locMaxHairLength(GLValues::INVALID_LOCATION)
-    , m_locDisplacement(GLValues::INVALID_LOCATION)
+    , m_locWorld(GLValues::InvalidLocation)
+    , m_locView(GLValues::InvalidLocation)
+    , m_locProjection(GLValues::InvalidLocation)
+    , m_locTexture0(GLValues::InvalidLocation)
+    , m_locTexture1(GLValues::InvalidLocation)
+    , m_locLightCount(GLValues::InvalidLocation)
+    , m_locAmbientColor(GLValues::InvalidLocation)
+    , m_locMaxHairLength(GLValues::InvalidLocation)
+    , m_locDisplacement(GLValues::InvalidLocation)
   {
     Construct(lightCount);
   }
@@ -90,15 +90,15 @@ namespace Fsl
                                const int lightCount)
     : ShaderBase(contentManager->ReadAllText(vertShaderPath), contentManager->ReadAllText(fragShaderPath))
     , m_lightCount(lightCount)
-    , m_locWorld(GLValues::INVALID_LOCATION)
-    , m_locView(GLValues::INVALID_LOCATION)
-    , m_locProjection(GLValues::INVALID_LOCATION)
-    , m_locTexture0(GLValues::INVALID_LOCATION)
-    , m_locTexture1(GLValues::INVALID_LOCATION)
-    , m_locLightCount(GLValues::INVALID_LOCATION)
-    , m_locAmbientColor(GLValues::INVALID_LOCATION)
-    , m_locMaxHairLength(GLValues::INVALID_LOCATION)
-    , m_locDisplacement(GLValues::INVALID_LOCATION)
+    , m_locWorld(GLValues::InvalidLocation)
+    , m_locView(GLValues::InvalidLocation)
+    , m_locProjection(GLValues::InvalidLocation)
+    , m_locTexture0(GLValues::InvalidLocation)
+    , m_locTexture1(GLValues::InvalidLocation)
+    , m_locLightCount(GLValues::InvalidLocation)
+    , m_locAmbientColor(GLValues::InvalidLocation)
+    , m_locMaxHairLength(GLValues::InvalidLocation)
+    , m_locDisplacement(GLValues::InvalidLocation)
   {
     Construct(lightCount);
   }
@@ -209,7 +209,7 @@ namespace Fsl
   void FurShaderBase::SetLightCount(const int lightCount)
   {
     assert(IsLoaded());
-    if (m_locLightCount != GLValues::INVALID_LOCATION)
+    if (m_locLightCount != GLValues::InvalidLocation)
     {
       glUniform1f(m_locLightCount, static_cast<GLfloat>(lightCount));
     }
@@ -237,7 +237,7 @@ namespace Fsl
     {
       m_locLightDirection.resize(lightCount);
       m_locLightColor.resize(lightCount);
-      const GLint fillValue = GLValues::INVALID_LOCATION;
+      const GLint fillValue = GLValues::InvalidLocation;
       std::fill(m_locLightDirection.begin(), m_locLightDirection.end(), fillValue);
       std::fill(m_locLightColor.begin(), m_locLightColor.end(), fillValue);
 

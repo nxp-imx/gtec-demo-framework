@@ -62,7 +62,7 @@ namespace Fsl
       const constexpr IO::PathView ScenePath("Models");
     }
 
-    const uint32_t VERTEX_BUFFER_BIND_ID = 0;
+    constexpr uint32_t VertexBufferBindId = 0;
 
     VulkanBasic::DemoAppVulkanSetup CreateSetup()
     {
@@ -419,11 +419,11 @@ namespace Fsl
       modelMesh.VertexBuffer.Reset(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(mesh.Vertices), Vulkan::VMBufferUsage::STATIC);
       modelMesh.IndexBuffer.Reset(bufferManager, mesh.Indices, Vulkan::VMBufferUsage::STATIC);
 
-      constexpr std::array<VertexElementUsage, 5> shaderBindOrder = {VertexElementUsage::Position, VertexElementUsage::Color,
+      constexpr std::array<VertexElementUsage, 5> ShaderBindOrder = {VertexElementUsage::Position, VertexElementUsage::Color,
                                                                      VertexElementUsage::Normal, VertexElementUsage::Tangent,
                                                                      VertexElementUsage::TextureCoordinate};
 
-      Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(modelMesh.VertexAttributeDescription, shaderBindOrder, modelMesh.VertexBuffer);
+      Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(modelMesh.VertexAttributeDescription, ShaderBindOrder, modelMesh.VertexBuffer);
       modelMesh.VertexInputBindingDescription.binding = 0;
       modelMesh.VertexInputBindingDescription.stride = modelMesh.VertexBuffer.GetElementStride();
       modelMesh.VertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
@@ -712,7 +712,7 @@ namespace Fsl
     vkCmdBindPipeline(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.Pipeline.Get());
 
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(hCmdBuffer, VertexBufferBindId, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdBindIndexBuffer(hCmdBuffer, m_resources.Mesh.IndexBuffer.GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
     vkCmdDrawIndexed(hCmdBuffer, m_resources.Mesh.IndexBuffer.GetIndexCount(), 1, 0, 0, 0);
   }
@@ -763,7 +763,7 @@ namespace Fsl
     if (config.TextureFileName.IsEmpty())
     {
       // Create a dummy texture
-      Bitmap bitmap(PxExtent2D::Create(32, 32), PixelFormat::R8G8B8A8_UNORM);
+      Bitmap bitmap(PxSize2D::Create(32, 32), PixelFormat::R8G8B8A8_UNORM);
       m_resources.Texture = CreateTexture(m_device, m_deviceQueue, bitmap, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, nullptr);
       return false;
     }
@@ -785,9 +785,9 @@ namespace Fsl
       contentManager.Read(bitmapGloss, config.TextureGloss, PixelFormat::R8G8B8A8_UNORM, bitmapOrigin);
       FSLLOG3_INFO("Combining diffuse and gloss texture");
       // This is a slow and brute force way of combining the textures
-      for (uint32_t y = 0; y < bitmap.Height(); ++y)
+      for (uint32_t y = 0; y < bitmap.RawUnsignedHeight(); ++y)
       {
-        for (uint32_t x = 0; x < bitmap.Width(); ++x)
+        for (uint32_t x = 0; x < bitmap.RawUnsignedWidth(); ++x)
         {
           auto col1 = bitmap.GetNativePixel(x, y);
           auto col2 = bitmapGloss.GetNativePixel(x, y);

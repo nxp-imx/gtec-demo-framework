@@ -42,7 +42,7 @@ namespace Fsl::UI::Declarative
   {
   public:
     FloatingButtonTypeThemeProperty()
-      : FloatingButtonTypeThemeProperty(PropertyName("theme:Type"))
+      : FloatingButtonTypeThemeProperty(PropertyName("theme_Type"))
     {
     }
 

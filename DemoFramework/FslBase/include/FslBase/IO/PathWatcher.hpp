@@ -43,7 +43,7 @@ namespace Fsl::IO
   class PathWatcher
   {
   public:
-    std::list<std::shared_ptr<PathWatcherInternalRecord>> m_paths;
+    std::list<std::shared_ptr<PathWatcherInternalRecord>> SysPaths;
 
     PathWatcher();
     ~PathWatcher();

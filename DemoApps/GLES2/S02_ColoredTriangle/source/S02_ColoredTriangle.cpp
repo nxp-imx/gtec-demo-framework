@@ -11,7 +11,7 @@
 
 #include "S02_ColoredTriangle.hpp"
 #include <FslBase/Math/Matrix.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <GLES2/gl2.h>
@@ -31,11 +31,11 @@ namespace Fsl
     };
 
     // The index in these variables should match the g_pszShaderAttributeArray ordering
-    constexpr GLuint g_hVertexLoc = 0;
-    constexpr GLuint g_hColorLoc = 1;
+    constexpr GLuint VertexLoc = 0;
+    constexpr GLuint ColorLoc = 1;
 
-    constexpr std::array<GLES2::GLBindAttribLocation, 2> g_shaderAttributeArray = {GLES2::GLBindAttribLocation(g_hVertexLoc, "g_vPosition"),
-                                                                                   GLES2::GLBindAttribLocation(g_hColorLoc, "g_vColor")};
+    constexpr std::array<GLES2::GLBindAttribLocation, 2> ShaderAttributeArray = {GLES2::GLBindAttribLocation(VertexLoc, "g_vPosition"),
+                                                                                 GLES2::GLBindAttribLocation(ColorLoc, "g_vColor")};
   }
 
   S02_ColoredTriangle::S02_ColoredTriangle(const DemoAppConfig& config)
@@ -44,7 +44,7 @@ namespace Fsl
     , m_hProjMatrixLoc(0)
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
-    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray));
+    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), SpanUtil::AsReadOnlySpan(ShaderAttributeArray));
 
     const GLuint hProgram = m_program.Get();
 
@@ -91,17 +91,17 @@ namespace Fsl
     glUniformMatrix4fv(m_hProjMatrixLoc, 1, 0, matProj.DirectAccess());
 
     // Bind the vertex attributes
-    glVertexAttribPointer(g_hVertexLoc, 3, GL_FLOAT, 0, 0, g_vertexPositions.data());
-    glEnableVertexAttribArray(g_hVertexLoc);
+    glVertexAttribPointer(VertexLoc, 3, GL_FLOAT, 0, 0, g_vertexPositions.data());
+    glEnableVertexAttribArray(VertexLoc);
 
-    glVertexAttribPointer(g_hColorLoc, 4, GL_FLOAT, 0, 0, g_vertexColors.data());
-    glEnableVertexAttribArray(g_hColorLoc);
+    glVertexAttribPointer(ColorLoc, 4, GL_FLOAT, 0, 0, g_vertexColors.data());
+    glEnableVertexAttribArray(ColorLoc);
 
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     // Cleanup
-    glDisableVertexAttribArray(g_hVertexLoc);
-    glDisableVertexAttribArray(g_hColorLoc);
+    glDisableVertexAttribArray(VertexLoc);
+    glDisableVertexAttribArray(ColorLoc);
   }
 }

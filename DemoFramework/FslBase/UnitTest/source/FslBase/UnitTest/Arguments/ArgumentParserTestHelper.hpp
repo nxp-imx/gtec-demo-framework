@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Arguments/ArgumentParser.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <fmt/format.h>
 #include <array>
 #include <limits>
@@ -221,7 +221,7 @@ namespace Fsl::Arguments
                                       ParseErrorInfo* pErrorInfo = nullptr)
   {
     std::deque<EncodedCommand> encodedArguments;
-    auto res = ArgumentParser::TryParse(encodedArguments, ReadOnlySpanUtil::AsSpan(testArgs), commands, pErrorInfo);
+    auto res = ArgumentParser::TryParse(encodedArguments, SpanUtil::AsReadOnlySpan(testArgs), commands, pErrorInfo);
     switch (res)
     {
     case ParseResult::InternalError:
@@ -262,7 +262,7 @@ namespace Fsl::Arguments
   ParseResult TryParseNow(std::deque<EncodedCommand>& rEncodedArguments, const std::array<StringViewLite, TSize>& testArgs,
                           const std::deque<Command>& commands, ParseErrorInfo* pErrorInfo = nullptr)
   {
-    return ArgumentParser::TryParse(rEncodedArguments, ReadOnlySpanUtil::AsSpan(testArgs), commands, pErrorInfo);
+    return ArgumentParser::TryParse(rEncodedArguments, SpanUtil::AsReadOnlySpan(testArgs), commands, pErrorInfo);
   }
 }
 

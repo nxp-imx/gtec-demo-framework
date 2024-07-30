@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_UNITTEST_LAYOUT_FSLSIMPLEUI_BASE_UNITTEST_GENERICLAYOUTWINDOWTEST_HPP
 #define FSLSIMPLEUI_BASE_UNITTEST_LAYOUT_FSLSIMPLEUI_BASE_UNITTEST_GENERICLAYOUTWINDOWTEST_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -168,7 +168,7 @@ namespace Fsl::UI
     }
 
   protected:
-    void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+    void OnClickInputPreview(const std::shared_ptr<WindowInputClickEvent>& theEvent) override
     {
       ++m_callCount.OnClickInputPreview;
       if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnClickInputPreview))
@@ -176,12 +176,12 @@ namespace Fsl::UI
         m_callId.OnClickInputPreview = m_callIdManager->Claim();
       }
 
-      parent_type::OnClickInputPreview(args, theEvent);
+      parent_type::OnClickInputPreview(theEvent);
 
-      Callbacks.OnClickInputPreview(args, theEvent);
+      Callbacks.OnClickInputPreview(theEvent);
     }
 
-    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+    void OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent) override
     {
       ++m_callCount.OnClickInput;
       if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnClickInput))
@@ -189,12 +189,12 @@ namespace Fsl::UI
         m_callId.OnClickInput = m_callIdManager->Claim();
       }
 
-      parent_type::OnClickInput(args, theEvent);
+      parent_type::OnClickInput(theEvent);
 
-      Callbacks.OnClickInput(args, theEvent);
+      Callbacks.OnClickInput(theEvent);
     }
 
-    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override
+    void OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent) override
     {
       ++m_callCount.OnSelect;
       if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnSelect))
@@ -202,12 +202,12 @@ namespace Fsl::UI
         m_callId.OnSelect = m_callIdManager->Claim();
       }
 
-      parent_type::OnSelect(args, theEvent);
+      parent_type::OnSelect(theEvent);
 
-      Callbacks.OnSelect(args, theEvent);
+      Callbacks.OnSelect(theEvent);
     }
 
-    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override
+    void OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent) override
     {
       ++m_callCount.OnContentChanged;
       if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnContentChanged))
@@ -215,9 +215,9 @@ namespace Fsl::UI
         m_callId.OnContentChanged = m_callIdManager->Claim();
       }
 
-      parent_type::OnContentChanged(args, theEvent);
+      parent_type::OnContentChanged(theEvent);
 
-      Callbacks.OnContentChanged(args, theEvent);
+      Callbacks.OnContentChanged(theEvent);
     }
 
     PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override

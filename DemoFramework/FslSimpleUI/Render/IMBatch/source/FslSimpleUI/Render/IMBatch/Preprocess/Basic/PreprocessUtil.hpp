@@ -232,7 +232,7 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil
                                  command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Left(),
                                  PxSize1DF::UncheckedCreate(PxSize1DF(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumY()),
                                  PxSize1DF::UncheckedCreate(PxSize1DF(command.DstSizePx.Height()) - scaledImageTrimMarginPxf.SumX()));
-          if (command.DstColor.A() == 0xFF)
+          if (command.DstColor.IsOpaque())
           {
             if (MeshTransparencyFlagsUtil::IsEnabled(meshRecord.Transparency, MeshTransparencyFlags::Opaque))
             {

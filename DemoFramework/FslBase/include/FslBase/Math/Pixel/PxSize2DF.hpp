@@ -35,9 +35,7 @@
 #include <FslBase/Math/Pixel/PxSize1DF.hpp>
 #include <FslBase/Math/Pixel/PxVector2.hpp>
 #include <FslBase/OptimizationFlag.hpp>
-#include <algorithm>
 #include <cassert>
-#include <limits>
 
 namespace Fsl
 {
@@ -48,8 +46,8 @@ namespace Fsl
     using raw_value_type = value_type::raw_value_type;
 
   private:
-    value_type m_width{};
-    value_type m_height{};
+    value_type m_width;
+    value_type m_height;
 
   public:
     constexpr PxSize2DF() noexcept = default;

@@ -31,7 +31,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Span/Span.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/Vulkan1_0/Batch/ConfigHelper.hpp>
 #include <FslUtil/Vulkan1_0/TypeConverter.hpp>

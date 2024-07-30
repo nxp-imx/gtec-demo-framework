@@ -35,14 +35,14 @@
 
 namespace Fsl
 {
-  class ##PACKAGE_SHORT_NAME## : public DemoAppOpenVX
+  class ##PACKAGE_SHORT_NAME## final : public DemoAppOpenVX
   {
 
   public:
-    ##PACKAGE_SHORT_NAME##(const DemoAppConfig& config);
-    ~##PACKAGE_SHORT_NAME##() override;
+    explicit ##PACKAGE_SHORT_NAME##(const DemoAppConfig& config);
+    ~##PACKAGE_SHORT_NAME##() final;
   protected:
-    void Run() override;
+    void Run() final;
   };
 }
 

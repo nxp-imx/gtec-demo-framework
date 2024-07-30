@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022-2023 NXP
+ * Copyright 2020, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,12 +41,13 @@
 
 namespace Fsl::UI
 {
-  SliderRenderImpl::SliderRenderImpl(const std::shared_ptr<IMeshManager>& meshManager, TransitionCache& rTransitionCache)
-    : m_background(meshManager, DefaultColor::Palette::Primary, DefaultColor::Palette::PrimaryDisabled, rTransitionCache,
-                   DefaultAnim::ColorChangeTime, DefaultAnim::ColorChangeTransitionType)
-    , m_cursor(meshManager, DefaultColor::Palette::Primary, DefaultColor::Palette::PrimaryDisabled, rTransitionCache, DefaultAnim::ColorChangeTime,
+  SliderRenderImpl::SliderRenderImpl(const UIColorConverter colorConverter, const std::shared_ptr<IMeshManager>& meshManager)
+    : m_colorConverter(colorConverter)
+    , m_background(colorConverter, meshManager, DefaultColor::Palette::Primary, DefaultColor::Palette::PrimaryDisabled, DefaultAnim::ColorChangeTime,
+                   DefaultAnim::ColorChangeTransitionType)
+    , m_cursor(colorConverter, meshManager, DefaultColor::Palette::Primary, DefaultColor::Palette::PrimaryDisabled, DefaultAnim::ColorChangeTime,
                DefaultAnim::ColorChangeTransitionType)
-    , m_cursorOverlay(meshManager, DefaultColor::Slider::HoverOverlay, rTransitionCache, DefaultAnim::HoverOverlayTime,
+    , m_cursorOverlay(colorConverter, meshManager, DefaultColor::Slider::HoverOverlay, DefaultAnim::HoverOverlayTime,
                       DefaultAnim::HoverOverlayTransitionType)
   {
   }
@@ -68,7 +69,7 @@ namespace Fsl::UI
   }
 
 
-  void SliderRenderImpl::Draw(DrawCommandBuffer& commandBuffer, const PxVector2 dstPositionPxf, const Color finalColor,
+  void SliderRenderImpl::Draw(DrawCommandBuffer& commandBuffer, const PxVector2 dstPositionPxf, const UIRenderColor finalColor,
                               const PxValue cursorPositionPx, const bool isDragging, const SpriteUnitConverter& spriteUnitConverter)
   {
     FSL_PARAM_NOT_USED(isDragging);
@@ -99,11 +100,10 @@ namespace Fsl::UI
       {
         PxVector2 cursorPositionPxf(dstPositionPxf.X + TypeConverter::UncheckedTo<PxValueF>(cursorPositionPx - cursorOriginPx.X), dstPositionPxf.Y);
 
-        // ImageImpl::Draw(batch, pSprite, cursorPositionPxf, cursorCulor);
         commandBuffer.Draw(m_cursor.Sprite.Get(), cursorPositionPxf, cursorRenderSizePx, finalColor * cursorColor);
 
         // Draw the overlay (if enabled)
-        if (m_cursorOverlay.Sprite.IsValid() && m_cursorOverlay.CurrentColor.GetValue().A() > 0)
+        if (m_cursorOverlay.Sprite.IsValid() && m_cursorOverlay.CurrentColor.GetValue().RawA() > 0)
         {
           commandBuffer.Draw(m_cursorOverlay.Sprite.Get(), cursorPositionPxf, m_cursorOverlay.Sprite.FastGetRenderSizePx(),
                              finalColor * m_cursorOverlay.CurrentColor.GetValue());
@@ -113,11 +113,10 @@ namespace Fsl::UI
       {
         PxVector2 cursorPositionPxf(dstPositionPxf.X, dstPositionPxf.Y + TypeConverter::UncheckedTo<PxValueF>(cursorPositionPx - cursorOriginPx.Y));
 
-        // ImageImpl::Draw(batch, pSprite, cursorPositionPxf, cursorCulor);
         commandBuffer.Draw(m_cursor.Sprite.Get(), cursorPositionPxf, cursorRenderSizePx, finalColor * cursorColor);
 
         // Draw the overlay (if enabled)
-        if (m_cursorOverlay.Sprite.IsValid() && m_cursorOverlay.CurrentColor.GetValue().A() > 0)
+        if (m_cursorOverlay.Sprite.IsValid() && m_cursorOverlay.CurrentColor.GetValue().RawA() > 0)
         {
           commandBuffer.Draw(m_cursorOverlay.Sprite.Get(), cursorPositionPxf, m_cursorOverlay.Sprite.FastGetRenderSizePx(),
                              finalColor * m_cursorOverlay.CurrentColor.GetValue());
@@ -126,7 +125,7 @@ namespace Fsl::UI
     }
   }
 
-  void SliderRenderImpl::OnMouseOver(const RoutedEventArgs& /*args*/, const std::shared_ptr<WindowMouseOverEvent>& theEvent, const bool isEnabled)
+  void SliderRenderImpl::OnMouseOver(const std::shared_ptr<WindowMouseOverEvent>& theEvent, const bool isEnabled)
   {
     // We allow the m_isHovering state to be modified even when disabled as that will allow us to render the "hover overlay"
     // at the correct position if the control is enabled while the mouse was hovering.
@@ -193,9 +192,10 @@ namespace Fsl::UI
   bool SliderRenderImpl::UpdateAnimationState(const bool forceCompleteAnimation, const bool isEnabled, const bool isDragging)
   {
     const bool showHoverOverlay = isEnabled && (m_isHovering || isDragging);
-    m_background.CurrentColor.SetValue(isEnabled ? m_background.EnabledColor : m_background.DisabledColor);
-    m_cursor.CurrentColor.SetValue(isEnabled ? m_cursor.EnabledColor : m_cursor.DisabledColor);
-    m_cursorOverlay.CurrentColor.SetValue(showHoverOverlay ? m_cursorOverlay.EnabledColor : Color::ClearA(m_cursorOverlay.EnabledColor));
+    m_background.CurrentColor.SetValue(isEnabled ? m_background.EnabledRenderColor : m_background.DisabledRenderColor);
+    m_cursor.CurrentColor.SetValue(isEnabled ? m_cursor.EnabledRenderColor : m_cursor.DisabledRenderColor);
+    m_cursorOverlay.CurrentColor.SetValue(showHoverOverlay ? m_cursorOverlay.EnabledRenderColor
+                                                           : UIRenderColor::ClearA(m_cursorOverlay.EnabledRenderColor));
 
     if (forceCompleteAnimation)
     {

@@ -109,10 +109,10 @@ namespace Fsl
     void OnKeyEvent(const KeyEvent& event);
 
     // From EventListener
-    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) final;
+    void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) final;
 
     void OnConfigurationChanged(const DemoWindowMetrics& windowMetrics);
-    void FixedUpdate(const DemoTime& demoTime);
+    void Update(const DemoTime& demoTime);
     void Draw();
 
   private:

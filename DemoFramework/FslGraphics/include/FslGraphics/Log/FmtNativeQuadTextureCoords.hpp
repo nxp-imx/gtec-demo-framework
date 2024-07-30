@@ -41,16 +41,18 @@ namespace fmt
   struct formatter<Fsl::NativeQuadTextureCoords>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::NativeQuadTextureCoords& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{TopLeft={} TopRight={} BottomLeft={} BottomRight={}}}", value.TopLeft, value.TopRight, value.BottomLeft,
-                       value.BottomRight);
+      return fmt::format_to(ctx.out(), "{{TopLeft={} TopRight={} BottomLeft={} BottomRight={}}}", value.TopLeft, value.TopRight, value.BottomLeft,
+                            value.BottomRight);
     }
   };
 }

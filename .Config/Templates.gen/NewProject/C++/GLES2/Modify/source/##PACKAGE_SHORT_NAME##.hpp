@@ -42,7 +42,7 @@ namespace Fsl
     GLES2::GLProgram m_program;
 
   public:
-    ##PACKAGE_SHORT_NAME##(const DemoAppConfig& config);
+    explicit ##PACKAGE_SHORT_NAME##(const DemoAppConfig& config);
     ~##PACKAGE_SHORT_NAME##() final;
   protected:
     void Update(const DemoTime& demoTime) final;

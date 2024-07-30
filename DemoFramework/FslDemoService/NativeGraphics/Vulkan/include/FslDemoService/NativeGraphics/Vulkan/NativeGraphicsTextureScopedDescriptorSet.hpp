@@ -37,7 +37,9 @@ namespace Fsl::Vulkan
 {
   struct NativeGraphicsTextureScopedDescriptorSet
   {
+    // NOLINTNEXTLINE(readability-identifier-naming)
     NativeGraphicsDescriptorSetManager* m_pManager{nullptr};
+    // NOLINTNEXTLINE(readability-identifier-naming)
     VkDescriptorSet m_descriptorSet{VK_NULL_HANDLE};
 
     NativeGraphicsTextureScopedDescriptorSet() noexcept = default;

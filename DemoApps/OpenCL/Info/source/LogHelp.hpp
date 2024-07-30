@@ -83,6 +83,7 @@ namespace Fsl
     }
 
     // CL_PLATFORM_PROFILE (char[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_PLATFORM_PROFILE(const cl_platform_id platformId)
     {
 #ifdef CL_PLATFORM_PROFILE
@@ -94,6 +95,7 @@ namespace Fsl
     }
 
     // CL_PLATFORM_VERSION (char[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_PLATFORM_VERSION(const cl_platform_id platformId)
     {
 #ifdef CL_PLATFORM_VERSION
@@ -105,6 +107,7 @@ namespace Fsl
     }
 
     // CL_PLATFORM_NAME (char[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_PLATFORM_NAME(const cl_platform_id platformId)
     {
 #ifdef CL_PLATFORM_NAME
@@ -116,6 +119,7 @@ namespace Fsl
     }
 
     // CL_PLATFORM_VENDOR (char[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_PLATFORM_VENDOR(const cl_platform_id platformId)
     {
 #ifdef CL_PLATFORM_VENDOR
@@ -127,6 +131,7 @@ namespace Fsl
     }
 
     // CL_PLATFORM_EXTENSIONS (char[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_PLATFORM_EXTENSIONS(const cl_platform_id platformId)
     {
 #ifdef CL_PLATFORM_EXTENSIONS
@@ -139,6 +144,7 @@ namespace Fsl
 
 
     // CL_PLATFORM_HOST_TIMER_RESOLUTION (cl_ulong)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_PLATFORM_HOST_TIMER_RESOLUTION(const cl_platform_id platformId)
     {
 #ifdef CL_PLATFORM_HOST_TIMER_RESOLUTION
@@ -151,6 +157,7 @@ namespace Fsl
 
 
     // CL_PLATFORM_ICD_SUFFIX_KHR (char[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_PLATFORM_ICD_SUFFIX_KHR(const cl_platform_id platformId)
     {
 #ifdef CL_PLATFORM_ICD_SUFFIX_KHR
@@ -163,6 +170,7 @@ namespace Fsl
 
 
     // CL_DEVICE_ADDRESS_BITS (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_ADDRESS_BITS(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_ADDRESS_BITS
@@ -174,6 +182,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_AVAILABLE (cl_bool)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_AVAILABLE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_ADDRESS_BITS
@@ -185,6 +194,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_BUILT_IN_KERNELS (char[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_BUILT_IN_KERNELS(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_BUILT_IN_KERNELS
@@ -197,6 +207,7 @@ namespace Fsl
 
 
     // CL_DEVICE_COMPILER_AVAILABLE (cl_bool)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_COMPILER_AVAILABLE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_COMPILER_AVAILABLE
@@ -208,6 +219,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_DOUBLE_FP_CONFIG (cl_device_fp_config)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_DOUBLE_FP_CONFIG(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_DOUBLE_FP_CONFIG
@@ -219,6 +231,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_ENDIAN_LITTLE (cl_bool)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_ENDIAN_LITTLE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_ENDIAN_LITTLE
@@ -230,6 +243,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_ERROR_CORRECTION_SUPPORT (cl_bool)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_ERROR_CORRECTION_SUPPORT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_ERROR_CORRECTION_SUPPORT
@@ -241,6 +255,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_EXECUTION_CAPABILITIES (cl_device_exec_capabilities)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_EXECUTION_CAPABILITIES(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_EXECUTION_CAPABILITIES
@@ -253,6 +268,7 @@ namespace Fsl
 
 
     // CL_DEVICE_EXTENSIONS (char[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_EXTENSIONS(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_EXTENSIONS
@@ -264,6 +280,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_GLOBAL_MEM_CACHE_SIZE (cl_ulong)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_GLOBAL_MEM_CACHE_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_GLOBAL_MEM_CACHE_SIZE
@@ -275,6 +292,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_GLOBAL_MEM_CACHE_TYPE (cl_device_mem_cache_type)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_GLOBAL_MEM_CACHE_TYPE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_GLOBAL_MEM_CACHE_TYPE
@@ -286,6 +304,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE (cl_ulong)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE
@@ -297,6 +316,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_GLOBAL_MEM_SIZE (cl_ulong)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_GLOBAL_MEM_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_GLOBAL_MEM_SIZE
@@ -308,6 +328,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_GLOBAL_VARIABLE_PREFERRED_TOTAL_SIZE (size_t)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_GLOBAL_VARIABLE_PREFERRED_TOTAL_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_GLOBAL_VARIABLE_PREFERRED_TOTAL_SIZE
@@ -319,6 +340,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_HALF_FP_CONFIG (cl_device_fp_config)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_HALF_FP_CONFIG(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_HALF_FP_CONFIG
@@ -333,6 +355,7 @@ namespace Fsl
 
 
     // CL_DEVICE_HOST_UNIFIED_MEMORY (cl_bool)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_HOST_UNIFIED_MEMORY(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_HOST_UNIFIED_MEMORY
@@ -345,6 +368,7 @@ namespace Fsl
 
 
     // CL_DEVICE_IL_VERSION (char[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_IL_VERSION(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_IL_VERSION
@@ -357,6 +381,7 @@ namespace Fsl
 
 
     // CL_DEVICE_IMAGE_SUPPORT (cl_bool)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_IMAGE_SUPPORT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_IMAGE_SUPPORT
@@ -368,6 +393,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_IMAGE2D_MAX_HEIGHT (size_t)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_IMAGE2D_MAX_HEIGHT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_IMAGE2D_MAX_HEIGHT
@@ -380,6 +406,7 @@ namespace Fsl
 
 
     // CL_DEVICE_IMAGE2D_MAX_WIDTH (size_t)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_IMAGE2D_MAX_WIDTH(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_IMAGE2D_MAX_WIDTH
@@ -392,6 +419,7 @@ namespace Fsl
 
 
     // CL_DEVICE_IMAGE3D_MAX_DEPTH (size_t)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_IMAGE3D_MAX_DEPTH(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_IMAGE3D_MAX_DEPTH
@@ -404,6 +432,7 @@ namespace Fsl
 
 
     // CL_DEVICE_IMAGE3D_MAX_HEIGHT (size_t)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_IMAGE3D_MAX_HEIGHT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_IMAGE3D_MAX_HEIGHT
@@ -416,6 +445,7 @@ namespace Fsl
 
 
     // CL_DEVICE_IMAGE3D_MAX_WIDTH (size_t)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_IMAGE3D_MAX_WIDTH(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_IMAGE3D_MAX_WIDTH
@@ -428,6 +458,7 @@ namespace Fsl
 
 
     // CL_DEVICE_IMAGE_BASE_ADDRESS_ALIGNMENT (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_IMAGE_BASE_ADDRESS_ALIGNMENT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_IMAGE_BASE_ADDRESS_ALIGNMENT
@@ -440,6 +471,7 @@ namespace Fsl
 
 
     // CL_DEVICE_IMAGE_MAX_BUFFER_SIZE (size_t)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_IMAGE_MAX_BUFFER_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_IMAGE_MAX_BUFFER_SIZE
@@ -451,6 +483,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_IMAGE_PITCH_ALIGNMENT (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_IMAGE_PITCH_ALIGNMENT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_IMAGE_PITCH_ALIGNMENT
@@ -463,6 +496,7 @@ namespace Fsl
 
 
     // CL_DEVICE_IMAGE_MAX_ARRAY_SIZE (size_t)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_IMAGE_MAX_ARRAY_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_IMAGE_MAX_ARRAY_SIZE
@@ -475,6 +509,7 @@ namespace Fsl
 
 
     // CL_DEVICE_LINKER_AVAILABLE (cl_bool)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_LINKER_AVAILABLE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_LINKER_AVAILABLE
@@ -487,6 +522,7 @@ namespace Fsl
 
 
     // CL_DEVICE_LOCAL_MEM_SIZE (cl_ulong)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_LOCAL_MEM_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_LOCAL_MEM_SIZE
@@ -499,6 +535,7 @@ namespace Fsl
 
 
     // CL_DEVICE_LOCAL_MEM_TYPE (cl_device_local_mem_type)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_LOCAL_MEM_TYPE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_LOCAL_MEM_TYPE
@@ -511,6 +548,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_CLOCK_FREQUENCY (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_CLOCK_FREQUENCY(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_CLOCK_FREQUENCY
@@ -523,6 +561,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_COMPUTE_UNITS (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_COMPUTE_UNITS(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_COMPUTE_UNITS
@@ -535,6 +574,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_CONSTANT_ARGS (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_CONSTANT_ARGS(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_CONSTANT_ARGS
@@ -547,6 +587,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE (cl_ulong)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE
@@ -559,6 +600,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_GLOBAL_VARIABLE_SIZE (size_t)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_GLOBAL_VARIABLE_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_GLOBAL_VARIABLE_SIZE
@@ -571,6 +613,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_MEM_ALLOC_SIZE (cl_ulong)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_MEM_ALLOC_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_MEM_ALLOC_SIZE
@@ -583,6 +626,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_NUM_SUB_GROUPS (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_NUM_SUB_GROUPS(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_NUM_SUB_GROUPS
@@ -595,6 +639,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_ON_DEVICE_EVENTS (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_ON_DEVICE_EVENTS(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_ON_DEVICE_EVENTS
@@ -607,6 +652,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_ON_DEVICE_QUEUES (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_ON_DEVICE_QUEUES(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_ON_DEVICE_QUEUES
@@ -619,6 +665,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_PARAMETER_SIZE (size_t)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_PARAMETER_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_PARAMETER_SIZE
@@ -631,6 +678,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_PIPE_ARGS (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_PIPE_ARGS(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_PIPE_ARGS
@@ -643,6 +691,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_READ_IMAGE_ARGS (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_READ_IMAGE_ARGS(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_READ_IMAGE_ARGS
@@ -655,6 +704,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_READ_WRITE_IMAGE_ARGS (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_READ_WRITE_IMAGE_ARGS(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_READ_WRITE_IMAGE_ARGS
@@ -667,6 +717,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_SAMPLERS (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_SAMPLERS(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_SAMPLERS
@@ -679,6 +730,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_WORK_GROUP_SIZE (size_t)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_WORK_GROUP_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_WORK_GROUP_SIZE
@@ -691,6 +743,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS
@@ -703,6 +756,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_WORK_ITEM_SIZES (size_t[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_WORK_ITEM_SIZES(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_WORK_ITEM_SIZES
@@ -723,6 +777,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MAX_WRITE_IMAGE_ARGS (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MAX_WRITE_IMAGE_ARGS(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MAX_WRITE_IMAGE_ARGS
@@ -735,6 +790,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MEM_BASE_ADDR_ALIGN (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MEM_BASE_ADDR_ALIGN(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MEM_BASE_ADDR_ALIGN
@@ -747,6 +803,7 @@ namespace Fsl
 
 
     // CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE
@@ -759,6 +816,7 @@ namespace Fsl
 
 
     // CL_DEVICE_NAME (char[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_NAME(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_NAME
@@ -770,6 +828,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR
@@ -782,6 +841,7 @@ namespace Fsl
 
 
     // CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT
@@ -794,6 +854,7 @@ namespace Fsl
 
 
     // CL_DEVICE_NATIVE_VECTOR_WIDTH_INT (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_NATIVE_VECTOR_WIDTH_INT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_NATIVE_VECTOR_WIDTH_INT
@@ -806,6 +867,7 @@ namespace Fsl
 
 
     // CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG
@@ -818,6 +880,7 @@ namespace Fsl
 
 
     // CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT
@@ -830,6 +893,7 @@ namespace Fsl
 
 
     // CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE
@@ -842,6 +906,7 @@ namespace Fsl
 
 
     // CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF
@@ -854,6 +919,7 @@ namespace Fsl
 
 
     // CL_DEVICE_OPENCL_C_VERSION (char[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_OPENCL_C_VERSION(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_OPENCL_C_VERSION
@@ -866,6 +932,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PARENT_DEVICE (cl_device_id)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PARENT_DEVICE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PARENT_DEVICE
@@ -878,6 +945,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PARTITION_MAX_SUB_DEVICES (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PARTITION_MAX_SUB_DEVICES(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PARTITION_MAX_SUB_DEVICES
@@ -890,6 +958,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PARTITION_PROPERTIES (cl_device_partition_property[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PARTITION_PROPERTIES(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PARTITION_PROPERTIES
@@ -910,6 +979,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PARTITION_AFFINITY_DOMAIN (cl_device_affinity_domain)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PARTITION_AFFINITY_DOMAIN(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PARTITION_AFFINITY_DOMAIN
@@ -922,6 +992,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PARTITION_TYPE (cl_device_partition_property[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PARTITION_TYPE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PARTITION_TYPE
@@ -941,6 +1012,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_PIPE_MAX_ACTIVE_RESERVATIONS (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PIPE_MAX_ACTIVE_RESERVATIONS(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PIPE_MAX_ACTIVE_RESERVATIONS
@@ -953,6 +1025,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PIPE_MAX_PACKET_SIZE (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PIPE_MAX_PACKET_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PIPE_MAX_PACKET_SIZE
@@ -965,6 +1038,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PLATFORM (cl_platform_id)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PLATFORM(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PLATFORM
@@ -977,6 +1051,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PREFERRED_GLOBAL_ATOMIC_ALIGNMENT (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PREFERRED_GLOBAL_ATOMIC_ALIGNMENT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PREFERRED_GLOBAL_ATOMIC_ALIGNMENT
@@ -988,6 +1063,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR
@@ -1000,6 +1076,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT
@@ -1012,6 +1089,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT
@@ -1024,6 +1102,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG
@@ -1036,6 +1115,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT
@@ -1048,6 +1128,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE
@@ -1060,6 +1141,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF
@@ -1071,6 +1153,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_PRINTF_BUFFER_SIZE (size_t)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PRINTF_BUFFER_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PRINTF_BUFFER_SIZE
@@ -1082,6 +1165,7 @@ namespace Fsl
     }
 
     // CL_DEVICE_PREFERRED_INTEROP_USER_SYNC (cl_bool)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PREFERRED_INTEROP_USER_SYNC(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PREFERRED_INTEROP_USER_SYNC
@@ -1094,6 +1178,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PREFERRED_LOCAL_ATOMIC_ALIGNMENT (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PREFERRED_LOCAL_ATOMIC_ALIGNMENT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PREFERRED_LOCAL_ATOMIC_ALIGNMENT
@@ -1106,6 +1191,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PREFERRED_PLATFORM_ATOMIC_ALIGNMENT (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PREFERRED_PLATFORM_ATOMIC_ALIGNMENT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PREFERRED_PLATFORM_ATOMIC_ALIGNMENT
@@ -1118,6 +1204,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PROFILE (char[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PROFILE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PROFILE
@@ -1130,6 +1217,7 @@ namespace Fsl
 
 
     // CL_DEVICE_PROFILING_TIMER_RESOLUTION (size_t)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_PROFILING_TIMER_RESOLUTION(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PROFILING_TIMER_RESOLUTION
@@ -1142,6 +1230,7 @@ namespace Fsl
 
 
     // CL_DEVICE_QUEUE_ON_DEVICE_MAX_SIZE (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_QUEUE_ON_DEVICE_MAX_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_QUEUE_ON_DEVICE_MAX_SIZE
@@ -1154,6 +1243,7 @@ namespace Fsl
 
 
     // CL_DEVICE_QUEUE_ON_DEVICE_PREFERRED_SIZE (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_QUEUE_ON_DEVICE_PREFERRED_SIZE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_QUEUE_ON_DEVICE_PREFERRED_SIZE
@@ -1166,6 +1256,7 @@ namespace Fsl
 
 
     // CL_DEVICE_QUEUE_ON_DEVICE_PROPERTIES (cl_command_queue_properties)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_QUEUE_ON_DEVICE_PROPERTIES(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_QUEUE_ON_DEVICE_PROPERTIES
@@ -1178,6 +1269,7 @@ namespace Fsl
 
 
     // CL_DEVICE_QUEUE_ON_HOST_PROPERTIES (cl_command_queue_properties)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_QUEUE_ON_HOST_PROPERTIES(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_QUEUE_ON_HOST_PROPERTIES
@@ -1190,6 +1282,7 @@ namespace Fsl
 
 
     // CL_DEVICE_QUEUE_PROPERTIES (cl_command_queue_properties)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_QUEUE_PROPERTIES(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_QUEUE_PROPERTIES
@@ -1202,6 +1295,7 @@ namespace Fsl
 
 
     // CL_DEVICE_REFERENCE_COUNT (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_REFERENCE_COUNT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_REFERENCE_COUNT
@@ -1214,6 +1308,7 @@ namespace Fsl
 
 
     // CL_DEVICE_SINGLE_FP_CONFIG (cl_device_fp_config)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_SINGLE_FP_CONFIG(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_SINGLE_FP_CONFIG
@@ -1226,6 +1321,7 @@ namespace Fsl
 
 
     // CL_DEVICE_SPIR_VERSIONS (char [])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_SPIR_VERSIONS(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_SPIR_VERSIONS
@@ -1238,6 +1334,7 @@ namespace Fsl
 
 
     // CL_DEVICE_SUBGROUP_INDEPENDENT_FORWARD_PROGRESS (cl_bool)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_SUBGROUP_INDEPENDENT_FORWARD_PROGRESS(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_SUBGROUP_INDEPENDENT_FORWARD_PROGRESS
@@ -1250,6 +1347,7 @@ namespace Fsl
 
 
     // CL_DEVICE_SVM_CAPABILITIES (cl_device_svm_capabilities)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_SVM_CAPABILITIES(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_SVM_CAPABILITIES
@@ -1262,6 +1360,7 @@ namespace Fsl
 
 
     // CL_DEVICE_TERMINATE_CAPABILITY_KHR (cl_device_terminate_capability_khr)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_TERMINATE_CAPABILITY_KHR(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_TERMINATE_CAPABILITY_KHR
@@ -1274,6 +1373,7 @@ namespace Fsl
 
 
     // CL_DEVICE_TYPE (deviceType)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_TYPE(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_TYPE
@@ -1293,6 +1393,7 @@ namespace Fsl
     }
 
     //  CL_DEVICE_VENDOR (char[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_VENDOR(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_VENDOR
@@ -1305,6 +1406,7 @@ namespace Fsl
 
 
     //  CL_DEVICE_VENDOR_ID (cl_uint)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_VENDOR_ID(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_VENDOR_ID
@@ -1317,6 +1419,7 @@ namespace Fsl
 
 
     // CL_DEVICE_VERSION (char[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DEVICE_VERSION(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_VERSION
@@ -1329,6 +1432,7 @@ namespace Fsl
 
 
     //  CL_DRIVER_VERSION (char[])
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline void Log_CL_DRIVER_VERSION(const cl_device_id deviceId)
     {
 #ifdef CL_DRIVER_VERSION

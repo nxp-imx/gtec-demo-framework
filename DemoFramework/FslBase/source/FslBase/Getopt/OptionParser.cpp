@@ -40,7 +40,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <fmt/format.h>
@@ -230,7 +230,7 @@ namespace Fsl
         }
         if (itrFound != itrTo)
         {
-          fmt::format_to(std::back_inserter(buf), strFormat, "");
+          fmt::vformat_to(std::back_inserter(buf), strFormat, fmt::make_format_args(""));
           ++itrFound;
           itrFrom = itrFound;
         }
@@ -302,7 +302,8 @@ namespace Fsl
           // 4 due to the "  --"
           // 3 due to the " = "
           std::string strDesc(GetFormattedDescription(itr->SourceOption.Description, 4 + 3 + maxNameLength));
-          fmt::format_to(std::back_inserter(buf), strFormat, GetFormattedName(itr->SourceOption), strDesc);
+          std::string formattedName = GetFormattedName(itr->SourceOption);
+          fmt::vformat_to(std::back_inserter(buf), strFormat, fmt::make_format_args(formattedName, strDesc));
         }
         ++itr;
       }
@@ -311,7 +312,7 @@ namespace Fsl
     }
 
 
-    bool ProcessHelpOption(const StringViewLite& strOptionParam, int32_t& rShowHelpOptionGroupFlags)
+    bool ProcessHelpOption(const StringViewLite strOptionParam, int32_t& rShowHelpOptionGroupFlags)
     {
       bool bSuccess = true;
       if (strOptionParam.empty())
@@ -467,20 +468,17 @@ namespace Fsl
       return false;
     }
 
-    class ParseErrorFormatter : public Arguments::ArgumentParser::ErrorFormatter
+    class ParseErrorFormatter final : public Arguments::ArgumentParser::ErrorFormatter
     {
     public:
-      std::string Format(const char* const pszFormat, const StringViewLite strArg0) override
+      std::string Format(fmt::format_string<std::string_view> formatString, const std::string_view str) final
       {
-        return fmt::format(pszFormat, strArg0);
+        return fmt::vformat(formatString, fmt::make_format_args(str));
       }
-      std::string Format(const char* const pszFormat, const std::string& str) override
+
+      std::string Format(fmt::format_string<uint32_t> formatString, const uint32_t arg0) final
       {
-        return fmt::format(pszFormat, str);
-      }
-      std::string Format(const char* const pszFormat, const uint32_t arg0) override
-      {
-        return fmt::format(pszFormat, arg0);
+        return fmt::vformat(formatString, fmt::make_format_args(arg0));
       }
     };
 
@@ -520,27 +518,27 @@ namespace Fsl
   OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, StringViewLite strHelpCaption)
   {
     auto args = ToArgsVector(argc, argv);
-    return Parse(ReadOnlySpanUtil::AsSpan(args).subspan(1u), strHelpCaption);
+    return Parse(SpanUtil::AsReadOnlySpan(args).subspan(1u), strHelpCaption);
   }
 
   OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, IOptionParser& inputOptionParser, StringViewLite strHelpCaption)
   {
     auto args = ToArgsVector(argc, argv);
-    return Parse(ReadOnlySpanUtil::AsSpan(args).subspan(1u), inputOptionParser, strHelpCaption);
+    return Parse(SpanUtil::AsReadOnlySpan(args).subspan(1u), inputOptionParser, strHelpCaption);
   }
 
   OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, const std::deque<IOptionParser*>& inputOptionParsers,
                                                 StringViewLite strHelpCaption)
   {
     auto args = ToArgsVector(argc, argv);
-    return Parse(ReadOnlySpanUtil::AsSpan(args).subspan(1u), inputOptionParsers, strHelpCaption);
+    return Parse(SpanUtil::AsReadOnlySpan(args).subspan(1u), inputOptionParsers, strHelpCaption);
   }
 
   OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, const std::deque<ParserRecord>& inputOptionParsers,
                                                 StringViewLite strHelpCaption)
   {
     auto args = ToArgsVector(argc, argv);
-    return Parse(ReadOnlySpanUtil::AsSpan(args).subspan(1u), inputOptionParsers, strHelpCaption);
+    return Parse(SpanUtil::AsReadOnlySpan(args).subspan(1u), inputOptionParsers, strHelpCaption);
   }
 
 

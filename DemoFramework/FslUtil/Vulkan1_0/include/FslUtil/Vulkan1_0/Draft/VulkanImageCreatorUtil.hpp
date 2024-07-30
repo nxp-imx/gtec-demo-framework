@@ -45,9 +45,9 @@ namespace RapidVulkan
 namespace Fsl
 {
   class Bitmap;
-  class RawBitmap;
+  class ReadOnlyRawBitmap;
   class RawCubeBitmap;
-  class RawTexture;
+  class ReadOnlyRawTexture;
   class Texture;
 
   namespace Vulkan
@@ -64,7 +64,7 @@ namespace Fsl
 
       //! @brief Create a rDstImage and rDstMemory object based on the supplied texture using a optimal strategy.
       void Create(VUImage& rDstImage, RapidVulkan::Memory& rDstMemory, const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device,
-                  const VkQueue queue, const VkCommandBuffer commandBuffer, const RawBitmap& src, const VkAccessFlags accessMask,
+                  const VkQueue queue, const VkCommandBuffer commandBuffer, const ReadOnlyRawBitmap& src, const VkAccessFlags accessMask,
                   const VkImageUsageFlags imageUsageFlags);
 
       //! @brief Create a rDstImage and rDstMemory object based on the supplied texture using a optimal strategy.
@@ -79,7 +79,7 @@ namespace Fsl
 
       //! @brief Create a rDstImage and rDstMemory object based on the supplied texture using a optimal strategy.
       void Create(VUImage& rDstImage, RapidVulkan::Memory& rDstMemory, const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device,
-                  const VkQueue queue, const VkCommandBuffer commandBuffer, const RawTexture& src, const VkAccessFlags accessMask,
+                  const VkQueue queue, const VkCommandBuffer commandBuffer, const ReadOnlyRawTexture& src, const VkAccessFlags accessMask,
                   const VkImageUsageFlags imageUsageFlags);
 
 
@@ -90,7 +90,7 @@ namespace Fsl
 
       //! @brief Create a rDstImage and rDstMemory object based on the supplied bitmap using linear.
       void CreateLinear(VUImage& rDstImage, RapidVulkan::Memory& rDstMemory, const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device,
-                        const VkQueue queue, const VkCommandBuffer commandBuffer, const RawBitmap& src, const VkAccessFlags accessMask,
+                        const VkQueue queue, const VkCommandBuffer commandBuffer, const ReadOnlyRawBitmap& src, const VkAccessFlags accessMask,
                         const VkSampleCountFlagBits samples, const VkImageUsageFlags imageUsageFlags);
 
       //! @brief Create a rDstImage and rDstMemory object based on the supplied bitmap using linear.
@@ -105,7 +105,7 @@ namespace Fsl
 
       //! @brief Create a rDstImage and rDstMemory object based on the supplied texture using linear.
       void CreateLinear(VUImage& rDstImage, RapidVulkan::Memory& rDstMemory, const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device,
-                        const VkQueue queue, const VkCommandBuffer commandBuffer, const RawTexture& src, const VkAccessFlags accessMask,
+                        const VkQueue queue, const VkCommandBuffer commandBuffer, const ReadOnlyRawTexture& src, const VkAccessFlags accessMask,
                         const VkSampleCountFlagBits samples, const VkImageUsageFlags imageUsageFlags);
 
 
@@ -116,7 +116,7 @@ namespace Fsl
 
       //! @brief Create a rDstImage and rDstMemory object based on the supplied bitmap using staging.
       void CreateUsingStaging(VUImage& rDstImage, RapidVulkan::Memory& rDstMemory, const VUPhysicalDeviceRecord& physicalDevice,
-                              const VkDevice device, const VkQueue queue, const VkCommandBuffer commandBuffer, const RawBitmap& src,
+                              const VkDevice device, const VkQueue queue, const VkCommandBuffer commandBuffer, const ReadOnlyRawBitmap& src,
                               const VkAccessFlags accessMask, const VkSampleCountFlagBits samples, const VkImageUsageFlags imageUsageFlags);
 
       //! @brief Create a rDstImage and rDstMemory object based on the supplied bitmap using staging.
@@ -131,14 +131,14 @@ namespace Fsl
 
       //! @brief Create a rDstImage and rDstMemory object based on the supplied texture using staging.
       void CreateUsingStaging(VUImage& rDstImage, RapidVulkan::Memory& rDstMemory, const VUPhysicalDeviceRecord& physicalDevice,
-                              const VkDevice device, const VkQueue queue, const VkCommandBuffer commandBuffer, const RawTexture& src,
+                              const VkDevice device, const VkQueue queue, const VkCommandBuffer commandBuffer, const ReadOnlyRawTexture& src,
                               const VkAccessFlags accessMask, const VkSampleCountFlagBits samples, const VkImageUsageFlags imageUsageFlags);
 
       //! @brief Extract the regions from the texture
       std::vector<VkBufferImageCopy> PrepareCopyRegions(const Texture& texture);
 
       //! @brief Extract the regions from the texture
-      std::vector<VkBufferImageCopy> PrepareCopyRegions(const RawTexture& texture);
+      std::vector<VkBufferImageCopy> PrepareCopyRegions(const ReadOnlyRawTexture& texture);
 
 
       //! @brief Do the upload from the staging buffer to the image

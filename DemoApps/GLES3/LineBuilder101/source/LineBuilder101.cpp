@@ -79,14 +79,14 @@ namespace Fsl
 
   LineBuilder101::ProgramInfo LineBuilder101::CreateLineProgram(const std::shared_ptr<IContentManager>& contentManager)
   {
-    constexpr auto vertexDecl = Graphics3D::LineBuilder::vertex_type::GetVertexDeclarationArray();
+    constexpr auto VertexDecl = Graphics3D::LineBuilder::vertex_type::GetVertexDeclarationArray();
     ProgramInfo info;
     info.Program.Reset(contentManager->ReadAllText("VertexColorLine.vert"), contentManager->ReadAllText("VertexColorLine.frag"));
     info.LocWorldViewProjection = info.Program.GetUniformLocation("WorldViewProjection");
     info.Links[0] =
-      GLVertexAttribLink(info.Program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0u));
+      GLVertexAttribLink(info.Program.GetAttribLocation("VertexPosition"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0u));
     info.Links[1] =
-      GLVertexAttribLink(info.Program.GetAttribLocation("VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0u));
+      GLVertexAttribLink(info.Program.GetAttribLocation("VertexColor"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0u));
     return info;
   }
 }

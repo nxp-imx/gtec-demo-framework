@@ -33,47 +33,6 @@
 
 namespace Fsl::Logger
 {
-  void WriteLine(const LogType logType, const char* const pszFormat, const char* const pszArg0) noexcept
-  {
-    try
-    {
-      WriteLine(logType, fmt::format(pszFormat, pszArg0));
-    }
-    catch (const std::exception&)
-    {
-    }
-  }
 
-  void WriteLine(const LogType logType, const char* const pszFormat, const std::string& strArg0) noexcept
-  {
-    try
-    {
-      WriteLine(logType, fmt::format(pszFormat, strArg0));
-    }
-    catch (const std::exception&)
-    {
-    }
-  }
 
-  void WriteLine(const LogLocation& logLocation, const LogType logType, const char* const pszFormat, const char* const pszArg0) noexcept
-  {
-    try
-    {
-      WriteLine(logLocation, logType, fmt::format(pszFormat, pszArg0));
-    }
-    catch (const std::exception&)
-    {
-    }
-  }
-
-  void WriteLine(const LogLocation& logLocation, const LogType logType, const char* const pszFormat, const std::string& strArg0) noexcept
-  {
-    try
-    {
-      WriteLine(logLocation, logType, fmt::format(pszFormat, strArg0));
-    }
-    catch (const std::exception&)
-    {
-    }
-  }
 }

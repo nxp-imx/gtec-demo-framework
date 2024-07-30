@@ -57,12 +57,12 @@ namespace Fsl::UI
   public:
     // Since we dont have a proper activity concept with async return values we use the shared settings object for now
     ColorDialogActivity(std::weak_ptr<IActivityStack> activityStack, const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
-                        const Color initialColor);
+                        const UIColor initialColor);
     ~ColorDialogActivity() override;
 
-    Color GetCurrentColor() const;
+    UI::UIColor GetCurrentColor() const;
 
-    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final;
+    void OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent) final;
     void OnKeyEvent(const KeyEvent& theEvent) final;
 
   private:

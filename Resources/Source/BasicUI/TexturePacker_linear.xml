@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TexturePacker xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="1">
+  <AtlasConfig TransparencyMode="premultiply-linear"/>
+  <AtlasFlavors Name="Gen/Linear/UIAtlas/UIAtlas">
+    <CreateAtlas Name="Gen/Linear/UIAtlas/UIAtlas_80dpi">
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddBitmapFont Path="Font2/Font12/Font.fnt" BaseLinePx="9" LineSpacingPx="12" MeasureChar="B" MeasureHeightPx="7"/>
+    </CreateAtlas>
+    <CreateAtlas Name="Gen/Linear/UIAtlas/UIAtlas_96dpi">
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddBitmapFont Path="Font2/Font16/Font.fnt" BaseLinePx="12" LineSpacingPx="16" MeasureChar="B" MeasureHeightPx="9"/>
+    </CreateAtlas>
+    <CreateAtlas Name="Gen/Linear/UIAtlas/UIAtlas_160dpi">
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddBitmapFont Path="Font2/Font28/Font.fnt" BaseLinePx="20" LineSpacingPx="26" MeasureChar="B" MeasureHeightPx="14"/>
+    </CreateAtlas>
+    <CreateAtlas Name="Gen/Linear/UIAtlas/UIAtlas_320dpi">
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddBitmapFont Path="Font2/Font54/Font.fnt" BaseLinePx="40" LineSpacingPx="52" MeasureChar="B" MeasureHeightPx="28"/>
+    </CreateAtlas>
+    <CreateAtlas Name="Gen/Linear/UIAtlas/UIAtlas_480dpi">
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddBitmapFont Path="Font2/Font81/Font.fnt" BaseLinePx="60" LineSpacingPx="78" MeasureChar="B" MeasureHeightPx="42"/>
+    </CreateAtlas>
+    <CreateAtlas Name="Gen/Linear/UIAtlas/UIAtlas_640dpi">
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddBitmapFont Path="Font2/Font106/Font.fnt" BaseLinePx="80" LineSpacingPx="104" MeasureChar="B" MeasureHeightPx="56"/>
+    </CreateAtlas>
+  </AtlasFlavors>
+  <AtlasFlavors Name="Gen/Linear/UIAtlasBig/UIAtlas">
+    <CreateAtlas Name="Gen/Linear/UIAtlasBig/UIAtlas_80dpi">
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddBitmapFont Path="Font2/Font12/Font.fnt" BaseLinePx="9" LineSpacingPx="12" MeasureChar="B" MeasureHeightPx="7"/>
+      <AddBitmapFont Path="Font2/Header16/Header.fnt" BaseLinePx="12" LineSpacingPx="16" MeasureChar="B" MeasureHeightPx="9"/>
+      <AddBitmapFont Path="Font2/Sdf/Font37/SdfFont.fnt" BaseLinePx="37" LineSpacingPx="48" Type="sdf" SdfSpread="2" SdfDesiredBaseLinePx="9"/>
+      <AddBitmapFont Path="Font2/Sdf/Header37/SdfHeader.fnt" BaseLinePx="38" LineSpacingPx="50" Type="sdf" SdfSpread="3" SdfDesiredBaseLinePx="12"/>
+    </CreateAtlas>
+    <CreateAtlas Name="Gen/Linear/UIAtlasBig/UIAtlas_96dpi">
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddBitmapFont Path="Font2/Font16/Font.fnt" BaseLinePx="12" LineSpacingPx="16" MeasureChar="B" MeasureHeightPx="9"/>
+      <AddBitmapFont Path="Font2/Header19/Header.fnt" BaseLinePx="14" LineSpacingPx="19" MeasureChar="B" MeasureHeightPx="10"/>
+      <AddBitmapFont Path="Font2/Sdf/Font37/SdfFont.fnt" BaseLinePx="37" LineSpacingPx="48" Type="sdf" SdfSpread="2" SdfDesiredBaseLinePx="12"/>
+      <AddBitmapFont Path="Font2/Sdf/Header37/SdfHeader.fnt" BaseLinePx="38" LineSpacingPx="50" Type="sdf" SdfSpread="3" SdfDesiredBaseLinePx="14"/>
+    </CreateAtlas>
+    <CreateAtlas Name="Gen/Linear/UIAtlasBig/UIAtlas_160dpi">
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddBitmapFont Path="Font2/Font28/Font.fnt" BaseLinePx="20" LineSpacingPx="26" MeasureChar="B" MeasureHeightPx="14"/>
+      <AddBitmapFont Path="Font2/Header31/Header.fnt" BaseLinePx="24" LineSpacingPx="32" MeasureChar="B" MeasureHeightPx="16"/>
+      <AddBitmapFont Path="Font2/Sdf/Font37/SdfFont.fnt" BaseLinePx="37" LineSpacingPx="48" Type="sdf" SdfSpread="2" SdfDesiredBaseLinePx="20"/>
+      <AddBitmapFont Path="Font2/Sdf/Header37/SdfHeader.fnt" BaseLinePx="38" LineSpacingPx="50" Type="sdf" SdfSpread="3" SdfDesiredBaseLinePx="24"/>
+    </CreateAtlas>
+    <CreateAtlas Name="Gen/Linear/UIAtlasBig/UIAtlas_320dpi">
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddBitmapFont Path="Font2/Font54/Font.fnt" BaseLinePx="40" LineSpacingPx="52" MeasureChar="B" MeasureHeightPx="28"/>
+      <AddBitmapFont Path="Font2/Header61/Header.fnt" BaseLinePx="48" LineSpacingPx="64" MeasureChar="B" MeasureHeightPx="32"/>
+      <AddBitmapFont Path="Font2/Sdf/Font37/SdfFont.fnt" BaseLinePx="37" LineSpacingPx="48" Type="sdf" SdfSpread="2" SdfDesiredBaseLinePx="40"/>
+      <AddBitmapFont Path="Font2/Sdf/Header37/SdfHeader.fnt" BaseLinePx="38" LineSpacingPx="50" Type="sdf" SdfSpread="3" SdfDesiredBaseLinePx="48"/>
+    </CreateAtlas>
+    <CreateAtlas Name="Gen/Linear/UIAtlasBig/UIAtlas_480dpi">
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddBitmapFont Path="Font2/Font81/Font.fnt" BaseLinePx="60" LineSpacingPx="78" MeasureChar="B" MeasureHeightPx="42"/>
+      <AddBitmapFont Path="Font2/Header92/Header.fnt" BaseLinePx="72" LineSpacingPx="96" MeasureChar="B" MeasureHeightPx="48"/>
+      <AddBitmapFont Path="Font2/Sdf/Font37/SdfFont.fnt" BaseLinePx="37" LineSpacingPx="48" Type="sdf" SdfSpread="2" SdfDesiredBaseLinePx="60"/>
+      <AddBitmapFont Path="Font2/Sdf/Header37/SdfHeader.fnt" BaseLinePx="38" LineSpacingPx="50" Type="sdf" SdfSpread="3" SdfDesiredBaseLinePx="72"/>
+    </CreateAtlas>
+    <CreateAtlas Name="Gen/Linear/UIAtlasBig/UIAtlas_640dpi">
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddBitmapFont Path="Font2/Font106/Font.fnt" BaseLinePx="80" LineSpacingPx="104" MeasureChar="B" MeasureHeightPx="56"/>
+      <AddBitmapFont Path="Font2/Header122/Header.fnt" BaseLinePx="96" LineSpacingPx="128" MeasureChar="B" MeasureHeightPx="64"/>
+      <AddBitmapFont Path="Font2/Sdf/Font37/SdfFont.fnt" BaseLinePx="37" LineSpacingPx="48" Type="sdf" SdfSpread="2" SdfDesiredBaseLinePx="80"/>
+      <AddBitmapFont Path="Font2/Sdf/Header37/SdfHeader.fnt" BaseLinePx="38" LineSpacingPx="50" Type="sdf" SdfSpread="3" SdfDesiredBaseLinePx="96"/>
+    </CreateAtlas>
+  </AtlasFlavors>
+  <CreateAtlas Name="Gen/Linear/Font/NormalAtlas/FontAtlas">
+    <AddBitmapFont Path="Font/Normal/Font.fnt" Type="bitmap" OutputFontFormat="fbk,nbf"/>
+  </CreateAtlas>
+  <CreateAtlas Name="Gen/Linear/Font/SdfAtlas/FontAtlas" TransparencyMode="normal">
+    <AddBitmapFont Path="Font/Sdf/Font.fnt" Type="sdf" OutputFontFormat="fbk,nbf" SdfSpread="2"/>
+  </CreateAtlas>
+  <CreateAtlas Name="Gen/Linear/CustomAtlas/Font72Atlas">
+    <AddFolder Path="UIAtlas/480"/>
+    <AddBitmapFont Path="Font/Font72/Font.fnt"/>
+  </CreateAtlas>
+</TexturePacker>

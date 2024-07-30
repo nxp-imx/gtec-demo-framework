@@ -56,6 +56,7 @@ namespace Fsl::UI::Declarative
 
     struct FoundThemeProperty
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       const ThemeProperty* pProperty{nullptr};
       StringViewLite PropertyValue;
 

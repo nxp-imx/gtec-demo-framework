@@ -50,9 +50,9 @@ namespace Fsl
 {
   class Bitmap;
   class Texture;
-  class RawBitmap;
+  class ReadOnlyRawBitmap;
   class RawCubeBitmap;
-  class RawTexture;
+  class ReadOnlyRawTexture;
 
   namespace GLES3
   {
@@ -94,16 +94,17 @@ namespace Fsl
       GLTexture(const Bitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Create a texture with the supplied content
-      GLTexture(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
+      GLTexture(const ReadOnlyRawBitmap& bitmap, const GLTextureParameters& textureParameters,
+                const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Create a texture with the supplied content
       GLTexture(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX, const Bitmap& bitmapPosY, const Bitmap& bitmapNegY, const Bitmap& bitmapPosZ,
                 const Bitmap& bitmapNegZ, const GLTextureParameters3& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Create a texture with the supplied content
-      GLTexture(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
-                const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ, const GLTextureParameters3& textureParameters,
-                const TextureFlags textureFlags = TextureFlags::NotDefined);
+      GLTexture(const ReadOnlyRawBitmap& bitmapPosX, const ReadOnlyRawBitmap& bitmapNegX, const ReadOnlyRawBitmap& bitmapPosY,
+                const ReadOnlyRawBitmap& bitmapNegY, const ReadOnlyRawBitmap& bitmapPosZ, const ReadOnlyRawBitmap& bitmapNegZ,
+                const GLTextureParameters3& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Create a texture with the supplied content
       GLTexture(const RawCubeBitmap& cubeBitmap, const GLTextureParameters3& textureParameters,
@@ -116,10 +117,12 @@ namespace Fsl
       GLTexture(const Texture& texture, const GLTextureParameters3& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Create a texture with the supplied content
-      GLTexture(const RawTexture& texture, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
+      GLTexture(const ReadOnlyRawTexture& texture, const GLTextureParameters& textureParameters,
+                const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Create a texture with the supplied content
-      GLTexture(const RawTexture& texture, const GLTextureParameters3& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
+      GLTexture(const ReadOnlyRawTexture& texture, const GLTextureParameters3& textureParameters,
+                const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Let this GLTexture object assume control over the given texture handle.
       //! @param handle the GL handle to the texture
@@ -136,7 +139,7 @@ namespace Fsl
       //! @brief Check if this contains a valid gl handle.
       bool IsValid() const
       {
-        return m_handle != GLValues::INVALID_HANDLE;
+        return m_handle != GLValues::InvalidHandle;
       }
 
 
@@ -162,16 +165,17 @@ namespace Fsl
       void Reset(const Bitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Reset the data of the texture
-      void Reset(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
+      void Reset(const ReadOnlyRawBitmap& bitmap, const GLTextureParameters& textureParameters,
+                 const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Reset the data of the texture
       void Reset(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX, const Bitmap& bitmapPosY, const Bitmap& bitmapNegY, const Bitmap& bitmapPosZ,
                  const Bitmap& bitmapNegZ, const GLTextureParameters3& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Reset the data of the texture
-      void Reset(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
-                 const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ, const GLTextureParameters3& textureParameters,
-                 const TextureFlags textureFlags = TextureFlags::NotDefined);
+      void Reset(const ReadOnlyRawBitmap& bitmapPosX, const ReadOnlyRawBitmap& bitmapNegX, const ReadOnlyRawBitmap& bitmapPosY,
+                 const ReadOnlyRawBitmap& bitmapNegY, const ReadOnlyRawBitmap& bitmapPosZ, const ReadOnlyRawBitmap& bitmapNegZ,
+                 const GLTextureParameters3& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Reset the data of the texture
       void Reset(const RawCubeBitmap& cubeBitmap, const GLTextureParameters3& textureParameters,
@@ -184,10 +188,11 @@ namespace Fsl
       void Reset(const Texture& texture, const GLTextureParameters3& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Reset the data of the texture
-      void Reset(const RawTexture& texture, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
+      void Reset(const ReadOnlyRawTexture& texture, const GLTextureParameters& textureParameters,
+                 const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Reset the data of the texture
-      void Reset(const RawTexture& texture, const GLTextureParameters3& textureParameters,
+      void Reset(const ReadOnlyRawTexture& texture, const GLTextureParameters3& textureParameters,
                  const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Let this GLTexture object assume control over the given texture handle.
@@ -204,7 +209,8 @@ namespace Fsl
       void SetData(const Bitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Set the data of the texture
-      void SetData(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
+      void SetData(const ReadOnlyRawBitmap& bitmap, const GLTextureParameters& textureParameters,
+                   const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Set the data of the texture
       void SetData(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX, const Bitmap& bitmapPosY, const Bitmap& bitmapNegY, const Bitmap& bitmapPosZ,
@@ -212,9 +218,9 @@ namespace Fsl
                    const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Set the data of the texture
-      void SetData(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
-                   const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ, const GLTextureParameters3& textureParameters,
-                   const TextureFlags textureFlags = TextureFlags::NotDefined);
+      void SetData(const ReadOnlyRawBitmap& bitmapPosX, const ReadOnlyRawBitmap& bitmapNegX, const ReadOnlyRawBitmap& bitmapPosY,
+                   const ReadOnlyRawBitmap& bitmapNegY, const ReadOnlyRawBitmap& bitmapPosZ, const ReadOnlyRawBitmap& bitmapNegZ,
+                   const GLTextureParameters3& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Set the data of the texture
       void SetData(const RawCubeBitmap& cubeBitmap, const GLTextureParameters3& textureParameters,
@@ -227,22 +233,22 @@ namespace Fsl
       void SetData(const Texture& texture, const GLTextureParameters3& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Set the data of the texture
-      void SetData(const RawTexture& texture, const GLTextureParameters& textureParameters,
+      void SetData(const ReadOnlyRawTexture& texture, const GLTextureParameters& textureParameters,
                    const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Set the data of the texture
-      void SetData(const RawTexture& texture, const GLTextureParameters3& textureParameters,
+      void SetData(const ReadOnlyRawTexture& texture, const GLTextureParameters3& textureParameters,
                    const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Get the gl texture handle associated with the texture.
-      //! @return the handle or GLValues::INVALID_HANDLE if the texture is unallocated.
+      //! @return the handle or GLValues::InvalidHandle if the texture is unallocated.
       GLuint Get() const
       {
         return m_handle;
       }
 
       //! @brief Get the gl texture handle associated with the texture.
-      //! @return the handle or GLValues::INVALID_HANDLE if the texture is unallocated.
+      //! @return the handle or GLValues::InvalidHandle if the texture is unallocated.
       //! @deprecated use Get instead
       [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
       {
@@ -250,7 +256,7 @@ namespace Fsl
       }
 
       //! @brief Get the gl texture target associated with the texture.
-      //! @return the handle or GLValues::INVALID_HANDLE if the texture is unallocated.
+      //! @return the handle or GLValues::InvalidHandle if the texture is unallocated.
       GLuint GetTarget() const
       {
         return m_target;

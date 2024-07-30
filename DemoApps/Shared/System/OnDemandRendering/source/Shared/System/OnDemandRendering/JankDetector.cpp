@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <Shared/System/OnDemandRendering/JankDetector.hpp>
 #include <algorithm>
@@ -176,6 +176,6 @@ namespace Fsl
 
   ReadOnlySpan<JankDetector::TimingRecords> JankDetector::Record1AsTimingSpan() const
   {
-    return ReadOnlySpanUtil::AsSpan(m_timing.Entries, 0, m_timing.ValidEntries);
+    return SpanUtil::AsReadOnlySpan(m_timing.Entries, 0, m_timing.ValidEntries);
   }
 }

@@ -416,10 +416,10 @@ TEST(TestMath_Vector2_MonoGame, TransformNormal)
 
 TEST(TestMath_Vector2_MonoGame, Construct)
 {
-  constexpr float x = std::numeric_limits<float>::min();
-  constexpr float y = std::numeric_limits<float>::max();
-  Vector2 value(x, y);
+  constexpr float X = std::numeric_limits<float>::min();
+  constexpr float Y = std::numeric_limits<float>::max();
+  Vector2 value(X, Y);
 
-  EXPECT_EQ(x, value.X);
-  EXPECT_EQ(y, value.Y);
+  EXPECT_EQ(X, value.X);
+  EXPECT_EQ(Y, value.Y);
 }

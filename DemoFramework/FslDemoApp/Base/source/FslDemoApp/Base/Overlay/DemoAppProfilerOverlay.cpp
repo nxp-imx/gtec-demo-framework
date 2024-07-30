@@ -51,8 +51,11 @@ namespace Fsl
 {
   namespace
   {
-    const int32_t DEFAULT_GRAPH_WIDTH = 120;
-    const int32_t DEFAULT_GRAPH_HEIGHT = 200;
+    namespace LocalConfig
+    {
+      constexpr int32_t DefaultGraphWidth = 120;
+      constexpr int32_t DefaultGraphHeight = 200;
+    }
 
     int32_t MinimumDigits(const int32_t value)
     {
@@ -83,10 +86,10 @@ namespace Fsl
 
   DemoAppProfilerOverlay::DemoAppProfilerOverlay(const ServiceProvider& serviceProvider, const DemoAppStatsFlags& logStatsFlags)
     : m_logStatsFlags(logStatsFlags)
-    , m_graphTotal(0, 2000, Point2(DEFAULT_GRAPH_WIDTH, DEFAULT_GRAPH_HEIGHT))
-    , m_graphUpdate(0, 2000, Point2(DEFAULT_GRAPH_WIDTH, DEFAULT_GRAPH_HEIGHT))
-    , m_graphDraw(0, 2000, Point2(DEFAULT_GRAPH_WIDTH, DEFAULT_GRAPH_HEIGHT))
-    , m_graphCPU(0, 1000, Point2(DEFAULT_GRAPH_WIDTH, DEFAULT_GRAPH_HEIGHT))
+    , m_graphTotal(0, 2000, Point2(LocalConfig::DefaultGraphWidth, LocalConfig::DefaultGraphHeight))
+    , m_graphUpdate(0, 2000, Point2(LocalConfig::DefaultGraphWidth, LocalConfig::DefaultGraphHeight))
+    , m_graphDraw(0, 2000, Point2(LocalConfig::DefaultGraphWidth, LocalConfig::DefaultGraphHeight))
+    , m_graphCPU(0, 1000, Point2(LocalConfig::DefaultGraphWidth, LocalConfig::DefaultGraphHeight))
     , m_customConfigurationRevision(0)    // the profiler service never returns zero for its revision
 
   {
@@ -164,7 +167,9 @@ namespace Fsl
           while (itr != m_customCounters.end())
           {
             m_scracthpad.clear();
-            fmt::format_to(std::back_inserter(m_scracthpad), itr->FormatString.data(), m_profilerService->Get(itr->Handle));
+            std::string_view formatString(itr->FormatString.data());
+            const auto stuff = m_profilerService->Get(itr->Handle);
+            fmt::vformat_to(std::back_inserter(m_scracthpad), formatString, fmt::make_format_args(stuff));
             if (m_scracthpad.size() > 0u)
             {
               basic2D->DrawString(StringViewLite(m_scracthpad.data(), m_scracthpad.size()), dstPos);
@@ -241,7 +246,8 @@ namespace Fsl
       if (IsNewHandle(handle))
       {
         const ProfilerCustomCounterDesc desc = m_profilerService->GetDescription(handle);
-        auto ptr = std::make_shared<DemoAppProfilerGraph>(desc.MinValue, desc.MaxValue, Point2(DEFAULT_GRAPH_WIDTH, DEFAULT_GRAPH_HEIGHT));
+        auto ptr = std::make_shared<DemoAppProfilerGraph>(desc.MinValue, desc.MaxValue,
+                                                          Point2(LocalConfig::DefaultGraphWidth, LocalConfig::DefaultGraphHeight));
         m_customCounters.emplace_back(handle, desc, ptr);
       }
     }

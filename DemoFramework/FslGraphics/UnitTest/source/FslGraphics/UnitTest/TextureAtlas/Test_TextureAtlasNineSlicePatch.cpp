@@ -50,11 +50,11 @@ TEST(Test_TextureAtlasNineSlicePatch, Construct_Default)
 
 TEST(Test_TextureAtlasNineSlicePatch, Construct)
 {
-  constexpr AtlasNineSliceFlags flags{AtlasNineSliceFlags::Transparent};
-  constexpr AtlasNineSlicePatchInfo patch(PxThicknessU::Create(1, 2, 3, 4), PxThicknessU::Create(5, 6, 7, 8), flags);
-  constexpr uint32_t textureIndex = 9u;
-  TextureAtlasNineSlicePatch value(textureIndex, patch);
+  constexpr AtlasNineSliceFlags Flags{AtlasNineSliceFlags::Transparent};
+  constexpr AtlasNineSlicePatchInfo Patch(PxThicknessU::Create(1, 2, 3, 4), PxThicknessU::Create(5, 6, 7, 8), Flags);
+  constexpr uint32_t TextureIndex = 9u;
+  TextureAtlasNineSlicePatch value(TextureIndex, Patch);
 
-  EXPECT_EQ(patch, value.Patch);
-  EXPECT_EQ(textureIndex, value.TextureIndex);
+  EXPECT_EQ(Patch, value.Patch);
+  EXPECT_EQ(TextureIndex, value.TextureIndex);
 }

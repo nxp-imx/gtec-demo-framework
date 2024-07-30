@@ -50,24 +50,39 @@ namespace Fsl
     Matrix4x4,
 
     // one component, 8-bit unsigned byte. The components are unsigned normalized values in the range [0,1]
+    // NOLINTNEXTLINE(readability-identifier-naming)
     X8_UNORM,
     // one component, 8-bit unsigned byte. The components are unsigned integer values in the range [0, pow(2,8)-1]
+    // NOLINTNEXTLINE(readability-identifier-naming)
     X8_UINT,
 
     // two components, 8-bit unsigned byte. The components are unsigned normalized values in the range [0,1]
+    // NOLINTNEXTLINE(readability-identifier-naming)
     X8Y8_UNORM,
     // two components, 8-bit unsigned byte. The components are unsigned integer values in the range [0, pow(2,8)-1]
+    // NOLINTNEXTLINE(readability-identifier-naming)
     X8Y8_UINT,
 
     // three components, 8-bit unsigned byte. The components are unsigned normalized values in the range [0,1]
+    // NOLINTNEXTLINE(readability-identifier-naming)
     X8Y8Z8_UNORM,
     // three components, 8-bit unsigned byte. The components are unsigned integer values in the range [0, pow(2,8)-1]
+    // NOLINTNEXTLINE(readability-identifier-naming)
     X8Y8Z8_UINT,
 
     // four components, 8-bit unsigned byte. The components are unsigned normalized values in the range [0,1]
+    // NOLINTNEXTLINE(readability-identifier-naming)
     X8Y8Z8W8_UNORM,
     // four components, 8-bit unsigned byte. The components are unsigned integer values in the range [0, pow(2,8)-1]
-    X8Y8Z8W8_UINT
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    X8Y8Z8W8_UINT,
+
+    // four components, 16-bit unsigned byte. The components are unsigned normalized values in the range [0,1]
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    X16Y16Z16W16_UNORM,
+    // four components, 16-bit unsigned byte. The components are unsigned integer values in the range [0, pow(2,16)-1]
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    X16Y16Z16W16_UINT,
   };
 }
 

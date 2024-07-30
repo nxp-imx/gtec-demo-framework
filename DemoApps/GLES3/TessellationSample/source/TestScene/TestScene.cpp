@@ -135,8 +135,8 @@ namespace Fsl
     {
       BasicMesh tmpMesh;
       WindingOrder::Enum windingOrder = WindingOrder::CCW;
-      constexpr PxSize2D tex1Size(PxSize2D::Create(128, 128));
-      TextureRectangle texRect(PxRectangle(PxValue(0), PxValue(0), tex1Size.Width(), tex1Size.Height()), tex1Size);
+      constexpr PxSize2D Tex1Size(PxSize2D::Create(128, 128));
+      TextureRectangle texRect(PxRectangle(PxValue(0), PxValue(0), Tex1Size.Width(), Tex1Size.Height()), Tex1Size);
       const NativeTextureArea texArea(TextureUtil::CalcTextureArea(texRect));
       const std::array<NativeTextureArea, 6> texAreas = {texArea, texArea, texArea, texArea, texArea, texArea};
       // tmpMesh = BoxGenerator::GenerateList(Vector3::Zero(), 150, 150, 150, texAreas, 6, windingOrder);
@@ -248,9 +248,9 @@ namespace Fsl
     {
       contentManager->Read(bitmap, strTexDisplace, PixelFormat::R8G8B8A8_UNORM);
       // Encode normal as xyz and displacement as z
-      for (uint32_t y = 0; y < bitmap.Height(); ++y)
+      for (uint32_t y = 0; y < bitmap.RawUnsignedHeight(); ++y)
       {
-        for (uint32_t x = 0; x < bitmap.Width(); ++x)
+        for (uint32_t x = 0; x < bitmap.RawUnsignedWidth(); ++x)
         {
           uint32_t pixelNormal = bitmapNormals.GetNativePixel(x, y);
           uint32_t pixel = bitmap.GetNativePixel(x, y);

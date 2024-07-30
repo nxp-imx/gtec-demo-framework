@@ -56,8 +56,8 @@ namespace Fsl
   class IBasicDynamicBuffer;
   class IDynamicNativeTexture2D;
   class INativeTexture2D;
-  class RawBitmap;
-  class RawTexture;
+  class ReadOnlyRawBitmap;
+  class ReadOnlyRawTexture;
   class Texture;
 
   class IBasicRenderSystem
@@ -71,17 +71,17 @@ namespace Fsl
                                                               const TextureFlags textureFlags = TextureFlags::NotDefined) = 0;
     virtual std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const Bitmap& bitmap, const Texture2DFilterHint filterHint,
                                                                             const TextureFlags textureFlags = TextureFlags::NotDefined) = 0;
-    virtual std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
+    virtual std::shared_ptr<INativeTexture2D> CreateTexture2D(const ReadOnlyRawBitmap& bitmap, const Texture2DFilterHint filterHint,
                                                               const TextureFlags textureFlags = TextureFlags::NotDefined) = 0;
-    virtual std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
+    virtual std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const ReadOnlyRawBitmap& bitmap, const Texture2DFilterHint filterHint,
                                                                             const TextureFlags textureFlags = TextureFlags::NotDefined) = 0;
     virtual std::shared_ptr<INativeTexture2D> CreateTexture2D(const Texture& texture, const Texture2DFilterHint filterHint,
                                                               const TextureFlags textureFlags = TextureFlags::NotDefined) = 0;
     virtual std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const Texture& texture, const Texture2DFilterHint filterHint,
                                                                             const TextureFlags textureFlags = TextureFlags::NotDefined) = 0;
-    virtual std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+    virtual std::shared_ptr<INativeTexture2D> CreateTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                               const TextureFlags textureFlags = TextureFlags::NotDefined) = 0;
-    virtual std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+    virtual std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                                             const TextureFlags textureFlags = TextureFlags::NotDefined) = 0;
 
     virtual PxExtent2D GetTextureExtentPx(const std::shared_ptr<INativeTexture2D>& texture) const noexcept = 0;

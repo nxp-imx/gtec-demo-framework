@@ -44,16 +44,16 @@ using namespace Fsl;
 
 namespace
 {
-  constexpr const uint32_t DEFAULT_DP = 160;
+  constexpr const uint32_t DefaultDp = 160;
 
-  class TestTextureAtlas_BinaryTextureAtlasLoader : public TestFixtureFslGraphicsContent
+  class TestTextureAtlasBinaryTextureAtlasLoader : public TestFixtureFslGraphicsContent
   {
   protected:
     IO::Path m_smallAtlasFilename;
     IO::Path m_notExistingFilename;
 
   public:
-    TestTextureAtlas_BinaryTextureAtlasLoader()
+    TestTextureAtlasBinaryTextureAtlasLoader()
       : m_smallAtlasFilename(IO::Path::Combine(GetContentPath(), "SmallAtlas.bta"))
       , m_notExistingFilename(IO::Path::Combine(GetContentPath(), "ThisIsNotAFile.txt"))
     {
@@ -62,7 +62,7 @@ namespace
 }
 
 
-TEST_F(TestTextureAtlas_BinaryTextureAtlasLoader, Load)
+TEST_F(TestTextureAtlasBinaryTextureAtlasLoader, Load)
 {
   BasicTextureAtlas atlas;
   BinaryTextureAtlasLoader::Load(atlas, m_smallAtlasFilename);
@@ -75,11 +75,11 @@ TEST_F(TestTextureAtlas_BinaryTextureAtlasLoader, Load)
   EXPECT_EQ(PxExtent2D::Create(1920, 1080), entry0.TextureInfo.ExtentPx);
   EXPECT_EQ(PxThicknessU::Create(17, 9, 1426, 873), entry0.TextureInfo.TrimMarginPx);
   EXPECT_EQ(PxRectangleU32::Create(2, 2, 477, 198), entry0.TextureInfo.TrimmedRectPx);
-  EXPECT_EQ(DEFAULT_DP, entry0.TextureInfo.Dpi);
+  EXPECT_EQ(DefaultDp, entry0.TextureInfo.Dpi);
 }
 
 
-TEST_F(TestTextureAtlas_BinaryTextureAtlasLoader, Load_NotFound)
+TEST_F(TestTextureAtlasBinaryTextureAtlasLoader, Load_NotFound)
 {
   BasicTextureAtlas atlas;
 

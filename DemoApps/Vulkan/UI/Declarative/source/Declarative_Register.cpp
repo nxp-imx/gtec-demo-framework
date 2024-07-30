@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
+#include <Shared/UI/Declarative/OptionParser.hpp>
 #include "Declarative.hpp"
 
 namespace Fsl
@@ -42,6 +43,6 @@ namespace Fsl
 
     DemoAppHostConfigVulkan config;
 
-    DemoAppRegister::Vulkan::Register<Declarative>(rSetup, "Vulkan.UI.Declarative", config, customDemoAppConfig);
+    DemoAppRegister::Vulkan::Register<Declarative, OptionParser>(rSetup, "Vulkan.UI.Declarative", config, customDemoAppConfig);
   }
 }

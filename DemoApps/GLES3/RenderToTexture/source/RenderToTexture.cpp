@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 
 #include "RenderToTexture.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
@@ -55,8 +55,8 @@ namespace Fsl
       constexpr GLuint MpTexCoordLoc = 1;
     }
     // Triangle Vertex Data
-    constexpr const std::array<float, 18> g_triangleVertexPositions{0.0f,   100.0f, 0.0f, -100.0f, -100.0f, 0.0f, 100.0f, -100.0f, 0.0f,
-                                                                    100.0f, 100.0f, 0.0f, -100.0f, 100.0f,  0.0f, 100.0f, -100.0,  0.0f};
+    constexpr const std::array<float, 18> TriangleVertexPositions{0.0f,   100.0f, 0.0f, -100.0f, -100.0f, 0.0f, 100.0f, -100.0f, 0.0f,
+                                                                  100.0f, 100.0f, 0.0f, -100.0f, 100.0f,  0.0f, 100.0f, -100.0,  0.0f};
 
     const std::array<float, 18> g_triangleVertexColors{
       1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,    // Red
@@ -64,8 +64,8 @@ namespace Fsl
     };
 
 
-    constexpr std::array<GLES3::GLBindAttribLocation, 2> g_rpShaderAttributeArray{
-      GLES3::GLBindAttribLocation(LocalConfig::RpVertexLoc, "g_vPosition"), GLES3::GLBindAttribLocation(LocalConfig::RpColorLoc, "g_vColor")};
+    constexpr std::array<GLES3::GLBindAttribLocation, 2> RpShaderAttributeArray{GLES3::GLBindAttribLocation(LocalConfig::RpVertexLoc, "g_vPosition"),
+                                                                                GLES3::GLBindAttribLocation(LocalConfig::RpColorLoc, "g_vColor")};
 
     // Cube Vertex Data
     const std::array<float, 72> g_cubeVertexPositions{
@@ -83,7 +83,7 @@ namespace Fsl
                                                12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23};
 
 
-    constexpr std::array<GLES3::GLBindAttribLocation, 2> g_mpShaderAttributeArray{
+    constexpr std::array<GLES3::GLBindAttribLocation, 2> MpShaderAttributeArray{
       GLES3::GLBindAttribLocation(LocalConfig::MpVertexLoc, "g_vPosition"), GLES3::GLBindAttribLocation(LocalConfig::MpTexCoordLoc, "g_vTexCoord")};
   }
 
@@ -127,10 +127,10 @@ namespace Fsl
     PrepareTargetTexture(m_notMappedTargetTexture);
     Prepare3DFBO(m_notMappedFBO, m_notMappedTargetTexture);
 #ifdef FSL_PLATFORM_YOCTO
-    PrepareTargetTexture(m_mappedTargetTexture[static_cast<uint32_t>(TextureBacking::g2d)], TextureBacking::g2d);
-    Prepare3DFBO(m_mappedFBO[static_cast<uint32_t>(TextureBacking::g2d)], m_mappedTargetTexture[static_cast<uint32_t>(TextureBacking::g2d)]);
-    PrepareTargetTexture(m_mappedTargetTexture[static_cast<uint32_t>(TextureBacking::openGL)], TextureBacking::openGL);
-    Prepare3DFBO(m_mappedFBO[static_cast<uint32_t>(TextureBacking::openGL)], m_mappedTargetTexture[static_cast<uint32_t>(TextureBacking::openGL)]);
+    PrepareTargetTexture(m_mappedTargetTexture[static_cast<uint32_t>(TextureBacking::G2D)], TextureBacking::G2D);
+    Prepare3DFBO(m_mappedFBO[static_cast<uint32_t>(TextureBacking::G2D)], m_mappedTargetTexture[static_cast<uint32_t>(TextureBacking::G2D)]);
+    PrepareTargetTexture(m_mappedTargetTexture[static_cast<uint32_t>(TextureBacking::OpenGL)], TextureBacking::OpenGL);
+    Prepare3DFBO(m_mappedFBO[static_cast<uint32_t>(TextureBacking::OpenGL)], m_mappedTargetTexture[static_cast<uint32_t>(TextureBacking::OpenGL)]);
 #else
     FSLLOG3_WARNING("Mapping extensions not available on current Platform, falling back to regular texture storage");
     PrepareTargetTexture(m_mappedTargetTexture[0]);
@@ -194,13 +194,13 @@ namespace Fsl
     {
       if (m_usingG2D->IsChecked())
       {
-        Draw3DRenderPass(m_mappedFBO[static_cast<uint32_t>(TextureBacking::g2d)]);
-        DrawMainPass(m_mappedTargetTexture[static_cast<uint32_t>(TextureBacking::g2d)]);
+        Draw3DRenderPass(m_mappedFBO[static_cast<uint32_t>(TextureBacking::G2D)]);
+        DrawMainPass(m_mappedTargetTexture[static_cast<uint32_t>(TextureBacking::G2D)]);
       }
       else
       {
-        Draw3DRenderPass(m_mappedFBO[static_cast<uint32_t>(TextureBacking::openGL)]);
-        DrawMainPass(m_mappedTargetTexture[static_cast<uint32_t>(TextureBacking::openGL)]);
+        Draw3DRenderPass(m_mappedFBO[static_cast<uint32_t>(TextureBacking::OpenGL)]);
+        DrawMainPass(m_mappedTargetTexture[static_cast<uint32_t>(TextureBacking::OpenGL)]);
       }
     }
     else
@@ -216,9 +216,9 @@ namespace Fsl
   {
     auto contentManager = GetContentManager();
     m_mainProgram.Reset(contentManager->ReadAllText("finalPass.vert"), contentManager->ReadAllText("finalPass.frag"),
-                        ReadOnlySpanUtil::AsSpan(g_mpShaderAttributeArray));
+                        SpanUtil::AsReadOnlySpan(MpShaderAttributeArray));
 
-    m_MVPLoc = m_mainProgram.GetUniformLocation("g_matMVP");
+    m_mvpLoc = m_mainProgram.GetUniformLocation("g_matMVP");
     m_samplerLoc = m_mainProgram.GetUniformLocation("g_texSampler");
   }
 
@@ -236,9 +236,9 @@ namespace Fsl
     m_model = glm::mat4(1.0f);
     m_view = glm::lookAt(glm::vec3(2.0f, 4.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     m_proj = glm::perspective(glm::radians(39.6f), aspectRatio, 0.1f, 1000.0f);
-    m_MVP = m_proj * m_view * m_model;
+    m_mvp = m_proj * m_view * m_model;
 
-    glUniformMatrix4fv(m_MVPLoc, 1, 0, glm::value_ptr(m_MVP));
+    glUniformMatrix4fv(m_mvpLoc, 1, 0, glm::value_ptr(m_mvp));
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     glUniform1i(m_samplerLoc, 0);
@@ -285,7 +285,7 @@ namespace Fsl
   void RenderToTexture::MapBufferToTexture(const Fsl::TextureBacking& textureBackingScheme)
   {
 #ifdef FSL_PLATFORM_YOCTO
-    if (TextureBacking::g2d == textureBackingScheme)
+    if (TextureBacking::G2D == textureBackingScheme)
     {
       CreateContiguousBuffer();
       // Verify the assumption
@@ -324,7 +324,7 @@ namespace Fsl
   {
     auto contentManager = GetContentManager();
     m_renderPassProgram.Reset(contentManager->ReadAllText("renderPass.vert"), contentManager->ReadAllText("renderPass.frag"),
-                              ReadOnlySpanUtil::AsSpan(g_rpShaderAttributeArray));
+                              SpanUtil::AsReadOnlySpan(RpShaderAttributeArray));
 
     m_rpMVPLoc = m_renderPassProgram.GetUniformLocation("g_matMVP");
   }
@@ -346,7 +346,7 @@ namespace Fsl
 
     glUniformMatrix4fv(m_rpMVPLoc, 1, 0, glm::value_ptr(m_rpMVP));
 
-    glVertexAttribPointer(LocalConfig::RpVertexLoc, 3, GL_FLOAT, 0, 0, g_triangleVertexPositions.data());
+    glVertexAttribPointer(LocalConfig::RpVertexLoc, 3, GL_FLOAT, 0, 0, TriangleVertexPositions.data());
     glEnableVertexAttribArray(LocalConfig::RpVertexLoc);
 
     glVertexAttribPointer(LocalConfig::RpColorLoc, 4, GL_FLOAT, 0, 0, g_triangleVertexColors.data());

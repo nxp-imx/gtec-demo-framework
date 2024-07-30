@@ -35,7 +35,7 @@
         <Option Name="FB">
           <Define Name="FSL_WINDOWSYSTEM_FRAMEBUFFER" Access="Public"/>
         </Option>
-        <Option Name="Wayland_XDG">
+        <Option Name="Wayland">
           <Dependency Name="Recipe.Wayland_XDG" Access="Public"/>
           <ExternalDependency Name="wayland-client" Type="StaticLib"/>
           <ExternalDependency Name="wayland-cursor" Type="StaticLib"/>
@@ -43,7 +43,7 @@
           <Define Name="FSL_WINDOWSYSTEM_WAYLAND" Access="Public"/>
           <Define Name="FSL_WINDOWSYSTEM_WAYLAND_XDG" Access="Public"/>
         </Option>
-        <Option Name="Wayland_XDG_IVI">
+        <Option Name="Wayland_IVI">
           <Dependency Name="Recipe.Wayland_XDG" Access="Public"/>
           <ExternalDependency Name="wayland-client" Type="StaticLib"/>
           <ExternalDependency Name="ilmCommon" Type="StaticLib"/>

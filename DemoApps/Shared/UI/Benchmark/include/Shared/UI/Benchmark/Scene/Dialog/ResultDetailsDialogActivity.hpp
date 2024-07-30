@@ -58,7 +58,7 @@ namespace Fsl::UI
     ResultDetailsDialogActivity(std::weak_ptr<IActivityStack> activityStack, const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
                                 std::optional<AppBenchmarkData> benchNewResult, std::optional<AppBenchmarkData> benchOldResult);
 
-    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final;
+    void OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent) final;
     void OnKeyEvent(const KeyEvent& theEvent) final;
 
   private:

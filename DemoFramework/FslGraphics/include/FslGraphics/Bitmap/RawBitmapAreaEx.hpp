@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_BITMAP_RAWBITMAPAREAEX_HPP
 #define FSLGRAPHICS_BITMAP_RAWBITMAPAREAEX_HPP
 /****************************************************************************************************************************************************
- * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * Copyright 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -31,32 +31,77 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Bitmap/RawBitmapArea.hpp>
+#include <FslBase/Span/Span.hpp>
+#include <FslGraphics/Bitmap/ReadOnlyRawBitmapArea.hpp>
 
 namespace Fsl
 {
   //! @brief Very basic structure intended to contain low level information about a bitmap area
   //! @note  It is expected that all other necessary data about the bitmap has been acquired elsewhere
-  struct RawBitmapAreaEx : public RawBitmapArea
+  struct RawBitmapAreaEx
   {
-    void* ContentEx{nullptr};
+    uint8_t* ContentPtr{nullptr};
 
-    RawBitmapAreaEx() = default;
+    std::size_t ByteSize{0};
 
+    PxSize2D SizePx;
 
-    RawBitmapAreaEx(void* pContent, const PxExtent2D& extent, const uint32_t stride)
-      : RawBitmapArea(pContent, extent, stride)
-      , ContentEx(pContent)
+    uint32_t Stride{0};
+
+  private:
+    constexpr RawBitmapAreaEx(Span<uint8_t> span, const PxSize2D sizePx, const uint32_t stride) noexcept
+      : ContentPtr(span.data())
+      , ByteSize(span.size())
+      , SizePx(sizePx)
+      , Stride(stride)
     {
+      assert(ContentPtr != nullptr || ByteSize == 0u);
+      assert(Stride > 0);
+      // Since we don't know the number of bytes per pixel, this is just a bare minimum check
+      assert((SizePx.RawUnsignedWidth() * SizePx.RawUnsignedHeight()) <= ByteSize);
     }
 
-    //! @brief The main point of this object is to give write access to the object
-    void* GetContent()
+    constexpr RawBitmapAreaEx(uint8_t* pContent, const std::size_t byteSize, const PxSize2D sizePx, const uint32_t stride) noexcept
+      : ContentPtr(pContent)
+      , ByteSize(byteSize)
+      , SizePx(sizePx)
+      , Stride(stride)
     {
-      assert(Content == ContentEx);
-      // Since you have a object of this type it means that the pointer was 'non' const to begin with.
-      // So this should be entirely safe
-      return ContentEx;
+      assert(pContent != nullptr || ByteSize == 0u);
+      assert(Stride > 0);
+      // Since we don't know the number of bytes per pixel, this is just a bare minimum check
+      assert((SizePx.RawUnsignedWidth() * SizePx.RawUnsignedHeight()) <= ByteSize);
+    }
+
+  public:
+    constexpr RawBitmapAreaEx() noexcept = default;
+
+    constexpr bool IsValid() const noexcept
+    {
+      return ContentPtr != nullptr && Stride > 0;
+    }
+
+    constexpr PxExtent2D Extent() const noexcept
+    {
+      return {SizePx.UnsignedWidth(), SizePx.UnsignedHeight()};
+    }
+
+    // NOLINTNEXTLINE(google-explicit-constructor)
+    constexpr operator ReadOnlyRawBitmapArea() const noexcept
+    {
+      return ReadOnlyRawBitmapArea::UncheckedCreate(ContentPtr, ByteSize, SizePx, Stride);
+    }
+
+
+    static constexpr RawBitmapAreaEx UncheckedCreate(Span<uint8_t> span, const PxSize2D sizePx, const uint32_t stride) noexcept
+    {
+      return {span, sizePx, stride};
+    }
+
+    static constexpr RawBitmapAreaEx UncheckedCreate(uint8_t* pContent, const std::size_t byteSize, const PxSize2D sizePx,
+                                                     const uint32_t stride) noexcept
+    {
+      return {pContent, byteSize, sizePx, stride};
     }
   };
 }

@@ -51,11 +51,11 @@ namespace Fsl
     VertexDeclarationArray<2> GetVertexDeclarationArray(const uint32_t cbParticleRecord)
     {
       assert(cbParticleRecord >= sizeof(Particle));
-      static std::array<VertexElement, 2> elements = {
+      static std::array<VertexElement, 2> g_elements = {
         VertexElement(offsetof(Particle, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
         VertexElement(offsetof(Particle, Size), VertexElementFormat::Single, VertexElementUsage::PointSize, 0),
       };
-      return {elements, cbParticleRecord};
+      return {g_elements, cbParticleRecord};
     }
 
     GLES3::GLVertexBuffer CreateEmptyDynamicVertexBuffer(std::size_t capacity, const uint32_t cbParticleRecord)
@@ -71,8 +71,8 @@ namespace Fsl
     , m_vertexBuffer(CreateEmptyDynamicVertexBuffer(capacity, cbParticleRecord))
     , m_pCurrentBuffer(&m_vertexBuffer)
     , m_pOtherBuffer(nullptr)
-    , m_locWorldViewProjectionMatrix(GLValues::INVALID_LOCATION)
-    , m_locResolutionMod(GLValues::INVALID_LOCATION)
+    , m_locWorldViewProjectionMatrix(GLValues::InvalidLocation)
+    , m_locResolutionMod(GLValues::InvalidLocation)
   {
     Construct(contentManager);
   }
@@ -85,8 +85,8 @@ namespace Fsl
     , m_vertexBuffer2(CreateEmptyDynamicVertexBuffer(capacity, cbParticleRecord))
     , m_pCurrentBuffer(&m_vertexBuffer)
     , m_pOtherBuffer(useDoubleBuffering ? &m_vertexBuffer2 : nullptr)
-    , m_locWorldViewProjectionMatrix(GLValues::INVALID_LOCATION)
-    , m_locResolutionMod(GLValues::INVALID_LOCATION)
+    , m_locWorldViewProjectionMatrix(GLValues::InvalidLocation)
+    , m_locResolutionMod(GLValues::InvalidLocation)
   {
     Construct(contentManager);
   }

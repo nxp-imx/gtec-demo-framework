@@ -106,8 +106,8 @@ namespace Fsl
     ParticleSystemScene(const DemoAppConfig& config, const std::shared_ptr<UIDemoAppExtension>& uiExtension);
     ~ParticleSystemScene() override;
 
-    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
-    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
+    void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
+    void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
     void OnKeyEvent(const KeyEvent& event) override;
     void OnMouseButtonEvent(const MouseButtonEvent& event) override;
     void OnMouseMoveEvent(const MouseMoveEvent& event) override;

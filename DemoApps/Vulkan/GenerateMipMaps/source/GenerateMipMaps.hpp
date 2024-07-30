@@ -66,7 +66,7 @@ namespace Fsl
     {
       Vulkan::VUBufferMemory UboBuffer;
       VkDescriptorSet DescriptorSet;
-      uint32_t mipMapLod{};
+      uint32_t MipMapLod{};
     };
 
     struct VertexBufferInfo
@@ -156,8 +156,8 @@ namespace Fsl
 
   protected:
     void OnKeyEvent(const KeyEvent& event) final;
-    // void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) final;
-    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) final;
+    // void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) final;
+    void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) final;
 
     void Update(const DemoTime& demoTime) final;
     void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) final;

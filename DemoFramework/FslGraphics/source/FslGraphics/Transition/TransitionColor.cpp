@@ -30,8 +30,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/MathHelper_Clamp.hpp>
-#include <FslBase/Transition/TransitionCache.hpp>
-#include <FslBase/Transition/TransitionConfig.hpp>
 #include <FslBase/Transition/TransitionTimeSpanHelper.hpp>
 #include <FslGraphics/Transition/TransitionColor.hpp>
 #include <cassert>
@@ -39,51 +37,47 @@
 
 namespace Fsl
 {
-  TransitionColor::TransitionColor() = default;
+  TransitionColor::TransitionColor() noexcept = default;
 
 
-  TransitionColor::TransitionColor(TransitionCache& rTransitionCache, const TimeSpan& time)
-    : m_currentTime(time.Ticks())
-    , m_endTime(time.Ticks())
-
+  TransitionColor::TransitionColor(const TimeSpan time) noexcept
+    : m_endTime(time)
+    , m_currentTime(time)
   {
-    SetTransitionTime(rTransitionCache, time, m_transitionType);
+    SetTransitionTime(time, m_transitionType);
   }
 
 
-  TransitionColor::TransitionColor(TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type)
+  TransitionColor::TransitionColor(const TimeSpan time, const TransitionType type) noexcept
     : m_transitionType(type)
-    , m_currentTime(time.Ticks())
-    , m_endTime(time.Ticks())
-
+    , m_fnEasingFunction(EasingFunctionUtil::GetEasingFunction(type))
+    , m_endTime(time)
+    , m_currentTime(time)
   {
-    SetTransitionTime(rTransitionCache, time, type);
+    SetTransitionTime(time, type);
   }
 
 
-  TimeSpan TransitionColor::GetStartDelay() const
+  TimeSpan TransitionColor::GetStartDelay() const noexcept
   {
-    return TimeSpan(m_startDelay);
+    return m_startDelay;
   }
 
 
-  void TransitionColor::SetStartDelay(const TimeSpan& value)
+  void TransitionColor::SetStartDelay(const TimeSpan value) noexcept
   {
-    auto ticks = value.Ticks();
-    if (ticks != m_startDelay)
+    if (value != m_startDelay)
     {
-      assert(ticks >= 0 && ticks <= std::numeric_limits<int32_t>::max());
-      auto startDelay = static_cast<int32_t>(ticks);
       if (!IsCompleted())
       {
-        m_currentTime = -startDelay;
+        m_currentTime = -value;
       }
-      m_startDelay = startDelay;
+      m_startDelay = value;
     }
   }
 
 
-  void TransitionColor::SetValue(const Color& value)
+  void TransitionColor::SetValue(const Color value) noexcept
   {
     if (value != m_target)
     {
@@ -94,7 +88,7 @@ namespace Fsl
   }
 
 
-  void TransitionColor::SetActualValue(const Color& value)
+  void TransitionColor::SetActualValue(const Color value) noexcept
   {
     m_from = value;
     m_target = value;
@@ -103,7 +97,7 @@ namespace Fsl
   }
 
 
-  void TransitionColor::ForceComplete()
+  void TransitionColor::ForceComplete() noexcept
   {
     m_from = m_target;
     m_val = m_target;
@@ -111,28 +105,29 @@ namespace Fsl
   }
 
 
-  TimeSpan TransitionColor::GetTransitionTime() const
+  TimeSpan TransitionColor::GetTransitionTime() const noexcept
   {
     return TimeSpan(m_endTime + m_startDelay);
   }
 
 
-  void TransitionColor::SetTransitionTime(TransitionCache& rTransitionCache, const TimeSpan& time)
+  void TransitionColor::SetTransitionTime(const TimeSpan time) noexcept
   {
-    SetTransitionTime(rTransitionCache, time, m_transitionType);
+    SetTransitionTime(time, m_transitionType);
   }
 
 
-  void TransitionColor::SetTransitionTime(TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type)
+  void TransitionColor::SetTransitionTime(const TimeSpan time, const TransitionType type) noexcept
   {
-    if (!m_transition || m_endTime != time.Ticks() || type != m_transitionType)
+    if (m_endTime != time || type != m_transitionType)
     {
-      m_endTime = time.Ticks() >= 0 ? time.Ticks() : 0;
+      m_endTime = time >= TimeSpan(0) ? time : TimeSpan();
 
-      m_transitionType = type;
-      int numSeconds = TimeSpanHelper::AsSecondsRoundedUp(time);
-      m_transition = rTransitionCache.GetLookupTable((numSeconds * TransitionConfig::InternalResolutionPerSecond) + 1, type);
-      assert(m_transition);
+      if (type != m_transitionType)
+      {
+        m_transitionType = type;
+        m_fnEasingFunction = EasingFunctionUtil::GetEasingFunction(type);
+      }
 
       if (m_target != m_val)
       {
@@ -146,25 +141,27 @@ namespace Fsl
   }
 
 
-  TransitionState TransitionColor::Update(const TimeSpan& deltaTime)
+  TransitionState TransitionColor::Update(const TimeSpan deltaTime) noexcept
   {
-    if (m_transition && m_currentTime < m_endTime)
+    if (m_currentTime < m_endTime)
     {
-      // We do the increase here because the first entry in the m_transition table is zero which we want to skip
-      m_currentTime += deltaTime.Ticks();
-      if (m_currentTime < 0)
+      // We do the increase here because we want to skip the zero starting point
+      m_currentTime += deltaTime;
+      if (m_currentTime <= TimeSpan(0))
       {
         return TransitionState::StartDelay;
       }
       if (m_currentTime < m_endTime)
       {
-        const auto toIndex = static_cast<int32_t>((static_cast<int64_t>(m_transition->size()) * m_currentTime) / m_endTime);
-        assert(toIndex >= 0);
-        assert(static_cast<uint32_t>(toIndex) < m_transition->size());
-        int32_t valR = m_from.R() + static_cast<int32_t>(std::round(static_cast<float>(m_target.R() - m_from.R()) * (*m_transition)[toIndex]));
-        int32_t valG = m_from.G() + static_cast<int32_t>(std::round(static_cast<float>(m_target.G() - m_from.G()) * (*m_transition)[toIndex]));
-        int32_t valB = m_from.B() + static_cast<int32_t>(std::round(static_cast<float>(m_target.B() - m_from.B()) * (*m_transition)[toIndex]));
-        int32_t valA = m_from.A() + static_cast<int32_t>(std::round(static_cast<float>(m_target.A() - m_from.A()) * (*m_transition)[toIndex]));
+        const auto progress = static_cast<float>(static_cast<double>(m_currentTime.Ticks()) / static_cast<double>(m_endTime.Ticks()));
+        assert(progress >= 0.0f && progress <= 1.0f);
+
+        const float factor = m_fnEasingFunction(progress);
+
+        int32_t valR = m_from.RawR() + static_cast<int32_t>(std::round(static_cast<float>(m_target.RawR() - m_from.RawR()) * factor));
+        int32_t valG = m_from.RawG() + static_cast<int32_t>(std::round(static_cast<float>(m_target.RawG() - m_from.RawG()) * factor));
+        int32_t valB = m_from.RawB() + static_cast<int32_t>(std::round(static_cast<float>(m_target.RawB() - m_from.RawB()) * factor));
+        int32_t valA = m_from.RawA() + static_cast<int32_t>(std::round(static_cast<float>(m_target.RawA() - m_from.RawA()) * factor));
         m_val =
           Color(MathHelper::Clamp(valR, 0, 255), MathHelper::Clamp(valG, 0, 255), MathHelper::Clamp(valB, 0, 255), MathHelper::Clamp(valA, 0, 255));
         return TransitionState::Running;
@@ -181,7 +178,7 @@ namespace Fsl
   }
 
 
-  void TransitionColor::CalcTransition()
+  void TransitionColor::CalcTransition() noexcept
   {
     m_currentTime = -m_startDelay;
   }

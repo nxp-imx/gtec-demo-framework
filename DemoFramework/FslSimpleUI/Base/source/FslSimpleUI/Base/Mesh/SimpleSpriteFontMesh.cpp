@@ -30,7 +30,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslSimpleUI/Base/Mesh/SimpleSpriteFontMesh.hpp>
 #include <cassert>
 
@@ -46,7 +45,7 @@ namespace Fsl::UI
       {
         throw UsageErrorException("mesh manager no longer valid");
       }
-      Set(meshManager->SetMeshText(Get(), str));
+      UpdateMeshHandle(meshManager->SetMeshText(Get(), str));
     }
   }
 

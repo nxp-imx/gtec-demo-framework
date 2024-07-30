@@ -129,7 +129,7 @@ namespace Fsl::GLES3
   }
 
   GLProgram::GLProgram()
-    : m_handle(GLValues::INVALID_HANDLE)
+    : m_handle(GLValues::InvalidHandle)
   {
   }
 
@@ -191,10 +191,10 @@ namespace Fsl::GLES3
 
   void GLProgram::Reset() noexcept
   {
-    if (m_handle != GLValues::INVALID_HANDLE)
+    if (m_handle != GLValues::InvalidHandle)
     {
       glDeleteProgram(m_handle);
-      m_handle = GLValues::INVALID_HANDLE;
+      m_handle = GLValues::InvalidHandle;
     }
   }
 

@@ -37,7 +37,7 @@ namespace Fsl
   {
     //! The normal non linear SRGB color space
     SRGBNonLinear = 0,
-    //! Linear low definition range (SDR) SRGB color space
+    //! Linear standard definition range (SDR) SRGB color space
     SRGBLinear = 1,
     //! Linear high definition range (HDR) SRGB color space
     SCRGBLinear = 2,

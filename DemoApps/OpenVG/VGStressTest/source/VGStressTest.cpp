@@ -35,6 +35,7 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Vector2.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/System/Threading/Thread.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/RawBitmapEx.hpp>
@@ -273,9 +274,9 @@ namespace Fsl
     void DrawSegmentedSpiral(const std::vector<VGPathBufferPtr>& paths, const float strokeLineWidth, const VGPaint paintStroke,
                              const VGPaint paintFill, const float* const pColor)
     {
-      constexpr std::array<float, 4> colorFill = {1.0f, 1.0f, 0.0f, 1.0f};
+      constexpr std::array<float, 4> ColorFill = {1.0f, 1.0f, 0.0f, 1.0f};
 
-      vgSetParameterfv(paintFill, VG_PAINT_COLOR, 4, colorFill.data());
+      vgSetParameterfv(paintFill, VG_PAINT_COLOR, 4, ColorFill.data());
       vgSetf(VG_STROKE_LINE_WIDTH, strokeLineWidth);
 
       vgSeti(VG_STROKE_CAP_STYLE, VG_CAP_ROUND);
@@ -288,7 +289,7 @@ namespace Fsl
       }
     }
 
-    void DrawStrokedQuadricSpiral(const OpenVG::VGPathBuffer& VGPathBuffer, const float strokeLineWidth, const VGPaint paint, float* pColor,
+    void DrawStrokedQuadricSpiral(const OpenVG::VGPathBuffer& vgPathBuffer, const float strokeLineWidth, const VGPaint paint, float* pColor,
                                   const int numLayers, const uint16_t angle)
     {
       std::array<VGfloat, 2> d = {500.0f, 15.0f};
@@ -302,7 +303,7 @@ namespace Fsl
 
       for (int i = 0; i < numLayers; ++i)
       {
-        DrawPath(VGPathBuffer, paint, pColor);
+        DrawPath(vgPathBuffer, paint, pColor);
         vgTranslate((std::sin(static_cast<float>(angle) * MathHelper::TO_RADS) * static_cast<float>(i) * 0.005f) + (static_cast<float>(i) * 0.005f),
                     (std::cos(static_cast<float>(angle) * MathHelper::TO_RADS) * static_cast<float>(i) * 0.005f) + (static_cast<float>(i) * 0.005f));
       }
@@ -345,17 +346,17 @@ namespace Fsl
     //     initGC355Profiler();
     // #endif
     {
-      const RawBitmap logo = Logo::GetBitmap();
+      const ReadOnlyRawBitmap logo = Logo::GetBitmap();
 
-      const auto w = UncheckedNumericCast<VGint>(logo.Width());
-      const auto h = UncheckedNumericCast<VGint>(logo.Height());
+      const auto w = UncheckedNumericCast<VGint>(logo.RawWidth());
+      const auto h = UncheckedNumericCast<VGint>(logo.RawHeight());
 
       const auto* pContent = static_cast<const uint8_t*>(logo.Content());
       const auto imgSize = static_cast<std::size_t>(logo.GetByteSize());
       std::vector<uint8_t> img(imgSize);
       std::copy(pContent, pContent + imgSize, img.begin());
 
-      RawBitmapEx logoEx(img.data(), logo.GetExtent(), logo.GetPixelFormat(), logo.Stride(), logo.GetOrigin());
+      RawBitmapEx logoEx(RawBitmapEx::Create(SpanUtil::AsSpan(img), logo.GetExtent(), logo.GetPixelFormat(), logo.Stride(), logo.GetOrigin()));
       RawBitmapUtil::Swizzle(logoEx, 3, 2, 1, 0);
 
       const VGImageFormat format = VG_lRGBX_8888;

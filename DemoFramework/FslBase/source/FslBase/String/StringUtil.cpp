@@ -75,7 +75,7 @@ namespace Fsl::StringUtil
   //{
   //}
 
-  std::vector<StringViewLite> Split(const StringViewLite& str, const char delimiterChar, const bool removeEmpty)
+  std::vector<StringViewLite> Split(const StringViewLite str, const char delimiterChar, const bool removeEmpty)
   {
     std::vector<StringViewLite> result;
     if (str.empty())
@@ -106,7 +106,7 @@ namespace Fsl::StringUtil
   }
 
 
-  std::vector<std::string> StringSplit(const StringViewLite& str, const char delimiterChar, const bool removeEmpty)
+  std::vector<std::string> StringSplit(const StringViewLite str, const char delimiterChar, const bool removeEmpty)
   {
     std::vector<std::string> result;
     if (str.empty())

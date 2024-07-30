@@ -60,11 +60,11 @@ namespace Fsl::GLES3
       GLenum CullFaceMode{0};
       GLenum CullFrontFace{0};
       GLenum DepthFunc{0};
-      GLuint ActiveTexture{GLValues::INVALID_HANDLE};
-      GLuint CurrentTexture{GLValues::INVALID_HANDLE};
-      GLuint CurrentProgram{GLValues::INVALID_HANDLE};
-      GLuint VertexBuffer{GLValues::INVALID_HANDLE};
-      GLuint IndexBuffer{GLValues::INVALID_HANDLE};
+      GLuint ActiveTexture{GLValues::InvalidHandle};
+      GLuint CurrentTexture{GLValues::InvalidHandle};
+      GLuint CurrentProgram{GLValues::InvalidHandle};
+      GLuint VertexBuffer{GLValues::InvalidHandle};
+      GLuint IndexBuffer{GLValues::InvalidHandle};
       PxViewport Viewport;
     };
 

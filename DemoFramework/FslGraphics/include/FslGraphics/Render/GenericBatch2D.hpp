@@ -42,8 +42,7 @@
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/VectorHelper.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Font/BitmapFontConfig.hpp>
@@ -59,7 +58,7 @@ namespace Fsl
 {
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::GenericBatch2D(const native_batch_type& nativeBatchType, const PxExtent2D& currentExtent)
-    : m_batchStrategy(GenericBatch2D_DEFAULT_CAPACITY)
+    : m_batchStrategy(GenericBatch2DDefaultCapacity)
     , m_native(nativeBatchType)
     , m_screenRect(PxRectangle::Create(0, 0, UncheckedNumericCast<PxRectangle::raw_size_value_type>(currentExtent.Width.Value),
                                        UncheckedNumericCast<PxRectangle::raw_size_value_type>(currentExtent.Height.Value)))
@@ -1494,7 +1493,7 @@ namespace Fsl
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const std::string& str, const Vector2& dstPositionPxf, const Color& color)
   {
-    DrawString(srcTexture, font, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color);
+    DrawString(srcTexture, font, StringViewLite(str), dstPositionPxf, color);
   }
 
   // ---------- 12
@@ -1570,7 +1569,7 @@ namespace Fsl
                                                                        const std::string& str, const Vector2& dstPositionPxf, const Color& color,
                                                                        const Vector2& origin, const Vector2& scale)
   {
-    DrawString(srcTexture, font, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color, origin, scale);
+    DrawString(srcTexture, font, StringViewLite(str), dstPositionPxf, color, origin, scale);
   }
 
   // ---------- 13
@@ -1648,7 +1647,7 @@ namespace Fsl
                                                                        const BitmapFontConfig& fontConfig, const std::string& str,
                                                                        const Vector2& dstPositionPxf, const Color& color)
   {
-    DrawString(srcTexture, font, fontConfig, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color);
+    DrawString(srcTexture, font, fontConfig, StringViewLite(str), dstPositionPxf, color);
   }
 
   // ---------- 13 with clip
@@ -1727,7 +1726,7 @@ namespace Fsl
                                                                        const Vector2& dstPositionPxf, const Color& color,
                                                                        const PxClipRectangle& clipRectPx)
   {
-    DrawString(srcTexture, font, fontConfig, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color, clipRectPx);
+    DrawString(srcTexture, font, fontConfig, StringViewLite(str), dstPositionPxf, color, clipRectPx);
   }
 
 
@@ -1804,7 +1803,7 @@ namespace Fsl
                                                                        const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
                                                                        const Vector2& scale)
   {
-    DrawString(srcTexture, font, fontConfig, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color, origin, scale);
+    DrawString(srcTexture, font, fontConfig, StringViewLite(str), dstPositionPxf, color, origin, scale);
   }
 
   // ---------- 14 with clip
@@ -1881,7 +1880,7 @@ namespace Fsl
                                                                        const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
                                                                        const Vector2& scale, const PxClipRectangle& clipRectPx)
   {
-    DrawString(srcTexture, font, fontConfig, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color, origin, scale, clipRectPx);
+    DrawString(srcTexture, font, fontConfig, StringViewLite(str), dstPositionPxf, color, origin, scale, clipRectPx);
   }
 
   // ----------
@@ -2177,7 +2176,7 @@ namespace Fsl
           m_native->Begin(sizePx, activeBlendState, activeSdfConfig, m_restoreState);
         }
 
-        m_native->DrawQuads(pSrcVertices, segment.VertexCount / stategy_type::VERTICES_PER_QUAD, segment.TextureInfo);
+        m_native->DrawQuads(pSrcVertices, segment.VertexCount / stategy_type::VerticesPerQuad, segment.TextureInfo);
         pSrcVertices += segment.VertexCount;
       }
       m_native->End();

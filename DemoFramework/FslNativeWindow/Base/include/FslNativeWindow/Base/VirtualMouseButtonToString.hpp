@@ -37,7 +37,7 @@
 
 namespace Fsl::Debug
 {
-  inline const char* TryToString(const VirtualMouseButton::Enum button)
+  inline const char* TryToString(const VirtualMouseButton button)
   {
     switch (button)
     {
@@ -67,7 +67,7 @@ namespace Fsl::Debug
     return nullptr;
   }
 
-  inline std::string ToString(const VirtualMouseButton::Enum button)
+  inline std::string ToString(const VirtualMouseButton button)
   {
     const char* const psz = TryToString(button);
     if (psz != nullptr)

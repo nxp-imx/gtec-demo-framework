@@ -34,8 +34,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
@@ -54,11 +53,11 @@ namespace Fsl
 
       constexpr const float DefaultZPos = 0.0f;
 
-      constexpr const IO::PathView NormalFontAtlasTexturePath("BasicUI/Font/NormalAtlas/FontAtlas.png");
-      constexpr const IO::PathView NormalFontPath("BasicUI/Font/NormalAtlas/FontAtlas_Font.nbf");
+      constexpr const IO::PathView NormalFontAtlasTexturePath("Font/NormalAtlas/FontAtlas.png");
+      constexpr const IO::PathView NormalFontPath("Font/NormalAtlas/FontAtlas_Font.nbf");
 
-      constexpr const IO::PathView SdfFontAtlasTexturePath("BasicUI/Font/SdfAtlas/FontAtlas.png");
-      constexpr const IO::PathView SdfFontPath("BasicUI/Font/SdfAtlas/FontAtlas_Font.nbf");
+      constexpr const IO::PathView SdfFontAtlasTexturePath("Font/SdfAtlas/FontAtlas.png");
+      constexpr const IO::PathView SdfFontPath("Font/SdfAtlas/FontAtlas_Font.nbf");
 
       // constexpr const IO::PathView FillTexturePath("Fill/Fill.png");
 
@@ -535,17 +534,17 @@ namespace Fsl
 
     // Draw baselines
     {
-      constexpr auto baseLineColor = Color(0xFF404040);
+      constexpr auto BaseLineColor = Color(0xFF404040);
 
       m_nativeBatch->Begin();
       m_nativeBatch->DebugDrawLine(m_resources.FillTexture, baseLine0Px, PxPoint2(baseLine0Px.X + currentSizePx.Width(), baseLine0Px.Y),
-                                   baseLineColor);
+                                   BaseLineColor);
       m_nativeBatch->DebugDrawLine(m_resources.FillTexture, baseLine1Px, PxPoint2(baseLine1Px.X + currentSizePx.Width(), baseLine1Px.Y),
-                                   baseLineColor);
+                                   BaseLineColor);
       m_nativeBatch->DebugDrawLine(m_resources.FillTexture, baseLine2Px, PxPoint2(baseLine2Px.X + currentSizePx.Width(), baseLine2Px.Y),
-                                   baseLineColor);
+                                   BaseLineColor);
       m_nativeBatch->DebugDrawLine(m_resources.FillTexture, baseLine3Px, PxPoint2(baseLine3Px.X + currentSizePx.Width(), baseLine3Px.Y),
-                                   baseLineColor);
+                                   BaseLineColor);
       m_nativeBatch->End();
     }
 

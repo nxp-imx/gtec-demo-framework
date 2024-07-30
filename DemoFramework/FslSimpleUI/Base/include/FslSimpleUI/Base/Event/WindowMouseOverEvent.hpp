@@ -41,27 +41,28 @@ namespace Fsl::UI
     PxPoint2 m_screenPositionPx;
 
   public:
-    WindowMouseOverEvent()
+    WindowMouseOverEvent() noexcept
       : WindowTransactionEvent(EventTypeId::MouseOver, EventDescription(EventRoutingStrategy::Bubble, WindowFlags::MouseOver))
     {
     }
 
     //! @brief Return the screen position in pixels.
     //! @warning This is not the window position so convert it to window coordinates before using it!!!!)
-    PxPoint2 GetScreenPosition() const
+    PxPoint2 GetScreenPosition() const noexcept
     {
       return m_screenPositionPx;
     }
 
   protected:
-    void SYS_Construct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState& state, const bool isRepeat,
-                       const PxPoint2& screenPositionPx)
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    void SYS_Construct(const MillisecondTickCount32 timestamp, const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState& state,
+                       const bool isRepeat, const PxPoint2& screenPositionPx) noexcept
     {
-      WindowTransactionEvent::SYS_DoConstruct(sourceId, sourceSubId, state, isRepeat);
+      WindowTransactionEvent::SYS_DoConstruct(timestamp, sourceId, sourceSubId, state, isRepeat);
       m_screenPositionPx = screenPositionPx;
     }
 
-    void SYS_Destruct() override
+    void SYS_Destruct() noexcept override
     {
       m_screenPositionPx = {};
       WindowTransactionEvent::SYS_Destruct();

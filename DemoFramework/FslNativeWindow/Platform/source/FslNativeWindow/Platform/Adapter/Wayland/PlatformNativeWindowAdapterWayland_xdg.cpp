@@ -419,7 +419,8 @@ namespace Fsl
       pContext->MousePosition = PxPoint2::Create(sx / 256, sy / 256);
       if (eventQueue)
       {
-        eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseMoveEvent(pContext->MousePosition));
+        eventQueue->PostEvent(
+          NativeWindowEventHelper::EncodeInputMouseMoveEvent(MillisecondTickCount32::FromMilliseconds(time), pContext->MousePosition));
       }
     }
 
@@ -453,8 +454,8 @@ namespace Fsl
       }
       if (eventQueue)
       {
-        eventQueue->PostEvent(
-          NativeWindowEventHelper::EncodeInputMouseButtonEvent(pContext->MouseButton, pContext->MouseIsPressed, pContext->MousePosition));
+        eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(
+          MillisecondTickCount32::FromMilliseconds(time), pContext->MouseButton, pContext->MouseIsPressed, pContext->MousePosition));
       }
     }
 
@@ -468,7 +469,8 @@ namespace Fsl
       pContext->ZDelta = static_cast<int>(value) / 2560;
       if (eventQueue)
       {
-        eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseWheelEvent(pContext->ZDelta, pContext->MousePosition));
+        eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseWheelEvent(MillisecondTickCount32::FromMilliseconds(time), pContext->ZDelta,
+                                                                                  pContext->MousePosition));
       }
     }
 

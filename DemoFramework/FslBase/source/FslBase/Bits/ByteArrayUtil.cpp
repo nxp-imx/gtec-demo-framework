@@ -355,7 +355,7 @@ namespace Fsl::ByteArrayUtil
 
 
     pDst[dstIndex + 0] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    pDst[dstIndex + 1] = static_cast<uint8_t>((value)&0xFF);
+    pDst[dstIndex + 1] = static_cast<uint8_t>((value) & 0xFF);
     return 2;
   }
 
@@ -368,7 +368,7 @@ namespace Fsl::ByteArrayUtil
 
 
     pDst[dstIndex + 0] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    pDst[dstIndex + 1] = static_cast<uint8_t>((value)&0xFF);
+    pDst[dstIndex + 1] = static_cast<uint8_t>((value) & 0xFF);
     return 2;
   }
 
@@ -383,7 +383,7 @@ namespace Fsl::ByteArrayUtil
     pDst[dstIndex + 0] = static_cast<uint8_t>((value >> 24) & 0xFF);
     pDst[dstIndex + 1] = static_cast<uint8_t>((value >> 16) & 0xFF);
     pDst[dstIndex + 2] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    pDst[dstIndex + 3] = static_cast<uint8_t>((value)&0xFF);
+    pDst[dstIndex + 3] = static_cast<uint8_t>((value) & 0xFF);
     return 4;
   }
 
@@ -397,7 +397,7 @@ namespace Fsl::ByteArrayUtil
     pDst[dstIndex + 0] = static_cast<uint8_t>((value >> 24) & 0xFF);
     pDst[dstIndex + 1] = static_cast<uint8_t>((value >> 16) & 0xFF);
     pDst[dstIndex + 2] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    pDst[dstIndex + 3] = static_cast<uint8_t>((value)&0xFF);
+    pDst[dstIndex + 3] = static_cast<uint8_t>((value) & 0xFF);
     return 4;
   }
 
@@ -415,7 +415,7 @@ namespace Fsl::ByteArrayUtil
     pDst[dstIndex + 4] = static_cast<uint8_t>((value >> 24) & 0xFF);
     pDst[dstIndex + 5] = static_cast<uint8_t>((value >> 16) & 0xFF);
     pDst[dstIndex + 6] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    pDst[dstIndex + 7] = static_cast<uint8_t>((value)&0xFF);
+    pDst[dstIndex + 7] = static_cast<uint8_t>((value) & 0xFF);
     return 8;
   }
 
@@ -433,7 +433,7 @@ namespace Fsl::ByteArrayUtil
     pDst[dstIndex + 4] = static_cast<uint8_t>((value >> 24) & 0xFF);
     pDst[dstIndex + 5] = static_cast<uint8_t>((value >> 16) & 0xFF);
     pDst[dstIndex + 6] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    pDst[dstIndex + 7] = static_cast<uint8_t>((value)&0xFF);
+    pDst[dstIndex + 7] = static_cast<uint8_t>((value) & 0xFF);
     return 8;
   }
 
@@ -577,7 +577,7 @@ namespace Fsl::ByteArrayUtil
     assert((dstIndex + 1) < dstLength);
 
     pDst[dstIndex + 0] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    pDst[dstIndex + 1] = static_cast<uint8_t>((value)&0xFF);
+    pDst[dstIndex + 1] = static_cast<uint8_t>((value) & 0xFF);
     return 2;
   }
 
@@ -589,7 +589,7 @@ namespace Fsl::ByteArrayUtil
     assert((dstIndex + 1) < dstLength);
 
     pDst[dstIndex + 0] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    pDst[dstIndex + 1] = static_cast<uint8_t>((value)&0xFF);
+    pDst[dstIndex + 1] = static_cast<uint8_t>((value) & 0xFF);
     return 2;
   }
 
@@ -603,7 +603,7 @@ namespace Fsl::ByteArrayUtil
     pDst[dstIndex + 0] = static_cast<uint8_t>((value >> 24) & 0xFF);
     pDst[dstIndex + 1] = static_cast<uint8_t>((value >> 16) & 0xFF);
     pDst[dstIndex + 2] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    pDst[dstIndex + 3] = static_cast<uint8_t>((value)&0xFF);
+    pDst[dstIndex + 3] = static_cast<uint8_t>((value) & 0xFF);
     return 4;
   }
 
@@ -617,7 +617,7 @@ namespace Fsl::ByteArrayUtil
     pDst[dstIndex + 0] = static_cast<uint8_t>((value >> 24) & 0xFF);
     pDst[dstIndex + 1] = static_cast<uint8_t>((value >> 16) & 0xFF);
     pDst[dstIndex + 2] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    pDst[dstIndex + 3] = static_cast<uint8_t>((value)&0xFF);
+    pDst[dstIndex + 3] = static_cast<uint8_t>((value) & 0xFF);
     return 4;
   }
 
@@ -635,7 +635,7 @@ namespace Fsl::ByteArrayUtil
     pDst[dstIndex + 4] = static_cast<uint8_t>((value >> 24) & 0xFF);
     pDst[dstIndex + 5] = static_cast<uint8_t>((value >> 16) & 0xFF);
     pDst[dstIndex + 6] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    pDst[dstIndex + 7] = static_cast<uint8_t>((value)&0xFF);
+    pDst[dstIndex + 7] = static_cast<uint8_t>((value) & 0xFF);
     return 8;
   }
 
@@ -653,7 +653,7 @@ namespace Fsl::ByteArrayUtil
     pDst[dstIndex + 4] = static_cast<uint8_t>((value >> 24) & 0xFF);
     pDst[dstIndex + 5] = static_cast<uint8_t>((value >> 16) & 0xFF);
     pDst[dstIndex + 6] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    pDst[dstIndex + 7] = static_cast<uint8_t>((value)&0xFF);
+    pDst[dstIndex + 7] = static_cast<uint8_t>((value) & 0xFF);
     return 8;
   }
 

@@ -33,6 +33,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
+#include <FslBase/Time/MillisecondTickCount32.hpp>
 #include <FslNativeWindow/Base/NativeWindowEvent.hpp>
 #include <FslNativeWindow/Base/VirtualKey.hpp>
 #include <FslNativeWindow/Base/VirtualMouseButton.hpp>
@@ -45,81 +46,87 @@ namespace Fsl
   class NativeWindowEventHelper
   {
   public:
+    static constexpr MillisecondTickCount32 UnknownTimestamp() noexcept
+    {
+      return {};
+    }
+
     //! @brief Create a window activation event
-    static NativeWindowEvent EncodeWindowActivationEvent(const bool activated);
+    static NativeWindowEvent EncodeWindowActivationEvent(const bool activated) noexcept;
 
     //! @brief Decode a window activation event
-    static void DecodeWindowActivationEvent(const NativeWindowEvent& event, bool& rActivated);
+    static void DecodeWindowActivationEvent(const NativeWindowEvent& event, bool& rActivated) noexcept;
 
     //! @brief Create a window suspend event
-    static NativeWindowEvent EncodeWindowSuspendEvent(const bool suspend);
+    static NativeWindowEvent EncodeWindowSuspendEvent(const bool suspend) noexcept;
 
     //! @brief Decode a window suspend event
-    static void DecodeWindowSuspendEvent(const NativeWindowEvent& event, bool& rSuspend);
+    static void DecodeWindowSuspendEvent(const NativeWindowEvent& event, bool& rSuspend) noexcept;
 
     //! @brief Create window resize event
-    static NativeWindowEvent EncodeWindowResizedEvent();
+    static NativeWindowEvent EncodeWindowResizedEvent() noexcept;
 
     //! @brief Create window config updated event (dpi, dp, etc)
-    static NativeWindowEvent EncodeWindowConfigChanged();
+    static NativeWindowEvent EncodeWindowConfigChanged() noexcept;
 
     //! @brief Create a low memory event
-    static NativeWindowEvent EncodeLowMemoryEvent();
+    static NativeWindowEvent EncodeLowMemoryEvent() noexcept;
 
     //! @brief Create a input key event
-    static NativeWindowEvent EncodeInputKeyEvent(const VirtualKey::Enum virtualKey, const bool isPressed, const uint32_t deviceId = 0);
+    static NativeWindowEvent EncodeInputKeyEvent(const VirtualKey::Enum virtualKey, const bool isPressed, const uint32_t deviceId = 0) noexcept;
 
     //! @brief Decode a input key event
-    static void DecodeInputKeyEvent(const NativeWindowEvent& event, VirtualKey::Enum& rVirtualKey, bool& rIsPressed, uint32_t& rDeviceId);
+    static void DecodeInputKeyEvent(const NativeWindowEvent& event, VirtualKey::Enum& rVirtualKey, bool& rIsPressed, uint32_t& rDeviceId) noexcept;
 
     //! @brief Create a input mouse button event
-    static NativeWindowEvent EncodeInputMouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed, const PxPoint2& position,
-                                                         const bool isTouch = false);
+    static NativeWindowEvent EncodeInputMouseButtonEvent(const MillisecondTickCount32 timestamp, const VirtualMouseButton button,
+                                                         const bool isPressed, const PxPoint2 position, const bool isTouch = false);
 
     //! @brief Decode a input mouse button event
-    static void DecodeInputMouseButtonEvent(const NativeWindowEvent& event, VirtualMouseButton::Enum& rButton, bool& rIsPressed, PxPoint2& rPosition,
-                                            bool& rIsTouch);
+    static void DecodeInputMouseButtonEvent(const NativeWindowEvent& event, VirtualMouseButton& rButton, bool& rIsPressed, PxPoint2& rPosition,
+                                            bool& rIsTouch) noexcept;
 
     //! @brief Create a input mouse move event
     static NativeWindowEvent
-      EncodeInputMouseMoveEvent(const PxPoint2& position,
-                                const VirtualMouseButtonFlags& buttonFlags = VirtualMouseButtonFlags(VirtualMouseButton::Undefined),
+      EncodeInputMouseMoveEvent(const MillisecondTickCount32 timestamp, const PxPoint2 position,
+                                const VirtualMouseButtonFlags buttonFlags = VirtualMouseButtonFlags(VirtualMouseButton::Undefined),
                                 const bool isTouch = false);
 
     //! @brief Decode a input mouse move event
-    static void DecodeInputMouseMoveEvent(const NativeWindowEvent& event, PxPoint2& rPosition, VirtualMouseButtonFlags& rFlags, bool& rIsTouch);
+    static void DecodeInputMouseMoveEvent(const NativeWindowEvent& event, PxPoint2& rPosition, VirtualMouseButtonFlags& rFlags,
+                                          bool& rIsTouch) noexcept;
 
     //! @brief Create a input mouse wheel event
-    static NativeWindowEvent EncodeInputMouseWheelEvent(const int32_t delta, const PxPoint2& position);
+    static NativeWindowEvent EncodeInputMouseWheelEvent(const MillisecondTickCount32 timestamp, const int32_t delta, const PxPoint2 position);
 
     //! @brief Decode a input mouse wheel event
-    static void DecodeInputMouseWheelEvent(const NativeWindowEvent& event, int32_t& rDelta, PxPoint2& rPosition);
+    static void DecodeInputMouseWheelEvent(const NativeWindowEvent& event, int32_t& rDelta, PxPoint2& rPosition) noexcept;
 
     //! @brief Create a raw input mouse move event
     static NativeWindowEvent
-      EncodeInputRawMouseMoveEvent(const PxPoint2& position,
-                                   const VirtualMouseButtonFlags& buttonFlags = VirtualMouseButtonFlags(VirtualMouseButton::Undefined));
+      EncodeInputRawMouseMoveEvent(const MillisecondTickCount32 timestamp, const PxPoint2 position,
+                                   const VirtualMouseButtonFlags buttonFlags = VirtualMouseButtonFlags(VirtualMouseButton::Undefined)) noexcept;
 
     //! @brief Decode a raw input mouse move event
-    static void DecodeInputRawMouseMoveEvent(const NativeWindowEvent& event, PxPoint2& rPosition, VirtualMouseButtonFlags& rFlags);
+    static void DecodeInputRawMouseMoveEvent(const NativeWindowEvent& event, PxPoint2& rPosition, VirtualMouseButtonFlags& rFlags) noexcept;
 
     //! @brief Encode a position in a int32 (the x,y coordinates are expected to fit in a int16_t each)
-    static int32_t EncodePosition(const PxPoint2& position);
+    static int32_t EncodePosition(const PxPoint2 position);
 
     //! @brief Decode a position
-    static PxPoint2 DecodePosition(const int32_t encodedPosition);
+    static PxPoint2 DecodePosition(const int32_t encodedPosition) noexcept;
 
     //! @brief Encode the mouse-button flags
-    static int32_t EncodeVirtualMouseButtonFlags(const VirtualMouseButtonFlags& flags);
+    static int32_t EncodeVirtualMouseButtonFlags(const VirtualMouseButtonFlags flags) noexcept;
 
     //! @brief Decode the mouse-button flags
-    static VirtualMouseButtonFlags DecodeVirtualMouseButtonFlags(const int32_t encodedFlags);
+    static VirtualMouseButtonFlags DecodeVirtualMouseButtonFlags(const int32_t encodedFlags) noexcept;
 
-    static NativeWindowEvent EncodeGamepadConfiguration(const uint32_t maxDevices);
-    static void DecodeGamepadConfiguration(const NativeWindowEvent& event, uint32_t& rMaxDevices);
+    static NativeWindowEvent EncodeGamepadConfiguration(const uint32_t maxDevices) noexcept;
+    static void DecodeGamepadConfiguration(const NativeWindowEvent& event, uint32_t& rMaxDevices) noexcept;
 
-    static NativeWindowEvent EncodeVirtualGamepadStateEvent(const VirtualGamepadState& state);
-    static void DecodeVirtualGamepadStateEvent(const NativeWindowEvent& event, VirtualGamepadState& rState);
+    static NativeWindowEvent EncodeVirtualGamepadStateEvent(const VirtualGamepadState& state) noexcept;
+    static void DecodeVirtualGamepadStateEvent(const NativeWindowEvent& event, VirtualGamepadState& rState) noexcept;
   };
 }
 

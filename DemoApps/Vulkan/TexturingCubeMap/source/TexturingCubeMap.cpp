@@ -32,7 +32,7 @@ namespace Fsl
 {
   namespace
   {
-    const uint32_t VERTEX_BUFFER_BIND_ID = 0;
+    constexpr uint32_t VertexBufferBindId = 0;
 
     std::vector<Willems::MeshLoader::VertexLayout> g_vertexLayout = {Willems::MeshLoader::VertexLayout::VERTEX_LAYOUT_POSITION,
                                                                      Willems::MeshLoader::VertexLayout::VERTEX_LAYOUT_NORMAL,
@@ -154,7 +154,7 @@ namespace Fsl
         {
           vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout.Get(), 0, 1, &m_descriptorSets.Skybox, 0,
                                   nullptr);
-          vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Skybox.GetVertices().GetBufferPointer(), &offsets);
+          vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VertexBufferBindId, 1, m_meshes.Skybox.GetVertices().GetBufferPointer(), &offsets);
           vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_meshes.Skybox.GetIndices().Buffer.Get(), 0, VK_INDEX_TYPE_UINT32);
           vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines.Skybox.Get());
           vkCmdDrawIndexed(m_drawCmdBuffers[i], m_meshes.Skybox.GetIndexCount(), 1, 0, 0, 0);
@@ -163,7 +163,7 @@ namespace Fsl
         // 3D object
         vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout.Get(), 0, 1, &m_descriptorSets.Object, 0,
                                 nullptr);
-        vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Objects[m_meshes.ObjectIndex].GetVertices().GetBufferPointer(),
+        vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VertexBufferBindId, 1, m_meshes.Objects[m_meshes.ObjectIndex].GetVertices().GetBufferPointer(),
                                &offsets);
         vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_meshes.Objects[m_meshes.ObjectIndex].GetIndices().GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
         vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines.Reflect.Get());
@@ -261,7 +261,7 @@ namespace Fsl
   {
     // Binding description
     m_vertices.BindingDescriptions.resize(1);
-    m_vertices.BindingDescriptions[0].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.BindingDescriptions[0].binding = VertexBufferBindId;
     m_vertices.BindingDescriptions[0].stride = Willems::MeshLoader::VertexSize(g_vertexLayout);
     m_vertices.BindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
@@ -270,19 +270,19 @@ namespace Fsl
     m_vertices.AttributeDescriptions.resize(3);
     // Location 0 : Position
     m_vertices.AttributeDescriptions[0].location = 0;
-    m_vertices.AttributeDescriptions[0].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[0].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
     m_vertices.AttributeDescriptions[0].offset = 0;
 
     // Location 1 : Normal
     m_vertices.AttributeDescriptions[1].location = 1;
-    m_vertices.AttributeDescriptions[1].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[1].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
     m_vertices.AttributeDescriptions[1].offset = sizeof(float) * 3;
 
     // Location 2 : Texture coordinates
     m_vertices.AttributeDescriptions[2].location = 2;
-    m_vertices.AttributeDescriptions[2].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[2].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
     m_vertices.AttributeDescriptions[2].offset = sizeof(float) * 5;
 
@@ -316,7 +316,7 @@ namespace Fsl
     const float aspect = static_cast<float>(screenExtent.width) / static_cast<float>(screenExtent.height);
 
     // 3D object
-    glm::mat4 viewMatrix = glm::mat4(1.0f);
+    auto viewMatrix = glm::mat4(1.0f);
     m_uboVS.Projection = glm::perspective(glm::radians(60.0f), aspect, 0.001f, 256.0f);
     viewMatrix = glm::translate(viewMatrix, glm::vec3(0.0f, 0.0f, m_zoom));
 
@@ -399,10 +399,9 @@ namespace Fsl
       {
         throw std::runtime_error("Failed to map memory");
       }
-      RawTexture rawTexture;
-      Texture::ScopedDirectAccess directAccess(texCube, rawTexture);
-      assert(rawTexture.GetByteSize() <= memReqs.size);
-      std::memcpy(pData, rawTexture.GetContent(), rawTexture.GetByteSize());
+      Texture::ScopedDirectReadAccess directAccess(texCube);
+      assert(directAccess.AsRawTexture().GetByteSize() <= memReqs.size);
+      std::memcpy(pData, directAccess.AsRawTexture().GetContent(), directAccess.AsRawTexture().GetByteSize());
     }
     stagingMemory.UnmapMemory();
 

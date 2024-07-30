@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslGraphics/Render/Basic/BasicPrimitiveTopology.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialId.hpp>
 #include <memory>
 
@@ -43,7 +44,7 @@ namespace Fsl
   struct SpriteMaterialInfo
   {
     //! The render material id, this only means something to the render implementation
-    SpriteMaterialId Id{};
+    SpriteMaterialId Id;
 
     //! The actual extent of the main texture in pixels
     PxExtent2D ExtentPx;
@@ -51,12 +52,14 @@ namespace Fsl
     //! True if the material is considered opaque
     bool IsOpaque{true};
 
+    BasicPrimitiveTopology PrimitiveTopology{BasicPrimitiveTopology::TriangleList};
+
     std::shared_ptr<ISpriteMaterial> Material;
 
     SpriteMaterialInfo() = default;
 
     SpriteMaterialInfo(const SpriteMaterialId spriteMaterialId, const PxExtent2D extentPx, const bool isOpaque,
-                       std::shared_ptr<ISpriteMaterial> material);
+                       const BasicPrimitiveTopology primitiveTopology, std::shared_ptr<ISpriteMaterial> material);
     ~SpriteMaterialInfo();
 
 

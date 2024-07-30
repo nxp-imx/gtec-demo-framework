@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,64 +49,64 @@ namespace Fsl
     // |\|
     // A C
     // A = 1.0
-    const float CUBE_DIMENSIONS = 1.0f;
+    constexpr float CubeDimensions = 1.0f;
 
-    const float CUBE_FLOOR = -CUBE_DIMENSIONS;
-    const float CUBE_CEILING = CUBE_DIMENSIONS;
-    const float CUBE_LEFT = -CUBE_DIMENSIONS;
-    const float CUBE_RIGHT = CUBE_DIMENSIONS;
-    const float CUBE_BACK = -CUBE_DIMENSIONS;    // zBack
-    const float CUBE_FRONT = CUBE_DIMENSIONS;    // zFront
+    constexpr float CubeFloor = -CubeDimensions;
+    constexpr float CubeCeiling = CubeDimensions;
+    constexpr float CubeLeft = -CubeDimensions;
+    constexpr float CubeRight = CubeDimensions;
+    constexpr float CubeBack = -CubeDimensions;    // zBack
+    constexpr float CubeFront = CubeDimensions;    // zFront
 
     const std::array<VertexPosition, 6 * 6> g_vertices = {
 
       // Right
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK)),
+      VertexPosition(Vector3(CubeRight, CubeCeiling, CubeBack)),
+      VertexPosition(Vector3(CubeRight, CubeFloor, CubeBack)),
+      VertexPosition(Vector3(CubeRight, CubeCeiling, CubeFront)),
+      VertexPosition(Vector3(CubeRight, CubeFloor, CubeFront)),
+      VertexPosition(Vector3(CubeRight, CubeCeiling, CubeFront)),
+      VertexPosition(Vector3(CubeRight, CubeFloor, CubeBack)),
 
       // Left
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT)),
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK)),
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK)),
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT)),
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK)),
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT)),
+      VertexPosition(Vector3(CubeLeft, CubeCeiling, CubeFront)),
+      VertexPosition(Vector3(CubeLeft, CubeFloor, CubeBack)),
+      VertexPosition(Vector3(CubeLeft, CubeCeiling, CubeBack)),
+      VertexPosition(Vector3(CubeLeft, CubeFloor, CubeFront)),
+      VertexPosition(Vector3(CubeLeft, CubeFloor, CubeBack)),
+      VertexPosition(Vector3(CubeLeft, CubeCeiling, CubeFront)),
 
       // Top
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT)),
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT)),
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT)),
+      VertexPosition(Vector3(CubeLeft, CubeCeiling, CubeBack)),
+      VertexPosition(Vector3(CubeRight, CubeCeiling, CubeBack)),
+      VertexPosition(Vector3(CubeRight, CubeCeiling, CubeFront)),
+      VertexPosition(Vector3(CubeLeft, CubeCeiling, CubeBack)),
+      VertexPosition(Vector3(CubeRight, CubeCeiling, CubeFront)),
+      VertexPosition(Vector3(CubeLeft, CubeCeiling, CubeFront)),
 
       // Bottom
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT)),
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK)),
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT)),
+      VertexPosition(Vector3(CubeLeft, CubeFloor, CubeBack)),
+      VertexPosition(Vector3(CubeRight, CubeFloor, CubeFront)),
+      VertexPosition(Vector3(CubeRight, CubeFloor, CubeBack)),
+      VertexPosition(Vector3(CubeRight, CubeFloor, CubeFront)),
+      VertexPosition(Vector3(CubeLeft, CubeFloor, CubeBack)),
+      VertexPosition(Vector3(CubeLeft, CubeFloor, CubeFront)),
 
       // Front
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT)),
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT)),
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT)),
+      VertexPosition(Vector3(CubeLeft, CubeFloor, CubeFront)),
+      VertexPosition(Vector3(CubeRight, CubeCeiling, CubeFront)),
+      VertexPosition(Vector3(CubeRight, CubeFloor, CubeFront)),
+      VertexPosition(Vector3(CubeRight, CubeCeiling, CubeFront)),
+      VertexPosition(Vector3(CubeLeft, CubeFloor, CubeFront)),
+      VertexPosition(Vector3(CubeLeft, CubeCeiling, CubeFront)),
 
       // Back
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK)),
-      VertexPosition(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK)),
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK)),
-      VertexPosition(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK)),
+      VertexPosition(Vector3(CubeLeft, CubeFloor, CubeBack)),
+      VertexPosition(Vector3(CubeRight, CubeFloor, CubeBack)),
+      VertexPosition(Vector3(CubeRight, CubeCeiling, CubeBack)),
+      VertexPosition(Vector3(CubeRight, CubeCeiling, CubeBack)),
+      VertexPosition(Vector3(CubeLeft, CubeCeiling, CubeBack)),
+      VertexPosition(Vector3(CubeLeft, CubeFloor, CubeBack)),
     };
   }
 
@@ -115,9 +115,9 @@ namespace Fsl
     // Prepare the vertex buffer
     m_vertexBufferInfo.VertexBuffer.Reset(g_vertices.data(), g_vertices.size(), GL_STATIC_DRAW);
 
-    constexpr auto vertexDecl = VertexPosition::GetVertexDeclarationArray();
+    constexpr auto VertexDecl = VertexPosition::GetVertexDeclarationArray();
     m_vertexBufferInfo.AttribLink[0] =
-      GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+      GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
   }
 
 

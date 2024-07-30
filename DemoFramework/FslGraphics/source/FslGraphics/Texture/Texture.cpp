@@ -29,6 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
@@ -95,7 +97,7 @@ namespace Fsl
 
             if (!isCompressed)
             {
-              const auto stride = static_cast<std::size_t>(PixelFormatUtil::CalcMinimumStride(currentExtent.Width.Value, pixelFormat));
+              const auto stride = static_cast<std::size_t>(PixelFormatUtil::CalcMinimumStride(currentExtent.Width, pixelFormat));
               const auto expectedSize = currentExtent.Height.Value * stride;
               if (expectedSize != blob.Size)
               {
@@ -111,9 +113,6 @@ namespace Fsl
       }
       return totalTexelCount.Value;
     }
-
-    // Dummy area we use to get a content pointer for zero sized bitmaps size the vector data methods returns a nullptr
-    uint32_t g_dummyAreaForZeroSizedBitmaps = 0;
   }
 
   // move assignment operator
@@ -206,6 +205,23 @@ namespace Fsl
     : Texture()
   {
     DoReset(extent, pixelFormat, origin);
+  }
+
+
+  Texture::Texture(BitmapMemory bitmapMemory)
+    : Texture()
+  {
+    if (!bitmapMemory.IsTightlyPacked())
+    {
+      throw std::invalid_argument("The bitmap memory must be tightly packed");
+    }
+
+    const PxExtent2D extent = TypeConverter::To<PxExtent2D>(bitmapMemory.GetSize());
+    const PixelFormat pixelFormat = bitmapMemory.GetPixelFormat();
+    const BitmapOrigin origin = bitmapMemory.GetOrigin();
+
+    DoReset(bitmapMemory.Release(), extent, pixelFormat, origin);
+    assert(IsValid());
   }
 
 
@@ -392,7 +408,7 @@ namespace Fsl
     }
 
     const PxExtent3D levelExtent = CalcExtent(m_extent, level);
-    return PixelFormatUtil::CalcMinimumStride(levelExtent.Width.Value, m_pixelFormat);
+    return PixelFormatUtil::CalcMinimumStride(levelExtent.Width, m_pixelFormat);
   }
 
 
@@ -498,7 +514,7 @@ namespace Fsl
     const std::size_t index = m_textureInfo.GetBlockIndex(level, face, layer);
     const auto& rBlobRecord = m_blobs[index];
 
-    const std::size_t stride = PixelFormatUtil::CalcMinimumStride(levelExtent.Width.Value, bytesPerPixel);
+    const std::size_t stride = PixelFormatUtil::CalcMinimumStride(levelExtent.Width, bytesPerPixel);
 
     // slizeSize is the size of one 2d image.
     const auto sliceSize = levelExtent.Height.Value * stride;
@@ -534,7 +550,7 @@ namespace Fsl
     const std::size_t index = m_textureInfo.GetBlockIndex(level, face, layer);
     const auto& rBlobRecord = m_blobs[index];
 
-    const std::size_t stride = PixelFormatUtil::CalcMinimumStride(levelExtent.Width.Value, bytesPerPixel);
+    const std::size_t stride = PixelFormatUtil::CalcMinimumStride(levelExtent.Width, bytesPerPixel);
 
     // slizeSize is the size of one 2d image.
     const auto sliceSize = levelExtent.Height.Value * stride;
@@ -754,7 +770,7 @@ namespace Fsl
 
     try
     {
-      const std::size_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width.Value, pixelFormat);
+      const std::size_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat);
       const std::size_t totalByteSize = (extent.Height.Value * minStride);
 
       m_content.resize(totalByteSize);
@@ -790,7 +806,7 @@ namespace Fsl
       Reset();
     }
 
-    const std::size_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width.Value, pixelFormat);
+    const std::size_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat);
     const std::size_t totalByteSize = (extent.Height.Value * minStride);
     if (content.size() != totalByteSize)
     {
@@ -821,7 +837,7 @@ namespace Fsl
   }
 
 
-  RawTexture Texture::Lock() const
+  ReadOnlyRawTexture Texture::Lock() const
   {
     if (m_isLocked)
     {
@@ -829,15 +845,8 @@ namespace Fsl
     }
     m_isLocked = true;
 
-    const auto* const pData = m_content.data();
-    if (pData != nullptr)
-    {
-      return {m_textureType, m_content.data(), m_content.size(), m_blobs.data(), m_blobs.size(),
-              m_extent,      m_pixelFormat,    m_textureInfo,    m_bitmapOrigin};
-    }
-    assert((m_extent.Width * m_extent.Height * m_extent.Depth).Value == 0u);
-    return {m_textureType, &g_dummyAreaForZeroSizedBitmaps, 0u, m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo,
-            m_bitmapOrigin};
+    return ReadOnlyRawTexture::Create(m_textureType, SpanUtil::AsReadOnlySpan(m_content), SpanUtil::AsReadOnlySpan(m_blobs), m_extent, m_pixelFormat,
+                                      m_textureInfo, m_bitmapOrigin);
   }
 
 
@@ -847,17 +856,10 @@ namespace Fsl
     {
       throw UsageErrorException("The texture is already locked");
     }
-
     m_isLocked = true;
-    auto* pData = m_content.data();
-    if (pData != nullptr)
-    {
-      return {m_textureType, m_content.data(), m_content.size(), m_blobs.data(), m_blobs.size(),
-              m_extent,      m_pixelFormat,    m_textureInfo,    m_bitmapOrigin};
-    }
-    assert((m_extent.Width * m_extent.Height * m_extent.Depth).Value == 0u);
-    return {m_textureType, &g_dummyAreaForZeroSizedBitmaps, m_content.size(), m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo,
-            m_bitmapOrigin};
+
+    return RawTextureEx::UncheckedCreate(m_textureType, SpanUtil::AsSpan(m_content), SpanUtil::AsReadOnlySpan(m_blobs), m_extent, m_pixelFormat,
+                                         m_textureInfo, m_bitmapOrigin);
   }
 
 

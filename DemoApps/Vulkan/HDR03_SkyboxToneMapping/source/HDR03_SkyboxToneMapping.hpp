@@ -54,6 +54,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class HDR03_SkyboxToneMapping : public VulkanBasic::DemoAppVulkanBasic
   {
   public:

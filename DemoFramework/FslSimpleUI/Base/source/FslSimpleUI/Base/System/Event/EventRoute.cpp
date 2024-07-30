@@ -34,16 +34,16 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslSimpleUI/Base/Event/RoutedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
+#include <FslSimpleUI/Base/System/Event/IEventHandler.hpp>
 #include <algorithm>
 #include <cassert>
 #include "../TreeNode.hpp"
-#include "IEventHandler.hpp"
 
 namespace Fsl::UI
 {
   namespace
   {
-    const std::size_t INITIAL_NODE_CAPACITY = 32u;
+    constexpr std::size_t InitialNodeCapacity = 32u;
 
     inline bool Exists(const std::vector<std::shared_ptr<TreeNode>>& nodes, const std::shared_ptr<TreeNode>& node)
     {
@@ -51,20 +51,22 @@ namespace Fsl::UI
     }
 
 
-    inline void Remove(std::vector<std::shared_ptr<TreeNode>>& rNodes, const std::shared_ptr<TreeNode>& node)
+    inline bool Remove(std::vector<std::shared_ptr<TreeNode>>& rNodes, const std::shared_ptr<TreeNode>& node)
     {
       auto itr = std::find(rNodes.begin(), rNodes.end(), node);
-      if (itr != rNodes.end())
+      const bool found = itr != rNodes.end();
+      if (found)
       {
         rNodes.erase(itr);
       }
+      return found;
     }
   }
 
 
   EventRoute::EventRoute()
-    : m_tunnelList(INITIAL_NODE_CAPACITY)
-    , m_bubbleList(INITIAL_NODE_CAPACITY)
+    : m_tunnelList(InitialNodeCapacity)
+    , m_bubbleList(InitialNodeCapacity)
     , m_isInitialized(false)
   {
     m_tunnelList.clear();
@@ -74,8 +76,8 @@ namespace Fsl::UI
 
   EventRoute::EventRoute(const WindowFlags flags)
     : m_flags(flags)
-    , m_tunnelList(INITIAL_NODE_CAPACITY)
-    , m_bubbleList(INITIAL_NODE_CAPACITY)
+    , m_tunnelList(InitialNodeCapacity)
+    , m_bubbleList(InitialNodeCapacity)
     , m_isInitialized(true)
   {
     m_tunnelList.clear();
@@ -88,6 +90,10 @@ namespace Fsl::UI
 
   void EventRoute::Initialize(const WindowFlags flags)
   {
+    // if (m_isInitialized)
+    //{
+    //   throw UsageErrorException("already initialized");
+    // }
     m_flags = flags;
     m_isInitialized = true;
   }
@@ -95,8 +101,6 @@ namespace Fsl::UI
 
   void EventRoute::Shutdown()
   {
-    assert(m_isInitialized);
-
     m_flags = WindowFlags();
     m_tunnelList.clear();
     m_bubbleList.clear();
@@ -112,20 +116,23 @@ namespace Fsl::UI
   }
 
 
-  void EventRoute::Send(IEventHandler* const pEventHandler, const std::shared_ptr<WindowEvent>& theEvent)
+  bool EventRoute::Send(IEventHandler* const pEventHandler, const std::shared_ptr<WindowEvent>& theEvent)
   {
     assert(m_isInitialized);
     if (pEventHandler == nullptr)
     {
       FSLLOG3_ERROR("pEventHandler can not be null, send ignored!");
-      return;
+      return false;
     }
 
+    bool send = false;
     if (m_target)
     {
       SendTo(*pEventHandler, m_tunnelList, theEvent, true);
       SendTo(*pEventHandler, m_bubbleList, theEvent, false);
+      send = GetWindowCount() > 0u;
     }
+    return send;
   }
 
 
@@ -166,16 +173,18 @@ namespace Fsl::UI
   }
 
 
-  void EventRoute::RemoveNode(const std::shared_ptr<TreeNode>& node)
+  bool EventRoute::RemoveNode(const std::shared_ptr<TreeNode>& node)
   {
     assert(m_isInitialized);
-    Remove(m_tunnelList, node);
-    Remove(m_bubbleList, node);
+    bool removed = false;
+    removed |= Remove(m_tunnelList, node);
+    removed |= Remove(m_bubbleList, node);
 
     if (m_target == node)
     {
       m_target.reset();
     }
+    return removed;
   }
 
 

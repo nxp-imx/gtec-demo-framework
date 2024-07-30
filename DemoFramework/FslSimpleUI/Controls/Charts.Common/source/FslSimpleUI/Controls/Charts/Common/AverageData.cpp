@@ -31,7 +31,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslSimpleUI/Controls/Charts/Common/AverageData.hpp>
 #include <algorithm>
 
@@ -104,7 +104,7 @@ namespace Fsl::UI
         m_averageScratchpad[i] = 0.0f;
       }
     }
-    return ReadOnlySpanUtil::AsSpan(m_averageScratchpad);
+    return SpanUtil::AsReadOnlySpan(m_averageScratchpad);
   }
 
 

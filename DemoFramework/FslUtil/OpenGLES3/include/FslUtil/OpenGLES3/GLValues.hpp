@@ -40,9 +40,9 @@ namespace Fsl::GLES3
   namespace GLValues
   {
     //! @brief The invalid handle is used for buffers, programs, shaders, textures
-    const constexpr GLuint INVALID_HANDLE = 0;
+    const constexpr GLuint InvalidHandle = 0;
     //! @brief Invalid handle like returned by glGetUniformLocation and glGetAttribLocation
-    const constexpr GLint INVALID_LOCATION = -1;
+    const constexpr GLint InvalidLocation = -1;
   };
 }
 

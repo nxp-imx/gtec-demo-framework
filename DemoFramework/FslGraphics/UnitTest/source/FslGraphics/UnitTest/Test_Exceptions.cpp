@@ -30,7 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Exceptions.hpp>
+#include <FslGraphics/Log/FmtPixelFormat.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
+#include <fmt/format.h>
 #include <array>
 #include <limits>
 #include <vector>
@@ -109,7 +111,7 @@ TEST(Test_Exceptions, UnsupportedPixelFormatException_Construct1)
   PixelFormat pixelFormat = PixelFormat::A1R5G5B5_UNORM_PACK16;
   UnsupportedPixelFormatException ex(message, pixelFormat);
 
-  EXPECT_EQ(message, ex.what());
+  EXPECT_EQ(fmt::format("{}. PixelFormat: {}", message, pixelFormat), ex.what());
   EXPECT_EQ(pixelFormat, ex.GetPixelFormat());
 }
 
@@ -150,7 +152,7 @@ TEST(Test_Exceptions, UnsupportedPixelFormatConversionException_Construct1)
   auto value2 = PixelFormat::BC1_RGB_SRGB_BLOCK;
   UnsupportedPixelFormatConversionException ex(message, value1, value2);
 
-  EXPECT_EQ(message, ex.what());
+  EXPECT_EQ(fmt::format("{}. From: {} To: {}", message, value1, value2), ex.what());
   EXPECT_EQ(value1, ex.GetFromPixelFormat());
   EXPECT_EQ(value2, ex.GetToPixelFormat());
 }

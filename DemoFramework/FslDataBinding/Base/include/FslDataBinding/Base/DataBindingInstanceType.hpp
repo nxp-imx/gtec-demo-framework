@@ -39,6 +39,9 @@ namespace Fsl::DataBinding
     DependencyProperty = 1,
     DependencyObserverProperty = 2,
     DataSourceObject = 3,
+
+    ReadOnlyDependencyProperty = 4,
+
     // Source,
     // Target,
   };

@@ -43,16 +43,18 @@ namespace fmt
   struct formatter<Fsl::PxTrimmedNineSlice>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::PxTrimmedNineSlice& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{SizePx={} TrimMarginPxf={} TrimmedNineSlicePxf={} ContentMarginPx={}}}", value.SizePx, value.TrimMarginPxf,
-                       value.TrimmedNineSlicePxf, value.ContentMarginPx);
+      return fmt::format_to(ctx.out(), "{{SizePx={} TrimMarginPxf={} TrimmedNineSlicePxf={} ContentMarginPx={}}}", value.SizePx, value.TrimMarginPxf,
+                            value.TrimmedNineSlicePxf, value.ContentMarginPx);
     }
   };
 }

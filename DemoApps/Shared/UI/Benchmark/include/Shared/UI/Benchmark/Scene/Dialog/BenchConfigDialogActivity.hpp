@@ -88,8 +88,8 @@ namespace Fsl::UI
       std::shared_ptr<ButtonBase> ButtonBack;
       std::shared_ptr<Switch> SwitchGpuTimestamps;
       std::shared_ptr<Switch> SwitchNoOpaqueMaterials;
-      std::shared_ptr<Switch> switchDrawCache;
-      std::shared_ptr<Switch> switchOnDemandRendering;
+      std::shared_ptr<Switch> SwitchDrawCache;
+      std::shared_ptr<Switch> SwitchOnDemandRendering;
       std::shared_ptr<Switch> SwitchUseSdfFonts;
       RenderMethodUI RenderMethod;
       RenderOptionControls RenderOptions;
@@ -113,8 +113,8 @@ namespace Fsl::UI
                               std::shared_ptr<AppBenchSettings> settings);
 
 
-    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final;
-    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final;
+    void OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent) final;
+    void OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent) final;
     void OnKeyEvent(const KeyEvent& theEvent) final;
 
   private:

@@ -81,7 +81,7 @@ namespace Fsl::OpenCL
     inline T GetPlatformInfo(const cl_platform_id platformId, const cl_platform_info platformInfo)
     {
       // If you want to fill a std::vector<POD type> then use the TryGetPlatformInfo
-      static_assert(std::is_pod<T>::value, "We only support writing to Plain Old Data types");
+      static_assert(std::is_trivially_copyable<T>::value, "We only support writing to Plain Old Data types");
 
       T result;
       RAPIDOPENCL_CHECK(clGetPlatformInfo(platformId, platformInfo, sizeof(T), &result, nullptr));
@@ -107,7 +107,7 @@ namespace Fsl::OpenCL
     // NOLINTNEXTLINE(misc-misplaced-const)
     inline bool TryGetPlatformInfo(const cl_platform_id platformId, const cl_platform_info platformInfo, T& rValue)
     {
-      static_assert(std::is_pod<T>::value, "We only support writing to Plain Old Data types");
+      static_assert(std::is_trivially_copyable<T>::value, "We only support writing to Plain Old Data types");
 
       if (clGetPlatformInfo(platformId, platformInfo, sizeof(T), &rValue, nullptr) == CL_SUCCESS)
       {
@@ -124,7 +124,7 @@ namespace Fsl::OpenCL
     // NOLINTNEXTLINE(misc-misplaced-const)
     inline bool TryGetPlatformInfo(const cl_platform_id platformId, const cl_platform_info platformInfo, std::vector<T>& rContainer)
     {
-      static_assert(std::is_pod<T>::value, "We only support writing to Plain Old Data types");
+      static_assert(std::is_trivially_copyable<T>::value, "We only support writing to Plain Old Data types");
 
       std::size_t contentSize = 0;
       if (clGetPlatformInfo(platformId, platformInfo, 0, nullptr, &contentSize) != CL_SUCCESS)
@@ -174,7 +174,7 @@ namespace Fsl::OpenCL
     inline T GetDeviceInfo(const cl_device_id deviceId, const cl_device_info deviceInfo)
     {
       // If you want to fill a std::vector<POD type> then use the TryGetDeviceInfo
-      static_assert(std::is_pod<T>::value, "We only support writing to Plain Old Data types");
+      static_assert(std::is_trivially_copyable<T>::value, "We only support writing to Plain Old Data types");
 
       T result;
       RAPIDOPENCL_CHECK(clGetDeviceInfo(deviceId, deviceInfo, sizeof(T), &result, nullptr));
@@ -200,7 +200,7 @@ namespace Fsl::OpenCL
     // NOLINTNEXTLINE(misc-misplaced-const)
     inline bool TryGetDeviceInfo(const cl_device_id deviceId, const cl_device_info deviceInfo, T& rValue)
     {
-      static_assert(std::is_pod<T>::value, "We only support writing to Plain Old Data types");
+      static_assert(std::is_trivially_copyable<T>::value, "We only support writing to Plain Old Data types");
 
       if (clGetDeviceInfo(deviceId, deviceInfo, sizeof(T), &rValue, nullptr) == CL_SUCCESS)
       {
@@ -217,7 +217,7 @@ namespace Fsl::OpenCL
     // NOLINTNEXTLINE(misc-misplaced-const)
     inline bool TryGetDeviceInfo(const cl_device_id deviceId, const cl_device_info deviceInfo, std::vector<T>& rContainer)
     {
-      static_assert(std::is_pod<T>::value, "We only support writing to Plain Old Data types");
+      static_assert(std::is_trivially_copyable<T>::value, "We only support writing to Plain Old Data types");
 
       std::size_t contentSize = 0;
       if (clGetDeviceInfo(deviceId, deviceInfo, 0, nullptr, &contentSize) != CL_SUCCESS)
@@ -273,6 +273,13 @@ namespace Fsl::OpenCL
     // NOLINTNEXTLINE(misc-misplaced-const)
     extern bool TryGetProgramBuildInfo(const cl_program program, const cl_device_id deviceId, const cl_program_build_info paramName,
                                        cl_build_status& rResult);
+
+    extern cl_uint GetDeviceCount(const cl_context context);
+
+    inline cl_uint GetDeviceMaxComputeUnits(const cl_device_id deviceId)
+    {
+      return GetDeviceInfo<cl_uint>(deviceId, CL_DEVICE_MAX_COMPUTE_UNITS);
+    }
   };
 }
 

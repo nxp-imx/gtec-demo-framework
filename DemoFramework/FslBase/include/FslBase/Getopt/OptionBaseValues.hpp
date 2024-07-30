@@ -34,19 +34,26 @@
 namespace Fsl
 {
   //! The base value for Demo HostManager Option Parsers (frame work internal)
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr const int DEMO_HOSTMANAGER_OPTION_BASE_INTERNAL = 0x00100000;
   //! The base value for Demo Host Option Parsers (frame work internal)
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr const int DEMO_HOST_OPTION_BASE_INTERNAL = 0x00200000;
   //! The base value for Demo App Option Parsers (framework internal)
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr const int DEMO_APP_OPTION_BASE_INTERNAL = 0x00300000;
   //! The base value for Demo Host Option Parsers
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr const int DEMO_HOST_OPTION_BASE = 0x01000000;
   //! The base value for Demo App Option Parsers
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr const int DEMO_APP_OPTION_BASE = 0x02000000;
   //! The base value for demo service options
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr const int DEMO_SERVICE_OPTION_BASE = 0x40000000;
 
   //! The base value for demo service options intervals
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr const int DEMO_SERVICE_OPTION_INTERVAL = 0x00010000;
 }
 

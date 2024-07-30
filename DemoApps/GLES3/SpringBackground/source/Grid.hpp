@@ -45,7 +45,9 @@ namespace Fsl
 {
   class Grid
   {
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const int m_gridX;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const int m_gridY;
     std::vector<Spring> m_springs;
     std::vector<PointMass> m_points;

@@ -33,8 +33,8 @@ namespace Fsl
 {
   namespace
   {
-    const uint32_t VERTEX_BUFFER_BIND_ID = 0;
-    const uint32_t INSTANCE_BUFFER_BIND_ID = 1;
+    constexpr uint32_t VertexBufferBindId = 0;
+    constexpr uint32_t InstanceBufferBindId = 1;
 
 
     // Vertex layout for this example
@@ -136,9 +136,9 @@ namespace Fsl
 
         VkDeviceSize offsets = 0;
         // Binding point 0 : Mesh vertex buffer
-        vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Example.GetVertices().GetBufferPointer(), &offsets);
+        vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VertexBufferBindId, 1, m_meshes.Example.GetVertices().GetBufferPointer(), &offsets);
         // Binding point 1 : Instance data buffer
-        vkCmdBindVertexBuffers(m_drawCmdBuffers[i], INSTANCE_BUFFER_BIND_ID, 1, m_instanceBuffer.Buffer.GetPointer(), &offsets);
+        vkCmdBindVertexBuffers(m_drawCmdBuffers[i], InstanceBufferBindId, 1, m_instanceBuffer.Buffer.GetPointer(), &offsets);
 
         vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_meshes.Example.GetIndices().GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
@@ -222,14 +222,14 @@ namespace Fsl
 
     for (std::size_t i = 0; i < m_optionParser->GetInstanceCount(); ++i)
     {
-      instanceData[i].rot =
+      instanceData[i].Rot =
         glm::vec3(MathHelper::PI * uniformDist(rndGenerator), MathHelper::PI * uniformDist(rndGenerator), MathHelper::PI * uniformDist(rndGenerator));
       const auto theta = static_cast<float>(2.0 * MathHelper::PI * uniformDist(rndGenerator));
       const auto phi = static_cast<float>(std::acos(1.0 - 2.0 * uniformDist(rndGenerator)));
       // glm::vec3 pos;
-      instanceData[i].pos = glm::vec3(std::sin(phi) * std::cos(theta), std::sin(theta) * uniformDist(rndGenerator) / 1500.0f, std::cos(phi)) * 7.5f;
-      instanceData[i].scale = static_cast<float>(1.0 + uniformDist(rndGenerator) * 2.0);
-      instanceData[i].texIndex = uniformTexDist(rndGenerator);
+      instanceData[i].Pos = glm::vec3(std::sin(phi) * std::cos(theta), std::sin(theta) * uniformDist(rndGenerator) / 1500.0f, std::cos(phi)) * 7.5f;
+      instanceData[i].Scale = static_cast<float>(1.0 + uniformDist(rndGenerator) * 2.0);
+      instanceData[i].TexIndex = uniformTexDist(rndGenerator);
     }
 
     m_instanceBuffer.Size = UncheckedNumericCast<uint32_t>(instanceData.size() * sizeof(InstanceData));
@@ -271,12 +271,12 @@ namespace Fsl
     m_vertices.BindingDescriptions.resize(2);
 
     // Mesh vertex buffer (description) at binding point 0
-    m_vertices.BindingDescriptions[0].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.BindingDescriptions[0].binding = VertexBufferBindId;
     m_vertices.BindingDescriptions[0].stride = Willems::MeshLoader::VertexSize(g_vertexLayout);
     m_vertices.BindingDescriptions[0].inputRate =
       VK_VERTEX_INPUT_RATE_VERTEX;    // Input rate for the data passed to shader// Step for each vertex rendered;
 
-    m_vertices.BindingDescriptions[1].binding = INSTANCE_BUFFER_BIND_ID;
+    m_vertices.BindingDescriptions[1].binding = InstanceBufferBindId;
     m_vertices.BindingDescriptions[1].stride = sizeof(InstanceData);
     m_vertices.BindingDescriptions[1].inputRate =
       VK_VERTEX_INPUT_RATE_INSTANCE;    // Input rate for the data passed to shader// Step for each instance rendered;
@@ -289,43 +289,43 @@ namespace Fsl
     // Per-Vertex attributes
     // Location 0 : Position
     m_vertices.AttributeDescriptions[0].location = 0;
-    m_vertices.AttributeDescriptions[0].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[0].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
     m_vertices.AttributeDescriptions[0].offset = 0;
     // Location 1 : Normal
     m_vertices.AttributeDescriptions[1].location = 1;
-    m_vertices.AttributeDescriptions[1].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[1].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
     m_vertices.AttributeDescriptions[1].offset = sizeof(float) * 3;
     // Location 2 : Texture coordinates
     m_vertices.AttributeDescriptions[2].location = 2;
-    m_vertices.AttributeDescriptions[2].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[2].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
     m_vertices.AttributeDescriptions[2].offset = sizeof(float) * 6;
     // Location 3 : Color
     m_vertices.AttributeDescriptions[3].location = 3;
-    m_vertices.AttributeDescriptions[3].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[3].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[3].format = VK_FORMAT_R32G32B32_SFLOAT;
     m_vertices.AttributeDescriptions[3].offset = sizeof(float) * 8;
     // Instanced attributes
     // Location 4 : Position
     m_vertices.AttributeDescriptions[4].location = 5;    // TODO: 5?
-    m_vertices.AttributeDescriptions[4].binding = INSTANCE_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[4].binding = InstanceBufferBindId;
     m_vertices.AttributeDescriptions[4].format = VK_FORMAT_R32G32B32_SFLOAT;
     m_vertices.AttributeDescriptions[4].offset = sizeof(float) * 3;
     // Location 5 : Rotation
     m_vertices.AttributeDescriptions[5].location = 4;    // TODO: 4
-    m_vertices.AttributeDescriptions[5].binding = INSTANCE_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[5].binding = InstanceBufferBindId;
     m_vertices.AttributeDescriptions[5].format = VK_FORMAT_R32G32B32_SFLOAT;
     m_vertices.AttributeDescriptions[5].offset = 0;
     // Location 6 : Scale
     m_vertices.AttributeDescriptions[6].location = 6;
-    m_vertices.AttributeDescriptions[6].binding = INSTANCE_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[6].binding = InstanceBufferBindId;
     m_vertices.AttributeDescriptions[6].format = VK_FORMAT_R32_SFLOAT;
     m_vertices.AttributeDescriptions[6].offset = sizeof(float) * 6;
     // Location 7 : Texture array layer index
     m_vertices.AttributeDescriptions[7].location = 7;
-    m_vertices.AttributeDescriptions[7].binding = INSTANCE_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[7].binding = InstanceBufferBindId;
     m_vertices.AttributeDescriptions[7].format = VK_FORMAT_R32_SINT;
     m_vertices.AttributeDescriptions[7].offset = sizeof(float) * 7;
 

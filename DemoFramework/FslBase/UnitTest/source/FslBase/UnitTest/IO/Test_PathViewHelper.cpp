@@ -34,6 +34,7 @@
 #include <FslBase/Log/IO/LogPathView.hpp>
 #include <FslBase/Log/String/LogStringViewLite.hpp>
 #include <FslBase/Log/String/LogUTF8String.hpp>
+#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 

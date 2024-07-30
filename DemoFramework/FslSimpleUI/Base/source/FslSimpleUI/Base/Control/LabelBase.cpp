@@ -54,9 +54,9 @@ namespace Fsl::UI
   using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
 
   TDef TClass::PropertyIsEnabled = TFactory::Create<bool, TClass, &TClass::IsEnabled, &TClass::SetEnabled>("Enabled");
-  TDef TClass::PropertyFontColor = TFactory::Create<Color, TClass, &TClass::GetFontColor, &TClass::SetFontColor>("FontColor");
+  TDef TClass::PropertyFontColor = TFactory::Create<UIColor, TClass, &TClass::GetFontColor, &TClass::SetFontColor>("FontColor");
   TDef TClass::PropertyFontDisabledColor =
-    TFactory::Create<Color, TClass, &TClass::GetFontDisabledColor, &TClass::SetFontDisabledColor>("FontDisabledColor");
+    TFactory::Create<UIColor, TClass, &TClass::GetFontDisabledColor, &TClass::SetFontDisabledColor>("FontDisabledColor");
   TDef TClass::PropertyContentAlignmentX =
     TFactory::Create<ItemAlignment, TClass, &TClass::GetContentAlignmentX, &TClass::SetContentAlignmentX>("ContentAlignmentX");
   TDef TClass::PropertyContentAlignmentY =
@@ -69,6 +69,8 @@ namespace Fsl::UI
     : BaseWindow(context)
     , m_windowContext(context)
     , m_fontMesh(context->TheUIContext.Get()->MeshManager, context->DefaultFont)
+    , m_propertyFontColor(context->ColorConverter, DefaultColor::Palette::Font)
+    , m_propertyFontDisabledColor(context->ColorConverter, DefaultColor::Palette::FontDisabled)
   {
     Enable(WindowFlags(WindowFlags::DrawEnabled));
   }
@@ -114,9 +116,9 @@ namespace Fsl::UI
     }
   }
 
-  bool LabelBase::SetFontColor(const Color value)
+  bool LabelBase::SetFontColor(const UIColor value)
   {
-    const bool changed = m_propertyFontColor.Set(ThisDependencyObject(), value);
+    const bool changed = m_propertyFontColor.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -124,9 +126,9 @@ namespace Fsl::UI
     return changed;
   }
 
-  bool LabelBase::SetFontDisabledColor(const Color value)
+  bool LabelBase::SetFontDisabledColor(const UIColor value)
   {
-    const bool changed = m_propertyFontDisabledColor.Set(ThisDependencyObject(), value);
+    const bool changed = m_propertyFontDisabledColor.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -154,7 +156,7 @@ namespace Fsl::UI
     dstPosPxf.Y += TypeConverter::UncheckedTo<PxValueF>(
       ItemAlignmentUtil::CalcAlignmentPx(m_propertyContentAlignmentY.Get(), renderSizePx.Height() - stringSizePx.Height()));
 
-    const auto color = m_propertyIsEnabled.Get() ? m_propertyFontColor.Get() : m_propertyFontDisabledColor.Get();
+    const auto color = m_propertyIsEnabled.Get() ? m_propertyFontColor.InternalColor : m_propertyFontDisabledColor.InternalColor;
     context.CommandBuffer.Draw(m_fontMesh.Get(), dstPosPxf, m_cachedMeasureMinimalFontSizePx, GetFinalBaseColor() * color);
   }
 
@@ -186,8 +188,8 @@ namespace Fsl::UI
   {
     auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(
       this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyIsEnabled, m_propertyIsEnabled),
-      DataBinding::PropLinkRefs(PropertyFontColor, m_propertyFontColor),
-      DataBinding::PropLinkRefs(PropertyFontDisabledColor, m_propertyFontDisabledColor),
+      DataBinding::PropLinkRefs(PropertyFontColor, m_propertyFontColor.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyFontDisabledColor, m_propertyFontDisabledColor.ExternalColor),
       DataBinding::PropLinkRefs(PropertyContentAlignmentX, m_propertyContentAlignmentX),
       DataBinding::PropLinkRefs(PropertyContentAlignmentY, m_propertyContentAlignmentY));
     return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
@@ -197,12 +199,12 @@ namespace Fsl::UI
   DataBinding::PropertySetBindingResult LabelBase::TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
                                                                     const DataBinding::Binding& binding)
   {
-    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
-                                                                  DataBinding::PropLinkRefs(PropertyIsEnabled, m_propertyIsEnabled),
-                                                                  DataBinding::PropLinkRefs(PropertyFontColor, m_propertyFontColor),
-                                                                  DataBinding::PropLinkRefs(PropertyFontDisabledColor, m_propertyFontDisabledColor),
-                                                                  DataBinding::PropLinkRefs(PropertyContentAlignmentX, m_propertyContentAlignmentX),
-                                                                  DataBinding::PropLinkRefs(PropertyContentAlignmentY, m_propertyContentAlignmentY));
+    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(
+      this, ThisDependencyObject(), targetDef, binding, DataBinding::PropLinkRefs(PropertyIsEnabled, m_propertyIsEnabled),
+      DataBinding::PropLinkRefs(PropertyFontColor, m_propertyFontColor.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyFontDisabledColor, m_propertyFontDisabledColor.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyContentAlignmentX, m_propertyContentAlignmentX),
+      DataBinding::PropLinkRefs(PropertyContentAlignmentY, m_propertyContentAlignmentY));
     return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
   }
 

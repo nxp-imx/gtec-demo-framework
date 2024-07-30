@@ -32,6 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Math/Pixel/PxVector2.hpp>
+#include <FslBase/Time/MillisecondTickCount32.hpp>
 #include <FslSimpleUI/Base/Event/EventTransactionState.hpp>
 #include <deque>
 #include <memory>
@@ -63,25 +66,54 @@ namespace Fsl
       WindowEventPool& operator=(const WindowEventPool&) = delete;
 
       WindowEventPool();
-      ~WindowEventPool();
+      ~WindowEventPool() noexcept;
 
-      std::shared_ptr<WindowMouseOverEvent> AcquireWindowMouseOverEvent(const int32_t sourceId, const int32_t sourceSubId,
-                                                                        const EventTransactionState& state, const bool isRepeat,
-                                                                        const PxPoint2& screenPositionPx);
-      std::shared_ptr<WindowInputClickEvent> AcquireWindowInputClickEvent(const int32_t sourceId, const int32_t sourceSubId,
-                                                                          const EventTransactionState state, const bool isRepeat,
-                                                                          const PxPoint2& screenPositionPx);
+      std::shared_ptr<WindowMouseOverEvent> AcquireWindowMouseOverEvent(const MillisecondTickCount32 timestamp, const int32_t sourceId,
+                                                                        const int32_t sourceSubId, const EventTransactionState& state,
+                                                                        const bool isRepeat, const PxPoint2& screenPositionPx);
+      std::shared_ptr<WindowInputClickEvent> AcquireWindowInputClickEvent(const MillisecondTickCount32 timestamp, const int32_t sourceId,
+                                                                          const int32_t sourceSubId, const EventTransactionState state,
+                                                                          const bool isRepeat, const PxPoint2& screenPositionPx);
       std::shared_ptr<WindowSelectEvent> AcquireWindowSelectEvent(const uint32_t contentId);
       std::shared_ptr<WindowSelectEvent> AcquireWindowSelectEvent(const uint32_t contentId, const std::shared_ptr<ITag>& payload);
       std::shared_ptr<WindowContentChangedEvent> AcquireWindowContentChangedEvent(const uint32_t contentId);
       std::shared_ptr<WindowContentChangedEvent> AcquireWindowContentChangedEvent(const uint32_t contentId, const int32_t param1,
                                                                                   const int32_t param2);
 
-      void Release(const std::shared_ptr<WindowEvent>& event);
-      void Release(const std::shared_ptr<WindowMouseOverEvent>& event);
-      void Release(const std::shared_ptr<WindowInputClickEvent>& event);
-      void Release(const std::shared_ptr<WindowSelectEvent>& event);
-      void Release(const std::shared_ptr<WindowContentChangedEvent>& event);
+      void Release(const std::shared_ptr<WindowEvent>& event) noexcept;
+
+      void Release(const std::shared_ptr<WindowMouseOverEvent>& event) noexcept;
+      void Release(const std::shared_ptr<WindowInputClickEvent>& event) noexcept;
+      void Release(const std::shared_ptr<WindowSelectEvent>& event) noexcept;
+      void Release(const std::shared_ptr<WindowContentChangedEvent>& event) noexcept;
+
+    private:
+      template <typename TEventType>
+      void ReleaseToPool(std::deque<std::shared_ptr<TEventType>>& rPool, const std::shared_ptr<TEventType>& event,
+                         const std::size_t maxCapacity) noexcept
+      {
+        if (!event)
+        {
+          return;
+        }
+        event->SYS_Destruct();
+
+        if (rPool.size() < maxCapacity)
+        {
+          try
+          {
+            rPool.push_back(event);
+          }
+          catch (const std::exception&)
+          {
+            FSLLOG3_WARNING("Failed to push to pool, dropping object");
+          }
+        }
+        else
+        {
+          FSLLOG3_WARNING("Pool capacity reached, dropping object");
+        }
+      }
     };
   }
 }

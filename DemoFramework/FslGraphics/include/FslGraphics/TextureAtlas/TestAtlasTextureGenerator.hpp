@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 
@@ -46,12 +46,12 @@ namespace Fsl
     extern void PatchWithTestPattern(Texture& rTexture);
     extern void PatchWithTestPattern(Texture& rTexture, const ITextureAtlas& sourceAtlas);
 
-    extern Bitmap CreateTestPatternBitmap(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin,
+    extern Bitmap CreateTestPatternBitmap(const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin origin,
                                           const ITextureAtlas& sourceAtlas);
-    extern Bitmap CreateTestPatternBitmap(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
-    extern Texture CreateTestPatternTexture(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin,
+    extern Bitmap CreateTestPatternBitmap(const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin origin);
+    extern Texture CreateTestPatternTexture(const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin origin,
                                             const ITextureAtlas& sourceAtlas);
-    extern Texture CreateTestPatternTexture(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
+    extern Texture CreateTestPatternTexture(const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin origin);
   }
 }
 

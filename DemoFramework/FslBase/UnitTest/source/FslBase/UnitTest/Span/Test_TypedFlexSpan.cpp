@@ -105,12 +105,12 @@ TEST(Test_TypedFlexSpan, Construct_Empty)
 
 TEST(Test_TypedFlexSpan, Construct_Empty_constexpr)
 {
-  constexpr TypedFlexSpan<TestRecord> span;
+  constexpr TypedFlexSpan<TestRecord> Span;
 
-  EXPECT_TRUE(span.empty());
-  EXPECT_EQ(span.flex_data(), nullptr);
-  EXPECT_EQ(span.size(), 0u);
-  EXPECT_EQ(span.stride(), 0u);
+  EXPECT_TRUE(Span.empty());
+  EXPECT_EQ(Span.flex_data(), nullptr);
+  EXPECT_EQ(Span.size(), 0u);
+  EXPECT_EQ(Span.stride(), 0u);
 }
 
 

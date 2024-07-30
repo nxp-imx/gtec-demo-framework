@@ -40,15 +40,17 @@ namespace fmt
   struct formatter<Fsl::Offset3D>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::Offset3D& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{X={} Y={} Z={}}}", value.X, value.Y, value.Z);
+      return fmt::format_to(ctx.out(), "{{X={} Y={} Z={}}}", value.X, value.Y, value.Z);
     }
   };
 }

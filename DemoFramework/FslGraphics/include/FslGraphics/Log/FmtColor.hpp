@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Color.hpp>
+#include <FslGraphics/Log/FmtColorChannelValueU8.hpp>
 #include <fmt/format.h>
 
 namespace fmt
@@ -40,16 +41,17 @@ namespace fmt
   struct formatter<Fsl::Color>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::Color& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{R={} G={} B={} A={}}}", static_cast<uint32_t>(value.R()), static_cast<uint32_t>(value.G()),
-                       static_cast<uint32_t>(value.B()), static_cast<uint32_t>(value.A()));
+      return fmt::format_to(ctx.out(), "{{R={} G={} B={} A={}}}", value.R(), value.G(), value.B(), value.A());
     }
   };
 }

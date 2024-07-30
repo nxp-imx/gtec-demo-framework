@@ -56,11 +56,11 @@ namespace
     }
   };
 
-  constexpr std::size_t PIXEL_FORMAT_ENTRIES = static_cast<std::size_t>(PixelFormat::ENUM_ID_RANGE_COMMON_SIZE);
-  static_assert(PIXEL_FORMAT_ENTRIES == 185, "We currently expect 185 pixel format entries");
+  constexpr std::size_t PixelFormatEntries = static_cast<std::size_t>(PixelFormat::ENUM_ID_RANGE_COMMON_SIZE);
+  static_assert(PixelFormatEntries == 185, "We currently expect 185 pixel format entries");
 
   // clang-format off
-  std::array<LocalPixelFormatRecord, PIXEL_FORMAT_ENTRIES> g_entries
+  std::array<LocalPixelFormatRecord, PixelFormatEntries> g_entries
   {
     LOCAL_TO_STRUCT(PixelFormat::Undefined),
     LOCAL_TO_STRUCT(PixelFormat::R4G4_UNORM_PACK8),

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES3/NativeGraphicsProgramManager.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES3/NativeGraphicsShaderManager.hpp>
@@ -49,7 +49,7 @@ namespace Fsl::GLES3
         assert(!srcSpan[i].Name.empty());
         rScratchpad[i] = GLBindAttribLocation(srcSpan[i].Location, srcSpan[i].Name);
       }
-      return ReadOnlySpanUtil::AsSpan(rScratchpad, 0, srcSpan.size());
+      return SpanUtil::AsReadOnlySpan(rScratchpad, 0, srcSpan.size());
     }
 
     GLProgram CreateProgram(std::vector<GLBindAttribLocation>& rScratchpad, const NativeGraphicsShaderManager::ShaderRecord& vertShader,
@@ -92,28 +92,51 @@ namespace Fsl::GLES3
 
     GLProgram program(CreateProgram(m_bindAttribScratchpad, vertShader, fragShader));
 
-    // Uniform locations
-    const GLint locMatModelViewProj = program.GetUniformLocation("MatModelViewProj");
-    const GLint locTexture = program.GetUniformLocation("Texture");
-    const GLint locSmoothing = program.TryGetUniformLocation("Smoothing");
-
     const auto vertexAttributeDescSpan = vertShader.ShaderVertexAttributeDescriptions.AsSpan();
-    if (vertexAttributeDescSpan.size() != 3)
+
+    int32_t handleValue = HandleVectorConfig::InvalidHandle;
+    if (vertexAttributeDescSpan.size() == 3u)
+    {
+      // Uniform locations
+      const GLint locMatModelViewProj = program.GetUniformLocation("MatModelViewProj");
+      const GLint locTexture = program.GetUniformLocation("Texture");
+      const GLint locSmoothing = program.TryGetUniformLocation("Smoothing");
+
+      const auto& vertexPosition = vertexAttributeDescSpan.VertexAttributeGet(VertexElementUsage::Position, 0);
+      const auto& vertexColor = vertexAttributeDescSpan.VertexAttributeGet(VertexElementUsage::Color, 0);
+      const auto& vertexTextureCoord = vertexAttributeDescSpan.VertexAttributeGet(VertexElementUsage::TextureCoordinate, 0);
+
+      // Verify that the attributes are at the requested locations
+      assert(program.GetAttribLocation(vertexPosition.Name.c_str()) == UncheckedNumericCast<GLint>(vertexPosition.Location));
+      assert(program.GetAttribLocation(vertexColor.Name.c_str()) == UncheckedNumericCast<GLint>(vertexColor.Location));
+      assert(program.GetAttribLocation(vertexTextureCoord.Name.c_str()) == UncheckedNumericCast<GLint>(vertexTextureCoord.Location));
+
+      handleValue =
+        m_records.Add(Record(std::move(program), locMatModelViewProj, locTexture, locSmoothing, UncheckedNumericCast<GLint>(vertexPosition.Location),
+                             UncheckedNumericCast<GLint>(vertexColor.Location), UncheckedNumericCast<GLint>(vertexTextureCoord.Location), comboKey));
+    }
+    else if (vertexAttributeDescSpan.size() == 2u)
+    {
+      // Uniform locations
+      const GLint locMatModelViewProj = program.GetUniformLocation("MatModelViewProj");
+      const GLint locSmoothing = program.TryGetUniformLocation("Smoothing");
+
+      const auto& vertexPosition = vertexAttributeDescSpan.VertexAttributeGet(VertexElementUsage::Position, 0);
+      const auto& vertexColor = vertexAttributeDescSpan.VertexAttributeGet(VertexElementUsage::Color, 0);
+
+      // Verify that the attributes are at the requested locations
+      assert(program.GetAttribLocation(vertexPosition.Name.c_str()) == UncheckedNumericCast<GLint>(vertexPosition.Location));
+      assert(program.GetAttribLocation(vertexColor.Name.c_str()) == UncheckedNumericCast<GLint>(vertexColor.Location));
+
+      handleValue = m_records.Add(Record(std::move(program), locMatModelViewProj, GLValues::InvalidLocation, locSmoothing,
+                                         UncheckedNumericCast<GLint>(vertexPosition.Location), UncheckedNumericCast<GLint>(vertexColor.Location),
+                                         GLValues::InvalidLocation, comboKey));
+    }
+    else
     {
       throw NotSupportedException("shader did not the three expected attributes");
     }
-    const auto& vertexPosition = vertexAttributeDescSpan.VertexAttributeGet(VertexElementUsage::Position, 0);
-    const auto& vertexColor = vertexAttributeDescSpan.VertexAttributeGet(VertexElementUsage::Color, 0);
-    const auto& vertexTextureCoord = vertexAttributeDescSpan.VertexAttributeGet(VertexElementUsage::TextureCoordinate, 0);
 
-    // Verify that the attributes are at the requested locations
-    assert(program.GetAttribLocation(vertexPosition.Name.c_str()) == UncheckedNumericCast<GLint>(vertexPosition.Location));
-    assert(program.GetAttribLocation(vertexColor.Name.c_str()) == UncheckedNumericCast<GLint>(vertexColor.Location));
-    assert(program.GetAttribLocation(vertexTextureCoord.Name.c_str()) == UncheckedNumericCast<GLint>(vertexTextureCoord.Location));
-
-    const auto handleValue =
-      m_records.Add(Record(std::move(program), locMatModelViewProj, locTexture, locSmoothing, UncheckedNumericCast<GLint>(vertexPosition.Location),
-                           UncheckedNumericCast<GLint>(vertexColor.Location), UncheckedNumericCast<GLint>(vertexTextureCoord.Location), comboKey));
     try
     {
       m_programDict.emplace(comboKey, handleValue);

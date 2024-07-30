@@ -46,15 +46,15 @@ namespace Fsl
 
   namespace
   {
-    const auto VERTEX_SHADER_NAME = "vertex_only_ndc.vert.spv";
-    const auto FRAGMENT_SHADER_NAME = "red.frag.spv";
+    constexpr auto VertexShaderName = "vertex_only_ndc.vert.spv";
+    constexpr auto FragmentShaderName = "red.frag.spv";
 
     Vulkan::VUBufferMemory CreateVertexBuffer(const VUDevice& device)
     {
       // Window clip origin is upper left.
-      static constexpr const std::array<float, 3 * 4> vertices = {-0.5f, 0.5f, 0.0f, 1.0f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, -0.5f, 0.0f, 1.0f};
+      static constexpr const std::array<float, 3 * 4> Vertices = {-0.5f, 0.5f, 0.0f, 1.0f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, -0.5f, 0.0f, 1.0f};
 
-      const VkDeviceSize cbVertices = vertices.size() * sizeof(float);
+      const VkDeviceSize cbVertices = Vertices.size() * sizeof(float);
       VkBufferCreateInfo bufferCreateInfo{};
       bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
       bufferCreateInfo.flags = 0;
@@ -65,7 +65,7 @@ namespace Fsl
       bufferCreateInfo.pQueueFamilyIndices = nullptr;
 
       Vulkan::VUBufferMemory vertexBuffer(device, bufferCreateInfo, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-      vertexBuffer.Upload(0, vertices.data(), cbVertices);
+      vertexBuffer.Upload(0, Vertices.data(), cbVertices);
       return vertexBuffer;
     }
 
@@ -253,9 +253,9 @@ namespace Fsl
   Vulkan101::Vulkan101(const DemoAppConfig& config)
     : VulkanBasic::DemoAppVulkanBasic(config)
   {
-    m_resources.m_vertexBuffer = CreateVertexBuffer(m_device);
+    m_resources.VertexBuffer = CreateVertexBuffer(m_device);
     CreateShaders();
-    m_resources.m_pipelineLayout = CreatePipelineLayout(m_device.Get());
+    m_resources.PipelineLayout = CreatePipelineLayout(m_device.Get());
   }
 
 
@@ -279,11 +279,11 @@ namespace Fsl
 
   VkRenderPass Vulkan101::OnBuildResources(const VulkanBasic::BuildResourcesContext& context)
   {
-    m_dependentResources.m_renderPass = CreateRenderPass(m_device.Get(), context.SwapchainImageFormat);
-    m_dependentResources.m_pipeline =
-      CreatePipeline(m_device.Get(), m_resources.m_vertexShaderModule.Get(), m_resources.m_fragmentShaderModule.Get(), context.SwapchainImageExtent,
-                     m_resources.m_pipelineLayout.Get(), m_dependentResources.m_renderPass.Get());
-    return m_dependentResources.m_renderPass.Get();
+    m_dependentResources.RenderPass = CreateRenderPass(m_device.Get(), context.SwapchainImageFormat);
+    m_dependentResources.Pipeline =
+      CreatePipeline(m_device.Get(), m_resources.VertexShaderModule.Get(), m_resources.FragmentShaderModule.Get(), context.SwapchainImageExtent,
+                     m_resources.PipelineLayout.Get(), m_dependentResources.RenderPass.Get());
+    return m_dependentResources.RenderPass.Get();
   }
 
 
@@ -296,8 +296,8 @@ namespace Fsl
   void Vulkan101::CreateShaders()
   {
     const auto contentManager = GetContentManager();
-    m_resources.m_vertexShaderModule.Reset(m_device.Get(), 0, contentManager->ReadBytes(VERTEX_SHADER_NAME));
-    m_resources.m_fragmentShaderModule.Reset(m_device.Get(), 0, contentManager->ReadBytes(FRAGMENT_SHADER_NAME));
+    m_resources.VertexShaderModule.Reset(m_device.Get(), 0, contentManager->ReadBytes(VertexShaderName));
+    m_resources.FragmentShaderModule.Reset(m_device.Get(), 0, contentManager->ReadBytes(FragmentShaderName));
   }
 
 
@@ -317,7 +317,7 @@ namespace Fsl
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
       renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-      renderPassBeginInfo.renderPass = m_dependentResources.m_renderPass.Get();
+      renderPassBeginInfo.renderPass = m_dependentResources.RenderPass.Get();
       renderPassBeginInfo.framebuffer = framebuffer;
       renderPassBeginInfo.renderArea.offset.x = 0;
       renderPassBeginInfo.renderArea.offset.y = 0;
@@ -327,10 +327,10 @@ namespace Fsl
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
-        vkCmdBindPipeline(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.m_pipeline.Get());
+        vkCmdBindPipeline(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.Pipeline.Get());
 
         VkDeviceSize offsets = 0;
-        vkCmdBindVertexBuffers(hCmdBuffer, 0, 1, m_resources.m_vertexBuffer.GetBufferPointer(), &offsets);
+        vkCmdBindVertexBuffers(hCmdBuffer, 0, 1, m_resources.VertexBuffer.GetBufferPointer(), &offsets);
         vkCmdDraw(hCmdBuffer, 3, 1, 0, 0);
 
         AddSystemUI(hCmdBuffer, currentSwapBufferIndex);

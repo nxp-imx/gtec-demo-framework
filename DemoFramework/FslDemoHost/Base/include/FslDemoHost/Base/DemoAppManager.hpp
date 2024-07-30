@@ -86,10 +86,10 @@ namespace Fsl
 
     struct Stats
     {
-      TimeSpan TimeBeforeUpdate{0u};
-      TimeSpan TimeAfterUpdate{0u};
-      TimeSpan TimeAfterDraw{0u};
-      TimeSpan LastFrameSwapCompletedTime{0};
+      TickCount TimeBeforeUpdate{0u};
+      TickCount TimeAfterUpdate{0u};
+      TickCount TimeAfterDraw{0u};
+      TickCount LastFrameSwapCompletedTime{0};
     };
 
     std::unique_ptr<DemoAppProfilerOverlay> m_demoAppProfilerOverlay;

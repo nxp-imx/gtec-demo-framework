@@ -43,8 +43,11 @@ namespace Fsl
     float m_damping{0.98f};
 
   public:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     Vector3 m_position;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     Vector3 m_oldPosition;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     float m_inverseMass{0};
 
 

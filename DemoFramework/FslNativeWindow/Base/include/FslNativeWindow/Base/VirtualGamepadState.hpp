@@ -49,18 +49,16 @@ namespace Fsl
     int16_t RightThumbX{0};
     int16_t RightThumbY{0};
 
-    VirtualGamepadState()
-
-      = default;
+    constexpr VirtualGamepadState() noexcept = default;
 
 
-    bool IsPressed(const VirtualGamepadButton button) const
+    constexpr bool IsPressed(const VirtualGamepadButton button) const noexcept
     {
       return (Buttons & static_cast<uint32_t>(button)) == static_cast<uint32_t>(button);
     }
 
 
-    void SetButtonState(const VirtualGamepadButton button, const bool pressed)
+    constexpr void SetButtonState(const VirtualGamepadButton button, const bool pressed) noexcept
     {
       if (pressed)
       {
@@ -73,7 +71,7 @@ namespace Fsl
     }
 
     //! @brief Tests for equality.
-    bool operator==(const VirtualGamepadState& rhs) const
+    constexpr bool operator==(const VirtualGamepadState& rhs) const noexcept
     {
       return IsConnected == rhs.IsConnected && DeviceId == rhs.DeviceId && Buttons == rhs.Buttons && LeftTrigger == rhs.LeftTrigger &&
              RightTrigger == rhs.RightTrigger && LeftThumbX == rhs.LeftThumbX && LeftThumbY == rhs.LeftThumbY && RightThumbX == rhs.RightThumbX &&
@@ -81,7 +79,7 @@ namespace Fsl
     }
 
     //! @brief Tests for inequality.
-    bool operator!=(const VirtualGamepadState& rhs) const
+    constexpr bool operator!=(const VirtualGamepadState& rhs) const noexcept
     {
       return !(*this == rhs);
     }

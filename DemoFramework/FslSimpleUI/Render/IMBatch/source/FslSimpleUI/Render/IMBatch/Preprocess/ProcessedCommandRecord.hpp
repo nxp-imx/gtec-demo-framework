@@ -33,8 +33,8 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
-#include <FslGraphics/Color.hpp>
 #include <FslGraphics2D/Procedural/Batcher/BatchMaterialId.hpp>
+#include <FslSimpleUI/Render/Base/UIRenderColor.hpp>
 #include "ProcessedCommandFlags.hpp"
 
 namespace Fsl::UI::RenderIMBatch
@@ -43,14 +43,14 @@ namespace Fsl::UI::RenderIMBatch
   {
     BatchMaterialId MaterialId;
     PxAreaRectangleF DstAreaRectanglePxf;
-    Color FinalColor;
+    UIRenderColor FinalColor;
     uint32_t OriginalCommandIndex{0};
     uint32_t LegacyCommandSpanIndex{0};    // remove this field ASAP
     ProcessedCommandFlags Flags{ProcessedCommandFlags::NoFlags};
 
     constexpr ProcessedCommandRecord() noexcept = default;
 
-    constexpr ProcessedCommandRecord(const BatchMaterialId materialId, const PxAreaRectangleF& dstAreaRectanglePxf, const Color finalColor,
+    constexpr ProcessedCommandRecord(const BatchMaterialId materialId, const PxAreaRectangleF& dstAreaRectanglePxf, const UIRenderColor finalColor,
                                      const uint32_t originalCommandIndex, const uint32_t legacyCommandSpanIndex,
                                      const ProcessedCommandFlags flags = ProcessedCommandFlags::NoFlags) noexcept
       : MaterialId(materialId)

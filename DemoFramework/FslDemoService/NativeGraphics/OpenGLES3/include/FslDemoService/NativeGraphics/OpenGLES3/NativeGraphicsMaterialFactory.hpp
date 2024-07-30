@@ -72,16 +72,19 @@ namespace Fsl::GLES3
       BasicMaterialInfo MaterialInfo;
       NativeProgramHandle ProgramHandle;
       NativeMaterialAttribHandle AttribLinkHandle;
-      GLuint CachedProgramHandle{GLValues::INVALID_HANDLE};
-      GLint CachedLocSmoothing{GLValues::INVALID_LOCATION};
+      GLenum CachedPrimitiveType{GL_TRIANGLES};
+      GLuint CachedProgramHandle{GLValues::InvalidHandle};
+      GLint CachedLocSmoothing{GLValues::InvalidLocation};
 
       MaterialRecord() = default;
 
       explicit MaterialRecord(const BasicMaterialInfo& materialInfo, const NativeProgramHandle programHandle,
-                              const NativeMaterialAttribHandle attribLinkHandle, const GLuint cachedProgramHandle, const GLint cachedLocSmoothing)
+                              const NativeMaterialAttribHandle attribLinkHandle, const GLenum cachedPrimitiveType, const GLuint cachedProgramHandle,
+                              const GLint cachedLocSmoothing)
         : MaterialInfo(materialInfo)
         , ProgramHandle(programHandle)
         , AttribLinkHandle(attribLinkHandle)
+        , CachedPrimitiveType(cachedPrimitiveType)
         , CachedProgramHandle(cachedProgramHandle)
         , CachedLocSmoothing(cachedLocSmoothing)
       {

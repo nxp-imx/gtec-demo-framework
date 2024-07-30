@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/OptimizationFlag.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 
 namespace Fsl::IO
@@ -43,8 +44,8 @@ namespace Fsl::IO
 
     //! @brief overload that allows you to create a PathView from pointer and count that is noexcept.
     //!        only use this in cases where you are 100% sure that your input is valid and contains no backslashes
-    explicit constexpr PathView(const StringViewLite& str, const OptimizationCheckFlag reserved) noexcept
-      : StringViewLite(str.data(), str.size(), reserved)
+    explicit constexpr PathView(const StringViewLite str, const OptimizationCheckFlag reserved) noexcept
+      : StringViewLite(str)
     {
       assert(find('\\') == StringViewLite::npos);
     }
@@ -53,12 +54,12 @@ namespace Fsl::IO
     //! @brief overload that allows you to create a PathView from pointer and count that is noexcept.
     //!        only use this in cases where you are 100% sure that your input is valid and contains no backslashes
     explicit constexpr PathView(const const_pointer pStr, size_type count, const OptimizationCheckFlag reserved) noexcept
-      : StringViewLite(pStr, count, reserved)
+      : StringViewLite(StringViewLite::UncheckedCreate(pStr, count))
     {
       assert(find('\\') == StringViewLite::npos);
     }
 
-    explicit constexpr PathView(const StringViewLite& strView)
+    explicit constexpr PathView(const StringViewLite strView)
       : StringViewLite(strView.data(), strView.size())
     {
       if (find('\\') != StringViewLite::npos)
@@ -86,14 +87,16 @@ namespace Fsl::IO
     }
 
     //! @brief Returns a view of the substring [pos, pos + rcount), where rcount is the smaller of count and size() - pos.
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr PathView subpath(size_type pos = 0, size_type count = npos) const
     {
-      if (pos > m_length)
+      const auto currentLength = length();
+      if (pos > currentLength)
       {
         throw std::out_of_range("pos out of range");
       }
-      auto maxLength = (m_length - pos);
-      return PathView(m_pStr + pos, (count <= maxLength ? count : maxLength), OptimizationCheckFlag::NoCheck);
+      auto maxLength = (currentLength - pos);
+      return PathView(data() + pos, (count <= maxLength ? count : maxLength), OptimizationCheckFlag::NoCheck);
     }
   };
 }

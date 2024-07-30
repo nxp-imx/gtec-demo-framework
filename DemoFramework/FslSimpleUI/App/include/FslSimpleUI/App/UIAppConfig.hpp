@@ -37,12 +37,20 @@ namespace Fsl::UIAppConfig::MaterialId
 {
   constexpr SpriteMaterialId Default(0x00u);
 
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr SpriteMaterialId DefaultUI_Opaque(0x01u);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr SpriteMaterialId DefaultUI_AlphaBlend(0x02u);
 
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr SpriteMaterialId DefaultUI_SdfFont(0x03u);
 
-  //! The custom Sprite id's are in the range: CustomSpriteOffset >= custin-id < DynamicOffset
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  constexpr SpriteMaterialId DefaultUI_LineListOpaque(0x04u);
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  constexpr SpriteMaterialId DefaultUI_LineListAlphaBlend(0x05u);
+
+  //! The custom Sprite id's are in the range: CustomSpriteOffset >= custom-id < DynamicOffset
   constexpr SpriteMaterialId CustomSpriteOffset(0x10000000u);
 
   // All sprite id's >= DynamicOffset are reserved for dynamic id's

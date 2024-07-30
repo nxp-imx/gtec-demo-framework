@@ -35,7 +35,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
 #include <FslUtil/OpenCL1_2/ProgramEx.hpp>
@@ -44,15 +44,10 @@
 #include <CL/cl.h>
 #include <array>
 #include <cstring>
-#include <fstream>
 #include "OptionParser.hpp"
-
-using namespace RapidOpenCL1;
 
 namespace Fsl
 {
-  using namespace OpenCL;
-
   namespace
   {
     namespace LocalConfig
@@ -62,31 +57,6 @@ namespace Fsl
       constexpr std::size_t ImgHeight = 1080;
       constexpr std::size_t ImgSize = ImgWidth * ImgHeight;
     }
-
-    cl_uint GetDeviceCount(const cl_context context)
-    {
-      std::size_t nDeviceBytes = 0;
-      RAPIDOPENCL_CHECK(clGetContextInfo(context, CL_CONTEXT_DEVICES, 0, nullptr, &nDeviceBytes));
-      return UncheckedNumericCast<cl_uint>(nDeviceBytes / sizeof(cl_device_id));
-    }
-
-
-    cl_uint GetNumComputeUnits(const cl_platform_id platform, const cl_device_type deviceType)
-    {
-      // Get all the devices
-      FSLLOG3_INFO("Get the Device info and select Device...");
-      const auto devices = OpenCLHelper::GetDeviceIDs(platform, deviceType);
-
-      // Set target device and Query number of compute units on targetDevice
-      FSLLOG3_INFO("# of Devices Available = {}", devices.size());
-
-      cl_uint numComputeUnits = 0;
-      RAPIDOPENCL_CHECK(clGetDeviceInfo(devices[0], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(numComputeUnits), &numComputeUnits, nullptr));
-
-      FSLLOG3_INFO("# of Compute Units = {}", numComputeUnits);
-      return numComputeUnits;
-    }
-
 
     double GetExecutionTime(const cl_event event)
     {
@@ -103,7 +73,8 @@ namespace Fsl
     }
 
 
-    void ConvertToRGBA(const Kernel& kernel, const Buffer& inBuffer, Buffer& outBuffer, const CommandQueue& commandQueue, Span<uint8_t> dstSpan)
+    void ConvertToRGBA(const RapidOpenCL1::Kernel& kernel, const RapidOpenCL1::Buffer& inBuffer, RapidOpenCL1::Buffer& outBuffer,
+                       const RapidOpenCL1::CommandQueue& commandQueue, Span<uint8_t> dstSpan)
     {
       const std::array<std::size_t, 2> globalWorkSize = {LocalConfig::ImgWidth / 4, LocalConfig::ImgHeight / 2};
       const std::array<std::size_t, 2> localWorkSize = {8, 4};
@@ -146,31 +117,21 @@ namespace Fsl
   {
     FSLLOG3_INFO("Initializing device(s)...");
 
-    cl_device_id deviceId = nullptr;
-    const cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
     // create the OpenCL context on available GPU devices
-    OpenCL::ContextEx context;
-    context.Reset(deviceType, &deviceId);
-
-    if (GetDeviceCount(context.Get()) <= 0)
-    {
-      throw InitFailedException("No OpenCL specific devices!");
-    }
-    const cl_uint ciComputeUnitsCount = GetNumComputeUnits(context.GetPlatformId(), deviceType);
-    FSLLOG3_INFO("# compute units = {}", ciComputeUnitsCount);
+    OpenCL::ContextEx context(CL_DEVICE_TYPE_GPU);
 
     FSLLOG3_INFO("Creating Command Queue...");
     RapidOpenCL1::CommandQueue commandQueue;
-    commandQueue.Reset(context.Get(), deviceId, CL_QUEUE_PROFILING_ENABLE);
+    commandQueue.Reset(context.Get(), context.GetDeviceId(), CL_QUEUE_PROFILING_ENABLE);
 
     AllocateMemory(context.Get(), LocalConfig::ImgSize);
 
     const std::string strProgram = GetContentManager()->ReadAllText("isp_kernel.cl");
-    ProgramEx program(context.Get(), deviceId, strProgram);
+    OpenCL::ProgramEx program(context.Get(), context.GetDeviceId(), strProgram);
 
     FSLLOG3_INFO("Creating kernels...");
     FSLLOG3_INFO("Please wait for compiling and building kernels, about one minute...");
-    std::array<Kernel, 10> kernels{};
+    std::array<RapidOpenCL1::Kernel, 10> kernels{};
     kernels[0].Reset(program.Get(), "badpixel");
     kernels[1].Reset(program.Get(), "sigma");
     kernels[2].Reset(program.Get(), "awb");
@@ -437,8 +398,7 @@ namespace Fsl
 
   void SoftISP::CopyToBMP(Bitmap& rBitmap, const IO::Path& fileName, const Span<uint8_t> span)
   {
-    rBitmap.Reset(span.data(), span.size(),
-                  PxExtent2D::Create(UncheckedNumericCast<uint32_t>(LocalConfig::ImgWidth), UncheckedNumericCast<uint32_t>(LocalConfig::ImgHeight)),
+    rBitmap.Reset(span, PxSize2D::Create(UncheckedNumericCast<int32_t>(LocalConfig::ImgWidth), UncheckedNumericCast<int32_t>(LocalConfig::ImgHeight)),
                   PixelFormat::B8G8R8A8_UNORM, BitmapOrigin::UpperLeft);
     GetPersistentDataManager()->Write(fileName, rBitmap);
   }

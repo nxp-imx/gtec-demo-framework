@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2023 NXP
+ * Copyright 2020, 2023-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -515,16 +515,16 @@ TEST(TestMathPixel_PxAreaRectangleF, Contains_PxValueF_PxValueF)
 TEST(TestMathPixel_PxAreaRectangleF, IntersectsSelf)
 {
   {
-    constexpr auto rectA = PxAreaRectangleF::Create(1, 2, 5, 4);
-    constexpr auto rectB = PxAreaRectangleF::Create(7, 1, 7, 6);
-    constexpr auto rectC = PxAreaRectangleF::Create(6, 1, 7, 6);
-    constexpr auto rectD = PxAreaRectangleF::Create(5, 1, 7, 6);
+    constexpr auto RectA = PxAreaRectangleF::Create(1, 2, 5, 4);
+    constexpr auto RectB = PxAreaRectangleF::Create(7, 1, 7, 6);
+    constexpr auto RectC = PxAreaRectangleF::Create(6, 1, 7, 6);
+    constexpr auto RectD = PxAreaRectangleF::Create(5, 1, 7, 6);
     // constexpr PxAreaRectangleF rectE(4, 1, 7, 6);
 
-    EXPECT_TRUE(rectA.Intersects(rectA));
-    EXPECT_TRUE(rectB.Intersects(rectB));
-    EXPECT_TRUE(rectC.Intersects(rectC));
-    EXPECT_TRUE(rectD.Intersects(rectD));
+    EXPECT_TRUE(RectA.Intersects(RectA));
+    EXPECT_TRUE(RectB.Intersects(RectB));
+    EXPECT_TRUE(RectC.Intersects(RectC));
+    EXPECT_TRUE(RectD.Intersects(RectD));
   }
 }
 
@@ -556,7 +556,7 @@ TEST(TestMathPixel_PxAreaRectangleF, Intersects_BruteForce)
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 8
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 9
     };
-    constexpr auto rectB = PxAreaRectangleF::Create(4, 3, 6, 5);
+    constexpr auto RectB = PxAreaRectangleF::Create(4, 3, 6, 5);
 
     for (int32_t y = 0; y < 10; ++y)
     {
@@ -564,8 +564,8 @@ TEST(TestMathPixel_PxAreaRectangleF, Intersects_BruteForce)
       for (int32_t x = 0; x < 11; ++x)
       {
         auto rectA = PxAreaRectangleF::Create(static_cast<float>(x), static_cast<float>(y), 4, 3);
-        EXPECT_EQ(result[x + yOffset] != 0u, rectA.Intersects(rectB));
-        EXPECT_EQ(result[x + yOffset] != 0u, rectB.Intersects(rectA));
+        EXPECT_EQ(result[x + yOffset] != 0u, rectA.Intersects(RectB));
+        EXPECT_EQ(result[x + yOffset] != 0u, RectB.Intersects(rectA));
       }
     }
   }
@@ -599,7 +599,7 @@ TEST(TestMathPixel_PxAreaRectangleF, Intersect_BruteForce)
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 8
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 9
     };
-    constexpr auto rectB = PxAreaRectangleF::Create(4, 3, 6, 5);
+    constexpr auto RectB = PxAreaRectangleF::Create(4, 3, 6, 5);
 
     for (int32_t y = 0; y < 10; ++y)
     {
@@ -608,18 +608,18 @@ TEST(TestMathPixel_PxAreaRectangleF, Intersect_BruteForce)
       {
         const auto rectA = PxAreaRectangleF::Create(static_cast<float>(x), static_cast<float>(y), 4, 3);
 
-        auto res1 = PxAreaRectangleF::Intersect(rectA, rectB);
-        auto res2 = PxAreaRectangleF::Intersect(rectB, rectA);
+        auto res1 = PxAreaRectangleF::Intersect(rectA, RectB);
+        auto res2 = PxAreaRectangleF::Intersect(RectB, rectA);
         EXPECT_EQ(res1, res2);
         // check for intersection
         EXPECT_EQ(result[x + yOffset] != 0u, !res1.IsEmpty());
         // check result
         if (result[x + yOffset] != 0u)
         {
-          EXPECT_EQ(std::max(rectA.Left(), rectB.Left()), res1.Left());
-          EXPECT_EQ(std::max(rectA.Top(), rectB.Top()), res1.Top());
-          EXPECT_EQ(std::min(rectA.Right(), rectB.Right()), res1.Right());
-          EXPECT_EQ(std::min(rectA.Bottom(), rectB.Bottom()), res1.Bottom());
+          EXPECT_EQ(std::max(rectA.Left(), RectB.Left()), res1.Left());
+          EXPECT_EQ(std::max(rectA.Top(), RectB.Top()), res1.Top());
+          EXPECT_EQ(std::min(rectA.Right(), RectB.Right()), res1.Right());
+          EXPECT_EQ(std::min(rectA.Bottom(), RectB.Bottom()), res1.Bottom());
         }
       }
     }
@@ -628,7 +628,7 @@ TEST(TestMathPixel_PxAreaRectangleF, Intersect_BruteForce)
 
 TEST(TestMathPixel_PxAreaRectangleF, Union_BruteForce)
 {
-  constexpr auto rectB = PxAreaRectangleF::Create(4, 3, 6, 5);
+  constexpr auto RectB = PxAreaRectangleF::Create(4, 3, 6, 5);
 
   for (int32_t y = 0; y < 10; ++y)
   {
@@ -636,14 +636,14 @@ TEST(TestMathPixel_PxAreaRectangleF, Union_BruteForce)
     {
       auto rectA = PxAreaRectangleF::Create(static_cast<float>(x), static_cast<float>(y), 4, 3);
 
-      auto res1 = PxAreaRectangleF::Union(rectA, rectB);
-      auto res2 = PxAreaRectangleF::Union(rectB, rectA);
+      auto res1 = PxAreaRectangleF::Union(rectA, RectB);
+      auto res2 = PxAreaRectangleF::Union(RectB, rectA);
       EXPECT_EQ(res1, res2);
 
-      EXPECT_EQ(std::min(rectA.Left(), rectB.Left()), res1.Left());
-      EXPECT_EQ(std::min(rectA.Top(), rectB.Top()), res1.Top());
-      EXPECT_EQ(std::max(rectA.Right(), rectB.Right()), res1.Right());
-      EXPECT_EQ(std::max(rectA.Bottom(), rectB.Bottom()), res1.Bottom());
+      EXPECT_EQ(std::min(rectA.Left(), RectB.Left()), res1.Left());
+      EXPECT_EQ(std::min(rectA.Top(), RectB.Top()), res1.Top());
+      EXPECT_EQ(std::max(rectA.Right(), RectB.Right()), res1.Right());
+      EXPECT_EQ(std::max(rectA.Bottom(), RectB.Bottom()), res1.Bottom());
     }
   }
 }

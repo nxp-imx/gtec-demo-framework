@@ -39,9 +39,12 @@ namespace Fsl
   class BenchSceneConfig : public ISceneConfig
   {
   public:
-    const AppBenchSettings BenchSettings{};
+    const AppBenchSettings BenchSettings;
 
-    BenchSceneConfig() = default;
+    BenchSceneConfig()
+      : BenchSettings()
+    {
+    }
 
     explicit BenchSceneConfig(const AppBenchSettings& settings)
       : BenchSettings(settings)

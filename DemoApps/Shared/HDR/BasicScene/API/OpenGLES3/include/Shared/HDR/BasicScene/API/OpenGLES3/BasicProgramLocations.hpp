@@ -43,11 +43,11 @@ namespace Fsl
     GLint LightPositions;
     GLint LightColors;
     BasicProgramLocations()
-      : ModelMatrix(GLES3::GLValues::INVALID_LOCATION)
-      , ViewMatrix(GLES3::GLValues::INVALID_LOCATION)
-      , ProjMatrix(GLES3::GLValues::INVALID_LOCATION)
-      , LightPositions(GLES3::GLValues::INVALID_LOCATION)
-      , LightColors(GLES3::GLValues::INVALID_LOCATION)
+      : ModelMatrix(GLES3::GLValues::InvalidLocation)
+      , ViewMatrix(GLES3::GLValues::InvalidLocation)
+      , ProjMatrix(GLES3::GLValues::InvalidLocation)
+      , LightPositions(GLES3::GLValues::InvalidLocation)
+      , LightColors(GLES3::GLValues::InvalidLocation)
     {
     }
   };

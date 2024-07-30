@@ -34,12 +34,12 @@
 #include <FslBase/Math/MinMax.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
-#include <FslGraphics/Color.hpp>
 #include <FslSimpleUI/Controls/Charts/AreaChartConfig.hpp>
 #include <FslSimpleUI/Controls/Charts/Canvas/ChartCanvas1D.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/ChartDataEntry.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/ChartDataView.hpp>
 #include <FslSimpleUI/Render/Base/ICustomDrawData.hpp>
+#include <FslSimpleUI/Render/Base/UIRenderColor.hpp>
 #include <array>
 #include <memory>
 #include <string>
@@ -60,7 +60,7 @@ namespace Fsl::UI::Render
       PxPoint2 LabelOffsetPx;
       PxSize2D LabelSizePx;
       PxRectangle LabelBackgroundRectanglePx;
-      uint8_t Alpha{0};
+      ColorChannelValueU16 Alpha{0};
       std::string Label;
     };
 
@@ -78,12 +78,12 @@ namespace Fsl::UI::Render
     // The chart data
     ChartRecord Chart;
 
-    std::array<Color, ChartDataWindowDrawDataConfig::MaxStackedEntries> ChartColors;
+    std::array<UIRenderColor, ChartDataWindowDrawDataConfig::MaxStackedEntries> ChartColors;
     struct ChartColorCache
     {
       bool Valid{false};
-      Color OldBaseColor;
-      std::array<Color, ChartDataWindowDrawDataConfig::MaxStackedEntries> Premultiplied;
+      UIRenderColor OldBaseColor;
+      std::array<UIRenderColor, ChartDataWindowDrawDataConfig::MaxStackedEntries> Premultiplied;
     };
     ChartColorCache ChartCache;
 
@@ -109,7 +109,7 @@ namespace Fsl::UI::Render
       FadingGridLineCount = 0u;
     }
 
-    bool SetEntryColor(const uint32_t index, const Color color)
+    bool SetEntryColor(const uint32_t index, const UIRenderColor color)
     {
       if (index >= ChartColors.size())
       {
@@ -124,7 +124,7 @@ namespace Fsl::UI::Render
       return changed;
     }
 
-    void FillChartCache(const Color baseColor)
+    void FillChartCache(const UIRenderColor baseColor)
     {
       if (!ChartCache.Valid || baseColor != ChartCache.OldBaseColor)
       {
@@ -132,7 +132,7 @@ namespace Fsl::UI::Render
         ChartCache.OldBaseColor = baseColor;
         for (std::size_t i = 0; i < ChartCache.Premultiplied.size(); ++i)
         {
-          ChartCache.Premultiplied[i] = Color::Premultiply(ChartColors[i] * baseColor);
+          ChartCache.Premultiplied[i] = UIRenderColor::Premultiply(ChartColors[i] * baseColor);
         }
       }
     }

@@ -1,7 +1,7 @@
 #ifndef SHARED_SYSTEM_DEVBASICRENDER_SHARED_HPP
 #define SHARED_SYSTEM_DEVBASICRENDER_SHARED_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
@@ -54,8 +55,10 @@ namespace Fsl
       std::shared_ptr<IBasicDynamicBuffer> Quad0MeshVertices;
       std::shared_ptr<IBasicDynamicBuffer> Quad1MeshVertices;
       std::shared_ptr<IBasicDynamicBuffer> Quad1MeshIndices;
-      BasicMaterial MatCubeOpaque;
 
+      std::shared_ptr<IBasicDynamicBuffer> LineVertices;
+
+      BasicMaterial MatCubeOpaque;
 
       BasicMaterial MatOpaque;
       BasicMaterial MatOpaqueRDepthDisabled;
@@ -73,6 +76,9 @@ namespace Fsl
       BasicMaterial MatAlpha;
       BasicMaterial MatNonPreAlpha;
       BasicMaterial MatSdf;
+
+      BasicMaterial MatLineListOpaque;
+      BasicMaterial MatLineStripOpaque;
     };
 
     struct DepthTest
@@ -80,6 +86,12 @@ namespace Fsl
       Matrix Orthographic0;
       Matrix Orthographic1;
       Matrix Orthographic2;
+    };
+
+    struct LinesTest
+    {
+      Matrix Orthographic0;
+      Matrix Orthographic1;
     };
 
     struct Matrices
@@ -97,6 +109,7 @@ namespace Fsl
       DepthTest Test1;
       DepthTest Test2;
       DepthTest Test3;
+      LinesTest TestLines;
     };
 
     std::shared_ptr<IBasicRenderSystem> m_render;
@@ -104,6 +117,11 @@ namespace Fsl
     Resources m_resources;
     Vector3 m_angle;
 
+    Vector2 m_lineAnimationState;
+    Vector2 m_lineAnimationSpeed{1.2f, -0.8f};
+    Vector2 m_lineAnimationAdd{0.2f, 0.1f};
+
+    DemoWindowMetrics m_windowMetrics;
     Matrices m_matrices;
 
   public:
@@ -116,6 +134,7 @@ namespace Fsl
   private:
     static Matrices CalcMatrices(const DemoWindowMetrics& metrics);
     static DepthTest CreateTestMatrices(const DemoWindowMetrics& metrics, const uint16_t offsetX, const uint16_t offsetY);
+    static LinesTest CreateLinesTestMatrices(const DemoWindowMetrics& metrics);
   };
 }
 

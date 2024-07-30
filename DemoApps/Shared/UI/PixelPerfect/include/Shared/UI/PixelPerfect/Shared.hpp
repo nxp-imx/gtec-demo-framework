@@ -100,7 +100,7 @@ namespace Fsl
     void OnKeyEvent(const KeyEvent& event);
 
     // From EventListener
-    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) final;
+    void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) final;
     void Draw();
 
   private:

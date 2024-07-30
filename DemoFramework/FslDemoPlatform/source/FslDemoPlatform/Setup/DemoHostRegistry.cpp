@@ -82,7 +82,7 @@ namespace Fsl
       auto itr = features.begin();
       while (itr != features.end())
       {
-        fmt::format_to(std::back_inserter(errorMessage), DemoHostFeatureName::ToString(itr->Name));
+        fmt::format_to(std::back_inserter(errorMessage), "{}", DemoHostFeatureName::ToString(itr->Name));
         ++itr;
         if (itr != features.end())
         {

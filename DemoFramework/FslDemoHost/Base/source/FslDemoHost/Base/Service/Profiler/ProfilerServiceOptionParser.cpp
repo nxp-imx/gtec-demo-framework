@@ -41,7 +41,10 @@ namespace Fsl
 {
   namespace
   {
-    const uint16_t DEFAULT_ENTRIES = 60;
+    namespace LocalConfig
+    {
+      constexpr uint16_t DefaultEntries = 60;
+    }
 
     struct CommandId
     {
@@ -54,7 +57,7 @@ namespace Fsl
 
 
   ProfilerServiceOptionParser::ProfilerServiceOptionParser()
-    : m_averageEntries(DEFAULT_ENTRIES)
+    : m_averageEntries(LocalConfig::DefaultEntries)
   {
   }
 
@@ -62,7 +65,7 @@ namespace Fsl
   void ProfilerServiceOptionParser::OnArgumentSetup(std::deque<Option>& rOptions)
   {
     rOptions.emplace_back("Profiler.AverageEntries", OptionArgument::OptionRequired, CommandId::AverageEntries,
-                          fmt::format("The number of frames used to calculate the average frame-time. Defaults to: {}", DEFAULT_ENTRIES));
+                          fmt::format("The number of frames used to calculate the average frame-time. Defaults to: {}", LocalConfig::DefaultEntries));
   }
 
 

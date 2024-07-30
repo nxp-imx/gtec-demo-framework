@@ -1,7 +1,7 @@
 #ifndef FSLDATABINDING_BASE_PROPERTY_DEPENDENCYPROPERTYDEFINITIONFACTORY_HPP
 #define FSLDATABINDING_BASE_PROPERTY_DEPENDENCYPROPERTYDEFINITIONFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,8 @@
 
 #include <FslDataBinding/Base/Internal/TypedDependencyPropertyMethodsDefinition.hpp>
 #include <FslDataBinding/Base/Internal/TypedDependencyPropertyRefMethodsDefinition.hpp>
+#include <FslDataBinding/Base/Internal/TypedReadOnlyDependencyPropertyMethodsDefinition.hpp>
+#include <FslDataBinding/Base/Internal/TypedReadOnlyDependencyPropertyRefMethodsDefinition.hpp>
 #include <FslDataBinding/Base/Property/DependencyPropertyDefinition.hpp>
 #include <memory>
 #include <utility>
@@ -59,6 +61,24 @@ namespace Fsl::DataBinding
         Internal::TypedDependencyPropertyRefMethodsDefinition<TPropertyValueType>::template Create<TClass, TGetMethod, TSetMethod>());
 
       return DependencyPropertyDefinition::Create(strView, typeid(TPropertyValueType), typeid(TClass), std::move(getSetMethods));
+    }
+
+    template <typename TPropertyValueType, typename TClass, TPropertyValueType (TClass::*TGetMethod)() const>
+    static inline DependencyPropertyDefinition CreateReadOnly(StringViewLite strView)
+    {
+      auto getMethods = std::make_shared<Internal::TypedReadOnlyDependencyPropertyMethodsDefinition<TPropertyValueType>>(
+        Internal::TypedReadOnlyDependencyPropertyMethodsDefinition<TPropertyValueType>::template Create<TClass, TGetMethod>());
+
+      return DependencyPropertyDefinition::Create(strView, typeid(TPropertyValueType), typeid(TClass), std::move(getMethods));
+    }
+
+    template <typename TPropertyValueType, typename TClass, const TPropertyValueType& (TClass::*TGetMethod)() const>
+    static inline DependencyPropertyDefinition CreateReadOnly(StringViewLite strView)
+    {
+      auto getMethods = std::make_shared<Internal::TypedReadOnlyDependencyPropertyRefMethodsDefinition<TPropertyValueType>>(
+        Internal::TypedReadOnlyDependencyPropertyRefMethodsDefinition<TPropertyValueType>::template Create<TClass, TGetMethod>());
+
+      return DependencyPropertyDefinition::Create(strView, typeid(TPropertyValueType), typeid(TClass), std::move(getMethods));
     }
   };
 }

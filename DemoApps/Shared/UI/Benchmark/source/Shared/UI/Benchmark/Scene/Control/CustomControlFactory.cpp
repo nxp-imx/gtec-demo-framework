@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "CustomControlFactory.hpp"
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
@@ -84,7 +84,7 @@ namespace Fsl::CustomControlFactory
 
   ReadOnlySpan<CpuProfileRecord> GetCpuProfileRecords()
   {
-    return ReadOnlySpanUtil::AsSpan(g_profileRecords);
+    return SpanUtil::AsReadOnlySpan(g_profileRecords);
   }
 
 
@@ -175,7 +175,7 @@ namespace Fsl::CustomControlFactory
     {
       if (value <= 10000.0)
       {
-        pTarget->SetFormatString(u8"{:.0f}\u03BCs");
+        pTarget->SetFormatString(reinterpret_cast<const char*>(u8"{:.0f}\u03BCs"));
         pTarget->SetContent(static_cast<float>(value));
       }
       else

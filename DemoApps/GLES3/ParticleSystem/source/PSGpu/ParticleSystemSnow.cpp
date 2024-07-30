@@ -91,12 +91,12 @@ namespace Fsl
     , m_pOtherVertexBuffer(&m_vertexBuffer2)
     , m_transformFeedbackObject(0)
     , m_transformFeedbackQuery(0)
-    , m_locFeedbackDeltaTime(GLValues::INVALID_LOCATION)
-    , m_locFeedbackUpperBoundaryY(GLValues::INVALID_LOCATION)
-    , m_locFeedbackLowerBoundaryY(GLValues::INVALID_LOCATION)
-    , m_locViewProjectionMatrix(GLValues::INVALID_LOCATION)
-    , m_locWorldViewProjectionMatrix(GLValues::INVALID_LOCATION)
-    , m_locPointSize(GLValues::INVALID_LOCATION)
+    , m_locFeedbackDeltaTime(GLValues::InvalidLocation)
+    , m_locFeedbackUpperBoundaryY(GLValues::InvalidLocation)
+    , m_locFeedbackLowerBoundaryY(GLValues::InvalidLocation)
+    , m_locViewProjectionMatrix(GLValues::InvalidLocation)
+    , m_locWorldViewProjectionMatrix(GLValues::InvalidLocation)
+    , m_locPointSize(GLValues::InvalidLocation)
   {
     std::vector<ParticleSnowGPU> particles(capacity);
     SeedParticles(particles, ranges);
@@ -104,13 +104,13 @@ namespace Fsl
 
     {
       const auto hProgram = m_programTransform.Get();
-      constexpr const auto vertexDecl = ParticleSnowGPU::GetVertexDeclarationArray();
+      constexpr const auto VertexDecl = ParticleSnowGPU::GetVertexDeclarationArray();
       m_particleAttribLinkFeedback[0] =
-        GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticlePosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+        GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticlePosition"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
       m_particleAttribLinkFeedback[1] =
-        GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticleVelocity"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 0));
+        GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticleVelocity"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 0));
       m_particleAttribLinkFeedback[2] =
-        GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticleEnergy"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 1));
+        GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticleEnergy"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 1));
 
       m_locFeedbackDeltaTime = glGetUniformLocation(hProgram, "DeltaTime");
       m_locFeedbackUpperBoundaryY = glGetUniformLocation(hProgram, "UpperBoundaryY");
@@ -214,10 +214,10 @@ namespace Fsl
     m_shaderFrag.Reset(GL_FRAGMENT_SHADER, strFrag);
     GL_CHECK_FOR_ERROR();
 
-    constexpr const auto vertexDecl = ParticleSnowGPU::GetVertexDeclarationArray();
+    constexpr const auto VertexDecl = ParticleSnowGPU::GetVertexDeclarationArray();
 
     m_particleAttribLink[0] = GLVertexAttribLink(glGetAttribLocation(m_shaderVert.Get(), "ParticlePosition"),
-                                                 vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+                                                 VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
 
     m_locViewProjectionMatrix = glGetUniformLocation(m_shaderGeom.Get(), "WorldView");
     m_locWorldViewProjectionMatrix = glGetUniformLocation(m_shaderGeom.Get(), "WorldViewProjection");

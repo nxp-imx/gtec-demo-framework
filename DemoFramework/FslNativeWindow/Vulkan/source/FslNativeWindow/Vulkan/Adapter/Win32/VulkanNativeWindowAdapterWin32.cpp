@@ -39,7 +39,7 @@ namespace Fsl
 {
   namespace
   {
-    const auto PLATFORM_KHR_SURFACE_EXTENSION_NAME = VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
+    const auto g_platformKhrSurfaceExtensionName = VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
 
 
     std::shared_ptr<IPlatformNativeWindowAdapter>
@@ -52,7 +52,7 @@ namespace Fsl
 
 
   VulkanNativeWindowSystemAdapterWin32::VulkanNativeWindowSystemAdapterWin32(const NativeWindowSystemSetup& setup)
-    : VulkanNativeWindowSystemAdapterTemplate<PlatformNativeWindowSystemAdapterWin32>(setup, PLATFORM_KHR_SURFACE_EXTENSION_NAME, AllocateWindow)
+    : VulkanNativeWindowSystemAdapterTemplate<PlatformNativeWindowSystemAdapterWin32>(setup, g_platformKhrSurfaceExtensionName, AllocateWindow)
   {
   }
 

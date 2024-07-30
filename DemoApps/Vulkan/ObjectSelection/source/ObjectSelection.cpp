@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019, 2022-2023 NXP
+ * Copyright 2019, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@
 #include <FslBase/Math/Ray.hpp>
 #include <FslBase/Math/ViewportUtil.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorF.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
@@ -53,16 +54,17 @@
 #include <vulkan/vulkan.h>
 #include <cmath>
 #include <random>
+
 namespace Fsl
 {
   namespace
   {
-    const float DEFAULT_ZOOM = 10;
+    constexpr float DefaultZoom = 10;
 
-    const uint32_t VERTEX_BUFFER_BIND_ID = 0;
-    const uint32_t LINES_SUBPASS = 0u;
+    constexpr uint32_t VertexBufferBindId = 0;
+    constexpr uint32_t LinesSubpass = 0u;
 
-    constexpr uint32_t INITIAL_LINE_CAPACITY = 4096u;
+    constexpr uint32_t InitialLineCapacity = 4096u;
 
     VulkanBasic::DemoAppVulkanSetup CreateSetup()
     {
@@ -455,7 +457,7 @@ namespace Fsl
 
     RegisterExtension(m_menuUI.GetUIDemoAppExtension());
 
-    m_camera.SetPosition(Vector3(0, 0, DEFAULT_ZOOM), Vector3(), Vector3::Up());
+    m_camera.SetPosition(Vector3(0, 0, DefaultZoom), Vector3(), Vector3::Up());
 
     m_lightFragUboData.LightDirection.Normalize();
 
@@ -490,7 +492,7 @@ namespace Fsl
 
     m_resources.MainDescriptorPool = CreateDescriptorPool(m_device, 3, maxFramesInFlight);
 
-    m_resources.LineDraw.Reset(m_device, m_resources.BufferManager, maxFramesInFlight, sizeof(ProjectionUBOData), INITIAL_LINE_CAPACITY);
+    m_resources.LineDraw.Reset(m_device, m_resources.BufferManager, maxFramesInFlight, sizeof(ProjectionUBOData), InitialLineCapacity);
 
     m_resources.MainFrameResources.resize(maxFramesInFlight);
     for (auto& rFrame : m_resources.MainFrameResources)
@@ -548,7 +550,7 @@ namespace Fsl
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
-        m_camera.SetPosition(Vector3(0, 0, DEFAULT_ZOOM), Vector3(), Vector3::Up());
+        m_camera.SetPosition(Vector3(0, 0, DefaultZoom), Vector3(), Vector3::Up());
         event.Handled();
       }
       break;
@@ -694,7 +696,7 @@ namespace Fsl
 
     m_resources.LineDraw.BuildResources(context.SwapchainImageExtent, m_resources.ProgramSolidColor.VertShaderModule.Get(),
                                         m_resources.ProgramSolidColor.FragShaderModule.Get(), m_dependentResources.MainRenderPass.Get(),
-                                        LINES_SUBPASS);
+                                        LinesSubpass);
 
     return m_dependentResources.MainRenderPass.Get();
   }
@@ -836,7 +838,7 @@ namespace Fsl
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.PlanePipeline.Get());
 
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MeshPlane.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(commandBuffer, VertexBufferBindId, 1, m_resources.MeshPlane.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdBindIndexBuffer(commandBuffer, m_resources.MeshPlane.IndexBuffer.GetBuffer(), 0, m_resources.MeshPlane.IndexBuffer.GetIndexType());
     vkCmdDrawIndexed(commandBuffer, m_resources.MeshPlane.IndexBuffer.GetIndexCount(), 1, 0, 0, 0);
   }
@@ -864,7 +866,7 @@ namespace Fsl
     if (bindMesh)
     {
       VkDeviceSize offsets = 0;
-      vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, mesh.VertexBuffer.GetBufferPointer(), &offsets);
+      vkCmdBindVertexBuffers(commandBuffer, VertexBufferBindId, 1, mesh.VertexBuffer.GetBufferPointer(), &offsets);
       vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer.GetBuffer(), 0, mesh.IndexBuffer.GetIndexType());
     }
 
@@ -881,7 +883,7 @@ namespace Fsl
     {
       for (auto& rEntry : m_resources.Objects)
       {
-        m_resources.LineBuild.Add(m_resources.Meshes[rEntry.MeshIndex].TheBoundingBox, Color::Red(), rEntry.WorldMatrix);
+        m_resources.LineBuild.Add(m_resources.Meshes[rEntry.MeshIndex].TheBoundingBox, Colors::Red(), rEntry.WorldMatrix);
       }
     }
 
@@ -891,35 +893,35 @@ namespace Fsl
       {
         if (i != m_selectedIndex || !m_hasSelectedObject)
         {
-          m_resources.LineBuild.Add(m_resources.Objects[i].MeshAABB, Color::Blue());
+          m_resources.LineBuild.Add(m_resources.Objects[i].MeshAABB, Colors::Blue());
         }
       }
     }
     if (m_hasSelectedObject)
     {
-      m_resources.LineBuild.Add(m_resources.Objects[m_selectedIndex].MeshAABB, Color::White());
+      m_resources.LineBuild.Add(m_resources.Objects[m_selectedIndex].MeshAABB, Colors::White());
     }
 
     // Draw bounding boxes
 
     {
-      // DrawLine(m_mousePositionNear, m_mousePositionFar, Color::Pink());
+      // DrawLine(m_mousePositionNear, m_mousePositionFar, Colors::Pink());
 
       if (m_menuUI.IsDrawNearPlaneMouseEnabled())
       {
         const float magic = 0.001f;
         m_resources.LineBuild.Add(m_mousePositionNear + Vector3(-magic, -magic, 0.0f), m_mousePositionNear + Vector3(Vector3(magic, magic, 0.0f)),
-                                  Color::Pink());
+                                  Colors::Pink());
         m_resources.LineBuild.Add(m_mousePositionNear + Vector3(magic, -magic, 0.0f), m_mousePositionNear + Vector3(Vector3(-magic, magic, 0.0f)),
-                                  Color::Pink());
+                                  Colors::Pink());
       }
       if (m_menuUI.IsDrawFarPlaneMouseEnabled())
       {
         const float magic = 5.0f;
         m_resources.LineBuild.Add(m_mousePositionFar + Vector3(-magic, -magic, 1.0f), m_mousePositionFar + Vector3(Vector3(magic, magic, 1.0f)),
-                                  Color::Cyan());
+                                  Colors::Cyan());
         m_resources.LineBuild.Add(m_mousePositionFar + Vector3(magic, -magic, 1.0f), m_mousePositionFar + Vector3(Vector3(-magic, magic, 1.0f)),
-                                  Color::Cyan());
+                                  Colors::Cyan());
       }
     }
 

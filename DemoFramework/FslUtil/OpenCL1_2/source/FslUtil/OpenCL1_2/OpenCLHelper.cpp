@@ -33,6 +33,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/String/StringUtil.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
 #include <RapidOpenCL1/Exceptions.hpp>
 #include <cassert>
@@ -279,6 +280,14 @@ namespace Fsl::OpenCL
       }
       rResult = status;
       return true;
+    }
+
+
+    cl_uint GetDeviceCount(const cl_context context)
+    {
+      std::size_t deviceListByteCount = 0;
+      RAPIDOPENCL_CHECK(clGetContextInfo(context, CL_CONTEXT_DEVICES, 0, nullptr, &deviceListByteCount));
+      return UncheckedNumericCast<cl_uint>(deviceListByteCount / sizeof(cl_device_id));
     }
   }
 }

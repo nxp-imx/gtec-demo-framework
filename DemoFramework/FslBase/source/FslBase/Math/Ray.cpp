@@ -41,7 +41,7 @@ namespace Fsl
   // adapted from http://www.scratchapixel.com/lessons/3d-basic-lessons/lesson-7-intersecting-simple-shapes/ray-box-intersection/
   bool Ray::Intersects(const BoundingBox& box, float& rResult) const
   {
-    const float Epsilon = 1e-6f;
+    constexpr float Epsilon = 1e-6f;
 
     bool hasMin = false;
     bool hasMax = false;

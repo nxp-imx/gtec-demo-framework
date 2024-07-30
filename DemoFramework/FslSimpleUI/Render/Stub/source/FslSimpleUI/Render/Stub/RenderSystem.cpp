@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
+#include <FslSimpleUI/Render/Builder/UIVertex.hpp>
 #include <FslSimpleUI/Render/Stub/MeshManager.hpp>
 #include <FslSimpleUI/Render/Stub/RenderSystem.hpp>
 
@@ -69,7 +69,7 @@ namespace Fsl::UI::RenderStub
 
   VertexDeclarationSpan RenderSystem::GetVertexDeclarationSpan()
   {
-    return VertexPositionColorTexture::AsVertexDeclarationSpan();
+    return UIVertex::AsVertexDeclarationSpan();
   }
 
 }

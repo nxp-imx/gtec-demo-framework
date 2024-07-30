@@ -38,6 +38,7 @@
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslGraphics/Sprite/Material/Basic/BasicSpriteMaterial.hpp>
+#include <FslGraphics/Sprite/Material/Basic/BasicSpriteMaterialUtil.hpp>
 #include <FslGraphics/Sprite/Material/ISpriteMaterial.hpp>
 
 namespace Fsl::Vulkan
@@ -83,7 +84,7 @@ namespace Fsl::Vulkan
                                     const SpriteFont& font)
     {
       assert(font.GetMaterialCount() == 1u);
-      const auto* pBasicSpriteMaterial = dynamic_cast<const BasicSpriteMaterial*>(font.GetMaterialInfo(0u).Material.get());
+      const auto* pBasicSpriteMaterial = BasicSpriteMaterialUtil::TryUpcast(font.GetMaterialInfo(0u).Material.get());
       if (pBasicSpriteMaterial == nullptr)
       {
         FSLLOG3_DEBUG_WARNING("material texture not of the expected type, call ignored");

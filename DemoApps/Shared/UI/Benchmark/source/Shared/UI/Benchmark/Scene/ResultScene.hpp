@@ -85,11 +85,11 @@ namespace Fsl
       {
         if (CpuLegend.Main)
         {
-          CpuLegend.Main->SetBaseColor(Color(1.0f, 1.0f, 1.0f, alpha));
+          CpuLegend.Main->SetBaseColor(UI::UIColor(1.0f, 1.0f, 1.0f, alpha));
         }
         if (Chart)
         {
-          Chart->SetBaseColor(Color(1.0f, 1.0f, 1.0f, alpha));
+          Chart->SetBaseColor(UI::UIColor(1.0f, 1.0f, 1.0f, alpha));
         }
       }
     };
@@ -105,11 +105,11 @@ namespace Fsl
       {
         if (GpuLegend.Main)
         {
-          GpuLegend.Main->SetBaseColor(Color(1.0f, 1.0f, 1.0f, alpha));
+          GpuLegend.Main->SetBaseColor(UI::UIColor(1.0f, 1.0f, 1.0f, alpha));
         }
         if (Chart)
         {
-          Chart->SetBaseColor(Color(1.0f, 1.0f, 1.0f, alpha));
+          Chart->SetBaseColor(UI::UIColor(1.0f, 1.0f, 1.0f, alpha));
         }
       }
     };

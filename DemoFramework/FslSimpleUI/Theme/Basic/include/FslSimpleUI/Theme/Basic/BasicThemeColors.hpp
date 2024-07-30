@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_THEME_BASIC_BASICTHEMECOLORS_HPP
 #define FSLSIMPLEUI_THEME_BASIC_BASICTHEMECOLORS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslGraphics/Color.hpp>
 #include <FslGraphics/ColorSpace.hpp>
+#include <FslSimpleUI/Base/UIColors.hpp>
 #include <FslSimpleUI/Theme/Base/BarType.hpp>
 #include <FslSimpleUI/Theme/Base/WindowType.hpp>
 #include <cassert>
@@ -55,24 +55,24 @@ namespace Fsl::UI::Theme
 
     struct PaletteRecord
     {
-      const Color Primary{0xFF1976d2};
-      const Color FontOnPrimary{0xFFFFFFFF};
-      const Color ButtonOutlineFont{0xFF2196f3};
-      const Color RadioButtonBackground{0xFF6a6a6a};
+      const UIColor Primary{PackedColor32(0xFF1976d2)};
+      const UIColor FontOnPrimary{PackedColor32(0xFFFFFFFF)};
+      const UIColor ButtonOutlineFont{PackedColor32(0xFF2196f3)};
+      const UIColor RadioButtonBackground{PackedColor32(0xFF6a6a6a)};
 
-      const Color DividerOnPrimary{0xFFFFFFFF};
+      const UIColor DividerOnPrimary{PackedColor32(0xFFFFFFFF)};
 
-      const Color SwitchCursorChecked{Primary};
-      const Color SwitchCursorUnchecked{0xFFfafafa};
-      const Color SwitchBackground{0xFF9a9999};
+      const UIColor SwitchCursorChecked{Primary};
+      const UIColor SwitchCursorUnchecked{PackedColor32(0xFFFAFAFA)};
+      const UIColor SwitchBackground{PackedColor32(0xFF9a9999)};
 
-      const Color BarColor{0xFF303030};
-      const Color WindowColor{0xFF303030};
+      const UIColor BarColor{PackedColor32(0xFF303030)};
+      const UIColor WindowColor{PackedColor32(0xFF303030)};
 
-      const Color PrimaryDark{0xFF004BA0};
+      const UIColor PrimaryDark{PackedColor32(0xFF004BA0)};
       // const Color FontOnPrimaryDark{0xFFFFFFFF};
 
-      const Color ImageOnPrimary{Color::White()};
+      const UIColor ImageOnPrimary{UIColors::White()};
 
       constexpr explicit PaletteRecord(const OpacityRecord& opacity)
       {
@@ -80,17 +80,17 @@ namespace Fsl::UI::Theme
       }
 
       constexpr explicit PaletteRecord(const OpacityRecord& opacity, const bool usePrimary)
-        : Primary(usePrimary ? 0xFF1976d2 : 0xFFce28b2)
-        , FontOnPrimary(0xFFFFFFFF)
-        , ButtonOutlineFont(usePrimary ? 0xFF2196f3 : 0xFFff81e9)
-        , RadioButtonBackground(0xFF6a6a6a)
+        : Primary(usePrimary ? PackedColor32(0xFF1976D2) : PackedColor32(0xFFCE28B2))
+        , FontOnPrimary(PackedColor32(0xFFFFFFFF))
+        , ButtonOutlineFont(PackedColor32(usePrimary ? 0xFF2196F3 : 0xFFFF81E9))
+        , RadioButtonBackground(PackedColor32(0xFF6A6A6A))
         , SwitchCursorChecked(Primary)
-        , SwitchCursorUnchecked(0xFFfafafa)
-        , SwitchBackground(0xFF9a9999)
-        , BarColor(usePrimary ? 0xFF303030 : 0xFF302030)
-        , WindowColor(usePrimary ? 0xFF303030 : 0xFF302030)
-        , PrimaryDark(usePrimary ? 0xFF004BA0 : 0xFF990082)
-        , ImageOnPrimary(Color::White())
+        , SwitchCursorUnchecked(PackedColor32(0xFFFAFAFA))
+        , SwitchBackground(PackedColor32(0xFF9A9999))
+        , BarColor(PackedColor32(usePrimary ? 0xFF303030 : 0xFF302030))
+        , WindowColor(PackedColor32(usePrimary ? 0xFF303030 : 0xFF302030))
+        , PrimaryDark(PackedColor32(usePrimary ? 0xFF004BA0 : 0xFF990082))
+        , ImageOnPrimary(UIColors::White())
       {
         FSL_PARAM_NOT_USED(opacity);
       }
@@ -116,12 +116,12 @@ namespace Fsl::UI::Theme
 
     struct BarRecord
     {
-      const Color Normal;
-      const Color Transparent;
+      const UIColor Normal;
+      const UIColor Transparent;
 
       constexpr BarRecord(const OpacityRecord& opacity, const PaletteRecord& palette)
         : Normal(palette.BarColor)
-        , Transparent(Color::ApplyAlpha(palette.BarColor, 0.85f))
+        , Transparent(UIColor::MultiplyA(palette.BarColor, 0.85f))
       {
         FSL_PARAM_NOT_USED(opacity);
       }
@@ -135,12 +135,12 @@ namespace Fsl::UI::Theme
 
     struct DefaultFontRecord
     {
-      const Color Primary;
-      const Color PrimaryDisabled;
+      const UIColor Primary;
+      const UIColor PrimaryDisabled;
 
       constexpr DefaultFontRecord(const OpacityRecord& opacity, const PaletteRecord& palette)
         : Primary(palette.FontOnPrimary)
-        , PrimaryDisabled(Color::MultiplyRGB(palette.FontOnPrimary, opacity.DisabledDarken))
+        , PrimaryDisabled(UIColor::MultiplyRGB(palette.FontOnPrimary, opacity.DisabledDarken))
       {
       }
 
@@ -153,34 +153,34 @@ namespace Fsl::UI::Theme
 
     struct ButtonRecord
     {
-      const Color BackgroundHoverUp;
-      const Color BackgroundUp;
-      const Color BackgroundDown;
-      const Color BackgroundDisabled;
-      const Color BackgroundHoverOverlayUp;
-      const Color BackgroundHoverOverlayDown;
+      const UIColor BackgroundHoverUp;
+      const UIColor BackgroundUp;
+      const UIColor BackgroundDown;
+      const UIColor BackgroundDisabled;
+      const UIColor BackgroundHoverOverlayUp;
+      const UIColor BackgroundHoverOverlayDown;
 
-      const Color FontUp;
-      const Color FontDown;
-      const Color FontDisabled;
+      const UIColor FontUp;
+      const UIColor FontDown;
+      const UIColor FontDisabled;
 
-      const Color OutlineFontUp;
-      const Color OutlineFontDown;
-      const Color OutlineFontDisabled;
+      const UIColor OutlineFontUp;
+      const UIColor OutlineFontDown;
+      const UIColor OutlineFontDisabled;
 
       constexpr ButtonRecord(const OpacityRecord& opacity, const PaletteRecord& palette)
-        : BackgroundHoverUp(Color::MultiplyRGB(palette.Primary, 1.05f))
+        : BackgroundHoverUp(UIColor::MultiplyRGB(palette.Primary, 1.05f))
         , BackgroundUp(palette.Primary)
-        , BackgroundDown(Color::MultiplyRGB(palette.Primary, opacity.ButtonDownDarken))
-        , BackgroundDisabled(Color::MultiplyRGB(palette.Primary, opacity.DisabledDarken))
-        , BackgroundHoverOverlayUp(Color::ApplyAlpha(palette.Primary, 0.10f))
-        , BackgroundHoverOverlayDown(Color::ApplyAlpha(palette.Primary, 0.08f))
+        , BackgroundDown(UIColor::MultiplyRGB(palette.Primary, opacity.ButtonDownDarken))
+        , BackgroundDisabled(UIColor::MultiplyRGB(palette.Primary, opacity.DisabledDarken))
+        , BackgroundHoverOverlayUp(UIColor::MultiplyA(palette.Primary, 0.10f))
+        , BackgroundHoverOverlayDown(UIColor::MultiplyA(palette.Primary, 0.08f))
         , FontUp(palette.FontOnPrimary)
-        , FontDown(Color::MultiplyRGB(palette.FontOnPrimary, opacity.ButtonDownDarken))
-        , FontDisabled(Color::MultiplyRGB(palette.FontOnPrimary, opacity.DisabledDarken))
+        , FontDown(UIColor::MultiplyRGB(palette.FontOnPrimary, opacity.ButtonDownDarken))
+        , FontDisabled(UIColor::MultiplyRGB(palette.FontOnPrimary, opacity.DisabledDarken))
         , OutlineFontUp(palette.ButtonOutlineFont)
-        , OutlineFontDown(Color::MultiplyRGB(palette.ButtonOutlineFont, opacity.ButtonDownDarken))
-        , OutlineFontDisabled(Color::MultiplyRGB(palette.ButtonOutlineFont, opacity.DisabledDarken))
+        , OutlineFontDown(UIColor::MultiplyRGB(palette.ButtonOutlineFont, opacity.ButtonDownDarken))
+        , OutlineFontDisabled(UIColor::MultiplyRGB(palette.ButtonOutlineFont, opacity.DisabledDarken))
       {
       }
 
@@ -206,30 +206,30 @@ namespace Fsl::UI::Theme
 
     struct CheckBoxRecord
     {
-      const Color HoverChecked;
-      const Color HoverUnchecked;
-      const Color CursorChecked;
-      const Color CursorCheckedDisabled;
-      const Color CursorUnchecked;
-      const Color CursorUncheckedDisabled;
-      const Color BackgroundChecked;
-      const Color BackgroundCheckedDisabled;
-      const Color BackgroundUnchecked;
-      const Color BackgroundUncheckedDisabled;
-      const Color CheckedFont;
-      const Color UncheckedFont;
+      const UIColor HoverChecked;
+      const UIColor HoverUnchecked;
+      const UIColor CursorChecked;
+      const UIColor CursorCheckedDisabled;
+      const UIColor CursorUnchecked;
+      const UIColor CursorUncheckedDisabled;
+      const UIColor BackgroundChecked;
+      const UIColor BackgroundCheckedDisabled;
+      const UIColor BackgroundUnchecked;
+      const UIColor BackgroundUncheckedDisabled;
+      const UIColor CheckedFont;
+      const UIColor UncheckedFont;
 
       constexpr CheckBoxRecord(const OpacityRecord& opacity, const PaletteRecord& palette)
-        : HoverChecked(Color::ApplyAlpha(palette.Primary, opacity.HoverAlpha))
-        , HoverUnchecked(Color::ApplyAlpha(palette.RadioButtonBackground, opacity.HoverAlpha))
+        : HoverChecked(UIColor::MultiplyA(palette.Primary, opacity.HoverAlpha))
+        , HoverUnchecked(UIColor::MultiplyA(palette.RadioButtonBackground, opacity.HoverAlpha))
         , CursorChecked(palette.Primary)
-        , CursorCheckedDisabled(Color::MultiplyRGB(palette.Primary, opacity.DisabledDarken))
-        , CursorUnchecked(Color::Transparent())
-        , CursorUncheckedDisabled(Color::Transparent())
+        , CursorCheckedDisabled(UIColor::MultiplyRGB(palette.Primary, opacity.DisabledDarken))
+        , CursorUnchecked(UIColors::Transparent())
+        , CursorUncheckedDisabled(UIColors::Transparent())
         , BackgroundChecked(palette.Primary)
-        , BackgroundCheckedDisabled(Color::MultiplyRGB(palette.Primary, opacity.DisabledDarken))
+        , BackgroundCheckedDisabled(UIColor::MultiplyRGB(palette.Primary, opacity.DisabledDarken))
         , BackgroundUnchecked(palette.RadioButtonBackground)
-        , BackgroundUncheckedDisabled(Color::MultiplyRGB(palette.RadioButtonBackground, opacity.DisabledDarken))
+        , BackgroundUncheckedDisabled(UIColor::MultiplyRGB(palette.RadioButtonBackground, opacity.DisabledDarken))
         , CheckedFont(palette.FontOnPrimary)
         , UncheckedFont(palette.FontOnPrimary)
       {
@@ -257,12 +257,12 @@ namespace Fsl::UI::Theme
 
     struct DividerRecord
     {
-      const Color Primary;
+      const UIColor Primary;
       // const Color PrimaryDisabled;
 
       constexpr DividerRecord(const OpacityRecord& opacity, const PaletteRecord& palette)
-        : Primary(Color::SetA(palette.DividerOnPrimary, 0.12f))
-      //, PrimaryDisabled(Color::MultiplyRGB(Primary, opacity.DisabledDarken))
+        : Primary(UIColor::SetA(palette.DividerOnPrimary, 0.12f))
+      //, PrimaryDisabled(UIColor::MultiplyRGB(Primary, opacity.DisabledDarken))
       {
         FSL_PARAM_NOT_USED(opacity);
       }
@@ -275,23 +275,23 @@ namespace Fsl::UI::Theme
 
     struct ImageButtonRecord
     {
-      const Color BackgroundHoverUp;
-      const Color BackgroundUp;
-      const Color BackgroundDown;
-      const Color BackgroundDisabled;
+      const UIColor BackgroundHoverUp;
+      const UIColor BackgroundUp;
+      const UIColor BackgroundDown;
+      const UIColor BackgroundDisabled;
 
-      const Color ImageUp;
-      const Color ImageDown;
-      const Color ImageDisabled;
+      const UIColor ImageUp;
+      const UIColor ImageDown;
+      const UIColor ImageDisabled;
 
       constexpr ImageButtonRecord(const OpacityRecord& opacity, const PaletteRecord& palette)
-        : BackgroundHoverUp(Color::MultiplyRGB(palette.Primary, 1.10f))
+        : BackgroundHoverUp(UIColor::MultiplyRGB(palette.Primary, 1.10f))
         , BackgroundUp(palette.Primary)
-        , BackgroundDown(Color::MultiplyRGB(palette.Primary, opacity.ButtonDownDarken))
-        , BackgroundDisabled(Color::MultiplyRGB(palette.Primary, opacity.DisabledDarken))
+        , BackgroundDown(UIColor::MultiplyRGB(palette.Primary, opacity.ButtonDownDarken))
+        , BackgroundDisabled(UIColor::MultiplyRGB(palette.Primary, opacity.DisabledDarken))
         , ImageUp(palette.ImageOnPrimary)
-        , ImageDown(Color::MultiplyRGB(palette.ImageOnPrimary, opacity.ButtonDownDarken))
-        , ImageDisabled(Color::MultiplyRGB(palette.ImageOnPrimary, opacity.DisabledDarken))
+        , ImageDown(UIColor::MultiplyRGB(palette.ImageOnPrimary, opacity.ButtonDownDarken))
+        , ImageDisabled(UIColor::MultiplyRGB(palette.ImageOnPrimary, opacity.DisabledDarken))
       {
       }
 
@@ -310,30 +310,30 @@ namespace Fsl::UI::Theme
 
     struct RadioButtonRecord
     {
-      const Color HoverChecked;
-      const Color HoverUnchecked;
-      const Color CursorChecked;
-      const Color CursorCheckedDisabled;
-      const Color CursorUnchecked;
-      const Color CursorUncheckedDisabled;
-      const Color BackgroundChecked;
-      const Color BackgroundCheckedDisabled;
-      const Color BackgroundUnchecked;
-      const Color BackgroundUncheckedDisabled;
-      const Color CheckedFont;
-      const Color UncheckedFont;
+      const UIColor HoverChecked;
+      const UIColor HoverUnchecked;
+      const UIColor CursorChecked;
+      const UIColor CursorCheckedDisabled;
+      const UIColor CursorUnchecked;
+      const UIColor CursorUncheckedDisabled;
+      const UIColor BackgroundChecked;
+      const UIColor BackgroundCheckedDisabled;
+      const UIColor BackgroundUnchecked;
+      const UIColor BackgroundUncheckedDisabled;
+      const UIColor CheckedFont;
+      const UIColor UncheckedFont;
 
       constexpr RadioButtonRecord(const OpacityRecord& opacity, const PaletteRecord& palette)
-        : HoverChecked(Color::ApplyAlpha(palette.Primary, opacity.HoverAlpha))
-        , HoverUnchecked(Color::ApplyAlpha(palette.RadioButtonBackground, opacity.HoverAlpha))
+        : HoverChecked(UIColor::MultiplyA(palette.Primary, opacity.HoverAlpha))
+        , HoverUnchecked(UIColor::MultiplyA(palette.RadioButtonBackground, opacity.HoverAlpha))
         , CursorChecked(palette.Primary)
-        , CursorCheckedDisabled(Color::MultiplyRGB(palette.Primary, opacity.DisabledDarken))
-        , CursorUnchecked(Color::Transparent())
-        , CursorUncheckedDisabled(Color::Transparent())
+        , CursorCheckedDisabled(UIColor::MultiplyRGB(palette.Primary, opacity.DisabledDarken))
+        , CursorUnchecked(UIColors::Transparent())
+        , CursorUncheckedDisabled(UIColors::Transparent())
         , BackgroundChecked(palette.Primary)
-        , BackgroundCheckedDisabled(Color::MultiplyRGB(palette.Primary, opacity.DisabledDarken))
+        , BackgroundCheckedDisabled(UIColor::MultiplyRGB(palette.Primary, opacity.DisabledDarken))
         , BackgroundUnchecked(palette.RadioButtonBackground)
-        , BackgroundUncheckedDisabled(Color::MultiplyRGB(palette.RadioButtonBackground, opacity.DisabledDarken))
+        , BackgroundUncheckedDisabled(UIColor::MultiplyRGB(palette.RadioButtonBackground, opacity.DisabledDarken))
         , CheckedFont(palette.FontOnPrimary)
         , UncheckedFont(palette.FontOnPrimary)
       {
@@ -361,31 +361,31 @@ namespace Fsl::UI::Theme
 
     struct SwitchRecord
     {
-      const Color HoverChecked;
-      const Color HoverUnchecked;
-      const Color CursorChecked;
-      const Color CursorCheckedDisabled;
-      const Color CursorUnchecked;
-      const Color CursorUncheckedDisabled;
-      const Color BackgroundChecked;
-      const Color BackgroundCheckedDisabled;
-      const Color BackgroundUnchecked;
-      const Color BackgroundUncheckedDisabled;
+      const UIColor HoverChecked;
+      const UIColor HoverUnchecked;
+      const UIColor CursorChecked;
+      const UIColor CursorCheckedDisabled;
+      const UIColor CursorUnchecked;
+      const UIColor CursorUncheckedDisabled;
+      const UIColor BackgroundChecked;
+      const UIColor BackgroundCheckedDisabled;
+      const UIColor BackgroundUnchecked;
+      const UIColor BackgroundUncheckedDisabled;
 
-      const Color CheckedFont;
-      const Color UncheckedFont;
+      const UIColor CheckedFont;
+      const UIColor UncheckedFont;
 
       constexpr SwitchRecord(const OpacityRecord& opacity, const PaletteRecord& palette)
-        : HoverChecked(Color::ApplyAlpha(palette.SwitchCursorChecked, opacity.HoverAlpha))
-        , HoverUnchecked(Color::ApplyAlpha(palette.SwitchCursorUnchecked, opacity.HoverUnselectedAlpha))
+        : HoverChecked(UIColor::MultiplyA(palette.SwitchCursorChecked, opacity.HoverAlpha))
+        , HoverUnchecked(UIColor::MultiplyA(palette.SwitchCursorUnchecked, opacity.HoverUnselectedAlpha))
         , CursorChecked(palette.SwitchCursorChecked)
-        , CursorCheckedDisabled(Color::MultiplyRGB(palette.SwitchCursorChecked, opacity.DisabledDarken))
+        , CursorCheckedDisabled(UIColor::MultiplyRGB(palette.SwitchCursorChecked, opacity.DisabledDarken))
         , CursorUnchecked(palette.SwitchCursorUnchecked)
-        , CursorUncheckedDisabled(Color::MultiplyRGB(palette.SwitchCursorUnchecked, opacity.DisabledDarken))
+        , CursorUncheckedDisabled(UIColor::MultiplyRGB(palette.SwitchCursorUnchecked, opacity.DisabledDarken))
         , BackgroundChecked(palette.PrimaryDark)
-        , BackgroundCheckedDisabled(Color::MultiplyRGB(palette.PrimaryDark, opacity.DisabledDarken))
+        , BackgroundCheckedDisabled(UIColor::MultiplyRGB(palette.PrimaryDark, opacity.DisabledDarken))
         , BackgroundUnchecked(palette.SwitchBackground)
-        , BackgroundUncheckedDisabled(Color::MultiplyRGB(palette.SwitchBackground, opacity.DisabledDarken))
+        , BackgroundUncheckedDisabled(UIColor::MultiplyRGB(palette.SwitchBackground, opacity.DisabledDarken))
         , CheckedFont(palette.FontOnPrimary)
         , UncheckedFont(palette.FontOnPrimary)
       {
@@ -413,18 +413,18 @@ namespace Fsl::UI::Theme
 
     struct SliderRecord
     {
-      const Color Background;
-      const Color BackgroundDisabled;
-      const Color Cursor;
-      const Color CursorDisabled;
-      const Color CursorOverlay;
+      const UIColor Background;
+      const UIColor BackgroundDisabled;
+      const UIColor Cursor;
+      const UIColor CursorDisabled;
+      const UIColor CursorOverlay;
 
       constexpr SliderRecord(const OpacityRecord& opacity, const PaletteRecord& palette)
         : Background(palette.Primary)
-        , BackgroundDisabled(Color::MultiplyRGB(palette.Primary, opacity.DisabledDarken))
+        , BackgroundDisabled(UIColor::MultiplyRGB(palette.Primary, opacity.DisabledDarken))
         , Cursor(palette.Primary)
-        , CursorDisabled(Color::MultiplyRGB(palette.Primary, opacity.DisabledDarken))
-        , CursorOverlay(Color::ApplyAlpha(palette.Primary, opacity.SliderHoverAlpha))
+        , CursorDisabled(UIColor::MultiplyRGB(palette.Primary, opacity.DisabledDarken))
+        , CursorOverlay(UIColor::MultiplyA(palette.Primary, opacity.SliderHoverAlpha))
       {
       }
 
@@ -441,12 +441,12 @@ namespace Fsl::UI::Theme
 
     struct WindowRecord
     {
-      const Color Background;
-      const Color BackgroundTransparent;
+      const UIColor Background;
+      const UIColor BackgroundTransparent;
 
       constexpr WindowRecord(const OpacityRecord& opacity, const PaletteRecord& palette)
         : Background(palette.WindowColor)
-        , BackgroundTransparent(Color::ApplyAlpha(palette.WindowColor, 0.85f))
+        , BackgroundTransparent(UIColor::MultiplyA(palette.WindowColor, 0.85f))
       {
         FSL_PARAM_NOT_USED(opacity);
       }
@@ -508,7 +508,7 @@ namespace Fsl::UI::Theme
     {
     }
 
-    constexpr Color GetBarColor(const BarType type) const
+    constexpr UIColor GetBarColor(const BarType type) const
     {
       switch (type)
       {
@@ -520,7 +520,7 @@ namespace Fsl::UI::Theme
       }
     }
 
-    constexpr Color GetWindowColor(const WindowType type) const
+    constexpr UIColor GetWindowColor(const WindowType type) const
     {
       switch (type)
       {

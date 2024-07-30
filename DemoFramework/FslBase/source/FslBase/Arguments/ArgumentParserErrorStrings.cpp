@@ -54,7 +54,8 @@ namespace Fsl::Arguments::ArgumentParser
 
     std::string GetCombinedArgumentErrorString(const ParseResult /*result*/, const ParseErrorInfo& parseErrorInfo,
                                                const ReadOnlySpan<StringViewLite> args, const std::deque<Command>& commands,
-                                               ErrorFormatter& formatter, const char* const pszFormat1, const char* const pszFormat2)
+                                               ErrorFormatter& formatter, fmt::format_string<std::string_view> formatString1,
+                                               fmt::format_string<std::string_view> formatString2)
     {
       const StringViewLite strArg = SafeGetArgumentString(args, parseErrorInfo.SourceArgumentIndex);
       if (!strArg.empty() && strArg[0] == '-')
@@ -69,13 +70,13 @@ namespace Fsl::Arguments::ArgumentParser
             {
               assert(!commands[parseErrorInfo.CommandIndex].ShortName.empty());
               // and we have a matching command and its a combined switch
-              return formatter.Format(pszFormat2, commands[parseErrorInfo.CommandIndex].ShortName);
+              return formatter.Format(formatString2, commands[parseErrorInfo.CommandIndex].ShortName);
             }
           }
         }
         // long name switch
       }
-      return formatter.Format(pszFormat1, strArg);
+      return formatter.Format(formatString1, strArg);
     }
 
     std::string SafeGetCommandName(const Command& command)

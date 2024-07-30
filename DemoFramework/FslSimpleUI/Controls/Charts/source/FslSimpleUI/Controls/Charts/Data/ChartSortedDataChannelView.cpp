@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/ChartDataEntry.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/ChartDataView.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/ChartSortedDataChannelView.hpp>
@@ -97,7 +97,7 @@ namespace Fsl::UI
   ReadOnlySpan<uint32_t> ChartSortedDataChannelView::GetChannelViewSpan() const
   {
     RefreshCacheIfNecessary();
-    return ReadOnlySpanUtil::AsSpan(m_cachedSortedData);
+    return SpanUtil::AsReadOnlySpan(m_cachedSortedData);
   }
 
 

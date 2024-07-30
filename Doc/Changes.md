@@ -1,5 +1,17 @@
 # Latest version
 
+## Release 6.4.0
+
+* **Breaking change** Now requires C++20.
+* **Breaking change** TimeInfo constants were moved to TimeSpan
+* Added MillisecondTickCount32.
+* **Breaking change** IImageConverterLibraryService was renamed to IImageConverterService and moves to its own package 'FslDemoService.ImageConverter'
+* **Breaking change** RawBitmapEx was redesigned
+* **Breaking change** RawTextureEx was redesigned
+* **Breaking change** RawBitmap renamed to ReadOnlyRawBitmap
+* **Breaking change** RawTexture renamed to ReadOnlyRawTexture
+* **Breaking change** WindowSystem Wayland_XDG was renamed to Wayland.
+
 ## Release 6.3.1
 
 * Fixed Vulkan.Screenshot, so it captures it at the correct time.

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -466,22 +466,22 @@ TEST(TestMath_Vector4, Transform)
   const Vector4 value2(0.0f, 1.0f, 0.0f, 0.0f);
   const Vector4 value3(0.0f, 0.0f, 1.0f, 0.0f);
   const Vector4 value4(0.0f, 0.0f, 0.0f, 1.0f);
-  constexpr float tolerance = 0.0000001f;
+  constexpr float Tolerance = 0.0000001f;
 
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), Vector4::Transform(value1, matRotateX90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), Vector4::Transform(value2, matRotateX90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, -1.0f, 0.0f, 0.0f), Vector4::Transform(value3, matRotateX90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 0.0f, 1.0f), Vector4::Transform(value4, matRotateX90), tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), Vector4::Transform(value1, matRotateX90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), Vector4::Transform(value2, matRotateX90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, -1.0f, 0.0f, 0.0f), Vector4::Transform(value3, matRotateX90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 0.0f, 1.0f), Vector4::Transform(value4, matRotateX90), Tolerance));
 
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, -1.0f, 0.0f), Vector4::Transform(value1, matRotateY90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), Vector4::Transform(value2, matRotateY90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), Vector4::Transform(value3, matRotateY90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 0.0f, 1.0f), Vector4::Transform(value4, matRotateY90), tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, -1.0f, 0.0f), Vector4::Transform(value1, matRotateY90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), Vector4::Transform(value2, matRotateY90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), Vector4::Transform(value3, matRotateY90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 0.0f, 1.0f), Vector4::Transform(value4, matRotateY90), Tolerance));
 
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), Vector4::Transform(value1, matRotateZ90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(-1.0f, 0.0f, 0.0f, 0.0f), Vector4::Transform(value2, matRotateZ90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), Vector4::Transform(value3, matRotateZ90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 0.0f, 1.0f), Vector4::Transform(value4, matRotateZ90), tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), Vector4::Transform(value1, matRotateZ90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(-1.0f, 0.0f, 0.0f, 0.0f), Vector4::Transform(value2, matRotateZ90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), Vector4::Transform(value3, matRotateZ90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 0.0f, 1.0f), Vector4::Transform(value4, matRotateZ90), Tolerance));
 }
 
 TEST(TestMath_Vector4, Transform_Ref)
@@ -493,7 +493,7 @@ TEST(TestMath_Vector4, Transform_Ref)
   const Vector4 value2(0.0f, 1.0f, 0.0f, 0.0f);
   const Vector4 value3(0.0f, 0.0f, 1.0f, 0.0f);
   const Vector4 value4(0.0f, 0.0f, 0.0f, 1.0f);
-  constexpr float tolerance = 0.0000001f;
+  constexpr float Tolerance = 0.0000001f;
 
   {
     Vector4 res1;
@@ -505,10 +505,10 @@ TEST(TestMath_Vector4, Transform_Ref)
     Vector4::Transform(value3, matRotateX90, res3);
     Vector4::Transform(value4, matRotateX90, res4);
 
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), res1, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), res2, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, -1.0f, 0.0f, 0.0f), res3, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 0.0f, 1.0f), res4, tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), res1, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), res2, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, -1.0f, 0.0f, 0.0f), res3, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 0.0f, 1.0f), res4, Tolerance));
   }
 
   {
@@ -521,10 +521,10 @@ TEST(TestMath_Vector4, Transform_Ref)
     Vector4::Transform(value3, matRotateY90, res3);
     Vector4::Transform(value4, matRotateY90, res4);
 
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, -1.0f, 0.0f), res1, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), res2, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), res3, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 0.0f, 1.0f), res4, tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, -1.0f, 0.0f), res1, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), res2, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), res3, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 0.0f, 1.0f), res4, Tolerance));
   }
 
   {
@@ -537,10 +537,10 @@ TEST(TestMath_Vector4, Transform_Ref)
     Vector4::Transform(value3, matRotateZ90, res3);
     Vector4::Transform(value4, matRotateZ90, res4);
 
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), res1, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(-1.0f, 0.0f, 0.0f, 0.0f), res2, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), res3, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 0.0f, 1.0f), res4, tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), res1, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(-1.0f, 0.0f, 0.0f, 0.0f), res2, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), res3, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 0.0f, 1.0f), res4, Tolerance));
   }
 }
 
@@ -553,19 +553,19 @@ TEST(TestMath_Vector4, Transform_Vector3)
   const Vector3 value1(1.0f, 0.0f, 0.0f);
   const Vector3 value2(0.0f, 1.0f, 0.0f);
   const Vector3 value3(0.0f, 0.0f, 1.0f);
-  constexpr float tolerance = 0.0000001f;
+  constexpr float Tolerance = 0.0000001f;
 
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), Vector4::Transform(value1, matRotateX90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), Vector4::Transform(value2, matRotateX90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, -1.0f, 0.0f, 0.0f), Vector4::Transform(value3, matRotateX90), tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), Vector4::Transform(value1, matRotateX90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), Vector4::Transform(value2, matRotateX90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, -1.0f, 0.0f, 0.0f), Vector4::Transform(value3, matRotateX90), Tolerance));
 
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, -1.0f, 0.0f), Vector4::Transform(value1, matRotateY90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), Vector4::Transform(value2, matRotateY90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), Vector4::Transform(value3, matRotateY90), tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, -1.0f, 0.0f), Vector4::Transform(value1, matRotateY90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), Vector4::Transform(value2, matRotateY90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), Vector4::Transform(value3, matRotateY90), Tolerance));
 
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), Vector4::Transform(value1, matRotateZ90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(-1.0f, 0.0f, 0.0f, 0.0f), Vector4::Transform(value2, matRotateZ90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), Vector4::Transform(value3, matRotateZ90), tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), Vector4::Transform(value1, matRotateZ90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(-1.0f, 0.0f, 0.0f, 0.0f), Vector4::Transform(value2, matRotateZ90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), Vector4::Transform(value3, matRotateZ90), Tolerance));
 }
 
 
@@ -577,7 +577,7 @@ TEST(TestMath_Vector4, Transform_Vector3_Ref)
   const Vector3 value1(1.0f, 0.0f, 0.0f);
   const Vector3 value2(0.0f, 1.0f, 0.0f);
   const Vector3 value3(0.0f, 0.0f, 1.0f);
-  constexpr float tolerance = 0.0000001f;
+  constexpr float Tolerance = 0.0000001f;
 
   {
     Vector4 res1;
@@ -587,9 +587,9 @@ TEST(TestMath_Vector4, Transform_Vector3_Ref)
     Vector4::Transform(value2, matRotateX90, res2);
     Vector4::Transform(value3, matRotateX90, res3);
 
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), res1, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), res2, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, -1.0f, 0.0f, 0.0f), res3, tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), res1, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), res2, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, -1.0f, 0.0f, 0.0f), res3, Tolerance));
   }
 
   {
@@ -600,9 +600,9 @@ TEST(TestMath_Vector4, Transform_Vector3_Ref)
     Vector4::Transform(value2, matRotateY90, res2);
     Vector4::Transform(value3, matRotateY90, res3);
 
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, -1.0f, 0.0f), res1, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), res2, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), res3, tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, -1.0f, 0.0f), res1, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), res2, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), res3, Tolerance));
   }
 
   {
@@ -613,9 +613,9 @@ TEST(TestMath_Vector4, Transform_Vector3_Ref)
     Vector4::Transform(value2, matRotateZ90, res2);
     Vector4::Transform(value3, matRotateZ90, res3);
 
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), res1, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(-1.0f, 0.0f, 0.0f, 0.0f), res2, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), res3, tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), res1, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(-1.0f, 0.0f, 0.0f, 0.0f), res2, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), res3, Tolerance));
   }
 }
 
@@ -627,16 +627,16 @@ TEST(TestMath_Vector4, Transform_Vector2)
   const auto matRotateZ90 = Matrix::CreateRotationZ(MathHelper::RADS90);
   const Vector2 value1(1.0f, 0.0f);
   const Vector2 value2(0.0f, 1.0f);
-  constexpr float tolerance = 0.0000001f;
+  constexpr float Tolerance = 0.0000001f;
 
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), Vector4::Transform(value1, matRotateX90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), Vector4::Transform(value2, matRotateX90), tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), Vector4::Transform(value1, matRotateX90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), Vector4::Transform(value2, matRotateX90), Tolerance));
 
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, -1.0f, 0.0f), Vector4::Transform(value1, matRotateY90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), Vector4::Transform(value2, matRotateY90), tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, -1.0f, 0.0f), Vector4::Transform(value1, matRotateY90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), Vector4::Transform(value2, matRotateY90), Tolerance));
 
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), Vector4::Transform(value1, matRotateZ90), tolerance));
-  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(-1.0f, 0.0f, 0.0f, 0.0f), Vector4::Transform(value2, matRotateZ90), tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), Vector4::Transform(value1, matRotateZ90), Tolerance));
+  EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(-1.0f, 0.0f, 0.0f, 0.0f), Vector4::Transform(value2, matRotateZ90), Tolerance));
 }
 
 
@@ -647,7 +647,7 @@ TEST(TestMath_Vector4, Transform_Vector2_Ref)
   const auto matRotateZ90 = Matrix::CreateRotationZ(MathHelper::RADS90);
   const Vector2 value1(1.0f, 0.0f);
   const Vector2 value2(0.0f, 1.0f);
-  constexpr float tolerance = 0.0000001f;
+  constexpr float Tolerance = 0.0000001f;
 
   {
     Vector4 res1;
@@ -655,8 +655,8 @@ TEST(TestMath_Vector4, Transform_Vector2_Ref)
     Vector4::Transform(value1, matRotateX90, res1);
     Vector4::Transform(value2, matRotateX90, res2);
 
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), res1, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), res2, tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(1.0f, 0.0f, 0.0f, 0.0f), res1, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, 1.0f, 0.0f), res2, Tolerance));
   }
 
   {
@@ -665,8 +665,8 @@ TEST(TestMath_Vector4, Transform_Vector2_Ref)
     Vector4::Transform(value1, matRotateY90, res1);
     Vector4::Transform(value2, matRotateY90, res2);
 
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, -1.0f, 0.0f), res1, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), res2, tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 0.0f, -1.0f, 0.0f), res1, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), res2, Tolerance));
   }
 
   {
@@ -675,8 +675,8 @@ TEST(TestMath_Vector4, Transform_Vector2_Ref)
     Vector4::Transform(value1, matRotateZ90, res1);
     Vector4::Transform(value2, matRotateZ90, res2);
 
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), res1, tolerance));
-    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(-1.0f, 0.0f, 0.0f, 0.0f), res2, tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(0.0f, 1.0f, 0.0f, 0.0f), res1, Tolerance));
+    EXPECT_TRUE(Fsl::Test::IsFloatNear(Vector4(-1.0f, 0.0f, 0.0f, 0.0f), res2, Tolerance));
   }
 }
 

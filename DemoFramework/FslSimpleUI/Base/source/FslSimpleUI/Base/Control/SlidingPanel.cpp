@@ -104,7 +104,7 @@ namespace Fsl::UI
 
   SlidingPanel::SlidingPanel(const std::shared_ptr<BaseWindowContext>& context)
     : ContentControl(context)
-    , m_animation(context->UITransitionCache, DefaultAnim::SlideTime, DefaultAnim::SlideTransitionType)
+    , m_animation(DefaultAnim::SlideTime, DefaultAnim::SlideTransitionType)
   {
     m_animation.SetActualValue(LocalConfig::Visible);
   }

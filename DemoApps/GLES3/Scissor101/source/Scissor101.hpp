@@ -53,8 +53,8 @@ namespace Fsl
       GLint ProjMatrix;
 
       ProgramLocation()
-        : ModelViewMatrix(GLES3::GLValues::INVALID_LOCATION)
-        , ProjMatrix(GLES3::GLValues::INVALID_LOCATION)
+        : ModelViewMatrix(GLES3::GLValues::InvalidLocation)
+        , ProjMatrix(GLES3::GLValues::InvalidLocation)
       {
       }
     };

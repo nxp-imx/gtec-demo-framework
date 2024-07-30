@@ -55,8 +55,8 @@ namespace Fsl
 
   namespace
   {
-    const float DEFAULT_ZOOM = 10;
-    const float DEFAULT_MODEL_SCALE = 5;
+    constexpr float DefaultZoom = 10;
+    constexpr float DefaultModelScale = 5;
   }
 
   ModelLoaderBasics::ModelLoaderBasics(const DemoAppConfig& config)
@@ -85,7 +85,7 @@ namespace Fsl
     // aiProcessPreset_TargetRealtime_MaxQuality
     auto modelPath = IO::Path::Combine(contentPath, "Models/Knight2/armor.obj");
     SceneImporter sceneImporter;
-    const std::shared_ptr<TestScene> scene = sceneImporter.Load<TestScene>(modelPath, DEFAULT_MODEL_SCALE, true);
+    const std::shared_ptr<TestScene> scene = sceneImporter.Load<TestScene>(modelPath, DefaultModelScale, true);
 
     if (scene->GetMeshCount() <= 0)
     {
@@ -128,15 +128,15 @@ namespace Fsl
       m_resources.LocLightColor = m_resources.Program.GetUniformLocation("LightColor");
       m_resources.LocAmbientColor = m_resources.Program.GetUniformLocation("AmbientColor");
 
-      constexpr auto vertexDecl = TestMesh::vertex_type::GetVertexDeclarationArray();
+      constexpr auto VertexDecl = TestMesh::vertex_type::GetVertexDeclarationArray();
       m_resources.AttribLink[0] = GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexPosition"),
-                                                     vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+                                                     VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
       m_resources.AttribLink[1] =
-        GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
+        GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexColor"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
       m_resources.AttribLink[2] =
-        GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
+        GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexNormal"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
       m_resources.AttribLink[3] = GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexTexCoord"),
-                                                     vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+                                                     VertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
     }
 
     GL_CHECK_FOR_ERROR();
@@ -153,7 +153,7 @@ namespace Fsl
     m_rotation.Y += m_rotationSpeed.Y * demoTime.DeltaTime;
     m_rotation.Z += m_rotationSpeed.Z * demoTime.DeltaTime;
     m_matrixWorld = Matrix::CreateRotationX(m_rotation.X) * Matrix::CreateRotationY(m_rotation.Y) * Matrix::CreateRotationZ(m_rotation.Z);
-    m_matrixView = Matrix::CreateTranslation(0, 0, -DEFAULT_ZOOM);
+    m_matrixView = Matrix::CreateTranslation(0, 0, -DefaultZoom);
     m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), GetWindowAspectRatio(), 1, 1000.0f);
 
     // Update Vertex UBO

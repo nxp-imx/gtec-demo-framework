@@ -66,7 +66,7 @@ namespace Fsl::GLES3
 
         // Remove the data from other
         other.m_shaderType = 0;
-        other.m_handle = GLValues::INVALID_HANDLE;
+        other.m_handle = GLValues::InvalidHandle;
       }
       return *this;
     }
@@ -79,7 +79,7 @@ namespace Fsl::GLES3
     {
       // Remove the data from other
       other.m_shaderType = 0;
-      other.m_handle = GLValues::INVALID_HANDLE;
+      other.m_handle = GLValues::InvalidHandle;
     }
 
     GLShaderProgram();
@@ -89,7 +89,7 @@ namespace Fsl::GLES3
     //! @brief Check if this contains a valid gl handle.
     bool IsValid() const
     {
-      return m_handle != GLValues::INVALID_HANDLE;
+      return m_handle != GLValues::InvalidHandle;
     }
 
     void Reset() noexcept;

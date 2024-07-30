@@ -36,7 +36,7 @@
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
-#include <FslGraphics/Color.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <Shared/FractalShader/JuliaHelper.hpp>
@@ -271,7 +271,7 @@ namespace Fsl
     if (m_atlasTexBanner.IsValid())
     {
       m_nativeBatch2D->Begin();
-      m_nativeBatch2D->Draw(m_atlasTexBanner, Vector2(), Color::White());
+      m_nativeBatch2D->Draw(m_atlasTexBanner, Vector2(), Colors::White());
       m_nativeBatch2D->End();
     }
 
@@ -284,7 +284,7 @@ namespace Fsl
       pos.X += (static_cast<float>(screenResolution.X) * 0.5f);
       pos.Y += (static_cast<float>(screenResolution.Y) * 0.5f);
       m_basic2D->Begin();
-      m_basic2D->DrawPoints(&pos, 1, Color::Cyan());
+      m_basic2D->DrawPoints(&pos, 1, Colors::Cyan());
       m_basic2D->End();
     }
   }

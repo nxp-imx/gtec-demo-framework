@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/ColorSpace.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialId.hpp>
+#include <FslSimpleUI/Base/UIColorSpace.hpp>
 #include <memory>
 #include <utility>
 
@@ -43,17 +43,22 @@ namespace Fsl::UI::Theme
   {
     const SpriteMaterialId DefaultOpaqueMaterialId;
     const SpriteMaterialId DefaultTransparentMaterialId;
+    const SpriteMaterialId DefaultLineListOpaqueMaterialId;
+    const SpriteMaterialId DefaultLineListTransparentMaterialId;
     const std::shared_ptr<SpriteFont> DefaultFont;
     const std::shared_ptr<SpriteFont> DefaultHeaderFont;
     const bool UsePrimaryPalette;
     const bool DisableOpaqueMaterials;
-    const ColorSpace DefaultColorSpace;
+    const UI::UIColorSpace DefaultColorSpace;
 
     ThemeFactoryCreateInfo(const SpriteMaterialId defaultOpaqueMaterialId, const SpriteMaterialId defaultTransparentMaterialId,
+                           const SpriteMaterialId defaultLineListOpaqueMaterialId, const SpriteMaterialId defaultLineListTransparentMaterialId,
                            std::shared_ptr<SpriteFont> defaultFont, std::shared_ptr<SpriteFont> defaultHeaderFont, const bool usePrimaryPalette,
-                           const bool disableOpaqueMaterials, const ColorSpace defaultColorSpace)
+                           const bool disableOpaqueMaterials, const UI::UIColorSpace defaultColorSpace)
       : DefaultOpaqueMaterialId(!disableOpaqueMaterials ? defaultOpaqueMaterialId : defaultTransparentMaterialId)
       , DefaultTransparentMaterialId(defaultTransparentMaterialId)
+      , DefaultLineListOpaqueMaterialId(!disableOpaqueMaterials ? defaultLineListOpaqueMaterialId : defaultLineListTransparentMaterialId)
+      , DefaultLineListTransparentMaterialId(defaultLineListTransparentMaterialId)
       , DefaultFont(std::move(defaultFont))
       , DefaultHeaderFont(std::move(defaultHeaderFont))
       , UsePrimaryPalette(usePrimaryPalette)

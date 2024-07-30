@@ -78,13 +78,13 @@ namespace Fsl
 
 
     // From EventListener
-    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
-    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
+    void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
+    void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
     void OnKeyEvent(const KeyEvent& event);
 
     // From ITestApp
-    Color GetRootColor() const final;
-    bool TrySetRootColor(const Color color) final;
+    UI::UIColor GetRootColor() const final;
+    bool TrySetRootColor(const UI::UIColor color) final;
 
     const UI::IRenderSystemBase& GetRenderSystem() const final;
     UI::IRenderSystemBase* TryGetRenderSystem() final;

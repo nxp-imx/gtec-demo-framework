@@ -3,15 +3,15 @@
     "Version": "1",
     "Content.SyncList": [
       {
-        "SourcePath" : "${ProjectRoot}/Resources/Source/BasicUI",
+        "SourcePath" : "${ProjectRoot}/Resources/Source/BasicUI/Gen/NonLinear",
         "Content": [
-          "UIAtlas/License.json",
-          "UIAtlas/UIAtlasBig_*dpi.bta",
-          "UIAtlas/UIAtlasBig_*dpi.png",
-          "UIAtlas/UIAtlasBig_*dpi_Font.nbf",
-          "UIAtlas/UIAtlasBig_*dpi_Header.nbf",
-          "UIAtlas/UIAtlasBig_*dpi_SdfFont.nbf",
-          "UIAtlas/UIAtlasBig_*dpi_SdfHeader.nbf"
+          "UIAtlasBig/License.json",
+          "UIAtlasBig/UIAtlas_*dpi.bta",
+          "UIAtlasBig/UIAtlas_*dpi.png",
+          "UIAtlasBig/UIAtlas_*dpi_Font.nbf",
+          "UIAtlasBig/UIAtlas_*dpi_Header.nbf",
+          "UIAtlasBig/UIAtlas_*dpi_SdfFont.nbf",
+          "UIAtlasBig/UIAtlas_*dpi_SdfHeader.nbf"
         ]
       },
       {

@@ -41,7 +41,7 @@
 
 namespace Fsl
 {
-  inline void Expect_EQ(const Fsl::VertexPositionColorTexture& vertex, const Fsl::Vector2& pos, const Fsl::Vector2& texCoord, const Fsl::Color& color)
+  inline void ExpectEq(const Fsl::VertexPositionColorTexture& vertex, const Fsl::Vector2& pos, const Fsl::Vector2& texCoord, const Fsl::Color& color)
   {
     EXPECT_EQ(vertex.Position.X, pos.X);
     EXPECT_EQ(vertex.Position.Y, pos.Y);
@@ -50,18 +50,18 @@ namespace Fsl
     EXPECT_EQ(vertex.Color, color);
   }
 
-  inline void Expect_EQ(const Fsl::VertexSpan<VertexPositionColorTexture>& span, const Fsl::TestQuad& quad, const uint32_t quadIndex)
+  inline void ExpectEq(const Fsl::VertexSpan<VertexPositionColorTexture>& span, const Fsl::TestQuad& quad, const uint32_t quadIndex)
   {
-    constexpr const uint32_t VERTEX_COUNT = 4;
+    constexpr const uint32_t VertexCount = 4;
 
-    auto quadVertexIndex = quadIndex * VERTEX_COUNT;
+    auto quadVertexIndex = quadIndex * VertexCount;
     if (quadVertexIndex >= span.VertexCount)
     {
       throw std::invalid_argument("quad index out of bounds");
     }
 
-    Fsl::Vector2 texCoord_10(quad.TexCoords1.X, quad.TexCoords0.Y);
-    Fsl::Vector2 texCoord_01(quad.TexCoords0.X, quad.TexCoords1.Y);
+    Fsl::Vector2 texCoord10(quad.TexCoords1.X, quad.TexCoords0.Y);
+    Fsl::Vector2 texCoord01(quad.TexCoords0.X, quad.TexCoords1.Y);
 
     const auto* pSrcVertices = span.pVertices + quadVertexIndex;
     ASSERT_NE(pSrcVertices, nullptr);
@@ -70,10 +70,10 @@ namespace Fsl
       // Get clang to stop complaining about something thats not possible
       throw std::runtime_error("pSrcVertices nullptr");
     }
-    Expect_EQ(pSrcVertices[0], quad.Vec0, quad.TexCoords0, quad.Color);
-    Expect_EQ(pSrcVertices[1], quad.Vec1, texCoord_10, quad.Color);
-    Expect_EQ(pSrcVertices[2], quad.Vec2, texCoord_01, quad.Color);
-    Expect_EQ(pSrcVertices[3], quad.Vec3, quad.TexCoords1, quad.Color);
+    ExpectEq(pSrcVertices[0], quad.Vec0, quad.TexCoords0, quad.Color);
+    ExpectEq(pSrcVertices[1], quad.Vec1, texCoord10, quad.Color);
+    ExpectEq(pSrcVertices[2], quad.Vec2, texCoord01, quad.Color);
+    ExpectEq(pSrcVertices[3], quad.Vec3, quad.TexCoords1, quad.Color);
   }
 }
 

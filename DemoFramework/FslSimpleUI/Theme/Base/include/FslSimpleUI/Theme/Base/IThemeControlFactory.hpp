@@ -32,10 +32,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Dp/DpThicknessF.hpp>
-#include <FslGraphics/Color.hpp>
 #include <FslSimpleUI/Base/Control/FmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Slider.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
+#include <FslSimpleUI/Base/UIColor.hpp>
 #include <FslSimpleUI/Theme/Base/BarType.hpp>
 #include <FslSimpleUI/Theme/Base/ButtonType.hpp>
 #include <FslSimpleUI/Theme/Base/ElementType.hpp>
@@ -82,7 +82,7 @@ namespace Fsl
 
         virtual const std::shared_ptr<WindowContext>& GetContext() const = 0;
         virtual const IThemeResources& GetResources() const = 0;
-        virtual Color GetThemePrimaryDarkColor() const = 0;
+        virtual UIColor GetThemePrimaryDarkColor() const = 0;
         virtual DpThicknessF GetDefaultMarginDp(const ElementType elementType) const = 0;
 
         // ----- CreateDivider
@@ -197,6 +197,13 @@ namespace Fsl
         virtual std::shared_ptr<FmtValueLabel<uint32_t>> CreateFmtValueLabel(const uint32_t value, std::string&& strFormat) = 0;
         virtual std::shared_ptr<FmtValueLabel<uint32_t>> CreateFmtValueLabel(const uint32_t value, const char* const pszFormat) = 0;
         virtual std::shared_ptr<FmtValueLabel<uint32_t>> CreateFmtValueLabel(const uint32_t value, const std::string& strFormat) = 0;
+
+        // ----- CreateFmtValueLabel<uint64_t>
+        virtual std::shared_ptr<FmtValueLabel<uint64_t>> CreateFmtValueLabel(const uint64_t value) = 0;
+        virtual std::shared_ptr<FmtValueLabel<uint64_t>> CreateFmtValueLabel(const uint64_t value, const StringViewLite& strViewFormat) = 0;
+        virtual std::shared_ptr<FmtValueLabel<uint64_t>> CreateFmtValueLabel(const uint64_t value, std::string&& strFormat) = 0;
+        virtual std::shared_ptr<FmtValueLabel<uint64_t>> CreateFmtValueLabel(const uint64_t value, const char* const pszFormat) = 0;
+        virtual std::shared_ptr<FmtValueLabel<uint64_t>> CreateFmtValueLabel(const uint64_t value, const std::string& strFormat) = 0;
 
         // ----- CreateFmtValueLabel<float>
         virtual std::shared_ptr<FmtValueLabel<float>> CreateFmtValueLabel(const float value) = 0;

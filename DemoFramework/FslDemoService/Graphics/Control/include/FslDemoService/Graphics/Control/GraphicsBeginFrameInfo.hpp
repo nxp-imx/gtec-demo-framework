@@ -40,6 +40,7 @@ namespace Fsl
   struct GraphicsBeginFrameInfo
   {
     const uint32_t FrameIndex;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const BasicNativeBeginCustomFrameInfo* pCustomInfo;
 
     explicit GraphicsBeginFrameInfo(const uint32_t frameIndex, const BasicNativeBeginCustomFrameInfo* pCustomInfo2 = nullptr)

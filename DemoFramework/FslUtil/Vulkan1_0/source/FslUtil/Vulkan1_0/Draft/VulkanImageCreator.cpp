@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017, 2022 NXP
+ * Copyright 2017, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,9 @@
 
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
-#include <FslGraphics/Bitmap/RawBitmap.hpp>
 #include <FslGraphics/Bitmap/RawCubeBitmap.hpp>
-#include <FslGraphics/Texture/RawTexture.hpp>
+#include <FslGraphics/Bitmap/ReadOnlyRawBitmap.hpp>
+#include <FslGraphics/Texture/ReadOnlyRawTexture.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreatorUtil.hpp>
@@ -71,7 +71,7 @@ namespace Fsl::Vulkan
       return {device, imageViewCreateInfo};
     }
 
-    inline TextureInfo GetTextureInfo(const RawBitmap& src)
+    inline TextureInfo GetTextureInfo(const ReadOnlyRawBitmap& src)
     {
       FSL_PARAM_NOT_USED(src);
       return {1u, 1u, 1u};
@@ -148,7 +148,7 @@ namespace Fsl::Vulkan
   }
 
 
-  VUImageMemoryView VulkanImageCreator::CreateImage(const RawBitmap& src, const std::string& name, const VkImageUsageFlags imageUsageFlags)
+  VUImageMemoryView VulkanImageCreator::CreateImage(const ReadOnlyRawBitmap& src, const std::string& name, const VkImageUsageFlags imageUsageFlags)
   {
     return DoCreateImage(m_physicalDevice, m_commandBuffer, m_queue, src, TextureType::Tex2D, name, imageUsageFlags);
   }
@@ -160,7 +160,7 @@ namespace Fsl::Vulkan
   }
 
 
-  VUImageMemoryView VulkanImageCreator::CreateImage(const RawTexture& src, const std::string& name, const VkImageUsageFlags imageUsageFlags)
+  VUImageMemoryView VulkanImageCreator::CreateImage(const ReadOnlyRawTexture& src, const std::string& name, const VkImageUsageFlags imageUsageFlags)
   {
     const VkAccessFlags accessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
 
@@ -179,25 +179,21 @@ namespace Fsl::Vulkan
                                                     const Bitmap& srcBitmapNegY, const Bitmap& srcBitmapPosZ, const Bitmap& srcBitmapNegZ,
                                                     const std::string& name, const VkImageUsageFlags imageUsageFlags)
   {
-    RawBitmap rawBitmapPosX;
-    RawBitmap rawBitmapNegX;
-    RawBitmap rawBitmapPosY;
-    RawBitmap rawBitmapNegY;
-    RawBitmap rawBitmapPosZ;
-    RawBitmap rawBitmapNegZ;
-    Bitmap::ScopedDirectAccess directAccessPosX(srcBitmapPosX, rawBitmapPosX);
-    Bitmap::ScopedDirectAccess directAccessNegX(srcBitmapNegX, rawBitmapNegX);
-    Bitmap::ScopedDirectAccess directAccessPosY(srcBitmapPosY, rawBitmapPosY);
-    Bitmap::ScopedDirectAccess directAccessNegY(srcBitmapNegY, rawBitmapNegY);
-    Bitmap::ScopedDirectAccess directAccessPosZ(srcBitmapPosZ, rawBitmapPosZ);
-    Bitmap::ScopedDirectAccess directAccessNegZ(srcBitmapNegZ, rawBitmapNegZ);
-    RawCubeBitmap rawCubeBitmap(rawBitmapPosX, rawBitmapNegX, rawBitmapPosY, rawBitmapNegY, rawBitmapPosZ, rawBitmapNegZ);
+    const Bitmap::ScopedDirectReadAccess directAccessPosX(srcBitmapPosX);
+    const Bitmap::ScopedDirectReadAccess directAccessNegX(srcBitmapNegX);
+    const Bitmap::ScopedDirectReadAccess directAccessPosY(srcBitmapPosY);
+    const Bitmap::ScopedDirectReadAccess directAccessNegY(srcBitmapNegY);
+    const Bitmap::ScopedDirectReadAccess directAccessPosZ(srcBitmapPosZ);
+    const Bitmap::ScopedDirectReadAccess directAccessNegZ(srcBitmapNegZ);
+    RawCubeBitmap rawCubeBitmap(directAccessPosX.AsRawBitmap(), directAccessNegX.AsRawBitmap(), directAccessPosY.AsRawBitmap(),
+                                directAccessNegY.AsRawBitmap(), directAccessPosZ.AsRawBitmap(), directAccessNegZ.AsRawBitmap());
     return CreateImage(rawCubeBitmap, name, imageUsageFlags);
   }
 
 
-  VUImageMemoryView VulkanImageCreator::CreateImage(const RawBitmap& srcBitmapPosX, const RawBitmap& srcBitmapNegX, const RawBitmap& srcBitmapPosY,
-                                                    const RawBitmap& srcBitmapNegY, const RawBitmap& srcBitmapPosZ, const RawBitmap& srcBitmapNegZ,
+  VUImageMemoryView VulkanImageCreator::CreateImage(const ReadOnlyRawBitmap& srcBitmapPosX, const ReadOnlyRawBitmap& srcBitmapNegX,
+                                                    const ReadOnlyRawBitmap& srcBitmapPosY, const ReadOnlyRawBitmap& srcBitmapNegY,
+                                                    const ReadOnlyRawBitmap& srcBitmapPosZ, const ReadOnlyRawBitmap& srcBitmapNegZ,
                                                     const std::string& name, const VkImageUsageFlags imageUsageFlags)
   {
     RawCubeBitmap rawCubeBitmap(srcBitmapPosX, srcBitmapNegX, srcBitmapPosY, srcBitmapNegY, srcBitmapPosZ, srcBitmapNegZ);
@@ -235,7 +231,7 @@ namespace Fsl::Vulkan
   }
 
 
-  VUTexture VulkanImageCreator::CreateTexture(const RawBitmap& src, const VkSamplerCreateInfo& samplerCreateInfo, const std::string& name,
+  VUTexture VulkanImageCreator::CreateTexture(const ReadOnlyRawBitmap& src, const VkSamplerCreateInfo& samplerCreateInfo, const std::string& name,
                                               const VkImageUsageFlags imageUsageFlags)
   {
     Sampler sampler(m_commandBuffer.GetDevice(), samplerCreateInfo);
@@ -251,7 +247,7 @@ namespace Fsl::Vulkan
   }
 
 
-  VUTexture VulkanImageCreator::CreateTexture(const RawTexture& src, const VkSamplerCreateInfo& samplerCreateInfo, const std::string& name,
+  VUTexture VulkanImageCreator::CreateTexture(const ReadOnlyRawTexture& src, const VkSamplerCreateInfo& samplerCreateInfo, const std::string& name,
                                               const VkImageUsageFlags imageUsageFlags)
   {
     Sampler sampler(m_commandBuffer.GetDevice(), samplerCreateInfo);
@@ -259,7 +255,7 @@ namespace Fsl::Vulkan
   }
 
 
-  VUTexture VulkanImageCreator::CreateTexture(const RawBitmap& src, RapidVulkan::Sampler&& sampler, const std::string& name,
+  VUTexture VulkanImageCreator::CreateTexture(const ReadOnlyRawBitmap& src, RapidVulkan::Sampler&& sampler, const std::string& name,
                                               const VkImageUsageFlags imageUsageFlags)
   {
     auto image = CreateImage(src, name, imageUsageFlags);
@@ -275,7 +271,7 @@ namespace Fsl::Vulkan
   }
 
 
-  VUTexture VulkanImageCreator::CreateTexture(const RawTexture& src, RapidVulkan::Sampler&& sampler, const std::string& name,
+  VUTexture VulkanImageCreator::CreateTexture(const ReadOnlyRawTexture& src, RapidVulkan::Sampler&& sampler, const std::string& name,
                                               const VkImageUsageFlags imageUsageFlags)
   {
     auto image = CreateImage(src, name, imageUsageFlags);
@@ -293,8 +289,9 @@ namespace Fsl::Vulkan
                          imageUsageFlags);
   }
 
-  VUTexture VulkanImageCreator::CreateTexture(const RawBitmap& srcBitmapPosX, const RawBitmap& srcBitmapNegX, const RawBitmap& srcBitmapPosY,
-                                              const RawBitmap& srcBitmapNegY, const RawBitmap& srcBitmapPosZ, const RawBitmap& srcBitmapNegZ,
+  VUTexture VulkanImageCreator::CreateTexture(const ReadOnlyRawBitmap& srcBitmapPosX, const ReadOnlyRawBitmap& srcBitmapNegX,
+                                              const ReadOnlyRawBitmap& srcBitmapPosY, const ReadOnlyRawBitmap& srcBitmapNegY,
+                                              const ReadOnlyRawBitmap& srcBitmapPosZ, const ReadOnlyRawBitmap& srcBitmapNegZ,
                                               const VkSamplerCreateInfo& samplerCreateInfo, const std::string& name,
                                               const VkImageUsageFlags imageUsageFlags)
   {
@@ -312,8 +309,9 @@ namespace Fsl::Vulkan
     return {std::move(image), std::move(sampler)};
   }
 
-  VUTexture VulkanImageCreator::CreateTexture(const RawBitmap& srcBitmapPosX, const RawBitmap& srcBitmapNegX, const RawBitmap& srcBitmapPosY,
-                                              const RawBitmap& srcBitmapNegY, const RawBitmap& srcBitmapPosZ, const RawBitmap& srcBitmapNegZ,
+  VUTexture VulkanImageCreator::CreateTexture(const ReadOnlyRawBitmap& srcBitmapPosX, const ReadOnlyRawBitmap& srcBitmapNegX,
+                                              const ReadOnlyRawBitmap& srcBitmapPosY, const ReadOnlyRawBitmap& srcBitmapNegY,
+                                              const ReadOnlyRawBitmap& srcBitmapPosZ, const ReadOnlyRawBitmap& srcBitmapNegZ,
                                               RapidVulkan::Sampler&& sampler, const std::string& name, const VkImageUsageFlags imageUsageFlags)
   {
     auto image = CreateImage(srcBitmapPosX, srcBitmapNegX, srcBitmapPosY, srcBitmapNegY, srcBitmapPosZ, srcBitmapNegZ, name, imageUsageFlags);

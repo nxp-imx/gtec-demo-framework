@@ -56,23 +56,23 @@ namespace Fsl
 
   namespace
   {
-    const auto MODELS_PATH = "Models";
+    constexpr auto ModelsPath = "Models";
   }
 
 
   RenderScene::RenderScene(const DemoAppConfig& config, const int32_t sceneId)
-    : m_locWorld(GLValues::INVALID_LOCATION)
-    , m_locWorldView(GLValues::INVALID_LOCATION)
-    , m_locWorldViewProjection(GLValues::INVALID_LOCATION)
-    , m_locNormalMatrix(GLValues::INVALID_LOCATION)
-    , m_locTexture0(GLValues::INVALID_LOCATION)
-    , m_locTextureSpecular(GLValues::INVALID_LOCATION)
-    , m_locTextureNormal(GLValues::INVALID_LOCATION)
-    , m_locLightDirection(GLValues::INVALID_LOCATION)
-    , m_locLightColor(GLValues::INVALID_LOCATION)
-    , m_locMatAmbient(GLValues::INVALID_LOCATION)
-    , m_locMatSpecular(GLValues::INVALID_LOCATION)
-    , m_locMatShininess(GLValues::INVALID_LOCATION)
+    : m_locWorld(GLValues::InvalidLocation)
+    , m_locWorldView(GLValues::InvalidLocation)
+    , m_locWorldViewProjection(GLValues::InvalidLocation)
+    , m_locNormalMatrix(GLValues::InvalidLocation)
+    , m_locTexture0(GLValues::InvalidLocation)
+    , m_locTextureSpecular(GLValues::InvalidLocation)
+    , m_locTextureNormal(GLValues::InvalidLocation)
+    , m_locLightDirection(GLValues::InvalidLocation)
+    , m_locLightColor(GLValues::InvalidLocation)
+    , m_locMatAmbient(GLValues::InvalidLocation)
+    , m_locMatSpecular(GLValues::InvalidLocation)
+    , m_locMatShininess(GLValues::InvalidLocation)
     , m_attribLink(4)
     , m_lightDirection(1.0f, 1.0f, 1.0f)
     , m_lightColor(0.8f, 0.8f, 0.8f)
@@ -110,7 +110,7 @@ namespace Fsl
     }
 
     auto contentPath = contentManager->GetContentPath();
-    contentPath = IO::Path::Combine(contentPath, MODELS_PATH);
+    contentPath = IO::Path::Combine(contentPath, ModelsPath);
     const auto fullModelPath = IO::Path::Combine(contentPath, strFileName);
 
     FSLLOG3_INFO("Loading scene '{}'", fullModelPath);
@@ -121,7 +121,7 @@ namespace Fsl
     FSLLOG3_INFO("Preparing textures");
     {    // prepare textures
       Bitmap bitmap;
-      auto texturePath = IO::Path::Combine(MODELS_PATH, strTextureFileName);
+      auto texturePath = IO::Path::Combine(ModelsPath, strTextureFileName);
 
       if (strTextureGloss.IsEmpty())
       {
@@ -131,15 +131,15 @@ namespace Fsl
       else
       {
         Bitmap bitmapGloss;
-        auto glossTexturePath = IO::Path::Combine(MODELS_PATH, strTextureGloss);
+        auto glossTexturePath = IO::Path::Combine(ModelsPath, strTextureGloss);
         FSLLOG3_INFO("- Diffuse '{}'", texturePath);
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
         FSLLOG3_INFO("- Gloss '{}'", glossTexturePath);
         contentManager->Read(bitmapGloss, glossTexturePath, PixelFormat::R8G8B8A8_UNORM);
         FSLLOG3_INFO("- Combining texture");
-        for (uint32_t y = 0; y < bitmap.Height(); ++y)
+        for (uint32_t y = 0; y < bitmap.RawUnsignedHeight(); ++y)
         {
-          for (uint32_t x = 0; x < bitmap.Width(); ++x)
+          for (uint32_t x = 0; x < bitmap.RawUnsignedWidth(); ++x)
           {
             auto col1 = bitmap.GetNativePixel(x, y);
             auto col2 = bitmapGloss.GetNativePixel(x, y);
@@ -154,7 +154,7 @@ namespace Fsl
 
       if (!strTextureSpecular.IsEmpty())
       {
-        auto specTexturePath = IO::Path::Combine(MODELS_PATH, strTextureSpecular);
+        auto specTexturePath = IO::Path::Combine(ModelsPath, strTextureSpecular);
         FSLLOG3_INFO("- Specular '{}'", specTexturePath);
         contentManager->Read(bitmap, specTexturePath, PixelFormat::R8G8B8A8_UNORM);
         m_textureSpecular.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
@@ -162,7 +162,7 @@ namespace Fsl
 
       if (!strTextureNormal.IsEmpty())
       {
-        auto normTexturePath = IO::Path::Combine(MODELS_PATH, strTextureNormal);
+        auto normTexturePath = IO::Path::Combine(ModelsPath, strTextureNormal);
         FSLLOG3_INFO("- Normal '{}'", normTexturePath);
         contentManager->Read(bitmap, normTexturePath, PixelFormat::R8G8B8A8_UNORM);
         m_textureNormal.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
@@ -228,14 +228,14 @@ namespace Fsl
       // Select Our Texture
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, m_texture.Get());
-      if (m_textureSpecular.IsValid() && m_locTextureSpecular != GLValues::INVALID_LOCATION)
+      if (m_textureSpecular.IsValid() && m_locTextureSpecular != GLValues::InvalidLocation)
       {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, m_textureSpecular.Get());
 
         glUniform1i(m_locTextureSpecular, 1);
       }
-      if (m_textureNormal.IsValid() && m_locTextureNormal != GLValues::INVALID_LOCATION)
+      if (m_textureNormal.IsValid() && m_locTextureNormal != GLValues::InvalidLocation)
       {
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, m_textureNormal.Get());
@@ -243,40 +243,40 @@ namespace Fsl
         glUniform1i(m_locTextureNormal, 2);
       }
 
-      if (m_locLightDirection != GLValues::INVALID_LOCATION)
+      if (m_locLightDirection != GLValues::InvalidLocation)
       {
         glUniform3fv(m_locLightDirection, 1, m_cameraSpaceLightDirection.DirectAccess());
       }
-      if (m_locLightColor != GLValues::INVALID_LOCATION)
+      if (m_locLightColor != GLValues::InvalidLocation)
       {
         glUniform3fv(m_locLightColor, 1, m_lightColor.DirectAccess());
       }
-      if (m_locMatAmbient != GLValues::INVALID_LOCATION)
+      if (m_locMatAmbient != GLValues::InvalidLocation)
       {
         glUniform4fv(m_locMatAmbient, 1, m_matAmbient.DirectAccess());
       }
-      if (m_locMatSpecular != GLValues::INVALID_LOCATION)
+      if (m_locMatSpecular != GLValues::InvalidLocation)
       {
         glUniform4fv(m_locMatSpecular, 1, m_matSpecular.DirectAccess());
       }
-      if (m_locMatShininess != GLValues::INVALID_LOCATION)
+      if (m_locMatShininess != GLValues::InvalidLocation)
       {
         glUniform1f(m_locMatShininess, m_matShininess);
       }
       // Load the matrices
-      if (m_locWorld != GLValues::INVALID_LOCATION)
+      if (m_locWorld != GLValues::InvalidLocation)
       {
         glUniformMatrix4fv(m_locWorld, 1, 0, m_matrixWorld.DirectAccess());
       }
-      if (m_locWorldView != GLValues::INVALID_LOCATION)
+      if (m_locWorldView != GLValues::InvalidLocation)
       {
         glUniformMatrix4fv(m_locWorldView, 1, 0, m_matrixWorldView.DirectAccess());
       }
-      if (m_locWorldViewProjection != GLValues::INVALID_LOCATION)
+      if (m_locWorldViewProjection != GLValues::InvalidLocation)
       {
         glUniformMatrix4fv(m_locWorldViewProjection, 1, 0, m_matrixWorldViewProjection.DirectAccess());
       }
-      if (m_locNormalMatrix != GLValues::INVALID_LOCATION)
+      if (m_locNormalMatrix != GLValues::InvalidLocation)
       {
         glUniformMatrix3fv(m_locNormalMatrix, 1, 0, m_matrixNormal.DirectAccess());
       }
@@ -369,17 +369,17 @@ namespace Fsl
     m_locMatSpecular = glGetUniformLocation(m_program.Get(), "MatSpecular");
     m_locMatShininess = glGetUniformLocation(m_program.Get(), "MatShininess");
 
-    constexpr auto vertexDecl = BasicMesh::vertex_type::GetVertexDeclarationArray();
+    constexpr auto VertexDecl = BasicMesh::vertex_type::GetVertexDeclarationArray();
     m_attribLink[0] =
-      GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+      GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexPosition"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
     m_attribLink[1] =
-      GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
+      GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexNormal"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
     m_attribLink[2] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexTexCoord"),
-                                         vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+                                         VertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
     if (useNormalMap)
     {
       m_attribLink[3] =
-        GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexTangent"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Tangent, 0));
+        GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexTangent"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Tangent, 0));
     }
     else
     {

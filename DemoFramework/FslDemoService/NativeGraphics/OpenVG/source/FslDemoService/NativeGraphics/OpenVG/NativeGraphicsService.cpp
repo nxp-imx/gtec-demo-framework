@@ -64,9 +64,9 @@ namespace Fsl::OpenVG
   }
 
 
-  void NativeGraphicsService::Capture(Bitmap& rBitmap, const Rectangle& srcRectangle)
+  void NativeGraphicsService::Capture(Bitmap& rBitmap, const PxRectangle& srcRectanglePx)
   {
-    OpenVG::VGUtil::Capture(rBitmap, PixelFormat::R8G8B8A8_UINT, srcRectangle);
+    OpenVG::VGUtil::Capture(rBitmap, PixelFormat::R8G8B8A8_UINT, srcRectanglePx);
   }
 
 

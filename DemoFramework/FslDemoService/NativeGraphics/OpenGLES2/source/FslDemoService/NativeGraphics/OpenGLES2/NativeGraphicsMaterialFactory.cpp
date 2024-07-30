@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES2/NativeGraphicsDeviceShaders.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES2/NativeGraphicsMaterialFactory.hpp>
+#include <FslGraphics/Log/Render/Basic/FmtBasicPrimitiveTopology.hpp>
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeShaderCreateInfo.hpp>
 #include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <utility>
@@ -43,14 +44,19 @@ namespace Fsl::GLES2
   namespace
   {
     //! Set up the predefined shaders
-    std::array<BasicNativeShaderCreateInfo, 3> g_predefindShaders = {
-      // PredefinedShaderType::Vertex
-      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Vertex, NativeGraphicsDeviceShaders::GetVertexShader(),
-                                  NativeGraphicsDeviceShaders::VertexShaderVertexDecl.AsReadOnlySpan()),
-      // PredefinedShaderType::Fragment
-      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Fragment, NativeGraphicsDeviceShaders::GetFragmentShader(), {}),
-      // PredefinedShaderType::FragmentSdf
-      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Fragment, NativeGraphicsDeviceShaders::GetSdfFragmentShader(), {})};
+    std::array<BasicNativeShaderCreateInfo, 5> g_predefindShaders = {
+      // PredefinedShaderType::PositionColorTextureVertex
+      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Vertex, NativeGraphicsDeviceShaders::GetPositionColorTextureVertexShader(),
+                                  NativeGraphicsDeviceShaders::VertexShaderVertexPositionColorTextureDecl.AsReadOnlySpan()),
+      // PredefinedShaderType::PositionColorTextureFragment
+      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Fragment, NativeGraphicsDeviceShaders::GetPositionColorTextureFragmentShader(), {}),
+      // PredefinedShaderType::PositionColorTextureSdfFragment
+      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Fragment, NativeGraphicsDeviceShaders::GetPositionColorTextureSdfFragmentShader(), {}),
+      // PredefinedShaderType::PositionColorVertex
+      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Vertex, NativeGraphicsDeviceShaders::GetPositionColorVertexShader(),
+                                  NativeGraphicsDeviceShaders::VertexShaderVertexPositionColorDecl.AsReadOnlySpan()),
+      // PredefinedShaderType::PositionColorFragment
+      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Fragment, NativeGraphicsDeviceShaders::GetPositionColorFragmentShader(), {})};
 
 
     void CheckIfMaterialDeclarationIsSupported(const BlendState blendState, const BasicMaterialVariableDeclarationSpan& materialDeclaration)
@@ -99,6 +105,20 @@ namespace Fsl::GLES2
         throw NotSupportedException("Unsupported BlendState");
       }
     }
+
+    GLenum Convert(const BasicPrimitiveTopology primitiveTopology)
+    {
+      switch (primitiveTopology)
+      {
+      case BasicPrimitiveTopology::LineList:
+        return GL_LINES;
+      case BasicPrimitiveTopology::LineStrip:
+        return GL_LINE_STRIP;
+      case BasicPrimitiveTopology::TriangleList:
+        return GL_TRIANGLES;
+      }
+      throw NotSupportedException(fmt::format("Unsupported primitiveTopology: {}", primitiveTopology));
+    }
   }
 
   NativeGraphicsMaterialFactory::NativeGraphicsMaterialFactory()
@@ -140,7 +160,7 @@ namespace Fsl::GLES2
 
   ReadOnlySpan<BasicNativeShaderCreateInfo> NativeGraphicsMaterialFactory::GetPredefinedShaders() const
   {
-    return ReadOnlySpanUtil::AsSpan(g_predefindShaders);
+    return SpanUtil::AsReadOnlySpan(g_predefindShaders);
   }
 
 
@@ -230,7 +250,8 @@ namespace Fsl::GLES2
                                                                                    programRecord.LocVertexTextureCoord, createInfo.VertexDeclaration);
       try
       {
-        return MaterialRecord(createInfo.MaterialInfo, hProgram, hAttribLink, programRecord.Program.Get(), programRecord.LocSmoothing);
+        const GLenum primitive = Convert(createInfo.MaterialInfo.PrimitiveTopology);
+        return MaterialRecord(createInfo.MaterialInfo, hProgram, hAttribLink, primitive, programRecord.Program.Get(), programRecord.LocSmoothing);
       }
       catch (const std::exception&)
       {

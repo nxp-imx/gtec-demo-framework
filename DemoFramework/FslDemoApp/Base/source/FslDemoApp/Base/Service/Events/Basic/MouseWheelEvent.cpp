@@ -34,13 +34,13 @@
 
 namespace Fsl
 {
-  MouseWheelEvent::MouseWheelEvent(const int32_t delta, const PxPoint2& position)
-    : BasicEvent(EventType::MouseWheel, delta, NativeWindowEventHelper::EncodePosition(position))
+  MouseWheelEvent::MouseWheelEvent(const MillisecondTickCount32 timestamp, const int32_t delta, const PxPoint2 position) noexcept
+    : BasicEvent(EventType::MouseWheel, timestamp, delta, NativeWindowEventHelper::EncodePosition(position))
   {
   }
 
 
-  PxPoint2 MouseWheelEvent::GetPosition() const
+  PxPoint2 MouseWheelEvent::GetPosition() const noexcept
   {
     return NativeWindowEventHelper::DecodePosition(m_arg2);
   }

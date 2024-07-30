@@ -80,7 +80,7 @@ CPP_DEFINE_FLAG_PARAMS=$(foreach d,$(CPP_DEFINE_FLAG_NAMES),-D$d)
 USER_EXTLIB_DEPS_PARAMS=$(foreach d,$(USER_EXTLIB_DEPS),-l$d)
 USER_EXTLIB_PATHS_PARAMS=$(foreach d,$(USER_EXTLIB_PATHS),-Wl,--library-path=$d)
  
-REQUIRED_CXX_FLAGS = -Wall -Wtype-limits -Wuninitialized -fPIC -DPIC -std=c++17 -g $(CPP_DEFINE_FLAG_PARAMS) -pthread
+REQUIRED_CXX_FLAGS = -Wall -Wtype-limits -Wuninitialized -fPIC -DPIC -std=c++20 -g $(CPP_DEFINE_FLAG_PARAMS) -pthread
 REQUIRED_CXX_FLAGS += -fno-strict-aliasing -fno-optimize-sibling-calls
 REQUIRED_CXX_FLAGS += $(CFLAGS_EGL)
 REQUIRED_CXX_FLAGS += -DLINUX

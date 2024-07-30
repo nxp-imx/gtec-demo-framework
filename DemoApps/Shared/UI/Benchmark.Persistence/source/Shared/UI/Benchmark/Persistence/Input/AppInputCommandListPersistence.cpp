@@ -34,7 +34,8 @@
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_ValueCompare.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <Shared/UI/Benchmark/Persistence/Input/AppInputCommandListPersistence.hpp>
 #include "Custom/AppInputCommandListIO.hpp"
 
@@ -45,7 +46,7 @@ namespace Fsl::AppInputCommandListPersistence
     try
     {
       std::vector<uint8_t> content;
-      return IO::File::TryReadAllBytes(content, path) ? AppInputCommandListIO::Decode(ReadOnlySpanUtil::AsSpan(content))
+      return IO::File::TryReadAllBytes(content, path) ? AppInputCommandListIO::Decode(SpanUtil::AsReadOnlySpan(content))
                                                       : std::optional<AppInputCommandList>();
     }
     catch (std::exception& ex)
@@ -60,7 +61,8 @@ namespace Fsl::AppInputCommandListPersistence
   {
     auto newContent = AppInputCommandListIO::Encode(commandList);
     std::vector<uint8_t> existing;
-    if (!IO::File::TryReadAllBytes(existing, path) || ReadOnlySpanUtil::AsSpan(existing) != ReadOnlySpanUtil::AsSpan(newContent))
+    if (!IO::File::TryReadAllBytes(existing, path) ||
+        !SpanUtil::ValueEquals(SpanUtil::AsReadOnlySpan(existing), SpanUtil::AsReadOnlySpan(newContent)))
     {
       IO::File::WriteAllBytes(path, newContent);
     }

@@ -103,12 +103,12 @@ TEST(TestMath_Vector3_MonoGame, Transform)
 
 TEST(TestMath_Vector3_MonoGame, Construct)
 {
-  constexpr float x = std::numeric_limits<float>::min();
-  constexpr float y = std::numeric_limits<float>::max();
-  constexpr float z = 0.5f;
-  Vector3 value(x, y, z);
+  constexpr float X = std::numeric_limits<float>::min();
+  constexpr float Y = std::numeric_limits<float>::max();
+  constexpr float Z = 0.5f;
+  Vector3 value(X, Y, Z);
 
-  EXPECT_EQ(x, value.X);
-  EXPECT_EQ(y, value.Y);
-  EXPECT_EQ(z, value.Z);
+  EXPECT_EQ(X, value.X);
+  EXPECT_EQ(Y, value.Y);
+  EXPECT_EQ(Z, value.Z);
 }

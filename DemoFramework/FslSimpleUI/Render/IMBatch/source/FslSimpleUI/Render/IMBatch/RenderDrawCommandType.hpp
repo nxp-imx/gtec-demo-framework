@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_RENDERDRAWCOMMANDTYPE_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_RENDERDRAWCOMMANDTYPE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,83 +47,124 @@ namespace Fsl::UI::RenderIMBatch
   enum class RenderDrawCommandType : uint32_t
   {
     // BasicImageSprite
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // BasicImageSprite_Nop = CreateValue(RenderDrawSpriteType::BasicImageSprite, DrawCommandType::Nop),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     BasicImageSprite_DrawAtOffsetAndSize = CreateValue(RenderDrawSpriteType::BasicImageSprite, DrawCommandType::DrawAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     BasicImageSprite_DrawCustomBasicImageAtOffsetAndSize =
       CreateValue(RenderDrawSpriteType::BasicImageSprite, DrawCommandType::DrawCustomBasicImageAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     BasicImageSprite_DrawCustomBasicImageAtOffsetAndSizeBasicMesh =
       CreateValue(RenderDrawSpriteType::BasicImageSprite, DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // BasicImageSprite_DrawCustomNineSliceAtOffsetAndSize =
     //  CreateValue(RenderDrawSpriteType::BasicImageSprite, DrawCommandType::DrawCustomNineSliceAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // BasicImageSprite_DrawCustomTextAtOffsetAndSize =
     //  CreateValue(RenderDrawSpriteType::BasicImageSprite, DrawCommandType::DrawCustomTextAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // BasicImageSprite_DrawRot90CWAtOffsetAndSize =
     //  CreateValue(RenderDrawSpriteType::BasicImageSprite, DrawCommandType::DrawRot90CWAtOffsetAndSize),
 
     // BasicNineSliceSprite
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // BasicNineSliceSprite_Nop = CreateValue(RenderDrawSpriteType::BasicNineSliceSprite, DrawCommandType::Nop),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     BasicNineSliceSprite_DrawAtOffsetAndSize = CreateValue(RenderDrawSpriteType::BasicNineSliceSprite, DrawCommandType::DrawAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // BasicNineSliceSprite_DrawCustomBasicImageAtOffsetAndSize =
     //  CreateValue(RenderDrawSpriteType::BasicNineSliceSprite, DrawCommandType::DrawCustomBasicImageAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // BasicNineSliceSprite_DrawCustomBasicImageAtOffsetAndSizeBasicMesh =
     //  CreateValue(RenderDrawSpriteType::BasicNineSliceSprite, DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // BasicNineSliceSprite_DrawCustomNineSliceAtOffsetAndSize =
     //  CreateValue(RenderDrawSpriteType::BasicNineSliceSprite, DrawCommandType::DrawCustomNineSliceAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // BasicNineSliceSprite_DrawCustomTextAtOffsetAndSize =
     //  CreateValue(RenderDrawSpriteType::BasicNineSliceSprite, DrawCommandType::DrawCustomTextAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // BasicNineSliceSprite_DrawRot90CWAtOffsetAndSize =
     //  CreateValue(RenderDrawSpriteType::BasicNineSliceSprite, DrawCommandType::DrawRot90CWAtOffsetAndSize),
 
     // ImageSprite
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // ImageSprite_Nop = CreateValue(RenderDrawSpriteType::ImageSprite, DrawCommandType::Nop),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     ImageSprite_DrawAtOffsetAndSize = CreateValue(RenderDrawSpriteType::ImageSprite, DrawCommandType::DrawAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // ImageSprite_DrawCustomBasicImageAtOffsetAndSize =
     //  CreateValue(RenderDrawSpriteType::ImageSprite, DrawCommandType::DrawCustomBasicImageAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // ImageSprite_DrawCustomBasicImageAtOffsetAndSizeBasicMesh =
     //  CreateValue(RenderDrawSpriteType::ImageSprite, DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // ImageSprite_DrawCustomNineSliceAtOffsetAndSize =
     //  CreateValue(RenderDrawSpriteType::ImageSprite, DrawCommandType::DrawCustomNineSliceAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // ImageSprite_DrawCustomTextAtOffsetAndSize = CreateValue(RenderDrawSpriteType::ImageSprite,
     // DrawCommandType::DrawCustomTextAtOffsetAndSize), ImageSprite_DrawRot90CWAtOffsetAndSize = CreateValue(RenderDrawSpriteType::ImageSprite,
     // DrawCommandType::DrawRot90CWAtOffsetAndSize),
 
     // NineSliceSprite
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // NineSliceSprite_Nop = CreateValue(RenderDrawSpriteType::NineSliceSprite, DrawCommandType::Nop),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     NineSliceSprite_DrawAtOffsetAndSize = CreateValue(RenderDrawSpriteType::NineSliceSprite, DrawCommandType::DrawAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // NineSliceSprite_DrawCustomBasicImageAtOffsetAndSize =
     //  CreateValue(RenderDrawSpriteType::NineSliceSprite, DrawCommandType::DrawCustomBasicImageAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // NineSliceSprite_DrawCustomBasicImageAtOffsetAndSizeBasicMesh =
     //  CreateValue(RenderDrawSpriteType::NineSliceSprite, DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     NineSliceSprite_DrawCustomNineSliceAtOffsetAndSize =
       CreateValue(RenderDrawSpriteType::NineSliceSprite, DrawCommandType::DrawCustomNineSliceAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // NineSliceSprite_DrawCustomTextAtOffsetAndSize =
     //  CreateValue(RenderDrawSpriteType::NineSliceSprite, DrawCommandType::DrawCustomTextAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     NineSliceSprite_DrawRot90CWAtOffsetAndSize = CreateValue(RenderDrawSpriteType::NineSliceSprite, DrawCommandType::DrawRot90CWAtOffsetAndSize),
 
     // OptimizedNineSliceSprite
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // OptimizedNineSliceSprite_Nop = CreateValue(RenderDrawSpriteType::OptimizedNineSliceSprite, DrawCommandType::Nop),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     OptimizedNineSliceSprite_DrawAtOffsetAndSize = CreateValue(RenderDrawSpriteType::OptimizedNineSliceSprite, DrawCommandType::DrawAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // OptimizedNineSliceSprite_DrawCustomBasicImageAtOffsetAndSize =
     //  CreateValue(RenderDrawSpriteType::OptimizedNineSliceSprite, DrawCommandType::DrawCustomBasicImageAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // OptimizedNineSliceSprite_DrawCustomBasicImageAtOffsetAndSizeBasicMesh =
     //  CreateValue(RenderDrawSpriteType::OptimizedNineSliceSprite, DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // OptimizedNineSliceSprite_DrawCustomNineSliceAtOffsetAndSize =
     //  CreateValue(RenderDrawSpriteType::OptimizedNineSliceSprite, DrawCommandType::DrawCustomNineSliceAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // OptimizedNineSliceSprite_DrawCustomTextAtOffsetAndSize =
     //  CreateValue(RenderDrawSpriteType::OptimizedNineSliceSprite, DrawCommandType::DrawCustomTextAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     OptimizedNineSliceSprite_DrawRot90CWAtOffsetAndSize =
       CreateValue(RenderDrawSpriteType::OptimizedNineSliceSprite, DrawCommandType::DrawRot90CWAtOffsetAndSize),
 
     // SpriteFont
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // SpriteFont_Nop = CreateValue(RenderDrawSpriteType::SpriteFont, DrawCommandType::Nop),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     SpriteFont_DrawAtOffsetAndSize = CreateValue(RenderDrawSpriteType::SpriteFont, DrawCommandType::DrawAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // SpriteFont_DrawCustomBasicImageAtOffsetAndSize =
     //  CreateValue(RenderDrawSpriteType::SpriteFont, DrawCommandType::DrawCustomBasicImageAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // SpriteFont_DrawCustomBasicImageAtOffsetAndSizeBasicMesh =
     //  CreateValue(RenderDrawSpriteType::SpriteFont, DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // SpriteFont_DrawCustomNineSliceAtOffsetAndSize =
     //  CreateValue(RenderDrawSpriteType::SpriteFont, DrawCommandType::DrawCustomNineSliceAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     SpriteFont_DrawCustomTextAtOffsetAndSize = CreateValue(RenderDrawSpriteType::SpriteFont, DrawCommandType::DrawCustomTextAtOffsetAndSize),
+    // NOLINTNEXTLINE(readability-identifier-naming)
     // SpriteFont_DrawRot90CWAtOffsetAndSize = CreateValue(RenderDrawSpriteType::SpriteFont, DrawCommandType::DrawRot90CWAtOffsetAndSize),
   };
 

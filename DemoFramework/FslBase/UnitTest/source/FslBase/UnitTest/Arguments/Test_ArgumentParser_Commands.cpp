@@ -64,7 +64,7 @@ TEST(Test_ArgumentParser_Commands, ArgumentInvalidNames)
   std::array<StringViewLite, 1> testArgs = {"-t"};
 
   std::deque<EncodedCommand> res;
-  ASSERT_EQ(ArgumentParser::TryParse(res, ReadOnlySpanUtil::AsSpan(testArgs), commands), ParseResult::CommandListIsInvalidError);
+  ASSERT_EQ(ArgumentParser::TryParse(res, SpanUtil::AsReadOnlySpan(testArgs), commands), ParseResult::CommandListIsInvalidError);
 }
 
 
@@ -75,7 +75,7 @@ TEST(Test_ArgumentParser_Commands, DuplicatedCommandId_Switch_Switch)
   std::array<StringViewLite, 1> testArgs = {"-t"};
 
   std::deque<EncodedCommand> res;
-  ASSERT_EQ(ArgumentParser::TryParse(res, ReadOnlySpanUtil::AsSpan(testArgs), commands), ParseResult::CommandListIsInvalidError);
+  ASSERT_EQ(ArgumentParser::TryParse(res, SpanUtil::AsReadOnlySpan(testArgs), commands), ParseResult::CommandListIsInvalidError);
 }
 
 
@@ -86,7 +86,7 @@ TEST(Test_ArgumentParser_Commands, DuplicatedCommandId_Switch_MultiSwitch)
   std::array<StringViewLite, 1> testArgs = {"-t"};
 
   std::deque<EncodedCommand> res;
-  ASSERT_EQ(ArgumentParser::TryParse(res, ReadOnlySpanUtil::AsSpan(testArgs), commands), ParseResult::CommandListIsInvalidError);
+  ASSERT_EQ(ArgumentParser::TryParse(res, SpanUtil::AsReadOnlySpan(testArgs), commands), ParseResult::CommandListIsInvalidError);
 }
 
 
@@ -97,7 +97,7 @@ TEST(Test_ArgumentParser_Commands, DuplicatedCommandId_PositionalValue_RequiredL
   std::array<StringViewLite, 1> testArgs = {"-t"};
 
   std::deque<EncodedCommand> res;
-  ASSERT_EQ(ArgumentParser::TryParse(res, ReadOnlySpanUtil::AsSpan(testArgs), commands), ParseResult::CommandListIsInvalidError);
+  ASSERT_EQ(ArgumentParser::TryParse(res, SpanUtil::AsReadOnlySpan(testArgs), commands), ParseResult::CommandListIsInvalidError);
 }
 
 
@@ -109,5 +109,5 @@ TEST(Test_ArgumentParser_Commands, MultipleUnhandled)
   std::array<StringViewLite, 1> testArgs = {"-t"};
 
   std::deque<EncodedCommand> res;
-  ASSERT_EQ(ArgumentParser::TryParse(res, ReadOnlySpanUtil::AsSpan(testArgs), commands), ParseResult::CommandListIsInvalidError);
+  ASSERT_EQ(ArgumentParser::TryParse(res, SpanUtil::AsReadOnlySpan(testArgs), commands), ParseResult::CommandListIsInvalidError);
 }

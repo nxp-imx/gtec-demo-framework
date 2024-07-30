@@ -34,7 +34,7 @@
 
 namespace Fsl
 {
-  TextureInfo::TextureInfo(const uint32_t levels, const TextureType& textureType, const uint32_t layers)
+  TextureInfo::TextureInfo(const uint32_t levels, const TextureType& textureType, const uint32_t layers) noexcept
     : Levels(levels)
     , Faces(TextureTypeUtil::GetFaceCount(textureType))
     , Layers(layers)

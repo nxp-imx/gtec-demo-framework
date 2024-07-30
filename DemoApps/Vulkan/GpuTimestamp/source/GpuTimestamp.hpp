@@ -38,8 +38,8 @@
 #include <RapidVulkan/DescriptorPool.hpp>
 #include <RapidVulkan/QueryPool.hpp>
 #include <Shared/GpuTimestamp/Shared.hpp>
+#include <utility>
 #include "FractalShaderMandelbrot.hpp"
-
 
 namespace Fsl
 {
@@ -57,6 +57,13 @@ namespace Fsl
       Resources& operator=(const Resources&) = delete;
       Resources(Resources&& other) noexcept = delete;
       Resources& operator=(Resources&& other) noexcept = delete;
+
+      Resources(std::shared_ptr<Vulkan::VMBufferManager> bufferManager, RapidVulkan::DescriptorPool descriptorPool, RapidVulkan::QueryPool queryPool)
+        : BufferManager(std::move(bufferManager))
+        , DescriptorPool(std::move(descriptorPool))
+        , QueryPool(std::move(queryPool))
+      {
+      }
     };
 
     struct DependentResources

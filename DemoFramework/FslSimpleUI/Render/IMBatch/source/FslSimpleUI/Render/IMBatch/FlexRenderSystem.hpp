@@ -33,6 +33,8 @@
 
 #include <FslGraphics2D/Procedural/Batcher/FlexibleImmediateModeBatcher.hpp>
 #include <FslSimpleUI/Render/Base/RenderSystemCreateInfo.hpp>
+#include <FslSimpleUI/Render/Builder/UIRawBasicMeshBuilder2D.hpp>
+#include <FslSimpleUI/Render/Builder/UIRawMeshBuilder2D.hpp>
 #include <FslSimpleUI/Render/IMBatch/DrawReorderMethod.hpp>
 #include <FslSimpleUI/Render/IMBatch/FlexRenderSystemConfig.hpp>
 #include <FslSimpleUI/Render/IMBatch/IFlexRenderSystemConfig.hpp>
@@ -46,7 +48,7 @@ namespace Fsl::UI::RenderIMBatch
     : public RenderSystemBase
     , public IFlexRenderSystemConfig
   {
-    FlexibleImmediateModeBatcher m_batcher;
+    FlexibleImmediateModeBatcher<UIRawBasicMeshBuilder2D, UIRawMeshBuilder2D> m_batcher;
     FlexRenderSystemConfig m_config;
     LinearPreprocessor m_preprocessor;
     SpatialGridPreprocessor m_spatialGridPreprocessor;

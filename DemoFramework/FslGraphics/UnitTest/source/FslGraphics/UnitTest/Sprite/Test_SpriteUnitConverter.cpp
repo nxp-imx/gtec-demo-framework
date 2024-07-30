@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022-2023 NXP
+ * Copyright 2020, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -788,11 +788,11 @@ TEST(TestSprite_SpriteUnitConverter, ToPxSize2D_Scale1)
 {
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi);
 
-  constexpr auto extent = DpExtent2D::Create(32u, 128u);
+  constexpr auto Extent = DpExtent2D::Create(32u, 128u);
 
-  auto res = converter.ToPxSize2D(extent);
-  EXPECT_EQ(NumericCast<int32_t>(extent.Width.Value), res.RawWidth());
-  EXPECT_EQ(NumericCast<int32_t>(extent.Height.Value), res.RawHeight());
+  auto res = converter.ToPxSize2D(Extent);
+  EXPECT_EQ(NumericCast<int32_t>(Extent.Width.Value), res.RawWidth());
+  EXPECT_EQ(NumericCast<int32_t>(Extent.Height.Value), res.RawHeight());
 }
 
 
@@ -800,30 +800,30 @@ TEST(TestSprite_SpriteUnitConverter, ToPxSize2D_Scale2)
 {
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
-  constexpr auto extent = DpExtent2D::Create(32u, 128u);
+  constexpr auto Extent = DpExtent2D::Create(32u, 128u);
 
-  auto res = converter.ToPxSize2D(extent);
-  EXPECT_EQ(NumericCast<int32_t>(extent.Width.Value * 2u), res.RawWidth());
-  EXPECT_EQ(NumericCast<int32_t>(extent.Height.Value * 2u), res.RawHeight());
+  auto res = converter.ToPxSize2D(Extent);
+  EXPECT_EQ(NumericCast<int32_t>(Extent.Width.Value * 2u), res.RawWidth());
+  EXPECT_EQ(NumericCast<int32_t>(Extent.Height.Value * 2u), res.RawHeight());
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxSize2D_Scale0_25)
 {
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi / 4);
 
-  constexpr auto extent0 = DpExtent2D::Create(32u, 128u);
-  constexpr auto extent1 = DpExtent2D::Create(0u, 1u);
-  constexpr auto extent2 = DpExtent2D::Create(2u, 3u);
+  constexpr auto Extent0 = DpExtent2D::Create(32u, 128u);
+  constexpr auto Extent1 = DpExtent2D::Create(0u, 1u);
+  constexpr auto Extent2 = DpExtent2D::Create(2u, 3u);
 
-  auto res = converter.ToPxSize2D(extent0);
-  EXPECT_EQ(NumericCast<int32_t>(extent0.Width.Value / 4u), res.RawWidth());
-  EXPECT_EQ(NumericCast<int32_t>(extent0.Height.Value / 4u), res.RawHeight());
+  auto res = converter.ToPxSize2D(Extent0);
+  EXPECT_EQ(NumericCast<int32_t>(Extent0.Width.Value / 4u), res.RawWidth());
+  EXPECT_EQ(NumericCast<int32_t>(Extent0.Height.Value / 4u), res.RawHeight());
 
-  res = converter.ToPxSize2D(extent1);
+  res = converter.ToPxSize2D(Extent1);
   EXPECT_EQ(0, res.RawWidth());
   EXPECT_EQ(0, res.RawHeight());
 
-  res = converter.ToPxSize2D(extent2);
+  res = converter.ToPxSize2D(Extent2);
   EXPECT_EQ(1, res.RawWidth());
   EXPECT_EQ(1, res.RawHeight());
 }
@@ -833,16 +833,16 @@ TEST(TestSprite_SpriteUnitConverter, ToPxSize2D_Scale0_5)
 {
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi / 2);
 
-  constexpr auto extent0 = DpExtent2D::Create(32u, 128u);
-  constexpr auto extent1 = DpExtent2D::Create(31u, 127u);
+  constexpr auto Extent0 = DpExtent2D::Create(32u, 128u);
+  constexpr auto Extent1 = DpExtent2D::Create(31u, 127u);
 
-  auto res = converter.ToPxSize2D(extent0);
-  EXPECT_EQ(NumericCast<int32_t>(extent0.Width.Value / 2u), res.RawWidth());
-  EXPECT_EQ(NumericCast<int32_t>(extent0.Height.Value / 2u), res.RawHeight());
+  auto res = converter.ToPxSize2D(Extent0);
+  EXPECT_EQ(NumericCast<int32_t>(Extent0.Width.Value / 2u), res.RawWidth());
+  EXPECT_EQ(NumericCast<int32_t>(Extent0.Height.Value / 2u), res.RawHeight());
 
-  res = converter.ToPxSize2D(extent1);
-  EXPECT_EQ(NumericCast<int32_t>((extent1.Width.Value / 2u) + 1u), res.RawWidth());
-  EXPECT_EQ(NumericCast<int32_t>((extent1.Height.Value / 2u) + 1u), res.RawHeight());
+  res = converter.ToPxSize2D(Extent1);
+  EXPECT_EQ(NumericCast<int32_t>((Extent1.Width.Value / 2u) + 1u), res.RawWidth());
+  EXPECT_EQ(NumericCast<int32_t>((Extent1.Height.Value / 2u) + 1u), res.RawHeight());
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -851,11 +851,11 @@ TEST(TestSprite_SpriteUnitConverter, ToPxExtent2D_Scale1)
 {
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi);
 
-  constexpr auto extent = DpExtent2D::Create(32u, 128u);
+  constexpr auto Extent = DpExtent2D::Create(32u, 128u);
 
-  auto res = converter.ToPxExtent2D(extent);
-  EXPECT_EQ(extent.Width.Value, res.Width.Value);
-  EXPECT_EQ(extent.Height.Value, res.Height.Value);
+  auto res = converter.ToPxExtent2D(Extent);
+  EXPECT_EQ(Extent.Width.Value, res.Width.Value);
+  EXPECT_EQ(Extent.Height.Value, res.Height.Value);
 }
 
 
@@ -863,30 +863,30 @@ TEST(TestSprite_SpriteUnitConverter, ToPxExtent2D_Scale2)
 {
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
-  constexpr auto extent = DpExtent2D::Create(32u, 128u);
+  constexpr auto Extent = DpExtent2D::Create(32u, 128u);
 
-  auto res = converter.ToPxExtent2D(extent);
-  EXPECT_EQ(extent.Width.Value * 2u, res.Width.Value);
-  EXPECT_EQ(extent.Height.Value * 2u, res.Height.Value);
+  auto res = converter.ToPxExtent2D(Extent);
+  EXPECT_EQ(Extent.Width.Value * 2u, res.Width.Value);
+  EXPECT_EQ(Extent.Height.Value * 2u, res.Height.Value);
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxExtent2D_Scale0_25)
 {
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi / 4);
 
-  constexpr auto extent0 = DpExtent2D::Create(32u, 128u);
-  constexpr auto extent1 = DpExtent2D::Create(0u, 1u);
-  constexpr auto extent2 = DpExtent2D::Create(2u, 3u);
+  constexpr auto Extent0 = DpExtent2D::Create(32u, 128u);
+  constexpr auto Extent1 = DpExtent2D::Create(0u, 1u);
+  constexpr auto Extent2 = DpExtent2D::Create(2u, 3u);
 
-  auto res = converter.ToPxExtent2D(extent0);
-  EXPECT_EQ(extent0.Width.Value / 4u, res.Width.Value);
-  EXPECT_EQ(extent0.Height.Value / 4u, res.Height.Value);
+  auto res = converter.ToPxExtent2D(Extent0);
+  EXPECT_EQ(Extent0.Width.Value / 4u, res.Width.Value);
+  EXPECT_EQ(Extent0.Height.Value / 4u, res.Height.Value);
 
-  res = converter.ToPxExtent2D(extent1);
+  res = converter.ToPxExtent2D(Extent1);
   EXPECT_EQ(PxValueU(0u), res.Width);
   EXPECT_EQ(PxValueU(0u), res.Height);
 
-  res = converter.ToPxExtent2D(extent2);
+  res = converter.ToPxExtent2D(Extent2);
   EXPECT_EQ(PxValueU(1u), res.Width);
   EXPECT_EQ(PxValueU(1u), res.Height);
 }
@@ -896,16 +896,16 @@ TEST(TestSprite_SpriteUnitConverter, ToPxExtent2D_Scale0_5)
 {
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi / 2);
 
-  constexpr auto extent0 = DpExtent2D::Create(32u, 128u);
-  constexpr auto extent1 = DpExtent2D::Create(31u, 127u);
+  constexpr auto Extent0 = DpExtent2D::Create(32u, 128u);
+  constexpr auto Extent1 = DpExtent2D::Create(31u, 127u);
 
-  auto res = converter.ToPxExtent2D(extent0);
-  EXPECT_EQ(extent0.Width.Value / 2u, res.Width.Value);
-  EXPECT_EQ(extent0.Height.Value / 2u, res.Height.Value);
+  auto res = converter.ToPxExtent2D(Extent0);
+  EXPECT_EQ(Extent0.Width.Value / 2u, res.Width.Value);
+  EXPECT_EQ(Extent0.Height.Value / 2u, res.Height.Value);
 
-  res = converter.ToPxExtent2D(extent1);
-  EXPECT_EQ((extent1.Width.Value / 2u) + 1u, res.Width.Value);
-  EXPECT_EQ((extent1.Height.Value / 2u) + 1u, res.Height.Value);
+  res = converter.ToPxExtent2D(Extent1);
+  EXPECT_EQ((Extent1.Width.Value / 2u) + 1u, res.Width.Value);
+  EXPECT_EQ((Extent1.Height.Value / 2u) + 1u, res.Height.Value);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1028,31 +1028,31 @@ TEST(TestSprite_SpriteUnitConverter, CalcImageDensityScale_2_4)
 
 TEST(TestSprite_SpriteUnitConverter, CalcImageExtentDp_ZeroDpi)
 {
-  constexpr auto extentPx = PxExtent2D::Create(32u, 128u);
+  constexpr auto ExtentPx = PxExtent2D::Create(32u, 128u);
 
-  EXPECT_THROW(SpriteUnitConverter::CalcImageDpExtent2D(extentPx, 0u), std::invalid_argument);
+  EXPECT_THROW(SpriteUnitConverter::CalcImageDpExtent2D(ExtentPx, 0u), std::invalid_argument);
 }
 
 TEST(TestSprite_SpriteUnitConverter, CalcImageDpExtent2D)
 {
-  constexpr uint32_t scaleFactor = 4;
-  constexpr uint32_t imageDpi = SpriteDpConfig::BaseDpi * scaleFactor;
-  constexpr auto extentPx = PxExtent2D::Create(32u, 128u);
-  const auto res = SpriteUnitConverter::CalcImageDpExtent2D(extentPx, imageDpi);
+  constexpr uint32_t ScaleFactor = 4;
+  constexpr uint32_t ImageDpi = SpriteDpConfig::BaseDpi * ScaleFactor;
+  constexpr auto ExtentPx = PxExtent2D::Create(32u, 128u);
+  const auto res = SpriteUnitConverter::CalcImageDpExtent2D(ExtentPx, ImageDpi);
 
-  EXPECT_EQ(extentPx.Width.Value / scaleFactor, res.Width.Value);
-  EXPECT_EQ(extentPx.Height.Value / scaleFactor, res.Height.Value);
+  EXPECT_EQ(ExtentPx.Width.Value / ScaleFactor, res.Width.Value);
+  EXPECT_EQ(ExtentPx.Height.Value / ScaleFactor, res.Height.Value);
 }
 
 TEST(TestSprite_SpriteUnitConverter, CalcImageExtentDp2)
 {
-  constexpr uint32_t scaleFactor = 4;
-  constexpr uint32_t imageDpi = SpriteDpConfig::BaseDpi * scaleFactor;
-  constexpr auto extentPx = PxExtent2D::Create(33u, 128u);
-  DpExtent2D valuePx = SpriteUnitConverter::CalcImageDpExtent2D(extentPx, imageDpi);
+  constexpr uint32_t ScaleFactor = 4;
+  constexpr uint32_t ImageDpi = SpriteDpConfig::BaseDpi * ScaleFactor;
+  constexpr auto ExtentPx = PxExtent2D::Create(33u, 128u);
+  DpExtent2D valuePx = SpriteUnitConverter::CalcImageDpExtent2D(ExtentPx, ImageDpi);
 
-  const float extentXDpf = std::round(static_cast<float>(extentPx.Width.Value) / static_cast<float>(scaleFactor));
-  const float extentYDpf = std::round(static_cast<float>(extentPx.Height.Value) / static_cast<float>(scaleFactor));
+  const float extentXDpf = std::round(static_cast<float>(ExtentPx.Width.Value) / static_cast<float>(ScaleFactor));
+  const float extentYDpf = std::round(static_cast<float>(ExtentPx.Height.Value) / static_cast<float>(ScaleFactor));
   const auto extentDp = DpExtent2D::Create(static_cast<PxExtent2D::raw_value_type>(extentXDpf), static_cast<PxExtent2D::raw_value_type>(extentYDpf));
   EXPECT_EQ(extentDp, valuePx);
 }

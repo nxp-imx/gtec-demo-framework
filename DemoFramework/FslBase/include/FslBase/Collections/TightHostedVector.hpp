@@ -31,9 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
-#include <algorithm>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <array>
 #include <cassert>
 #include <vector>
@@ -216,19 +214,17 @@ namespace Fsl
     ReadOnlySpan<T> AsReadOnlySpan(const size_type hostedArrayIndex) const noexcept
     {
       assert(hostedArrayIndex < TVectorCount);
-      return hostedArrayIndex > 0u ? ReadOnlySpanUtil::AsSpan(m_content, m_hosted[hostedArrayIndex - 1].EndIndex,
-                                                              m_hosted[hostedArrayIndex].EndIndex - m_hosted[hostedArrayIndex - 1].EndIndex,
-                                                              OptimizationCheckFlag::NoCheck)
-                                   : ReadOnlySpanUtil::AsSpan(m_content, 0u, m_hosted[hostedArrayIndex].EndIndex, OptimizationCheckFlag::NoCheck);
+      return hostedArrayIndex > 0u ? SpanUtil::UncheckedAsReadOnlySpan(m_content, m_hosted[hostedArrayIndex - 1].EndIndex,
+                                                                       m_hosted[hostedArrayIndex].EndIndex - m_hosted[hostedArrayIndex - 1].EndIndex)
+                                   : SpanUtil::UncheckedAsReadOnlySpan(m_content, 0u, m_hosted[hostedArrayIndex].EndIndex);
     }
 
     Span<T> AsSpan(const size_type hostedArrayIndex) noexcept
     {
       assert(hostedArrayIndex < TVectorCount);
-      return hostedArrayIndex > 0u
-               ? SpanUtil::AsSpan(m_content, m_hosted[hostedArrayIndex - 1].EndIndex,
-                                  m_hosted[hostedArrayIndex].EndIndex - m_hosted[hostedArrayIndex - 1].EndIndex, OptimizationCheckFlag::NoCheck)
-               : SpanUtil::AsSpan(m_content, 0u, m_hosted[hostedArrayIndex].EndIndex, OptimizationCheckFlag::NoCheck);
+      return hostedArrayIndex > 0u ? SpanUtil::UncheckedAsReadOnlySpan(m_content, m_hosted[hostedArrayIndex - 1].EndIndex,
+                                                                       m_hosted[hostedArrayIndex].EndIndex - m_hosted[hostedArrayIndex - 1].EndIndex)
+                                   : SpanUtil::UncheckedAsReadOnlySpan(m_content, 0u, m_hosted[hostedArrayIndex].EndIndex);
     }
 
   private:

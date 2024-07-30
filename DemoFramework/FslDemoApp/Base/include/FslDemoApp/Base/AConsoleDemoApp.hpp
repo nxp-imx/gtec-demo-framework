@@ -84,7 +84,7 @@ namespace Fsl
     void _End() override;
 
   protected:
-    virtual void Run(){};
+    virtual void Run() {};
 
     //! @brief Get access to the demo app control interface
     std::shared_ptr<IDemoAppControl> GetDemoAppControl() const;

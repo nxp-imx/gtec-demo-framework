@@ -32,8 +32,7 @@
 #include "DynamicMesh.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Span/ReadOnlyFlexSpanUtil.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Vector.hpp>
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
@@ -91,8 +90,8 @@ namespace Fsl
     m_vertexInputBindingDescription.stride = m_vb.GetElementStride();
     m_vertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-    constexpr std::array<VertexElementUsage, 2> shaderBindOrder = {VertexElementUsage::Position, VertexElementUsage::TextureCoordinate};
-    Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(m_vertexAttributeDescription, shaderBindOrder, m_vb);
+    constexpr std::array<VertexElementUsage, 2> ShaderBindOrder = {VertexElementUsage::Position, VertexElementUsage::TextureCoordinate};
+    Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(m_vertexAttributeDescription, ShaderBindOrder, m_vb);
   }
 
 
@@ -125,7 +124,7 @@ namespace Fsl
   MeshDescription DynamicMesh::GetMeshDescription() const
   {
     return {ReadOnlySpan<VkVertexInputBindingDescription>(&m_vertexInputBindingDescription, 1),
-            ReadOnlySpanUtil::AsSpan(m_vertexAttributeDescription)};
+            SpanUtil::AsReadOnlySpan(m_vertexAttributeDescription)};
   }
 
 

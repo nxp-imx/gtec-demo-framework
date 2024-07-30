@@ -50,18 +50,19 @@
 #include <FslUtil/OpenGLES2/DebugStrings.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <fmt/format.h>
+#include <memory>
 
 namespace Fsl
 {
   namespace
   {
-    DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
+    DemoHostFeature CommonSetup(HostDemoAppSetup& rSetup, const ColorSpaceType colorSpaceType)
     {
       // Use the EGLDemoHost for OpenGLES
       std::deque<DemoHostFeatureName::Enum> eglHostFeatures;
       eglHostFeatures.push_back(DemoHostFeatureName::OpenGLES);
       rSetup.TheHostRegistry.Register(eglHostFeatures, DemoHostSetupOpenGLES2::Get());
-      rSetup.TheServiceRegistry.Register<GraphicsServiceFactory>();
+      rSetup.TheServiceRegistry.Register(std::make_shared<GraphicsServiceFactory>(colorSpaceType));
       rSetup.TheServiceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<GLES2::NativeGraphicsService, INativeGraphicsService>>(
         ServicePriorityList::NativeGraphicsService());
       rSetup.TheServiceRegistry.Register<EGLHostServiceFactory>(ServicePriorityList::EGLHostService());
@@ -122,7 +123,7 @@ namespace Fsl
       // Register a formatter for common OpenGLES2 exceptions (from the libs we utilize)
       rSetup.CustomExceptionFormatter.Add(TryFormatException);
 
-      const DemoHostFeature feature = CommenSetup(rSetup);
+      const DemoHostFeature feature = CommonSetup(rSetup, demoAppSetup.CustomAppConfig.AppColorSpaceType);
       const auto appHostConfig = std::make_shared<DemoAppHostConfigEGL>(demoHostEGLConfig);
       rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, appHostConfig);
     }

@@ -56,8 +56,10 @@ namespace Fsl
 {
   enum class TextureBacking
   {
-    g2d = 0,
-    openGL
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    G2D = 0,
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    OpenGL
   };
 
 #ifdef FSL_PLATFORM_YOCTO
@@ -100,8 +102,8 @@ namespace Fsl
     glm::mat4 m_model{};
     glm::mat4 m_view{};
     glm::mat4 m_proj{};
-    glm::mat4 m_MVP{};
-    GLint m_MVPLoc{};
+    glm::mat4 m_mvp{};
+    GLint m_mvpLoc{};
     GLint m_samplerLoc{};
 
     glm::mat4 m_rpModel{};

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2023 NXP
+ * Copyright 2020, 2023-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -182,78 +182,78 @@ TEST(TestMathPixel_PxClipRectangle, CreateFromLeftTopRightBottom)
 
 TEST(TestMathPixel_PxClipRectangle, FromLeftTopRightBottom_OverflowX)
 {
-  constexpr auto left = PxValue::Create(std::numeric_limits<int32_t>::min());
-  constexpr auto top = PxValue::Create(2);
-  constexpr auto right = PxValue::Create(std::numeric_limits<int32_t>::max());
-  constexpr auto bottom = PxValue::Create(20);
-  EXPECT_DEBUG_DEATH(PxClipRectangle::FromLeftTopRightBottom(left, top, right, bottom), "");
+  constexpr auto Left = PxValue::Create(std::numeric_limits<int32_t>::min());
+  constexpr auto Top = PxValue::Create(2);
+  constexpr auto Right = PxValue::Create(std::numeric_limits<int32_t>::max());
+  constexpr auto Bottom = PxValue::Create(20);
+  EXPECT_DEBUG_DEATH(PxClipRectangle::FromLeftTopRightBottom(Left, Top, Right, Bottom), "");
 }
 
 TEST(TestMathPixel_PxClipRectangle, FromLeftTopRightBottom_OverflowX2)
 {
-  constexpr auto left = PxValue::Create(-1);
-  constexpr auto top = PxValue::Create(2);
-  constexpr auto right = PxValue::Create(std::numeric_limits<int32_t>::max());
-  constexpr auto bottom = PxValue::Create(20);
-  EXPECT_DEBUG_DEATH(PxClipRectangle::FromLeftTopRightBottom(left, top, right, bottom), "");
+  constexpr auto Left = PxValue::Create(-1);
+  constexpr auto Top = PxValue::Create(2);
+  constexpr auto Right = PxValue::Create(std::numeric_limits<int32_t>::max());
+  constexpr auto Bottom = PxValue::Create(20);
+  EXPECT_DEBUG_DEATH(PxClipRectangle::FromLeftTopRightBottom(Left, Top, Right, Bottom), "");
 }
 
 
 TEST(TestMathPixel_PxClipRectangle, FromLeftTopRightBottom_OverflowY)
 {
-  constexpr auto left = PxValue::Create(1);
-  constexpr auto top = PxValue::Create(std::numeric_limits<int32_t>::min());
-  constexpr auto right = PxValue::Create(10);
-  constexpr auto bottom = PxValue::Create(std::numeric_limits<int32_t>::max());
-  EXPECT_DEBUG_DEATH(PxClipRectangle::FromLeftTopRightBottom(left, top, right, bottom), "");
+  constexpr auto Left = PxValue::Create(1);
+  constexpr auto Top = PxValue::Create(std::numeric_limits<int32_t>::min());
+  constexpr auto Right = PxValue::Create(10);
+  constexpr auto Bottom = PxValue::Create(std::numeric_limits<int32_t>::max());
+  EXPECT_DEBUG_DEATH(PxClipRectangle::FromLeftTopRightBottom(Left, Top, Right, Bottom), "");
 }
 
 
 TEST(TestMathPixel_PxClipRectangle, FromLeftTopRightBottom_OverflowY2)
 {
-  constexpr auto left = PxValue::Create(1);
-  constexpr auto top = PxValue::Create(-1);
-  constexpr auto right = PxValue::Create(10);
-  constexpr auto bottom = PxValue::Create(std::numeric_limits<int32_t>::max());
-  EXPECT_DEBUG_DEATH(PxClipRectangle::FromLeftTopRightBottom(left, top, right, bottom), "");
+  constexpr auto Left = PxValue::Create(1);
+  constexpr auto Top = PxValue::Create(-1);
+  constexpr auto Right = PxValue::Create(10);
+  constexpr auto Bottom = PxValue::Create(std::numeric_limits<int32_t>::max());
+  EXPECT_DEBUG_DEATH(PxClipRectangle::FromLeftTopRightBottom(Left, Top, Right, Bottom), "");
 }
 
 TEST(TestMathPixel_PxClipRectangle, CreateFromLeftTopRightBottom_OverflowX)
 {
-  constexpr int32_t left = std::numeric_limits<int32_t>::min();
-  constexpr int32_t top = 2;
-  constexpr int32_t right = std::numeric_limits<int32_t>::max();
-  constexpr int32_t bottom = 20;
-  EXPECT_DEBUG_DEATH(PxClipRectangle::CreateFromLeftTopRightBottom(left, top, right, bottom), "");
+  constexpr int32_t Left = std::numeric_limits<int32_t>::min();
+  constexpr int32_t Top = 2;
+  constexpr int32_t Right = std::numeric_limits<int32_t>::max();
+  constexpr int32_t Bottom = 20;
+  EXPECT_DEBUG_DEATH(PxClipRectangle::CreateFromLeftTopRightBottom(Left, Top, Right, Bottom), "");
 }
 
 TEST(TestMathPixel_PxClipRectangle, CreateFromLeftTopRightBottom_OverflowX2)
 {
-  constexpr int32_t left = -1;
-  constexpr int32_t top = 2;
-  constexpr int32_t right = std::numeric_limits<int32_t>::max();
-  constexpr int32_t bottom = 20;
-  EXPECT_DEBUG_DEATH(PxClipRectangle::CreateFromLeftTopRightBottom(left, top, right, bottom), "");
+  constexpr int32_t Left = -1;
+  constexpr int32_t Top = 2;
+  constexpr int32_t Right = std::numeric_limits<int32_t>::max();
+  constexpr int32_t Bottom = 20;
+  EXPECT_DEBUG_DEATH(PxClipRectangle::CreateFromLeftTopRightBottom(Left, Top, Right, Bottom), "");
 }
 
 
 TEST(TestMathPixel_PxClipRectangle, CreateFromLeftTopRightBottom_OverflowY)
 {
-  constexpr int32_t left = 1;
-  constexpr int32_t top = std::numeric_limits<int32_t>::min();
-  constexpr int32_t right = 10;
-  constexpr int32_t bottom = std::numeric_limits<int32_t>::max();
-  EXPECT_DEBUG_DEATH(PxClipRectangle::CreateFromLeftTopRightBottom(left, top, right, bottom), "");
+  constexpr int32_t Left = 1;
+  constexpr int32_t Top = std::numeric_limits<int32_t>::min();
+  constexpr int32_t Right = 10;
+  constexpr int32_t Bottom = std::numeric_limits<int32_t>::max();
+  EXPECT_DEBUG_DEATH(PxClipRectangle::CreateFromLeftTopRightBottom(Left, Top, Right, Bottom), "");
 }
 
 
 TEST(TestMathPixel_PxClipRectangle, CreateFromLeftTopRightBottom_OverflowY2)
 {
-  constexpr int32_t left = 1;
-  constexpr int32_t top = -1;
-  constexpr int32_t right = 10;
-  constexpr int32_t bottom = std::numeric_limits<int32_t>::max();
-  EXPECT_DEBUG_DEATH(PxClipRectangle::CreateFromLeftTopRightBottom(left, top, right, bottom), "");
+  constexpr int32_t Left = 1;
+  constexpr int32_t Top = -1;
+  constexpr int32_t Right = 10;
+  constexpr int32_t Bottom = std::numeric_limits<int32_t>::max();
+  EXPECT_DEBUG_DEATH(PxClipRectangle::CreateFromLeftTopRightBottom(Left, Top, Right, Bottom), "");
 }
 
 
@@ -603,16 +603,16 @@ TEST(TestMathPixel_PxClipRectangle, Contains_PxValue_PxValue)
 TEST(TestMathPixel_PxClipRectangle, IntersectsSelf)
 {
   {
-    constexpr auto rectA = PxClipRectangle::Create(1, 2, 5, 4);
-    constexpr auto rectB = PxClipRectangle::Create(7, 1, 7, 6);
-    constexpr auto rectC = PxClipRectangle::Create(6, 1, 7, 6);
-    constexpr auto rectD = PxClipRectangle::Create(5, 1, 7, 6);
+    constexpr auto RectA = PxClipRectangle::Create(1, 2, 5, 4);
+    constexpr auto RectB = PxClipRectangle::Create(7, 1, 7, 6);
+    constexpr auto RectC = PxClipRectangle::Create(6, 1, 7, 6);
+    constexpr auto RectD = PxClipRectangle::Create(5, 1, 7, 6);
     // constexpr PxClipRectangle rectE(4, 1, 7, 6);
 
-    EXPECT_TRUE(rectA.Intersects(rectA));
-    EXPECT_TRUE(rectB.Intersects(rectB));
-    EXPECT_TRUE(rectC.Intersects(rectC));
-    EXPECT_TRUE(rectD.Intersects(rectD));
+    EXPECT_TRUE(RectA.Intersects(RectA));
+    EXPECT_TRUE(RectB.Intersects(RectB));
+    EXPECT_TRUE(RectC.Intersects(RectC));
+    EXPECT_TRUE(RectD.Intersects(RectD));
   }
 }
 
@@ -644,7 +644,7 @@ TEST(TestMathPixel_PxClipRectangle, Intersects_BruteForce)
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 8
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 9
     };
-    constexpr auto rectB = PxClipRectangle::Create(4, 3, 6, 5);
+    constexpr auto RectB = PxClipRectangle::Create(4, 3, 6, 5);
 
     for (int32_t y = 0; y < 10; ++y)
     {
@@ -652,8 +652,8 @@ TEST(TestMathPixel_PxClipRectangle, Intersects_BruteForce)
       for (int32_t x = 0; x < 11; ++x)
       {
         auto rectA = PxClipRectangle::Create(x, y, 4, 3);
-        EXPECT_EQ(result[x + yOffset] != 0u, rectA.Intersects(rectB));
-        EXPECT_EQ(result[x + yOffset] != 0u, rectB.Intersects(rectA));
+        EXPECT_EQ(result[x + yOffset] != 0u, rectA.Intersects(RectB));
+        EXPECT_EQ(result[x + yOffset] != 0u, RectB.Intersects(rectA));
       }
     }
   }
@@ -687,7 +687,7 @@ TEST(TestMathPixel_PxClipRectangle, Intersect_BruteForce)
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 8
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 9
     };
-    constexpr auto rectB = PxClipRectangle::Create(4, 3, 6, 5);
+    constexpr auto RectB = PxClipRectangle::Create(4, 3, 6, 5);
 
     for (int32_t y = 0; y < 10; ++y)
     {
@@ -696,18 +696,18 @@ TEST(TestMathPixel_PxClipRectangle, Intersect_BruteForce)
       {
         auto rectA = PxClipRectangle::Create(x, y, 4, 3);
 
-        auto res1 = PxClipRectangle::Intersect(rectA, rectB);
-        auto res2 = PxClipRectangle::Intersect(rectB, rectA);
+        auto res1 = PxClipRectangle::Intersect(rectA, RectB);
+        auto res2 = PxClipRectangle::Intersect(RectB, rectA);
         EXPECT_EQ(res1, res2);
         // check for intersection
         EXPECT_EQ(result[x + yOffset] != 0u, !res1.IsEmpty());
         // check result
         if (result[x + yOffset] != 0u)
         {
-          EXPECT_EQ(std::max(rectA.Left(), rectB.Left()), res1.Left());
-          EXPECT_EQ(std::max(rectA.Top(), rectB.Top()), res1.Top());
-          EXPECT_EQ(std::min(rectA.Right(), rectB.Right()), res1.Right());
-          EXPECT_EQ(std::min(rectA.Bottom(), rectB.Bottom()), res1.Bottom());
+          EXPECT_EQ(std::max(rectA.Left(), RectB.Left()), res1.Left());
+          EXPECT_EQ(std::max(rectA.Top(), RectB.Top()), res1.Top());
+          EXPECT_EQ(std::min(rectA.Right(), RectB.Right()), res1.Right());
+          EXPECT_EQ(std::min(rectA.Bottom(), RectB.Bottom()), res1.Bottom());
         }
       }
     }
@@ -716,7 +716,7 @@ TEST(TestMathPixel_PxClipRectangle, Intersect_BruteForce)
 
 TEST(TestMathPixel_PxClipRectangle, Union_BruteForce)
 {
-  constexpr auto rectB = PxClipRectangle::Create(4, 3, 6, 5);
+  constexpr auto RectB = PxClipRectangle::Create(4, 3, 6, 5);
 
   for (int32_t y = 0; y < 10; ++y)
   {
@@ -724,14 +724,14 @@ TEST(TestMathPixel_PxClipRectangle, Union_BruteForce)
     {
       auto rectA = PxClipRectangle::Create(x, y, 4, 3);
 
-      auto res1 = PxClipRectangle::Union(rectA, rectB);
-      auto res2 = PxClipRectangle::Union(rectB, rectA);
+      auto res1 = PxClipRectangle::Union(rectA, RectB);
+      auto res2 = PxClipRectangle::Union(RectB, rectA);
       EXPECT_EQ(res1, res2);
 
-      EXPECT_EQ(std::min(rectA.Left(), rectB.Left()), res1.Left());
-      EXPECT_EQ(std::min(rectA.Top(), rectB.Top()), res1.Top());
-      EXPECT_EQ(std::max(rectA.Right(), rectB.Right()), res1.Right());
-      EXPECT_EQ(std::max(rectA.Bottom(), rectB.Bottom()), res1.Bottom());
+      EXPECT_EQ(std::min(rectA.Left(), RectB.Left()), res1.Left());
+      EXPECT_EQ(std::min(rectA.Top(), RectB.Top()), res1.Top());
+      EXPECT_EQ(std::max(rectA.Right(), RectB.Right()), res1.Right());
+      EXPECT_EQ(std::max(rectA.Bottom(), RectB.Bottom()), res1.Bottom());
     }
   }
 }

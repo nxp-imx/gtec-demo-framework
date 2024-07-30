@@ -39,11 +39,11 @@ using namespace Fsl;
 
 namespace
 {
-  using TestLog_String_LogCtringView = TestFixtureFslBase;
+  using TestLog_String_LogCStringView = TestFixtureFslBase;
 }
 
 
-TEST(TestLog_String_LogCtringView, Log)
+TEST(TestLog_String_LogCStringView, Log)
 {
   CStringView str("hello");
 
@@ -54,7 +54,7 @@ TEST(TestLog_String_LogCtringView, Log)
 }
 
 
-TEST(TestLog_String_LogCtringView, LogEmpty)
+TEST(TestLog_String_LogCStringView, LogEmpty)
 {
   CStringView str;
 

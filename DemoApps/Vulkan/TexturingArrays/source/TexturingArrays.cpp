@@ -30,7 +30,7 @@ namespace Fsl
 {
   namespace
   {
-    const uint32_t VERTEX_BUFFER_BIND_ID = 0;
+    constexpr uint32_t VertexBufferBindId = 0;
   }
 
 
@@ -120,7 +120,7 @@ namespace Fsl
         vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout.Get(), 0, 1, &m_descriptorSet, 0, nullptr);
 
         VkDeviceSize offsets = 0;
-        vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Quad.GetVertices().GetBufferPointer(), &offsets);
+        vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VertexBufferBindId, 1, m_meshes.Quad.GetVertices().GetBufferPointer(), &offsets);
         vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_meshes.Quad.GetIndices().GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
         vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines.Solid.Get());
 
@@ -166,7 +166,7 @@ namespace Fsl
   {
     // Binding description
     m_vertices.BindingDescriptions.resize(1);
-    m_vertices.BindingDescriptions[0].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.BindingDescriptions[0].binding = VertexBufferBindId;
     m_vertices.BindingDescriptions[0].stride = sizeof(Vertex);
     m_vertices.BindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
@@ -175,13 +175,13 @@ namespace Fsl
     m_vertices.AttributeDescriptions.resize(2);
     // Location 0 : Position
     m_vertices.AttributeDescriptions[0].location = 0;
-    m_vertices.AttributeDescriptions[0].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[0].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
     m_vertices.AttributeDescriptions[0].offset = 0;
 
     // Location 1 : Texture coordinates
     m_vertices.AttributeDescriptions[1].location = 1;
-    m_vertices.AttributeDescriptions[1].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[1].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
     m_vertices.AttributeDescriptions[1].offset = sizeof(float) * 3;
 
@@ -258,9 +258,8 @@ namespace Fsl
       {
         throw std::runtime_error("failed to map memory");
       }
-      RawTexture rawTexture;
-      Texture::ScopedDirectAccess directAccess(textureArray, rawTexture);
-      std::memcpy(pData, rawTexture.GetContent(), rawTexture.GetByteSize());
+      Texture::ScopedDirectReadAccess directAccess(textureArray);
+      std::memcpy(pData, directAccess.AsRawTexture().GetContent(), directAccess.AsRawTexture().GetByteSize());
     }
     stagingMemory.UnmapMemory();
 

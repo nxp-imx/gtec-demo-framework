@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_DECLARATIVE_CONTROLNAME_HPP
 #define FSLSIMPLEUI_DECLARATIVE_CONTROLNAME_HPP
 /****************************************************************************************************************************************************
- * Copyright 2023 NXP
+ * Copyright 2023-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLite.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace Fsl::UI::Declarative
@@ -47,14 +47,14 @@ namespace Fsl::UI::Declarative
     explicit ControlName(std::string name)
       : m_name(std::move(name))
     {
-      if (!IsValidName(StringViewLiteUtil::AsStringViewLite(m_name)))
+      if (!IsValidName(m_name))
       {
         throw std::invalid_argument("not a valid name");
       }
     }
 
-    explicit ControlName(const StringViewLite name)
-      : ControlName(StringViewLiteUtil::ToString(name))
+    explicit ControlName(const std::string_view name)
+      : ControlName(std::string(name))
     {
     }
 
@@ -68,7 +68,7 @@ namespace Fsl::UI::Declarative
       return m_name;
     }
 
-    static constexpr bool IsValidName(const StringViewLite name) noexcept
+    static constexpr bool IsValidName(const std::string_view name) noexcept
     {
       if (name.empty())
       {
@@ -110,6 +110,7 @@ namespace Fsl::UI::Declarative
       return m_name != other.m_name;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     int compare(const ControlName& value) const noexcept
     {
       return m_name.compare(value.m_name);
@@ -117,12 +118,12 @@ namespace Fsl::UI::Declarative
   };
 
   // op==
-  inline bool operator==(const ControlName& lhs, const StringViewLite rhs) noexcept
+  inline bool operator==(const ControlName& lhs, const std::string_view rhs) noexcept
   {
     return lhs.AsString() == rhs;
   }
 
-  inline bool operator==(const StringViewLite lhs, const ControlName& rhs) noexcept
+  inline bool operator==(const std::string_view lhs, const ControlName& rhs) noexcept
   {
     return lhs == rhs.AsString();
   }
@@ -130,12 +131,12 @@ namespace Fsl::UI::Declarative
 
   // op!=
 
-  inline bool operator!=(const ControlName& lhs, const StringViewLite rhs) noexcept
+  inline bool operator!=(const ControlName& lhs, const std::string_view rhs) noexcept
   {
     return !(lhs == rhs);
   }
 
-  inline bool operator!=(const StringViewLite lhs, const ControlName& rhs) noexcept
+  inline bool operator!=(const std::string_view lhs, const ControlName& rhs) noexcept
   {
     return !(lhs == rhs);
   }
@@ -147,12 +148,12 @@ namespace Fsl::UI::Declarative
     return lhs.compare(rhs) < 0;
   }
 
-  inline bool operator<(const StringViewLite lhs, const ControlName& rhs) noexcept
+  inline bool operator<(const std::string_view lhs, const ControlName& rhs) noexcept
   {
     return lhs < rhs.AsString();
   }
 
-  inline bool operator<(const ControlName& lhs, const StringViewLite rhs) noexcept
+  inline bool operator<(const ControlName& lhs, const std::string_view rhs) noexcept
   {
     return lhs.AsString() < rhs;
   }
@@ -164,12 +165,12 @@ namespace Fsl::UI::Declarative
     return lhs.compare(rhs) <= 0;
   }
 
-  inline bool operator<=(const StringViewLite lhs, const ControlName& rhs) noexcept
+  inline bool operator<=(const std::string_view lhs, const ControlName& rhs) noexcept
   {
     return lhs <= rhs.AsString();
   }
 
-  inline bool operator<=(const ControlName& lhs, const StringViewLite rhs) noexcept
+  inline bool operator<=(const ControlName& lhs, const std::string_view rhs) noexcept
   {
     return lhs.AsString() <= rhs;
   }
@@ -181,12 +182,12 @@ namespace Fsl::UI::Declarative
     return lhs.compare(rhs) > 0;
   }
 
-  inline bool operator>(const StringViewLite lhs, const ControlName& rhs) noexcept
+  inline bool operator>(const std::string_view lhs, const ControlName& rhs) noexcept
   {
     return lhs > rhs.AsString();
   }
 
-  inline bool operator>(const ControlName& lhs, const StringViewLite rhs) noexcept
+  inline bool operator>(const ControlName& lhs, const std::string_view rhs) noexcept
   {
     return lhs.AsString() > rhs;
   }
@@ -198,12 +199,12 @@ namespace Fsl::UI::Declarative
     return lhs.compare(rhs) >= 0;
   }
 
-  inline bool operator>=(const StringViewLite lhs, const ControlName& rhs) noexcept
+  inline bool operator>=(const std::string_view lhs, const ControlName& rhs) noexcept
   {
     return lhs >= rhs.AsString();
   }
 
-  inline bool operator>=(const ControlName& lhs, const StringViewLite rhs) noexcept
+  inline bool operator>=(const ControlName& lhs, const std::string_view rhs) noexcept
   {
     return lhs.AsString() >= rhs;
   }

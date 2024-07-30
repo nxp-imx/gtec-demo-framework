@@ -118,13 +118,13 @@ namespace Fsl::Vulkan::PhysicalDeviceUtil
     assert(physicalDevice != VK_NULL_HANDLE);
     if (!enableStencil)
     {
-      constexpr std::array<VkFormat, 2> depthFormats = {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D16_UNORM};
-      return PhysicalDeviceUtil::FindSupportedFormat(physicalDevice, depthFormats, VK_IMAGE_TILING_OPTIMAL,
+      constexpr std::array<VkFormat, 2> DepthFormats = {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D16_UNORM};
+      return PhysicalDeviceUtil::FindSupportedFormat(physicalDevice, DepthFormats, VK_IMAGE_TILING_OPTIMAL,
                                                      VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
     }
 
-    constexpr std::array<VkFormat, 3> depthFormatsWithS = {VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D16_UNORM_S8_UINT};
-    return PhysicalDeviceUtil::FindSupportedFormat(physicalDevice, depthFormatsWithS, VK_IMAGE_TILING_OPTIMAL,
+    constexpr std::array<VkFormat, 3> DepthFormatsWithS = {VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D16_UNORM_S8_UINT};
+    return PhysicalDeviceUtil::FindSupportedFormat(physicalDevice, DepthFormatsWithS, VK_IMAGE_TILING_OPTIMAL,
                                                    VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
   }
 }

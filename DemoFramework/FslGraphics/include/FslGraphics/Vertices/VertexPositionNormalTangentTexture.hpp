@@ -42,6 +42,11 @@ namespace Fsl
 {
   struct VertexPositionNormalTangentTexture
   {
+    using position_type = Vector3;
+    using normal_type = Vector3;
+    using tangent_type = Vector3;
+    using texture_coordinate_type = Vector2;
+
     Vector3 Position;
     Vector3 Normal;
     Vector3 Tangent;
@@ -60,13 +65,13 @@ namespace Fsl
 
     constexpr static VertexDeclarationArray<4> GetVertexDeclarationArray()
     {
-      constexpr BasicVertexDeclarationArray<4> elements = {
+      constexpr BasicVertexDeclarationArray<4> Elements = {
         VertexElement(offsetof(VertexPositionNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
         VertexElement(offsetof(VertexPositionNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0),
         VertexElement(offsetof(VertexPositionNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0),
         VertexElement(offsetof(VertexPositionNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
                       VertexElementUsage::TextureCoordinate, 0)};
-      return {elements, sizeof(VertexPositionNormalTangentTexture)};
+      return {Elements, sizeof(VertexPositionNormalTangentTexture)};
     }
 
 
@@ -74,8 +79,8 @@ namespace Fsl
     //              At least this workaround still gives us compile time validation of the vertex element data
     static VertexDeclarationSpan AsVertexDeclarationSpan()
     {
-      constexpr static VertexDeclarationArray<4> decl = GetVertexDeclarationArray();
-      return decl.AsReadOnlySpan();
+      constexpr static VertexDeclarationArray<4> Decl = GetVertexDeclarationArray();
+      return Decl.AsReadOnlySpan();
     }
 
     constexpr bool operator==(const VertexPositionNormalTangentTexture& rhs) const noexcept

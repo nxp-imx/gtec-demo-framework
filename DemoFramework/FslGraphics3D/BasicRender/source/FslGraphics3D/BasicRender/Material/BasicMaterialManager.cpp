@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/Span/TypedFlexSpan.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialInfo.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialVariableDeclarationArray.hpp>
@@ -52,6 +51,18 @@ namespace Fsl::Graphics3D
       constexpr auto LogType = Fsl::LogType::Verbose5;
     }
 
+    struct ShaderSelectionRecord
+    {
+      PredefinedShaderType Vertex{PredefinedShaderType::PositionColorTextureVertex};
+      PredefinedShaderType Fragment{PredefinedShaderType::PositionColorTextureFragment};
+
+      constexpr ShaderSelectionRecord(const PredefinedShaderType vertex, const PredefinedShaderType fragment) noexcept
+        : Vertex(vertex)
+        , Fragment(fragment)
+      {
+      }
+    };
+
     uint32_t FindIndexOfMaterial(const HandleVector<BasicMaterialRecord>& vector, const BasicMaterialCreateInfo createInfo,
                                  BasicShaderHandle createInfoVertexShaderHandle, const BasicShaderHandle createInfoFragmentShaderHandle,
                                  const std::shared_ptr<INativeTexture2D>& texture)
@@ -68,6 +79,19 @@ namespace Fsl::Graphics3D
         }
       }
       return vector.Count();
+    }
+
+    ShaderSelectionRecord DetermineShaderType(const BasicMaterialCreateInfo& createInfo)
+    {
+      if (createInfo.VertexDeclaration.VertexElementIndexOf(VertexElementUsage::TextureCoordinate, 0) >= 0)
+      {
+        if (createInfo.MaterialInfo.Blend != BlendState::Sdf)
+        {
+          return {PredefinedShaderType::PositionColorTextureVertex, PredefinedShaderType::PositionColorTextureFragment};
+        }
+        return {PredefinedShaderType::PositionColorTextureVertex, PredefinedShaderType::PositionColorTextureSdfFragment};
+      }
+      return {PredefinedShaderType::PositionColorVertex, PredefinedShaderType::PositionColorFragment};
     }
   }
 
@@ -117,10 +141,10 @@ namespace Fsl::Graphics3D
 
       if (!m_records.Empty())
       {
-        constexpr auto recordElementByteSize = HandleVector<BasicMaterialRecord>::ElementByteSize;
+        constexpr auto RecordElementByteSize = HandleVector<BasicMaterialRecord>::ElementByteSize;
         m_nativeMaterialManager.CreateMaterials(
-          TypedFlexSpan<BasicNativeMaterialRecord>(&m_records[0].Native, m_records.Count(), recordElementByteSize),
-          ReadOnlyTypedFlexSpan<BasicMaterialDetailsRecord>(&m_records[0].Details, m_records.Count(), recordElementByteSize));
+          TypedFlexSpan<BasicNativeMaterialRecord>(&m_records[0].Native, m_records.Count(), RecordElementByteSize),
+          ReadOnlyTypedFlexSpan<BasicMaterialDetailsRecord>(&m_records[0].Details, m_records.Count(), RecordElementByteSize));
       }
     }
     catch (const std::exception& ex)
@@ -165,6 +189,7 @@ namespace Fsl::Graphics3D
     }
   }
 
+
   BasicMaterial BasicMaterialManager::CreateMaterial(const BasicMaterialCreateInfo& createInfo, std::shared_ptr<INativeTexture2D> texture,
                                                      const bool isDynamic)
   {
@@ -179,14 +204,13 @@ namespace Fsl::Graphics3D
     assert(m_factory);
 
     // Lookup the actual shaders handles if no shader is supplied.
-    const auto fragmentShaderType =
-      createInfo.MaterialInfo.Blend != BlendState::Sdf ? PredefinedShaderType::Fragment : PredefinedShaderType::FragmentSdf;
+    const auto shaderSelection = DetermineShaderType(createInfo);
     const BasicShaderHandle actualVertexShaderHandle = createInfo.CustomVertexShader.IsValid()
                                                          ? createInfo.CustomVertexShader
-                                                         : m_basicShaderManager.QueryPredefinedShaderHandle(PredefinedShaderType::Vertex);
+                                                         : m_basicShaderManager.QueryPredefinedShaderHandle(shaderSelection.Vertex);
     const BasicShaderHandle actualFragmentShaderHandle = createInfo.CustomFragmentShader.IsValid()
                                                            ? createInfo.CustomFragmentShader
-                                                           : m_basicShaderManager.QueryPredefinedShaderHandle(fragmentShaderType);
+                                                           : m_basicShaderManager.QueryPredefinedShaderHandle(shaderSelection.Fragment);
 
     const uint32_t materialIndex =
       !isDynamic ? FindIndexOfMaterial(m_records, createInfo, actualVertexShaderHandle, actualFragmentShaderHandle, texture) : m_records.Count();
@@ -198,8 +222,8 @@ namespace Fsl::Graphics3D
       // For now we just support one material type, but the backend material creation interface is flexible
       // If we introduce support for more material types then the FindIndexOfMaterial code needs to be updated as well
 
-      constexpr auto pushConstantDeclArray = BasicMaterial::GetPushConstantDeclarationArray();
-      auto pushConstantDeclSpan = pushConstantDeclArray.AsReadOnlySpan();
+      constexpr auto PushConstantDeclArray = BasicMaterial::GetPushConstantDeclarationArray();
+      auto pushConstantDeclSpan = PushConstantDeclArray.AsReadOnlySpan();
 
       // The given configuration do not exist, creating new material
       materialTracker = std::make_shared<BasicMaterialTracker>();

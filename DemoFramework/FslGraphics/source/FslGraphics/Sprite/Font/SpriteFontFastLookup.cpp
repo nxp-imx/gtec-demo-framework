@@ -72,6 +72,6 @@ namespace Fsl
       dst[i] = SpriteFontCharInfo(CoreFontCharInfo(src.Id, TypeConverter::To<PxRectangleU16>(src.SrcTextureRectPx), src.OffsetPx, src.XAdvancePx),
                                   RenderFontCharInfo(textureArea, scaledSizePxf, offsetPxf, xAdvancePxf));
     }
-    return BasicFlatHashTable<SpriteFontCharInfo, uint32_t, 256u>(ReadOnlySpanUtil::AsSpan(dst));
+    return BasicFlatHashTable<SpriteFontCharInfo, uint32_t, 256u>(SpanUtil::AsReadOnlySpan(dst));
   }
 }

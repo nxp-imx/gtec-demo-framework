@@ -43,8 +43,8 @@ namespace Fsl
     {
     }
 
-    explicit ServiceUnavailableException(const std::string& what_arg)
-      : std::runtime_error(what_arg)
+    explicit ServiceUnavailableException(const std::string& whatArg)
+      : std::runtime_error(whatArg)
     {
     }
   };
@@ -58,8 +58,8 @@ namespace Fsl
     {
     }
 
-    explicit ServiceProviderUnavailableException(const std::string& what_arg)
-      : std::runtime_error(what_arg)
+    explicit ServiceProviderUnavailableException(const std::string& whatArg)
+      : std::runtime_error(whatArg)
     {
     }
   };

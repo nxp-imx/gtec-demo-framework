@@ -35,7 +35,7 @@
 
 namespace Fsl
 {
-  void TestLib_Base__Dummy()
+  void TestLibBaseDummy()
   {
   }
 }

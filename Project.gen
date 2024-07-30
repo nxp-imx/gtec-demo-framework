@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGenProjectRoot Version="1">
-  <Project Name="DemoFramework" ShortName="DF" Version="6.3.1" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" RequirePackageCreationYear="true" ToolConfigFile=".Config/FslBuildGen.xml">
+  <Project Name="DemoFramework" ShortName="DF" Version="6.4.0" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" RequirePackageCreationYear="true" ToolConfigFile=".Config/FslBuildGen.xml">
     <!-- Add a base package that all other packages dependent on -->
     <AddBasePackage Name="Platform"/>
     <AddRootDirectory Name="$(FSL_GRAPHICS_SDK)"/>
@@ -109,18 +109,18 @@
         </StrictChecks>
       </Platform>
       <Platform Name="Android">
-        <Compiler Flags="-std=c++17"/>
+        <Compiler Flags="-std=c++20"/>
       </Platform>
       <Platform Name="Ubuntu">
-        <Compiler Flags="-std=c++17"/>
+        <Compiler Flags="-std=c++20"/>
         <Defines All="FSL_PLATFORM_UBUNTU;PIC" Debug="DEBUG" Release="NDEBUG"/>
       </Platform>
       <Platform Name="Windows">
-        <Compiler Flags="-std=c++17;-Wmicrosoft;-fms-compatibility"/>
+        <Compiler Flags="-std=c++20;-Wmicrosoft;-fms-compatibility"/>
         <Defines All="_UNICODE;UNICODE;NOMINMAX;VC_EXTRALEAN;WIN32_LEAN_AND_MEAN;WIN32;_CONSOLE" Debug="_DEBUG" Release="NDEBUG"/>
       </Platform>
       <Platform Name="Yocto">
-        <Compiler Flags="-std=c++17;-I$(ROOTFS)/usr/include"/>
+        <Compiler Flags="-std=c++20;-I$(ROOTFS)/usr/include"/>
         <Defines All="FSL_PLATFORM_YOCTO;PIC;LINUX" Debug="DEBUG;_DEBUG" Release="NDEBUG"/>
       </Platform>
     </ClangTidyConfiguration>

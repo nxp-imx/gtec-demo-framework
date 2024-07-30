@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,49 +44,49 @@ namespace
 
 TEST(Test_Binding, Create_Source)
 {
-  constexpr DataBinding::DataBindingInstanceHandle hSrc(0);
-  DataBinding::Binding binding(hSrc);
+  constexpr DataBinding::DataBindingInstanceHandle SrcHandle(0);
+  DataBinding::Binding binding(SrcHandle);
 
-  EXPECT_TRUE(binding.ContainsSource(hSrc));
+  EXPECT_TRUE(binding.ContainsSource(SrcHandle));
   EXPECT_FALSE(binding.ComplexBinding());
 
   const auto sourceHandleSpan = binding.SourceHandlesAsSpan();
   ASSERT_FALSE(sourceHandleSpan.empty());
   ASSERT_EQ(1u, sourceHandleSpan.size());
-  EXPECT_EQ(hSrc, sourceHandleSpan[0]);
+  EXPECT_EQ(SrcHandle, sourceHandleSpan[0]);
 }
 
 
 TEST(Test_Binding, Create_Source_Converter)
 {
-  constexpr DataBinding::DataBindingInstanceHandle hSrc(0);
+  constexpr DataBinding::DataBindingInstanceHandle SrcHandle(0);
 
   auto converterBinding = std::make_shared<DataBinding::ConverterBinding<float, int32_t>>([](const int32_t val) { return static_cast<float>(val); });
-  DataBinding::Binding binding(converterBinding, hSrc);
+  DataBinding::Binding binding(converterBinding, SrcHandle);
 
-  EXPECT_TRUE(binding.ContainsSource(hSrc));
+  EXPECT_TRUE(binding.ContainsSource(SrcHandle));
   EXPECT_EQ(converterBinding, binding.ComplexBinding());
 
   const auto sourceHandleSpan = binding.SourceHandlesAsSpan();
   ASSERT_EQ(1u, sourceHandleSpan.size());
-  EXPECT_EQ(hSrc, sourceHandleSpan[0]);
+  EXPECT_EQ(SrcHandle, sourceHandleSpan[0]);
 }
 
 
 TEST(Test_Binding, Create_Source_MultiConverter)
 {
-  constexpr DataBinding::DataBindingInstanceHandle hSrc0(0);
-  constexpr DataBinding::DataBindingInstanceHandle hSrc1(1);
+  constexpr DataBinding::DataBindingInstanceHandle SrcHandle0(0);
+  constexpr DataBinding::DataBindingInstanceHandle SrcHandle1(1);
 
   auto converterBinding = std::make_shared<DataBinding::MultiConverterBinding<float, int32_t, int32_t>>([](const int32_t val0, const int32_t val1)
                                                                                                         { return static_cast<float>(val0 + val1); });
-  DataBinding::Binding binding(converterBinding, hSrc0, hSrc1);
+  DataBinding::Binding binding(converterBinding, SrcHandle0, SrcHandle1);
 
-  EXPECT_TRUE(binding.ContainsSource(hSrc0));
+  EXPECT_TRUE(binding.ContainsSource(SrcHandle0));
   EXPECT_EQ(converterBinding, binding.ComplexBinding());
 
   const auto sourceHandleSpan = binding.SourceHandlesAsSpan();
   ASSERT_EQ(2u, sourceHandleSpan.size());
-  EXPECT_EQ(hSrc0, sourceHandleSpan[0]);
-  EXPECT_EQ(hSrc1, sourceHandleSpan[1]);
+  EXPECT_EQ(SrcHandle0, sourceHandleSpan[0]);
+  EXPECT_EQ(SrcHandle1, sourceHandleSpan[1]);
 }

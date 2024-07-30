@@ -111,7 +111,7 @@ namespace Fsl
       return *this;
     }
 
-
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void reset() noexcept
     {
       // Destroy the old object then default-construct a new object in the m_buffer.
@@ -119,11 +119,13 @@ namespace Fsl
       new (&m_buffer) T();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     T& get() noexcept
     {
       return *reinterpret_cast<T*>(&m_buffer);
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const T& get() const noexcept
     {
       return *reinterpret_cast<const T*>(&m_buffer);

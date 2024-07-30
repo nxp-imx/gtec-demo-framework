@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLiteUtil.hpp>
-#include <FslGraphics/Color.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <FslSimpleUI/Base/Mesh/SimpleSpriteFontMesh.hpp>
+#include <FslSimpleUI/Base/Property/DependencyPropertyUIColor.hpp>
+#include <FslSimpleUI/Base/UIColor.hpp>
 #include <string>
 
 namespace Fsl
@@ -51,21 +51,27 @@ namespace Fsl
       PxSize2D m_cachedMeasureMinimalFontSizePx;
 
     protected:
+      // NOLINTNEXTLINE(readability-identifier-naming)
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
       SimpleSpriteFontMesh m_fontMesh;
       DataBinding::TypedDependencyProperty<bool> m_propertyIsEnabled{true};
-      DataBinding::TypedDependencyProperty<Color> m_propertyFontColor{DefaultColor::Palette::Font};
-      DataBinding::TypedDependencyProperty<Color> m_propertyFontDisabledColor{DefaultColor::Palette::FontDisabled};
+      DependencyPropertyUIColor m_propertyFontColor;
+      DependencyPropertyUIColor m_propertyFontDisabledColor;
       DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyContentAlignmentX;
       DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyContentAlignmentY;
 
     public:
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyIsEnabled;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyFontColor;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyFontDisabledColor;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyContentAlignmentX;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyContentAlignmentY;
 
       explicit LabelBase(const std::shared_ptr<WindowContext>& context);
@@ -100,19 +106,19 @@ namespace Fsl
 
       void SetFont(const std::shared_ptr<SpriteFont>& value);
 
-      Color GetFontColor() const noexcept
+      UIColor GetFontColor() const noexcept
       {
         return m_propertyFontColor.Get();
       }
 
-      bool SetFontColor(const Color value);
+      bool SetFontColor(const UIColor value);
 
-      Color GetFontDisabledColor() const noexcept
+      UIColor GetFontDisabledColor() const noexcept
       {
         return m_propertyFontDisabledColor.Get();
       }
 
-      bool SetFontDisabledColor(const Color value);
+      bool SetFontDisabledColor(const UIColor value);
 
       void WinDraw(const UIDrawContext& context) override;
 
@@ -126,7 +132,7 @@ namespace Fsl
 
       PxSize2D DoMeasureRenderedString(const std::string& value) const
       {
-        return m_fontMesh.Measure(StringViewLiteUtil::AsStringViewLite(value));
+        return m_fontMesh.Measure(StringViewLite(value));
       }
 
       PxSize2D DoMeasureRenderedString(const StringViewLite& value) const

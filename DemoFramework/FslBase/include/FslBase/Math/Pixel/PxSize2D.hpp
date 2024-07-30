@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXSIZE2D_HPP
 #define FSLBASE_MATH_PIXEL_PXSIZE2D_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022-2023 NXP
+ * Copyright 2020, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,10 +34,9 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxSize1D.hpp>
+#include <FslBase/Math/Pixel/PxValueU.hpp>
 #include <FslBase/OptimizationFlag.hpp>
-#include <algorithm>
 #include <cassert>
-#include <limits>
 
 namespace Fsl
 {
@@ -45,11 +44,13 @@ namespace Fsl
   struct PxSize2D
   {
     using value_type = PxSize1D;
+    using unsigned_value_type = PxValueU;
     using raw_value_type = value_type::raw_value_type;
+    using raw_unsigned_value_type = unsigned_value_type::raw_value_type;
 
   private:
-    value_type m_width{};
-    value_type m_height{};
+    value_type m_width;
+    value_type m_height;
 
   public:
     constexpr PxSize2D() noexcept = default;
@@ -101,6 +102,16 @@ namespace Fsl
       return m_height;
     }
 
+    constexpr inline unsigned_value_type UnsignedWidth() const noexcept
+    {
+      return m_width.UnsignedValue();
+    }
+
+    constexpr inline unsigned_value_type UnsignedHeight() const noexcept
+    {
+      return m_height.UnsignedValue();
+    }
+
     constexpr inline raw_value_type RawWidth() const noexcept
     {
       return m_width.RawValue();
@@ -109,6 +120,16 @@ namespace Fsl
     constexpr inline raw_value_type RawHeight() const noexcept
     {
       return m_height.RawValue();
+    }
+
+    constexpr inline raw_unsigned_value_type RawUnsignedWidth() const noexcept
+    {
+      return m_width.RawUnsignedValue();
+    }
+
+    constexpr inline raw_unsigned_value_type RawUnsignedHeight() const noexcept
+    {
+      return m_height.RawUnsignedValue();
     }
 
     constexpr inline void SetWidth(const value_type width)

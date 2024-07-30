@@ -47,7 +47,9 @@ namespace Fsl::UI
     PxSize1D m_maxSizePx;
 
   public:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static DataBinding::DependencyPropertyDefinition PropertyOrientation;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static DataBinding::DependencyPropertyDefinition PropertySpacing;
 
     explicit UniformStackLayout(const std::shared_ptr<BaseWindowContext>& context);

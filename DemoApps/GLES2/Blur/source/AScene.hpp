@@ -42,7 +42,7 @@ namespace Fsl
   {
   public:
     virtual ~AScene() = default;
-    virtual void OnKeyEvent(const KeyEvent& /*event*/){};
+    virtual void OnKeyEvent(const KeyEvent& /*event*/) {};
     virtual void Update(const DemoTime& demoTime) = 0;
     virtual void Draw() = 0;
   };

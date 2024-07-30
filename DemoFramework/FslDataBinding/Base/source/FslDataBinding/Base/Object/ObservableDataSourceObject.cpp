@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/String/FmtStringViewLite.hpp>
+#include <FslDataBinding/Base/Exceptions.hpp>
 #include <FslDataBinding/Base/Object/ObservableDataSourceObject.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinition.hpp>
+#include <fmt/format.h>
+#include <utility>
 
 namespace Fsl::DataBinding
 {
@@ -49,4 +54,20 @@ namespace Fsl::DataBinding
   {
     return m_dataSourceObject.Changed();
   }
+
+  DataBindingInstanceHandle ObservableDataSourceObject::GetPropertyHandle(const DependencyPropertyDefinition& sourceDef)
+  {
+    auto res = TryGetPropertyHandleNow(sourceDef);
+    if (!res.IsValid())
+    {
+      throw DataBinding::UnknownPropertyInstanceException(fmt::format("Unknown property instance {}", sourceDef.Name()));
+    }
+    return res;
+  }
+
+  void ObservableDataSourceObject::ExtractProperties(DependencyPropertyDefinitionVector& rProperties)
+  {
+    return ExtractAllProperties(rProperties);
+  }
+
 }

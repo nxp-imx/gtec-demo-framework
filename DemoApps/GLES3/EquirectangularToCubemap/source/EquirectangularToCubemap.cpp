@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,8 +50,8 @@ namespace Fsl
 
   namespace
   {
-    const Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 0.0f);
-    const Vector3 DEFAULT_CAMERA_TARGET(0.0f, 0.0f, -4.0f);
+    constexpr Vector3 DefaultCameraPosition(0.0f, 0.0f, 0.0f);
+    constexpr Vector3 DefaultCameraTarget(0.0f, 0.0f, -4.0f);
 
     struct ProgramLocations
     {
@@ -59,9 +59,9 @@ namespace Fsl
       GLint ProjMatrix;
       GLint EquirectangularMap;
       ProgramLocations()
-        : ViewMatrix(GLES3::GLValues::INVALID_LOCATION)
-        , ProjMatrix(GLES3::GLValues::INVALID_LOCATION)
-        , EquirectangularMap(GLES3::GLValues::INVALID_LOCATION)
+        : ViewMatrix(GLES3::GLValues::InvalidLocation)
+        , ProjMatrix(GLES3::GLValues::InvalidLocation)
+        , EquirectangularMap(GLES3::GLValues::InvalidLocation)
       {
       }
     };
@@ -204,7 +204,7 @@ namespace Fsl
   {
     const auto options = config.GetOptions<OptionParser>();
 
-    m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+    m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
     const auto contentManager = GetContentManager();
 
     const bool hdrEnabled = options->GetScene() == SceneState::Scene2;
@@ -216,8 +216,8 @@ namespace Fsl
     IO::Path texturePath(hdrEnabled ? "Textures/Equirectangular/FloralTent/floral_tent_1k.hdr"
                                     : "Textures/Equirectangular/Stairs/equirectangular.jpg");
 
-    constexpr PxSize2D resolution(PxSize2D::Create(2048, 2048));
-    m_cubemapTexture = GenerateCubemap(contentManager, texturePath, resolution, hdrEnabled);
+    constexpr PxSize2D Resolution(PxSize2D::Create(2048, 2048));
+    m_cubemapTexture = GenerateCubemap(contentManager, texturePath, Resolution, hdrEnabled);
 
     std::string texture = "Stairs";
 
@@ -260,7 +260,7 @@ namespace Fsl
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
-        m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+        m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
         event.Handled();
       }
       break;
@@ -308,9 +308,9 @@ namespace Fsl
     glUseProgram(program.Get());
 
     // Load the matrices
-    assert(location.ViewMatrix != GLValues::INVALID_LOCATION);
-    assert(location.ProjMatrix != GLValues::INVALID_LOCATION);
-    assert(location.SkyboxSampler != GLValues::INVALID_LOCATION);
+    assert(location.ViewMatrix != GLValues::InvalidLocation);
+    assert(location.ProjMatrix != GLValues::InvalidLocation);
+    assert(location.SkyboxSampler != GLValues::InvalidLocation);
 
     glUniformMatrix4fv(location.ViewMatrix, 1, 0, matrixView.DirectAccess());
     glUniformMatrix4fv(location.ProjMatrix, 1, 0, matrixProjection.DirectAccess());

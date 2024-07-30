@@ -72,20 +72,20 @@ namespace Fsl
   ParticleSystem::~ParticleSystem() = default;
 
 
-  void ParticleSystem::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  void ParticleSystem::OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent)
   {
     if (m_scene)
     {
-      m_scene->OnSelect(args, theEvent);
+      m_scene->OnSelect(theEvent);
     }
   }
 
 
-  void ParticleSystem::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
+  void ParticleSystem::OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent)
   {
     if (m_scene)
     {
-      m_scene->OnContentChanged(args, theEvent);
+      m_scene->OnContentChanged(theEvent);
     }
   }
 

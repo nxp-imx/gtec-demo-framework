@@ -64,11 +64,11 @@ TEST(TestIO_PathView, Construct_Default_StringViewLite_NoCheck)
 }
 
 
-TEST(TestIO_PathView, Construct_Default_Null_NoCheck)
-{
-  IO::PathView path(nullptr, 0u, OptimizationCheckFlag::NoCheck);
-  EXPECT_TRUE(path.empty());
-}
+// TEST(TestIO_PathView, Construct_Default_Null_NoCheck)
+//{
+//   IO::PathView path(nullptr, 0u, OptimizationCheckFlag::NoCheck);
+//   EXPECT_TRUE(path.empty());
+// }
 
 TEST(TestIO_PathView, Construct_Default_StringViewLite)
 {
@@ -100,13 +100,13 @@ TEST(TestIO_PathView, Construct_Default_CString)
 
 namespace
 {
-  IO::PathView Construct_BasicString_Backslash()
+  IO::PathView ConstructBasicStringBackslash()
   {
     StringViewLite str("hello\\world");
     return IO::PathView(str);
   }
 
-  IO::PathView Construct_CString_Backslash()
+  IO::PathView ConstructCStringBackslash()
   {
     const char* const psz = "hello\\world";
     return IO::PathView(psz);
@@ -115,7 +115,7 @@ namespace
 
 TEST(TestIO_PathView, Construct_StringViewLite_Backslash)
 {
-  EXPECT_THROW(Construct_BasicString_Backslash(), PathFormatErrorException);
+  EXPECT_THROW(ConstructBasicStringBackslash(), PathFormatErrorException);
 }
 
 TEST(TestIO_PathView, Construct_BasicString_Backslash)
@@ -127,7 +127,7 @@ TEST(TestIO_PathView, Construct_BasicString_Backslash)
 
 TEST(TestIO_PathView, Construct_CString_Backslash)
 {
-  EXPECT_THROW(Construct_CString_Backslash(), PathFormatErrorException);
+  EXPECT_THROW(ConstructCStringBackslash(), PathFormatErrorException);
 }
 
 

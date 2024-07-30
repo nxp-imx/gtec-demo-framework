@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/String/LogStringViewLite.hpp>
 #include <FslBase/Log/String/LogUTF8String.hpp>
+#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslBase/String/UTF8String.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
@@ -90,23 +91,23 @@ TEST(TestString_UTF8String, Construct_CString)
 TEST(TestString_UTF8String, Construct_StringViewLite)
 {
   //---------------01234567890
-  constexpr StringViewLite str("hello world");
-  UTF8String src(str);
+  constexpr StringViewLite Str("hello world");
+  UTF8String src(Str);
 
-  EXPECT_EQ(static_cast<std::size_t>(src.GetByteSize()), str.size());
-  EXPECT_EQ(src.ToAsciiString(), str);
-  EXPECT_EQ(src.ToUTF8String(), str);
+  EXPECT_EQ(static_cast<std::size_t>(src.GetByteSize()), Str.size());
+  EXPECT_EQ(src.ToAsciiString(), Str);
+  EXPECT_EQ(src.ToUTF8String(), Str);
 }
 
 TEST(TestString_UTF8String, Construct_StringViewLite_Empty)
 {
   //---------------01234567890
-  constexpr StringViewLite str;
-  UTF8String src(str);
+  constexpr StringViewLite Str;
+  UTF8String src(Str);
 
-  EXPECT_EQ(static_cast<std::size_t>(src.GetByteSize()), str.size());
-  EXPECT_EQ(src.ToAsciiString(), str);
-  EXPECT_EQ(src.ToUTF8String(), str);
+  EXPECT_EQ(static_cast<std::size_t>(src.GetByteSize()), Str.size());
+  EXPECT_EQ(src.ToAsciiString(), Str);
+  EXPECT_EQ(src.ToUTF8String(), Str);
 }
 
 
@@ -885,9 +886,9 @@ TEST(TestString_UTF8String, OpAssign_StringViewLite)
   UTF8String src("old school");
   //---------0123456789
 
-  constexpr StringViewLite strNew("the quick brown fox");
-  src = strNew;
-  EXPECT_EQ(strNew, src);
+  constexpr StringViewLite StrNew("the quick brown fox");
+  src = StrNew;
+  EXPECT_EQ(StrNew, src);
 }
 
 TEST(TestString_UTF8String, OpAssign_UTF8String)
@@ -908,8 +909,8 @@ TEST(TestString_UTF8String, OpAssign_CString_Null)
   UTF8String src("old school");
   //---------0123456789
 
-  constexpr const char* const pszNull = nullptr;
-  src = pszNull;
+  constexpr const char* const PszNull = nullptr;
+  src = PszNull;
 
   EXPECT_EQ("", src);
 }
@@ -921,9 +922,9 @@ TEST(TestString_UTF8String, OpAssign_StringViewLite_Empty)
   UTF8String src("old school");
   //---------0123456789
 
-  constexpr StringViewLite strNew;
-  src = strNew;
-  EXPECT_EQ(strNew, src);
+  constexpr StringViewLite StrNew;
+  src = StrNew;
+  EXPECT_EQ(StrNew, src);
 }
 
 
@@ -2190,139 +2191,139 @@ TEST(TestString_UTF8String, OperatorNotEqual_String_RHS)
 TEST(TestString_UTF8String, OperatorLessThan_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
 
   EXPECT_FALSE(UTF8String("A") < pszNull);
-  EXPECT_FALSE(UTF8String("A") < strViewNull);
+  EXPECT_FALSE(UTF8String("A") < StrViewNull);
   EXPECT_TRUE(pszNull < UTF8String("A"));
-  EXPECT_TRUE(strViewNull < UTF8String("A"));
+  EXPECT_TRUE(StrViewNull < UTF8String("A"));
 
   // Compare against empty string
   EXPECT_FALSE(UTF8String("") < pszNull);
-  EXPECT_FALSE(UTF8String("") < strViewNull);
+  EXPECT_FALSE(UTF8String("") < StrViewNull);
   EXPECT_FALSE(pszNull < UTF8String(""));
-  EXPECT_FALSE(strViewNull < UTF8String(""));
+  EXPECT_FALSE(StrViewNull < UTF8String(""));
 
   // Compare against null
-  EXPECT_FALSE(pszNull < strViewNull);
-  EXPECT_FALSE(strViewNull < pszNull);
-  EXPECT_FALSE(strViewNull < strViewNull);
+  EXPECT_FALSE(pszNull < StrViewNull);
+  EXPECT_FALSE(StrViewNull < pszNull);
+  EXPECT_FALSE(StrViewNull < StrViewNull);
 }
 
 
 TEST(TestString_UTF8String, OperatorLessThanOrEqual_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
 
   EXPECT_FALSE(UTF8String("A") <= pszNull);
-  EXPECT_FALSE(UTF8String("A") <= strViewNull);
+  EXPECT_FALSE(UTF8String("A") <= StrViewNull);
   EXPECT_TRUE(pszNull <= UTF8String("A"));
-  EXPECT_TRUE(strViewNull <= UTF8String("A"));
+  EXPECT_TRUE(StrViewNull <= UTF8String("A"));
 
   // Compare against empty string
   EXPECT_TRUE(UTF8String("") <= pszNull);
-  EXPECT_TRUE(UTF8String("") <= strViewNull);
+  EXPECT_TRUE(UTF8String("") <= StrViewNull);
   EXPECT_TRUE(pszNull <= UTF8String(""));
-  EXPECT_TRUE(strViewNull <= UTF8String(""));
+  EXPECT_TRUE(StrViewNull <= UTF8String(""));
 
   // Compare against null
-  EXPECT_TRUE(pszNull <= strViewNull);
-  EXPECT_TRUE(strViewNull <= pszNull);
-  EXPECT_TRUE(strViewNull <= strViewNull);
+  EXPECT_TRUE(pszNull <= StrViewNull);
+  EXPECT_TRUE(StrViewNull <= pszNull);
+  EXPECT_TRUE(StrViewNull <= StrViewNull);
 }
 
 
 TEST(TestString_UTF8String, OperatorGreaterThan_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
 
   EXPECT_TRUE(UTF8String("A") > pszNull);
-  EXPECT_TRUE(UTF8String("A") > strViewNull);
+  EXPECT_TRUE(UTF8String("A") > StrViewNull);
   EXPECT_FALSE(pszNull > UTF8String("A"));
-  EXPECT_FALSE(strViewNull > UTF8String("A"));
+  EXPECT_FALSE(StrViewNull > UTF8String("A"));
 
   // Compare against empty string
   EXPECT_FALSE(UTF8String("") > pszNull);
-  EXPECT_FALSE(UTF8String("") > strViewNull);
+  EXPECT_FALSE(UTF8String("") > StrViewNull);
   EXPECT_FALSE(pszNull > UTF8String(""));
-  EXPECT_FALSE(strViewNull > UTF8String(""));
+  EXPECT_FALSE(StrViewNull > UTF8String(""));
 
   // Compare against null
-  EXPECT_FALSE(pszNull > strViewNull);
-  EXPECT_FALSE(strViewNull > pszNull);
-  EXPECT_FALSE(strViewNull > strViewNull);
+  EXPECT_FALSE(pszNull > StrViewNull);
+  EXPECT_FALSE(StrViewNull > pszNull);
+  EXPECT_FALSE(StrViewNull > StrViewNull);
 }
 
 
 TEST(TestString_UTF8String, OperatorGreaterThanOrEqual_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
   // UTF8String str8ViewNull(nullptr);
 
   EXPECT_TRUE(UTF8String("A") >= pszNull);
-  EXPECT_TRUE(UTF8String("A") >= strViewNull);
+  EXPECT_TRUE(UTF8String("A") >= StrViewNull);
   EXPECT_FALSE(pszNull >= UTF8String("A"));
-  EXPECT_FALSE(strViewNull >= UTF8String("A"));
+  EXPECT_FALSE(StrViewNull >= UTF8String("A"));
 
   // Compare against empty string
   EXPECT_TRUE(UTF8String("") >= pszNull);
-  EXPECT_TRUE(UTF8String("") >= strViewNull);
+  EXPECT_TRUE(UTF8String("") >= StrViewNull);
   EXPECT_TRUE(pszNull >= UTF8String(""));
-  EXPECT_TRUE(strViewNull >= UTF8String(""));
+  EXPECT_TRUE(StrViewNull >= UTF8String(""));
 
   // Compare against null
-  EXPECT_TRUE(pszNull >= strViewNull);
-  EXPECT_TRUE(strViewNull >= pszNull);
-  EXPECT_TRUE(strViewNull >= strViewNull);
+  EXPECT_TRUE(pszNull >= StrViewNull);
+  EXPECT_TRUE(StrViewNull >= pszNull);
+  EXPECT_TRUE(StrViewNull >= StrViewNull);
 }
 
 
 TEST(TestString_UTF8String, OperatorEqual_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
 
   EXPECT_FALSE(UTF8String("A") == pszNull);
-  EXPECT_FALSE(UTF8String("A") == strViewNull);
+  EXPECT_FALSE(UTF8String("A") == StrViewNull);
   EXPECT_FALSE(pszNull == UTF8String("A"));
-  EXPECT_FALSE(strViewNull == UTF8String("A"));
+  EXPECT_FALSE(StrViewNull == UTF8String("A"));
 
   // Compare against empty string
   EXPECT_TRUE(pszNull == UTF8String(""));
-  EXPECT_TRUE(strViewNull == UTF8String(""));
+  EXPECT_TRUE(StrViewNull == UTF8String(""));
   EXPECT_TRUE(UTF8String("") == pszNull);
-  EXPECT_TRUE(UTF8String("") == strViewNull);
+  EXPECT_TRUE(UTF8String("") == StrViewNull);
 
   // Compare against null
-  EXPECT_TRUE(pszNull == strViewNull);
-  EXPECT_TRUE(strViewNull == pszNull);
-  EXPECT_TRUE(strViewNull == strViewNull);
+  EXPECT_TRUE(pszNull == StrViewNull);
+  EXPECT_TRUE(StrViewNull == pszNull);
+  EXPECT_TRUE(StrViewNull == StrViewNull);
 }
 
 
 TEST(TestString_UTF8String, OperatorNotEqual_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
 
   EXPECT_TRUE(UTF8String("A") != pszNull);
-  EXPECT_TRUE(UTF8String("A") != strViewNull);
+  EXPECT_TRUE(UTF8String("A") != StrViewNull);
   EXPECT_TRUE(pszNull != UTF8String("A"));
-  EXPECT_TRUE(strViewNull != UTF8String("A"));
+  EXPECT_TRUE(StrViewNull != UTF8String("A"));
 
   // Compare against empty string
   EXPECT_FALSE(pszNull != UTF8String(""));
-  EXPECT_FALSE(strViewNull != UTF8String(""));
+  EXPECT_FALSE(StrViewNull != UTF8String(""));
   EXPECT_FALSE(UTF8String("") != pszNull);
-  EXPECT_FALSE(UTF8String("") != strViewNull);
+  EXPECT_FALSE(UTF8String("") != StrViewNull);
 
   // Compare against null
-  EXPECT_FALSE(pszNull != strViewNull);
-  EXPECT_FALSE(strViewNull != pszNull);
-  EXPECT_FALSE(strViewNull != strViewNull);
+  EXPECT_FALSE(pszNull != StrViewNull);
+  EXPECT_FALSE(StrViewNull != pszNull);
+  EXPECT_FALSE(StrViewNull != StrViewNull);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------

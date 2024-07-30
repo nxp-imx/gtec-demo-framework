@@ -31,7 +31,7 @@
 
 #include "S09_VIV_direct_texture.hpp"
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <EGL/egl.h>
@@ -101,7 +101,7 @@ namespace Fsl
 
   S09_VIV_direct_texture::S09_VIV_direct_texture(const DemoAppConfig& config)
     : DemoAppGLES2(config)
-    , m_program(g_pszVertexShader, g_pszFragmentShader, ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray))
+    , m_program(g_pszVertexShader, g_pszFragmentShader, SpanUtil::AsReadOnlySpan(g_shaderAttributeArray))
     , m_matTransform()
     , m_angle(0.0)
     , m_raw_video()

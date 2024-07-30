@@ -57,7 +57,7 @@ TEST(TestRender_AtlasFont, Construct_Invalid)
 TEST(TestRender_AtlasFont, Construct_EmptyBitmapFont)
 {
   auto nativeGraphics = std::make_shared<NativeGraphicsTestImpl>();
-  const Bitmap atlasBitmap(PxExtent2D::Create(128, 128), PixelFormat::R8G8B8A8_UNORM);
+  const Bitmap atlasBitmap(PxSize2D::Create(128, 128), PixelFormat::R8G8B8A8_UNORM);
   const Texture2D atlasTex(nativeGraphics, atlasBitmap, Texture2DFilterHint::Smooth);
 
   AtlasFont font(atlasTex, TextureAtlasSpriteFont());

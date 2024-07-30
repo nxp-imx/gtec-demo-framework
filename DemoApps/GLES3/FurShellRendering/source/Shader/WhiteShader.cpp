@@ -41,7 +41,7 @@ namespace Fsl
 
   WhiteShader::WhiteShader(const std::shared_ptr<IContentManager>& contentManager)
     : ShaderBase(contentManager->ReadAllText("White.vert"), contentManager->ReadAllText("White.frag"))
-    , m_locWVP(GLValues::INVALID_LOCATION)
+    , m_locWVP(GLValues::InvalidLocation)
   {
     const GLuint hHandle = Get();
 

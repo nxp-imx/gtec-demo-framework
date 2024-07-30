@@ -57,6 +57,7 @@ namespace Fsl
       struct VertexBufferEntry
       {
         VkBuffer VertexBuffer;
+        // NOLINTNEXTLINE(readability-identifier-naming)
         VertexPositionColorTexture* pMapped;
         uint32_t VertexCapacity;
         //! This is the start index inside the buffer that was applied to pMapped

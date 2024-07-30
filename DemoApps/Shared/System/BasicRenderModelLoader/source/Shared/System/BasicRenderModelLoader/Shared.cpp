@@ -124,7 +124,7 @@ namespace Fsl
   }
 
 
-  void Shared::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void Shared::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_ui.ButtonDefault)
     {
@@ -133,9 +133,8 @@ namespace Fsl
   }
 
 
-  void Shared::OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void Shared::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
     FSL_PARAM_NOT_USED(theEvent);
   }
 
@@ -274,8 +273,8 @@ namespace Fsl
     BasicMaterial modelMaterial;
     {
       const BasicMaterialDepthInfo depthInfoWriteCompare(true, true, BasicCompareOp::Less);
-      constexpr auto bitmapOrigin = BitmapOrigin::LowerLeft;
-      auto texture = contentManager.ReadTexture(LocalConfig::ModelTexturePath, PixelFormat::R8G8B8A8_UNORM, bitmapOrigin);
+      constexpr auto BitmapOrigin = BitmapOrigin::LowerLeft;
+      auto texture = contentManager.ReadTexture(LocalConfig::ModelTexturePath, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin);
       auto modelTexture = render.CreateTexture2D(texture, Texture2DFilterHint::Smooth);
       modelMaterial = render.CreateMaterial(BasicMaterialCreateInfo(BlendState::Opaque, BasicCullMode::Back, BasicFrontFace::CounterClockwise,
                                                                     depthInfoWriteCompare, modelRecord.VertexDecl.AsSpan()),

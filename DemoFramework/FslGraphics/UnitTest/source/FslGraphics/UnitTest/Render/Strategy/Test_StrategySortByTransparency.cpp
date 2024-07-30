@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,19 +47,16 @@ namespace
 
   TYPED_TEST_SUITE(TestFixture_SortByTransparency, TestTypes);
 
-  const constexpr Color g_color0(0.1f, 0.2f, 0.3f, 0.4f);
-  const constexpr Color g_color1(0.5f, 0.6f, 0.7f, 0.8f);
-  const constexpr Color g_color2(0.9f, 1.0f, 1.1f, 1.2f);
+  const constexpr Color Color0(0.1f, 0.2f, 0.3f, 0.4f);
+  const constexpr Color Color1(0.5f, 0.6f, 0.7f, 0.8f);
+  const constexpr Color Color2(0.9f, 1.0f, 1.1f, 1.2f);
 
-  const constexpr TestQuad g_quad0(Vector2(100, 101), Vector2(102, 103), Vector2(104, 105), Vector2(106, 107), Vector2(0, 1), Vector2(2, 3),
-                                   g_color0);
-  const constexpr TestQuad g_quad1(Vector2(200, 201), Vector2(202, 203), Vector2(204, 205), Vector2(206, 207), Vector2(4, 5), Vector2(6, 7),
-                                   g_color1);
-  const constexpr TestQuad g_quad2(Vector2(300, 301), Vector2(302, 203), Vector2(304, 305), Vector2(306, 307), Vector2(8, 9), Vector2(10, 11),
-                                   g_color2);
+  const constexpr TestQuad Quad0(Vector2(100, 101), Vector2(102, 103), Vector2(104, 105), Vector2(106, 107), Vector2(0, 1), Vector2(2, 3), Color0);
+  const constexpr TestQuad Quad1(Vector2(200, 201), Vector2(202, 203), Vector2(204, 205), Vector2(206, 207), Vector2(4, 5), Vector2(6, 7), Color1);
+  const constexpr TestQuad Quad2(Vector2(300, 301), Vector2(302, 203), Vector2(304, 305), Vector2(306, 307), Vector2(8, 9), Vector2(10, 11), Color2);
 
-  const constexpr TextureInfo g_texInfo0(1337u);
-  const constexpr TextureInfo g_texInfo1(1338u);
+  const constexpr TextureInfo TexInfo0(1337u);
+  const constexpr TextureInfo TexInfo1(1338u);
 }
 
 TYPED_TEST(TestFixture_SortByTransparency, InitialState)
@@ -92,9 +89,9 @@ TYPED_TEST(TestFixture_SortByTransparency, CapacityOfZero)
 TYPED_TEST(TestFixture_SortByTransparency, State_Blend0Tex0)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
+  this->m_strategy.SetTexture(TexInfo0);
 
-  EXPECT_EQ(this->m_strategy.GetActiveTexture(), g_texInfo0);
+  EXPECT_EQ(this->m_strategy.GetActiveTexture(), TexInfo0);
   EXPECT_EQ(this->GetBlend0QuadCount(), 0u);
   EXPECT_EQ(this->GetBlend1QuadCount(), 0u);
   EXPECT_EQ(this->GetBlend0SegmentCount(), 0u);
@@ -109,10 +106,10 @@ TYPED_TEST(TestFixture_SortByTransparency, State_Blend0Tex0)
 
 TYPED_TEST(TestFixture_SortByTransparency, State_Tex0Blend0)
 {
-  this->m_strategy.SetTexture(g_texInfo0);
+  this->m_strategy.SetTexture(TexInfo0);
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
 
-  ASSERT_EQ(this->m_strategy.GetActiveTexture(), g_texInfo0);
+  ASSERT_EQ(this->m_strategy.GetActiveTexture(), TexInfo0);
   EXPECT_EQ(this->GetBlend0QuadCount(), 0u);
   EXPECT_EQ(this->GetBlend1QuadCount(), 0u);
   EXPECT_EQ(this->GetBlend0SegmentCount(), 0u);
@@ -129,19 +126,19 @@ TYPED_TEST(TestFixture_SortByTransparency, Limits_Tex0BlendAdd)
 {
   typename TestFixture::strategy_type strategy(1);
 
-  strategy.SetTexture(g_texInfo0);
+  strategy.SetTexture(TexInfo0);
   strategy.SetBlendState(TestFixture::BLEND0);
-  this->AddQuad(strategy, g_quad0);
+  this->AddQuad(strategy, Quad0);
 
-  ASSERT_EQ(strategy.GetActiveTexture(), g_texInfo0);
+  ASSERT_EQ(strategy.GetActiveTexture(), TexInfo0);
   EXPECT_EQ(this->GetBlend0QuadCount(strategy), 1u);
   EXPECT_EQ(this->GetBlend1QuadCount(strategy), 0u);
   EXPECT_EQ(this->GetBlend0SegmentCount(strategy), 1u);
   EXPECT_EQ(this->GetBlend1SegmentCount(strategy), 0u);
 
-  this->CheckBlend0Span(strategy, {g_quad0});
+  this->CheckBlend0Span(strategy, {Quad0});
   this->CheckBlend1Span(strategy, {});
-  this->CheckBlend0Segment(strategy, {TestSegment(1, g_texInfo0, TestFixture::BLEND0)});
+  this->CheckBlend0Segment(strategy, {TestSegment(1, TexInfo0, TestFixture::BLEND0)});
   this->CheckBlend1Segment(strategy, {});
 
   {
@@ -165,24 +162,24 @@ TYPED_TEST(TestFixture_SortByTransparency, Limits_Tex0BlendAdd)
     }
     strategy.SetBlendState(TestFixture::BLEND0);
     strategy.SetBlendState(TestFixture::BLEND1);
-    strategy.SetTexture(g_texInfo0);
-    strategy.SetTexture(g_texInfo1);
+    strategy.SetTexture(TexInfo0);
+    strategy.SetTexture(TexInfo1);
   }
 
-  ASSERT_EQ(strategy.GetActiveTexture(), g_texInfo1);
+  ASSERT_EQ(strategy.GetActiveTexture(), TexInfo1);
   auto newCapacity = this->m_strategy.GetCapacity() + 1;
   this->m_strategy.EnsureCapacity(newCapacity);
   ASSERT_GE(this->m_strategy.GetCapacity(), newCapacity);
-  ASSERT_EQ(strategy.GetActiveTexture(), g_texInfo1);
+  ASSERT_EQ(strategy.GetActiveTexture(), TexInfo1);
 
   EXPECT_EQ(this->GetBlend0QuadCount(strategy), 1u);
   EXPECT_EQ(this->GetBlend1QuadCount(strategy), 0u);
   EXPECT_EQ(this->GetBlend0SegmentCount(strategy), 1u);
   EXPECT_EQ(this->GetBlend1SegmentCount(strategy), 0u);
 
-  this->CheckBlend0Span(strategy, {g_quad0});
+  this->CheckBlend0Span(strategy, {Quad0});
   this->CheckBlend1Span(strategy, {});
-  this->CheckBlend0Segment(strategy, {TestSegment(1, g_texInfo0, TestFixture::BLEND0)});
+  this->CheckBlend0Segment(strategy, {TestSegment(1, TexInfo0, TestFixture::BLEND0)});
   this->CheckBlend1Segment(strategy, {});
 
   {
@@ -206,8 +203,8 @@ TYPED_TEST(TestFixture_SortByTransparency, Limits_Tex0BlendAdd)
     }
     strategy.SetBlendState(TestFixture::BLEND0);
     strategy.SetBlendState(TestFixture::BLEND1);
-    strategy.SetTexture(g_texInfo0);
-    strategy.SetTexture(g_texInfo1);
+    strategy.SetTexture(TexInfo0);
+    strategy.SetTexture(TexInfo1);
   }
 }
 
@@ -216,22 +213,22 @@ TYPED_TEST(TestFixture_SortByTransparency, Limits_Tex0Blend0Add_Blend1Add)
 {
   typename TestFixture::strategy_type strategy(1);
 
-  strategy.SetTexture(g_texInfo0);
+  strategy.SetTexture(TexInfo0);
   strategy.SetBlendState(TestFixture::BLEND0);
-  this->AddQuad(strategy, g_quad0);
+  this->AddQuad(strategy, Quad0);
   strategy.SetBlendState(TestFixture::BLEND1);
-  this->AddQuad(strategy, g_quad1);
+  this->AddQuad(strategy, Quad1);
 
-  ASSERT_EQ(strategy.GetActiveTexture(), g_texInfo0);
+  ASSERT_EQ(strategy.GetActiveTexture(), TexInfo0);
   EXPECT_EQ(this->GetBlend0QuadCount(strategy), 1u);
   EXPECT_EQ(this->GetBlend1QuadCount(strategy), 1u);
   EXPECT_EQ(this->GetBlend0SegmentCount(strategy), 1u);
   EXPECT_EQ(this->GetBlend1SegmentCount(strategy), 1u);
 
-  this->CheckBlend0Span(strategy, {g_quad0});
-  this->CheckBlend1Span(strategy, {g_quad1});
-  this->CheckBlend0Segment(strategy, {TestSegment(1, g_texInfo0, TestFixture::BLEND0)});
-  this->CheckBlend1Segment(strategy, {TestSegment(1, g_texInfo0, TestFixture::BLEND1)});
+  this->CheckBlend0Span(strategy, {Quad0});
+  this->CheckBlend1Span(strategy, {Quad1});
+  this->CheckBlend0Segment(strategy, {TestSegment(1, TexInfo0, TestFixture::BLEND0)});
+  this->CheckBlend1Segment(strategy, {TestSegment(1, TexInfo0, TestFixture::BLEND1)});
 
   {
     strategy.GetActiveTexture();
@@ -254,25 +251,25 @@ TYPED_TEST(TestFixture_SortByTransparency, Limits_Tex0Blend0Add_Blend1Add)
     }
     strategy.SetBlendState(TestFixture::BLEND0);
     strategy.SetBlendState(TestFixture::BLEND1);
-    strategy.SetTexture(g_texInfo0);
-    strategy.SetTexture(g_texInfo1);
+    strategy.SetTexture(TexInfo0);
+    strategy.SetTexture(TexInfo1);
   }
 
-  ASSERT_EQ(strategy.GetActiveTexture(), g_texInfo1);
+  ASSERT_EQ(strategy.GetActiveTexture(), TexInfo1);
   auto newCapacity = this->m_strategy.GetCapacity() + 1;
   this->m_strategy.EnsureCapacity(newCapacity);
   ASSERT_GE(this->m_strategy.GetCapacity(), newCapacity);
-  ASSERT_EQ(strategy.GetActiveTexture(), g_texInfo1);
+  ASSERT_EQ(strategy.GetActiveTexture(), TexInfo1);
 
   EXPECT_EQ(this->GetBlend0QuadCount(strategy), 1u);
   EXPECT_EQ(this->GetBlend1QuadCount(strategy), 1u);
   EXPECT_EQ(this->GetBlend0SegmentCount(strategy), 1u);
   EXPECT_EQ(this->GetBlend1SegmentCount(strategy), 1u);
 
-  this->CheckBlend0Span(strategy, {g_quad0});
-  this->CheckBlend1Span(strategy, {g_quad1});
-  this->CheckBlend0Segment(strategy, {TestSegment(1, g_texInfo0, TestFixture::BLEND0)});
-  this->CheckBlend1Segment(strategy, {TestSegment(1, g_texInfo0, TestFixture::BLEND1)});
+  this->CheckBlend0Span(strategy, {Quad0});
+  this->CheckBlend1Span(strategy, {Quad1});
+  this->CheckBlend0Segment(strategy, {TestSegment(1, TexInfo0, TestFixture::BLEND0)});
+  this->CheckBlend1Segment(strategy, {TestSegment(1, TexInfo0, TestFixture::BLEND1)});
 
   {
     strategy.GetActiveTexture();
@@ -295,8 +292,8 @@ TYPED_TEST(TestFixture_SortByTransparency, Limits_Tex0Blend0Add_Blend1Add)
     }
     strategy.SetBlendState(TestFixture::BLEND0);
     strategy.SetBlendState(TestFixture::BLEND1);
-    strategy.SetTexture(g_texInfo0);
-    strategy.SetTexture(g_texInfo1);
+    strategy.SetTexture(TexInfo0);
+    strategy.SetTexture(TexInfo1);
   }
 }
 
@@ -304,10 +301,10 @@ TYPED_TEST(TestFixture_SortByTransparency, Limits_Tex0Blend0Add_Blend1Add)
 TYPED_TEST(TestFixture_SortByTransparency, State_Blend0Tex0Blend1)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
+  this->m_strategy.SetTexture(TexInfo0);
   this->m_strategy.SetBlendState(TestFixture::BLEND1);
 
-  ASSERT_EQ(this->m_strategy.GetActiveTexture(), g_texInfo0);
+  ASSERT_EQ(this->m_strategy.GetActiveTexture(), TexInfo0);
   EXPECT_EQ(this->GetBlend0QuadCount(), 0u);
   EXPECT_EQ(this->GetBlend1QuadCount(), 0u);
   EXPECT_EQ(this->GetBlend0SegmentCount(), 0u);
@@ -323,18 +320,18 @@ TYPED_TEST(TestFixture_SortByTransparency, State_Blend0Tex0Blend1)
 TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad0);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad0);
 
   ASSERT_EQ(this->GetBlend0QuadCount(), 1u);
   ASSERT_EQ(this->GetBlend1QuadCount(), 0u);
   ASSERT_EQ(this->GetBlend0SegmentCount(), 1u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 0u);
 
-  this->CheckBlend0Span({g_quad0});
+  this->CheckBlend0Span({Quad0});
   this->CheckBlend1Span({});
 
-  this->CheckBlend0Segment({TestSegment(1, g_texInfo0, TestFixture::BLEND0)});
+  this->CheckBlend0Segment({TestSegment(1, TexInfo0, TestFixture::BLEND0)});
   this->CheckBlend1Segment({});
 }
 
@@ -342,18 +339,18 @@ TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add)
 TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Clear)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad0);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad0);
 
   ASSERT_EQ(this->GetBlend0QuadCount(), 1u);
   ASSERT_EQ(this->GetBlend1QuadCount(), 0u);
   ASSERT_EQ(this->GetBlend0SegmentCount(), 1u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 0u);
 
-  this->CheckBlend0Span({g_quad0});
+  this->CheckBlend0Span({Quad0});
   this->CheckBlend1Span({});
 
-  this->CheckBlend0Segment({TestSegment(1, g_texInfo0, TestFixture::BLEND0)});
+  this->CheckBlend0Segment({TestSegment(1, TexInfo0, TestFixture::BLEND0)});
   this->CheckBlend1Segment({});
 
   this->m_strategy.Clear();
@@ -373,19 +370,19 @@ TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Clear)
 TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0AddAdd_Clear)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad0);
-  this->AddQuad(this->m_strategy, g_quad1);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad0);
+  this->AddQuad(this->m_strategy, Quad1);
 
   ASSERT_EQ(this->GetBlend0QuadCount(), 2u);
   ASSERT_EQ(this->GetBlend1QuadCount(), 0u);
   ASSERT_EQ(this->GetBlend0SegmentCount(), 1u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 0u);
 
-  this->CheckBlend0Span({g_quad0, g_quad1});
+  this->CheckBlend0Span({Quad0, Quad1});
   this->CheckBlend1Span({});
 
-  this->CheckBlend0Segment({TestSegment(2, g_texInfo0, TestFixture::BLEND0)});
+  this->CheckBlend0Segment({TestSegment(2, TexInfo0, TestFixture::BLEND0)});
   this->CheckBlend1Segment({});
 
   this->m_strategy.Clear();
@@ -405,20 +402,20 @@ TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0AddAdd_Clear)
 TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0AddTex1Add_Clear)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad0);
-  this->m_strategy.SetTexture(g_texInfo1);
-  this->AddQuad(this->m_strategy, g_quad1);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad0);
+  this->m_strategy.SetTexture(TexInfo1);
+  this->AddQuad(this->m_strategy, Quad1);
 
   ASSERT_EQ(this->GetBlend0QuadCount(), 2u);
   ASSERT_EQ(this->GetBlend1QuadCount(), 0u);
   ASSERT_EQ(this->GetBlend0SegmentCount(), 2u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 0u);
 
-  this->CheckBlend0Span({g_quad0, g_quad1});
+  this->CheckBlend0Span({Quad0, Quad1});
   this->CheckBlend1Span({});
 
-  this->CheckBlend0Segment({TestSegment(1, g_texInfo0, TestFixture::BLEND0), TestSegment(1, g_texInfo1, TestFixture::BLEND0)});
+  this->CheckBlend0Segment({TestSegment(1, TexInfo0, TestFixture::BLEND0), TestSegment(1, TexInfo1, TestFixture::BLEND0)});
   this->CheckBlend1Segment({});
 
   this->m_strategy.Clear();
@@ -438,19 +435,19 @@ TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0AddTex1Add_Clear)
 TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0AddAdd)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad0);
-  this->AddQuad(this->m_strategy, g_quad1);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad0);
+  this->AddQuad(this->m_strategy, Quad1);
 
   ASSERT_EQ(this->GetBlend0QuadCount(), 2u);
   ASSERT_EQ(this->GetBlend1QuadCount(), 0u);
   ASSERT_EQ(this->GetBlend0SegmentCount(), 1u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 0u);
 
-  this->CheckBlend0Span({g_quad0, g_quad1});
+  this->CheckBlend0Span({Quad0, Quad1});
   this->CheckBlend1Span({});
 
-  this->CheckBlend0Segment({TestSegment(2u, g_texInfo0, TestFixture::BLEND0)});
+  this->CheckBlend0Segment({TestSegment(2u, TexInfo0, TestFixture::BLEND0)});
   this->CheckBlend1Segment({});
 }
 
@@ -458,21 +455,21 @@ TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0AddAdd)
 TYPED_TEST(TestFixture_SortByTransparency, SetTextureMerge_Blend0Tex0Add_Tex1Tex0Add)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad0);
-  this->m_strategy.SetTexture(g_texInfo1);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad1);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad0);
+  this->m_strategy.SetTexture(TexInfo1);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad1);
 
   ASSERT_EQ(this->GetBlend0QuadCount(), 2u);
   ASSERT_EQ(this->GetBlend1QuadCount(), 0u);
   ASSERT_EQ(this->GetBlend0SegmentCount(), 1u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 0u);
 
-  this->CheckBlend0Span({g_quad0, g_quad1});
+  this->CheckBlend0Span({Quad0, Quad1});
   this->CheckBlend1Span({});
 
-  this->CheckBlend0Segment({TestSegment(2u, g_texInfo0, TestFixture::BLEND0)});
+  this->CheckBlend0Segment({TestSegment(2u, TexInfo0, TestFixture::BLEND0)});
   this->CheckBlend1Segment({});
 }
 
@@ -480,33 +477,33 @@ TYPED_TEST(TestFixture_SortByTransparency, SetTextureMerge_Blend0Tex0Add_Tex1Tex
 TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Blend1Add)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad0);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad0);
   this->m_strategy.SetBlendState(TestFixture::BLEND1);
-  this->AddQuad(this->m_strategy, g_quad1);
+  this->AddQuad(this->m_strategy, Quad1);
 
   ASSERT_EQ(this->GetBlend0QuadCount(), 1u);
   ASSERT_EQ(this->GetBlend1QuadCount(), 1u);
   ASSERT_EQ(this->GetBlend0SegmentCount(), 1u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 1u);
 
-  this->CheckBlend0Span({g_quad0});
-  this->CheckBlend1Span({g_quad1});
+  this->CheckBlend0Span({Quad0});
+  this->CheckBlend1Span({Quad1});
 
-  this->CheckBlend0Segment({TestSegment(1u, g_texInfo0, TestFixture::BLEND0)});
-  this->CheckBlend1Segment({TestSegment(1u, g_texInfo0, TestFixture::BLEND1)});
+  this->CheckBlend0Segment({TestSegment(1u, TexInfo0, TestFixture::BLEND0)});
+  this->CheckBlend1Segment({TestSegment(1u, TexInfo0, TestFixture::BLEND1)});
 }
 
 
 TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Blend1Add_Blend0Add)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad0);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad0);
   this->m_strategy.SetBlendState(TestFixture::BLEND1);
-  this->AddQuad(this->m_strategy, g_quad1);
+  this->AddQuad(this->m_strategy, Quad1);
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->AddQuad(this->m_strategy, g_quad2);
+  this->AddQuad(this->m_strategy, Quad2);
 
   ASSERT_EQ(this->GetBlend0QuadCount(), 2u);
   ASSERT_EQ(this->GetBlend1QuadCount(), 1u);
@@ -514,24 +511,24 @@ TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Blend1Add_Blend0Add)
   ASSERT_EQ(this->GetBlend0SegmentCount(), 1u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 1u);
 
-  this->CheckBlend0Span({g_quad0, g_quad2});
-  this->CheckBlend1Span({g_quad1});
+  this->CheckBlend0Span({Quad0, Quad2});
+  this->CheckBlend1Span({Quad1});
 
-  this->CheckBlend0Segment({TestSegment(2u, g_texInfo0, TestFixture::BLEND0)});
-  this->CheckBlend1Segment({TestSegment(1u, g_texInfo0, TestFixture::BLEND1)});
+  this->CheckBlend0Segment({TestSegment(2u, TexInfo0, TestFixture::BLEND0)});
+  this->CheckBlend1Segment({TestSegment(1u, TexInfo0, TestFixture::BLEND1)});
 }
 
 
 TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Blend1Tex1Add_Blend0Add)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad0);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad0);
   this->m_strategy.SetBlendState(TestFixture::BLEND1);
-  this->m_strategy.SetTexture(g_texInfo1);
-  this->AddQuad(this->m_strategy, g_quad1);
+  this->m_strategy.SetTexture(TexInfo1);
+  this->AddQuad(this->m_strategy, Quad1);
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->AddQuad(this->m_strategy, g_quad2);
+  this->AddQuad(this->m_strategy, Quad2);
 
   ASSERT_EQ(this->GetBlend0QuadCount(), 2u);
   ASSERT_EQ(this->GetBlend1QuadCount(), 1u);
@@ -539,24 +536,24 @@ TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Blend1Tex1Add_Blend0Add
   ASSERT_EQ(this->GetBlend0SegmentCount(), 2u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 1u);
 
-  this->CheckBlend0Span({g_quad0, g_quad2});
-  this->CheckBlend1Span({g_quad1});
+  this->CheckBlend0Span({Quad0, Quad2});
+  this->CheckBlend1Span({Quad1});
 
-  this->CheckBlend0Segment({TestSegment(1u, g_texInfo0, TestFixture::BLEND0), TestSegment(1u, g_texInfo1, TestFixture::BLEND0)});
-  this->CheckBlend1Segment({TestSegment(1u, g_texInfo1, TestFixture::BLEND1)});
+  this->CheckBlend0Segment({TestSegment(1u, TexInfo0, TestFixture::BLEND0), TestSegment(1u, TexInfo1, TestFixture::BLEND0)});
+  this->CheckBlend1Segment({TestSegment(1u, TexInfo1, TestFixture::BLEND1)});
 }
 
 
 TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Blend1Add_Blend0Tex1Add)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad0);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad0);
   this->m_strategy.SetBlendState(TestFixture::BLEND1);
-  this->AddQuad(this->m_strategy, g_quad1);
+  this->AddQuad(this->m_strategy, Quad1);
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo1);
-  this->AddQuad(this->m_strategy, g_quad2);
+  this->m_strategy.SetTexture(TexInfo1);
+  this->AddQuad(this->m_strategy, Quad2);
 
   ASSERT_EQ(this->GetBlend0QuadCount(), 2u);
   ASSERT_EQ(this->GetBlend1QuadCount(), 1u);
@@ -564,25 +561,25 @@ TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Blend1Add_Blend0Tex1Add
   ASSERT_EQ(this->GetBlend0SegmentCount(), 2u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 1u);
 
-  this->CheckBlend0Span({g_quad0, g_quad2});
-  this->CheckBlend1Span({g_quad1});
+  this->CheckBlend0Span({Quad0, Quad2});
+  this->CheckBlend1Span({Quad1});
 
-  this->CheckBlend0Segment({TestSegment(1u, g_texInfo0, TestFixture::BLEND0), TestSegment(1u, g_texInfo1, TestFixture::BLEND0)});
-  this->CheckBlend1Segment({TestSegment(1u, g_texInfo0, TestFixture::BLEND1)});
+  this->CheckBlend0Segment({TestSegment(1u, TexInfo0, TestFixture::BLEND0), TestSegment(1u, TexInfo1, TestFixture::BLEND0)});
+  this->CheckBlend1Segment({TestSegment(1u, TexInfo0, TestFixture::BLEND1)});
 }
 
 
 TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Blend1Tex1Add_Blend0Tex0Add)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad0);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad0);
   this->m_strategy.SetBlendState(TestFixture::BLEND1);
-  this->m_strategy.SetTexture(g_texInfo1);
-  this->AddQuad(this->m_strategy, g_quad1);
+  this->m_strategy.SetTexture(TexInfo1);
+  this->AddQuad(this->m_strategy, Quad1);
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad2);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad2);
 
   ASSERT_EQ(this->GetBlend0QuadCount(), 2u);
   ASSERT_EQ(this->GetBlend1QuadCount(), 1u);
@@ -590,25 +587,25 @@ TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Blend1Tex1Add_Blend0Tex
   ASSERT_EQ(this->GetBlend0SegmentCount(), 1u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 1u);
 
-  this->CheckBlend0Span({g_quad0, g_quad2});
-  this->CheckBlend1Span({g_quad1});
+  this->CheckBlend0Span({Quad0, Quad2});
+  this->CheckBlend1Span({Quad1});
 
-  this->CheckBlend0Segment({TestSegment(2u, g_texInfo0, TestFixture::BLEND0)});
-  this->CheckBlend1Segment({TestSegment(1u, g_texInfo1, TestFixture::BLEND1)});
+  this->CheckBlend0Segment({TestSegment(2u, TexInfo0, TestFixture::BLEND0)});
+  this->CheckBlend1Segment({TestSegment(1u, TexInfo1, TestFixture::BLEND1)});
 }
 
 
 TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Blend1Tex1Add_Tex0Blend0Add)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad0);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad0);
   this->m_strategy.SetBlendState(TestFixture::BLEND1);
-  this->m_strategy.SetTexture(g_texInfo1);
-  this->AddQuad(this->m_strategy, g_quad1);
-  this->m_strategy.SetTexture(g_texInfo0);
+  this->m_strategy.SetTexture(TexInfo1);
+  this->AddQuad(this->m_strategy, Quad1);
+  this->m_strategy.SetTexture(TexInfo0);
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->AddQuad(this->m_strategy, g_quad2);
+  this->AddQuad(this->m_strategy, Quad2);
 
   ASSERT_EQ(this->GetBlend0QuadCount(), 2u);
   ASSERT_EQ(this->GetBlend1QuadCount(), 1u);
@@ -616,11 +613,11 @@ TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Blend1Tex1Add_Tex0Blend
   ASSERT_EQ(this->GetBlend0SegmentCount(), 1u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 1u);
 
-  this->CheckBlend0Span({g_quad0, g_quad2});
-  this->CheckBlend1Span({g_quad1});
+  this->CheckBlend0Span({Quad0, Quad2});
+  this->CheckBlend1Span({Quad1});
 
-  this->CheckBlend0Segment({TestSegment(2u, g_texInfo0, TestFixture::BLEND0)});
-  this->CheckBlend1Segment({TestSegment(1u, g_texInfo1, TestFixture::BLEND1)});
+  this->CheckBlend0Segment({TestSegment(2u, TexInfo0, TestFixture::BLEND0)});
+  this->CheckBlend1Segment({TestSegment(1u, TexInfo1, TestFixture::BLEND1)});
 }
 
 
@@ -639,18 +636,18 @@ TYPED_TEST(TestFixture_SortByTransparency, Empty_EnsureCapacity)
 TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_EnsureCapacity_GrowOne)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad0);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad0);
 
   ASSERT_EQ(this->GetBlend0QuadCount(), 1u);
   ASSERT_EQ(this->GetBlend1QuadCount(), 0u);
   ASSERT_EQ(this->GetBlend0SegmentCount(), 1u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 0u);
 
-  this->CheckBlend0Span({g_quad0});
+  this->CheckBlend0Span({Quad0});
   this->CheckBlend1Span({});
 
-  this->CheckBlend0Segment({TestSegment(1u, g_texInfo0, TestFixture::BLEND0)});
+  this->CheckBlend0Segment({TestSegment(1u, TexInfo0, TestFixture::BLEND0)});
   this->CheckBlend1Segment({});
 
   auto newCapacity = this->m_strategy.GetCapacity() + 1;
@@ -662,10 +659,10 @@ TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_EnsureCapacity_GrowOne)
   ASSERT_EQ(this->GetBlend0SegmentCount(), 1u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 0u);
 
-  this->CheckBlend0Span({g_quad0});
+  this->CheckBlend0Span({Quad0});
   this->CheckBlend1Span({});
 
-  this->CheckBlend0Segment({TestSegment(1u, g_texInfo0, TestFixture::BLEND0)});
+  this->CheckBlend0Segment({TestSegment(1u, TexInfo0, TestFixture::BLEND0)});
   this->CheckBlend1Segment({});
 }
 
@@ -673,20 +670,20 @@ TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_EnsureCapacity_GrowOne)
 TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Tex1Add_EnsureCapacity_GrowOne)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad0);
-  this->m_strategy.SetTexture(g_texInfo1);
-  this->AddQuad(this->m_strategy, g_quad1);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad0);
+  this->m_strategy.SetTexture(TexInfo1);
+  this->AddQuad(this->m_strategy, Quad1);
 
   ASSERT_EQ(this->GetBlend0QuadCount(), 2u);
   ASSERT_EQ(this->GetBlend1QuadCount(), 0u);
   ASSERT_EQ(this->GetBlend0SegmentCount(), 2u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 0u);
 
-  this->CheckBlend0Span({g_quad0, g_quad1});
+  this->CheckBlend0Span({Quad0, Quad1});
   this->CheckBlend1Span({});
 
-  this->CheckBlend0Segment({TestSegment(1u, g_texInfo0, TestFixture::BLEND0), TestSegment(1u, g_texInfo1, TestFixture::BLEND0)});
+  this->CheckBlend0Segment({TestSegment(1u, TexInfo0, TestFixture::BLEND0), TestSegment(1u, TexInfo1, TestFixture::BLEND0)});
   this->CheckBlend1Segment({});
 
   auto newCapacity = this->m_strategy.GetCapacity() + 1;
@@ -698,10 +695,10 @@ TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Tex1Add_EnsureCapacity_
   ASSERT_EQ(this->GetBlend0SegmentCount(), 2u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 0u);
 
-  this->CheckBlend0Span({g_quad0, g_quad1});
+  this->CheckBlend0Span({Quad0, Quad1});
   this->CheckBlend1Span({});
 
-  this->CheckBlend0Segment({TestSegment(1u, g_texInfo0, TestFixture::BLEND0), TestSegment(1u, g_texInfo1, TestFixture::BLEND0)});
+  this->CheckBlend0Segment({TestSegment(1u, TexInfo0, TestFixture::BLEND0), TestSegment(1u, TexInfo1, TestFixture::BLEND0)});
   this->CheckBlend1Segment({});
 }
 
@@ -709,21 +706,21 @@ TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Tex1Add_EnsureCapacity_
 TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Blend1Add_EnsureCapacity_GrowOne)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad0);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad0);
   this->m_strategy.SetBlendState(TestFixture::BLEND1);
-  this->AddQuad(this->m_strategy, g_quad1);
+  this->AddQuad(this->m_strategy, Quad1);
 
   ASSERT_EQ(this->GetBlend0QuadCount(), 1u);
   ASSERT_EQ(this->GetBlend1QuadCount(), 1u);
   ASSERT_EQ(this->GetBlend0SegmentCount(), 1u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 1u);
 
-  this->CheckBlend0Span({g_quad0});
-  this->CheckBlend1Span({g_quad1});
+  this->CheckBlend0Span({Quad0});
+  this->CheckBlend1Span({Quad1});
 
-  this->CheckBlend0Segment({TestSegment(1u, g_texInfo0, TestFixture::BLEND0)});
-  this->CheckBlend1Segment({TestSegment(1u, g_texInfo0, TestFixture::BLEND1)});
+  this->CheckBlend0Segment({TestSegment(1u, TexInfo0, TestFixture::BLEND0)});
+  this->CheckBlend1Segment({TestSegment(1u, TexInfo0, TestFixture::BLEND1)});
 
   auto newCapacity = this->m_strategy.GetCapacity() + 1;
   this->m_strategy.EnsureCapacity(newCapacity);
@@ -734,35 +731,35 @@ TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Blend1Add_EnsureCapacit
   ASSERT_EQ(this->GetBlend0SegmentCount(), 1u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 1u);
 
-  this->CheckBlend0Span({g_quad0});
-  this->CheckBlend1Span({g_quad1});
+  this->CheckBlend0Span({Quad0});
+  this->CheckBlend1Span({Quad1});
 
-  this->CheckBlend0Segment({TestSegment(1u, g_texInfo0, TestFixture::BLEND0)});
-  this->CheckBlend1Segment({TestSegment(1u, g_texInfo0, TestFixture::BLEND1)});
+  this->CheckBlend0Segment({TestSegment(1u, TexInfo0, TestFixture::BLEND0)});
+  this->CheckBlend1Segment({TestSegment(1u, TexInfo0, TestFixture::BLEND1)});
 }
 
 TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Blend1Tex1Add_Tex0Blend0Add_EnsureCapacity_GrowOne)
 {
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->m_strategy.SetTexture(g_texInfo0);
-  this->AddQuad(this->m_strategy, g_quad0);
+  this->m_strategy.SetTexture(TexInfo0);
+  this->AddQuad(this->m_strategy, Quad0);
   this->m_strategy.SetBlendState(TestFixture::BLEND1);
-  this->m_strategy.SetTexture(g_texInfo1);
-  this->AddQuad(this->m_strategy, ::g_quad1);
-  this->m_strategy.SetTexture(g_texInfo0);
+  this->m_strategy.SetTexture(TexInfo1);
+  this->AddQuad(this->m_strategy, ::Quad1);
+  this->m_strategy.SetTexture(TexInfo0);
   this->m_strategy.SetBlendState(TestFixture::BLEND0);
-  this->AddQuad(this->m_strategy, ::g_quad2);
+  this->AddQuad(this->m_strategy, ::Quad2);
 
   ASSERT_EQ(this->GetBlend0QuadCount(), 2u);
   ASSERT_EQ(this->GetBlend1QuadCount(), 1u);
   ASSERT_EQ(this->GetBlend0SegmentCount(), 1u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 1u);
 
-  this->CheckBlend0Span({g_quad0, ::g_quad2});
-  this->CheckBlend1Span({::g_quad1});
+  this->CheckBlend0Span({Quad0, ::Quad2});
+  this->CheckBlend1Span({::Quad1});
 
-  this->CheckBlend0Segment({TestSegment(2u, g_texInfo0, TestFixture::BLEND0)});
-  this->CheckBlend1Segment({TestSegment(1u, g_texInfo1, TestFixture::BLEND1)});
+  this->CheckBlend0Segment({TestSegment(2u, TexInfo0, TestFixture::BLEND0)});
+  this->CheckBlend1Segment({TestSegment(1u, TexInfo1, TestFixture::BLEND1)});
 
   auto newCapacity = this->m_strategy.GetCapacity() + 1;
   this->m_strategy.EnsureCapacity(newCapacity);
@@ -773,11 +770,11 @@ TYPED_TEST(TestFixture_SortByTransparency, Blend0Tex0Add_Blend1Tex1Add_Tex0Blend
   ASSERT_EQ(this->GetBlend0SegmentCount(), 1u);
   ASSERT_EQ(this->GetBlend1SegmentCount(), 1u);
 
-  this->CheckBlend0Span({g_quad0, ::g_quad2});
-  this->CheckBlend1Span({::g_quad1});
+  this->CheckBlend0Span({Quad0, ::Quad2});
+  this->CheckBlend1Span({::Quad1});
 
-  this->CheckBlend0Segment({TestSegment(2u, g_texInfo0, TestFixture::BLEND0)});
-  this->CheckBlend1Segment({TestSegment(1u, g_texInfo1, TestFixture::BLEND1)});
+  this->CheckBlend0Segment({TestSegment(2u, TexInfo0, TestFixture::BLEND0)});
+  this->CheckBlend1Segment({TestSegment(1u, TexInfo1, TestFixture::BLEND1)});
 }
 
 
@@ -799,8 +796,8 @@ TEST_F(TestFixture_SortByTransparencyBase, SetBlendState)
 TEST_F(TestFixture_SortByTransparencyBase, SetBlendState_BlendOpaqueTex0Add)
 {
   this->m_strategy.SetBlendState(BlendState::Opaque);
-  this->m_strategy.SetTexture(g_texInfo0);
-  TestFixture_SortByTransparencyBase_SetBlendState_BlendOpaqueTex0Add_Test::AddQuad(this->m_strategy, g_quad0);
+  this->m_strategy.SetTexture(TexInfo0);
+  TestFixture_SortByTransparencyBase_SetBlendState_BlendOpaqueTex0Add_Test::AddQuad(this->m_strategy, Quad0);
   EXPECT_EQ(this->m_strategy.GetActiveBlendState(), BlendState::Opaque);
 
   ASSERT_EQ(GetOpaqueQuadCount(), 1u);
@@ -808,10 +805,10 @@ TEST_F(TestFixture_SortByTransparencyBase, SetBlendState_BlendOpaqueTex0Add)
   ASSERT_EQ(GetOpaqueSegmentCount(), 1u);
   ASSERT_EQ(GetTranspSegmentCount(), 0u);
 
-  CheckOpaqueSpan({g_quad0});
+  CheckOpaqueSpan({Quad0});
   CheckTranspSpan({});
 
-  CheckOpaqueSegment({TestSegment(1u, g_texInfo0, BlendState::Opaque)});
+  CheckOpaqueSegment({TestSegment(1u, TexInfo0, BlendState::Opaque)});
   CheckTranspSegment({});
 }
 
@@ -820,24 +817,24 @@ TEST_F(TestFixture_SortByTransparencyBase, SetBlendState_BlendOpaqueTex0Add2_Ble
   this->m_strategy.SetBlendState(BlendState::Opaque);
   EXPECT_EQ(this->m_strategy.GetActiveBlendState(), BlendState::Opaque);
 
-  this->m_strategy.SetTexture(g_texInfo0);
-  TestFixture_SortByTransparencyBase_SetBlendState_BlendOpaqueTex0Add2_BlendAdditiveAdd_Test::AddQuad(this->m_strategy, g_quad0);
+  this->m_strategy.SetTexture(TexInfo0);
+  TestFixture_SortByTransparencyBase_SetBlendState_BlendOpaqueTex0Add2_BlendAdditiveAdd_Test::AddQuad(this->m_strategy, Quad0);
 
   this->m_strategy.SetBlendState(BlendState::Additive);
   EXPECT_EQ(this->m_strategy.GetActiveBlendState(), BlendState::Additive);
 
-  TestFixture_SortByTransparencyBase_SetBlendState_BlendOpaqueTex0Add2_BlendAdditiveAdd_Test::AddQuad(this->m_strategy, g_quad1);
+  TestFixture_SortByTransparencyBase_SetBlendState_BlendOpaqueTex0Add2_BlendAdditiveAdd_Test::AddQuad(this->m_strategy, Quad1);
 
   ASSERT_EQ(GetOpaqueQuadCount(), 1u);
   ASSERT_EQ(GetTranspQuadCount(), 1u);
   ASSERT_EQ(GetOpaqueSegmentCount(), 1u);
   ASSERT_EQ(GetTranspSegmentCount(), 1u);
 
-  CheckOpaqueSpan({g_quad0});
-  CheckTranspSpan({g_quad1});
+  CheckOpaqueSpan({Quad0});
+  CheckTranspSpan({Quad1});
 
-  CheckOpaqueSegment({TestSegment(1u, g_texInfo0, BlendState::Opaque)});
-  CheckTranspSegment({TestSegment(1u, g_texInfo0, BlendState::Additive)});
+  CheckOpaqueSegment({TestSegment(1u, TexInfo0, BlendState::Opaque)});
+  CheckTranspSegment({TestSegment(1u, TexInfo0, BlendState::Additive)});
 }
 
 
@@ -846,13 +843,13 @@ TEST_F(TestFixture_SortByTransparencyBase, SetBlendState_BlendAdditiveTex0Add2_B
   this->m_strategy.SetBlendState(BlendState::Additive);
   EXPECT_EQ(this->m_strategy.GetActiveBlendState(), BlendState::Additive);
 
-  this->m_strategy.SetTexture(g_texInfo0);
-  TestFixture_SortByTransparencyBase_SetBlendState_BlendAdditiveTex0Add2_BlendAdditiveAdd_Test::AddQuad(this->m_strategy, g_quad0);
+  this->m_strategy.SetTexture(TexInfo0);
+  TestFixture_SortByTransparencyBase_SetBlendState_BlendAdditiveTex0Add2_BlendAdditiveAdd_Test::AddQuad(this->m_strategy, Quad0);
 
   this->m_strategy.SetBlendState(BlendState::Additive);
   EXPECT_EQ(this->m_strategy.GetActiveBlendState(), BlendState::Additive);
 
-  TestFixture_SortByTransparencyBase_SetBlendState_BlendAdditiveTex0Add2_BlendAdditiveAdd_Test::AddQuad(this->m_strategy, g_quad1);
+  TestFixture_SortByTransparencyBase_SetBlendState_BlendAdditiveTex0Add2_BlendAdditiveAdd_Test::AddQuad(this->m_strategy, Quad1);
 
   ASSERT_EQ(GetOpaqueQuadCount(), 0u);
   ASSERT_EQ(GetTranspQuadCount(), 2u);
@@ -860,10 +857,10 @@ TEST_F(TestFixture_SortByTransparencyBase, SetBlendState_BlendAdditiveTex0Add2_B
   ASSERT_EQ(GetTranspSegmentCount(), 1u);
 
   CheckOpaqueSpan({});
-  CheckTranspSpan({g_quad0, g_quad1});
+  CheckTranspSpan({Quad0, Quad1});
 
   CheckOpaqueSegment({});
-  CheckTranspSegment({TestSegment(2u, g_texInfo0, BlendState::Additive)});
+  CheckTranspSegment({TestSegment(2u, TexInfo0, BlendState::Additive)});
 }
 
 
@@ -872,13 +869,13 @@ TEST_F(TestFixture_SortByTransparencyBase, SetBlendState_BlendAdditiveTex0Add2_B
   this->m_strategy.SetBlendState(BlendState::Additive);
   EXPECT_EQ(this->m_strategy.GetActiveBlendState(), BlendState::Additive);
 
-  this->m_strategy.SetTexture(g_texInfo0);
-  TestFixture_SortByTransparencyBase_SetBlendState_BlendAdditiveTex0Add2_BlendAlphaAdd_Test::AddQuad(this->m_strategy, g_quad0);
+  this->m_strategy.SetTexture(TexInfo0);
+  TestFixture_SortByTransparencyBase_SetBlendState_BlendAdditiveTex0Add2_BlendAlphaAdd_Test::AddQuad(this->m_strategy, Quad0);
 
   this->m_strategy.SetBlendState(BlendState::AlphaBlend);
   EXPECT_EQ(this->m_strategy.GetActiveBlendState(), BlendState::AlphaBlend);
 
-  TestFixture_SortByTransparencyBase_SetBlendState_BlendAdditiveTex0Add2_BlendAlphaAdd_Test::AddQuad(this->m_strategy, g_quad1);
+  TestFixture_SortByTransparencyBase_SetBlendState_BlendAdditiveTex0Add2_BlendAlphaAdd_Test::AddQuad(this->m_strategy, Quad1);
 
   ASSERT_EQ(GetOpaqueQuadCount(), 0u);
   ASSERT_EQ(GetTranspQuadCount(), 2u);
@@ -886,8 +883,8 @@ TEST_F(TestFixture_SortByTransparencyBase, SetBlendState_BlendAdditiveTex0Add2_B
   ASSERT_EQ(GetTranspSegmentCount(), 2u);
 
   CheckOpaqueSpan({});
-  CheckTranspSpan({g_quad0, g_quad1});
+  CheckTranspSpan({Quad0, Quad1});
 
   CheckOpaqueSegment({});
-  CheckTranspSegment({TestSegment(1u, g_texInfo0, BlendState::Additive), TestSegment(1u, g_texInfo0, BlendState::AlphaBlend)});
+  CheckTranspSegment({TestSegment(1u, TexInfo0, BlendState::Additive), TestSegment(1u, TexInfo0, BlendState::AlphaBlend)});
 }

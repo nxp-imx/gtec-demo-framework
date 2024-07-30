@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <memory>
 
@@ -79,12 +78,9 @@ namespace Fsl
     }
 
     //! @brief Get the texture size.
-    PxSize2D GetSize() const
-    {
-      return TypeConverter::UncheckedTo<PxSize2D>(m_extent);
-    }
+    PxSize2D GetSize() const noexcept;
 
-    PixelFormat GetPixelFormat() const
+    PixelFormat GetPixelFormat() const noexcept
     {
       return m_pixelFormat;
     }

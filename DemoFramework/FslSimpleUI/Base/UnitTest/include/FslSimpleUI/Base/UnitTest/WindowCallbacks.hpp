@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_UNITTEST_FSLSIMPLEUI_BASE_UNITTEST_WINDOWCALLBACKS_HPP
 #define FSLSIMPLEUI_BASE_UNITTEST_FSLSIMPLEUI_BASE_UNITTEST_WINDOWCALLBACKS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,10 +45,10 @@ namespace Fsl::UI
     std::function<void(const TimeSpan&)> HookWinUpdate;
     std::function<void(const TimeSpan&)> HookWinResolve;
     std::function<void(const UIDrawContext&)> HookWinDraw;
-    std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowInputClickEvent>&)> HookOnClickInputPreview;
-    std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowInputClickEvent>&)> HookOnClickInput;
-    std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowSelectEvent>&)> HookOnSelect;
-    std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowContentChangedEvent>&)> HookOnContentChanged;
+    std::function<void(const std::shared_ptr<WindowInputClickEvent>&)> HookOnClickInputPreview;
+    std::function<void(const std::shared_ptr<WindowInputClickEvent>&)> HookOnClickInput;
+    std::function<void(const std::shared_ptr<WindowSelectEvent>&)> HookOnSelect;
+    std::function<void(const std::shared_ptr<WindowContentChangedEvent>&)> HookOnContentChanged;
     std::function<void(const PxSize2D&)> HookArrangeOverride;
     std::function<void(const PxAvailableSize&)> HookMeasureOverride;
     std::function<void(const PropertyTypeFlags&)> HookOnPropertiesUpdated;
@@ -101,35 +101,35 @@ namespace Fsl::UI
       }
     }
 
-    void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+    void OnClickInputPreview(const std::shared_ptr<WindowInputClickEvent>& theEvent)
     {
       if (HookOnClickInputPreview)
       {
-        HookOnClickInputPreview(args, theEvent);
+        HookOnClickInputPreview(theEvent);
       }
     }
 
-    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+    void OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent)
     {
       if (HookOnClickInput)
       {
-        HookOnClickInput(args, theEvent);
+        HookOnClickInput(theEvent);
       }
     }
 
-    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+    void OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent)
     {
       if (HookOnSelect)
       {
-        HookOnSelect(args, theEvent);
+        HookOnSelect(theEvent);
       }
     }
 
-    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
+    void OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent)
     {
       if (HookOnContentChanged)
       {
-        HookOnContentChanged(args, theEvent);
+        HookOnContentChanged(theEvent);
       }
     }
 

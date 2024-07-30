@@ -17,14 +17,13 @@ namespace Fsl
   namespace
   {
     // Attribute Arrays Indexes and Sizes
-    constexpr GLint VERTEX_POS_SIZE = 3;      // x, y and z
-    constexpr GLint VERTEX_COLOR_SIZE = 4;    // r, g, b, and a
+    constexpr GLint VertexPosSize = 3;      // x, y and z
+    constexpr GLint VertexColorSize = 4;    // r, g, b, and a
 
-    constexpr GLuint VERTEX_POS_INDX = 0;
-    constexpr GLuint VERTEX_COLOR_INDX = 1;
+    constexpr GLuint VertexPosIndx = 0;
+    constexpr GLuint VertexColorIndx = 1;
 
-    constexpr GLsizei VERTEX_STRIDE = (sizeof(GLfloat) * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE));
-
+    constexpr GLsizei VertexStride = (sizeof(GLfloat) * (VertexPosSize + VertexColorSize));
   }
 
   E4_0_PRestart::E4_0_PRestart(const DemoAppConfig& config)
@@ -41,7 +40,7 @@ namespace Fsl
     {
       // VERTEX DATA
       // OSTEP1 12 vertices, with (x,y,z) ,(r, g, b, a) per-vertex
-      const std::array<GLfloat, 12 * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE)> vertices0 = {
+      const std::array<GLfloat, 12 * (VertexPosSize + VertexColorSize)> vertices0 = {
         -1.0f, -1.0f, 0.0f,        // v0
         1.0f, 0.0f, 0.0f, 1.0f,    // c0
         -1.0f, -0.5f, 0.0f,        // v1
@@ -73,30 +72,30 @@ namespace Fsl
       const std::array<GLushort, 13> indices = {0, 1, 2, 3, 4, 5, 0xFFFF, 6, 7, 8, 9, 10, 11};
 
       // Generate VBO Ids and load the VBOs with data
-      GL_CHECK(glGenBuffers(2, m_userData.vboIds));
+      GL_CHECK(glGenBuffers(2, m_userData.VboIds));
 
-      GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_userData.vboIds[0]));
+      GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_userData.VboIds[0]));
       GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices0.size(), vertices0.data(), GL_STATIC_DRAW));
-      GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_userData.vboIds[1]));
+      GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_userData.VboIds[1]));
       GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * indices.size(), indices.data(), GL_STATIC_DRAW));
 
       // Generate VAO Id
-      GL_CHECK(glGenVertexArrays(1, &m_userData.vaoId[0]));
+      GL_CHECK(glGenVertexArrays(1, &m_userData.VaoId[0]));
 
       // Bind the VAO and then setup the vertex
       // attributes
-      GL_CHECK(glBindVertexArray(m_userData.vaoId[0]));
+      GL_CHECK(glBindVertexArray(m_userData.VaoId[0]));
 
-      GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_userData.vboIds[0]));
-      GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_userData.vboIds[1]));
+      GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_userData.VboIds[0]));
+      GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_userData.VboIds[1]));
 
-      GL_CHECK(glEnableVertexAttribArray(VERTEX_POS_INDX));
-      GL_CHECK(glEnableVertexAttribArray(VERTEX_COLOR_INDX));
+      GL_CHECK(glEnableVertexAttribArray(VertexPosIndx));
+      GL_CHECK(glEnableVertexAttribArray(VertexColorIndx));
 
-      GL_CHECK(glVertexAttribPointer(VERTEX_POS_INDX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, VERTEX_STRIDE, nullptr));
+      GL_CHECK(glVertexAttribPointer(VertexPosIndx, VertexPosSize, GL_FLOAT, GL_FALSE, VertexStride, nullptr));
 
-      GL_CHECK(glVertexAttribPointer(VERTEX_COLOR_INDX, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, VERTEX_STRIDE,
-                                     reinterpret_cast<const void*>(VERTEX_POS_SIZE * sizeof(GLfloat))));
+      GL_CHECK(glVertexAttribPointer(VertexColorIndx, VertexColorSize, GL_FLOAT, GL_FALSE, VertexStride,
+                                     reinterpret_cast<const void*>(VertexPosSize * sizeof(GLfloat))));
 
       // Restore the VAO Id to the default
       GL_CHECK(glBindVertexArray(0));
@@ -132,7 +131,7 @@ namespace Fsl
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Bind the VAO
-    glBindVertexArray(m_userData.vaoId[0]);
+    glBindVertexArray(m_userData.VaoId[0]);
 
     // OSTEP3 Enable the Primitive Restart Functionality
     glEnable(GL_PRIMITIVE_RESTART_FIXED_INDEX);
@@ -151,15 +150,15 @@ namespace Fsl
     // Return to the default VAO
     glBindVertexArray(0);
 
-    if (m_userData.vboIds[0] == GLValues::INVALID_HANDLE)
+    if (m_userData.VboIds[0] == GLValues::InvalidHandle)
     {
-      glDeleteBuffers(2, m_userData.vboIds);
-      m_userData.vboIds[0] = GLValues::INVALID_HANDLE;
+      glDeleteBuffers(2, m_userData.VboIds);
+      m_userData.VboIds[0] = GLValues::InvalidHandle;
     }
-    if (m_userData.vaoId[0] == GLValues::INVALID_HANDLE)
+    if (m_userData.VaoId[0] == GLValues::InvalidHandle)
     {
-      glDeleteBuffers(1, m_userData.vaoId);
-      m_userData.vaoId[0] = GLValues::INVALID_HANDLE;
+      glDeleteBuffers(1, m_userData.VaoId);
+      m_userData.VaoId[0] = GLValues::InvalidHandle;
     }
   }
 }

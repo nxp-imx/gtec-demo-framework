@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_DECLARATIVE_CONTROLFACTORY_HPP
 #define FSLSIMPLEUI_DECLARATIVE_CONTROLFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Declarative/ADeclarativeControlFactory.hpp>
+#include <FslSimpleUI/Declarative/ControlType.hpp>
+#include <FslSimpleUI/Declarative/PrimitiveTypeRegistry.hpp>
 #include <FslSimpleUI/Declarative/PropertyRecord.hpp>
 #include <FslSimpleUI/Declarative/RadioGroupManager.hpp>
 #include <FslSimpleUI/Declarative/ThemeProperties/PropertyParserRecord.hpp>
@@ -39,7 +41,9 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <span>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace Fsl::UI
@@ -57,6 +61,7 @@ namespace Fsl::UI::Declarative
 {
   class ControlFactory final
   {
+    PrimitiveTypeRegistry m_primitiveTypeRegistry;
     std::shared_ptr<Theme::IThemeControlFactory> m_controlFactory;
     std::map<ControlName, std::unique_ptr<ADeclarativeControlFactory>, std::less<>> m_factories;
 
@@ -75,8 +80,22 @@ namespace Fsl::UI::Declarative
       Register(std::make_unique<T>());
     }
 
-    std::shared_ptr<BaseWindow> TryCreate(RadioGroupManager& rRadioGroupManager, const StringViewLite& name,
+    const PrimitiveTypeRegistry& GetPrimitiveTypeRegistry() const
+    {
+      return m_primitiveTypeRegistry;
+    }
+
+    std::shared_ptr<BaseWindow> TryCreate(RadioGroupManager& rRadioGroupManager, const std::string_view name,
                                           std::vector<PropertyRecord>& rPropertyRecords);
+
+    std::vector<ControlName> GetControlNames() const;
+    std::span<const ControlPropertyRecord> GetControlThemeProperties(const ControlName& name) const;
+    DataBinding::DependencyPropertyDefinitionVector GetControlProperties(const ControlName& name);
+
+    ControlType GetControlType(const ControlName& name);
+
+  private:
+    std::shared_ptr<BaseWindow> TryCreateDummyControl(const std::string_view name);
   };
 }
 

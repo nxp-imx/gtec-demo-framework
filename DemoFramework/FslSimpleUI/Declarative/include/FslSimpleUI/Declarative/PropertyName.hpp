@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLite.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <fmt/format.h>
 #include <memory>
@@ -48,19 +47,19 @@ namespace Fsl::UI::Declarative
     explicit PropertyName(std::string name)
       : m_name(std::move(name))
     {
-      if (!IsValidName(StringViewLiteUtil::AsStringViewLite(m_name)))
+      if (!IsValidName(StringViewLite(m_name)))
       {
         throw std::invalid_argument(fmt::format("not a valid name '{}'", m_name));
       }
     }
 
     explicit PropertyName(const StringViewLite name)
-      : PropertyName(StringViewLiteUtil::ToString(name))
+      : PropertyName(std::string(name))
     {
     }
 
     explicit PropertyName(const char* const psz)
-      : PropertyName(std::string(psz))
+      : PropertyName(StringViewLite(psz))
     {
     }
 
@@ -71,7 +70,7 @@ namespace Fsl::UI::Declarative
 
     StringViewLite AsStringViewLite() const noexcept
     {
-      return StringViewLiteUtil::AsStringViewLite(m_name);
+      return std::string_view(m_name);
     }
 
     static constexpr bool IsValidName(const StringViewLite name) noexcept
@@ -118,6 +117,7 @@ namespace Fsl::UI::Declarative
       return m_name != other.m_name;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     int compare(const PropertyName& value) const noexcept
     {
       return m_name.compare(value.m_name);

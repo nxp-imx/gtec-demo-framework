@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_PROFILER_DEFAULTPROFILERCOLORS_HPP
 #define FSLDEMOSERVICE_PROFILER_DEFAULTPROFILERCOLORS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,22 +31,22 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Color.hpp>
+#include <FslGraphics/Colors.hpp>
 
 namespace Fsl::DefaultProfilerColors
 {
-  constexpr Color Total = Color::Green();
-  constexpr Color Update = Color::Cyan();
-  constexpr Color Draw = Color::Yellow();
-  constexpr Color CpuLoad = Color::Orange();
+  constexpr Color Total = Colors::Green();
+  constexpr Color Update = Colors::Cyan();
+  constexpr Color Draw = Colors::Yellow();
+  constexpr Color CpuLoad = Colors::Orange();
 
-  constexpr Color BatchDrawCalls = Color::Blue();
-  constexpr Color BatchVertices = Color::Olive();
+  constexpr Color BatchDrawCalls = Colors::Blue();
+  constexpr Color BatchVertices = Colors::Olive();
 
-  constexpr Color UIUpdate = Color::Purple();
-  constexpr Color UIResolve = Color::Marrom();
-  constexpr Color UIDraw = Color::Lime();
-  constexpr Color UIWinCount = Color::Silver();
+  constexpr Color UIUpdate = Colors::Purple();
+  constexpr Color UIResolve = Colors::Marrom();
+  constexpr Color UIDraw = Colors::Lime();
+  constexpr Color UIWinCount = Colors::Silver();
 
 }
 

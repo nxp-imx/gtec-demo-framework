@@ -43,7 +43,10 @@ namespace Fsl
 {
   namespace
   {
-    const uint16_t MAX_CUSTOM_COUNTERS = 20;
+    namespace LocalConfig
+    {
+      constexpr uint16_t MaxCustomCounters = 20;
+    }
 
     inline int32_t CapTime(const uint64_t value)
     {
@@ -55,7 +58,7 @@ namespace Fsl
     : ThreadLocalService(serviceProvider)
     , m_maxCapacity(optionParser->GetAverageEntries())
     , m_entries(m_maxCapacity)
-    , m_customCounters(MAX_CUSTOM_COUNTERS)
+    , m_customCounters(LocalConfig::MaxCustomCounters)
     , m_customCounterCount(0)
     , m_customConfigurationRevision(1)
   {

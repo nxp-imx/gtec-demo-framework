@@ -42,6 +42,7 @@
 #include <iostream>
 #include <string>
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 class TestFixtureFslUtil_Vulkan1_0_Compute : public ::testing::TestWithParam<VkBufferUsageFlags>
 {
   std::string m_reason;

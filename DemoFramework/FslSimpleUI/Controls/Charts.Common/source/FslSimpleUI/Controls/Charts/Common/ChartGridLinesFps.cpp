@@ -31,8 +31,8 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslBase/Log/String/FmtStringViewLite.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslSimpleUI/Controls/Charts/Common/ChartGridLinesFps.hpp>
 #include <fmt/format.h>
@@ -49,7 +49,8 @@ namespace Fsl::UI
       if (microseconds < 1000)
       {
         // fmt::format_to(rScratchPad, "{}us", microseconds);
-        fmt::format_to(std::back_inserter(rScratchPad), u8"{}\u03BCs", microseconds);
+        // u8"{}\u03BCs";
+        fmt::format_to(std::back_inserter(rScratchPad), "{}\xCE\xBCs", microseconds);
       }
       else if (microseconds > 0)
       {
@@ -66,7 +67,7 @@ namespace Fsl::UI
     {
       fmt::memory_buffer buffer;
       auto strView = DoGetDescriptionString(buffer, microseconds);
-      return StringViewLiteUtil::ToString(strView);
+      return std::string(strView);
     }
 
     struct ChartGridLineRecord
@@ -96,7 +97,7 @@ namespace Fsl::UI
 
     for (std::size_t i = 0; i < g_grid.size(); ++i)
     {
-      m_gridLines[i] = ChartGridLineInfo(g_grid[i].Microseconds, StringViewLiteUtil::AsStringViewLite(g_grid[i].Label));
+      m_gridLines[i] = ChartGridLineInfo(g_grid[i].Microseconds, StringViewLite(g_grid[i].Label));
     }
   }
 
@@ -119,7 +120,7 @@ namespace Fsl::UI
     const std::size_t indexFirst = std::distance(m_gridLines.begin(), itrFindMin);
     const std::size_t indexLast = std::distance(m_gridLines.begin(), itrFindMax);
 
-    return ReadOnlySpanUtil::AsSpan(m_gridLines, indexFirst, (indexLast - indexFirst));
+    return SpanUtil::AsReadOnlySpan(m_gridLines, indexFirst, (indexLast - indexFirst));
   }
 
 

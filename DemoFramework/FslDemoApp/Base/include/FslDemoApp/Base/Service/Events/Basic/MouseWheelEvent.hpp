@@ -38,10 +38,10 @@
 namespace Fsl
 {
   // Basic events must be exactly the same size as a BasicEvent (so they can have no member variables).
-  class MouseWheelEvent : public BasicEvent
+  class MouseWheelEvent final : public BasicEvent
   {
   public:
-    explicit MouseWheelEvent(const BasicEvent& encodedEvent)
+    explicit constexpr MouseWheelEvent(const BasicEvent& encodedEvent)
       : BasicEvent(encodedEvent)
     {
       if (m_type != EventType::MouseWheel)
@@ -50,14 +50,14 @@ namespace Fsl
       }
     }
 
-    MouseWheelEvent(const int32_t delta, const PxPoint2& position);
+    MouseWheelEvent(const MillisecondTickCount32 timestamp, const int32_t delta, const PxPoint2 position) noexcept;
 
-    int32_t GetDelta() const
+    constexpr int32_t GetDelta() const noexcept
     {
       return m_arg1;
     }
 
-    PxPoint2 GetPosition() const;
+    PxPoint2 GetPosition() const noexcept;
   };
 }
 

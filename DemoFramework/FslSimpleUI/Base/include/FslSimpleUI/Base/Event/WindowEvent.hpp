@@ -41,7 +41,9 @@ namespace Fsl::UI
 
   class WindowEvent
   {
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const EventTypeId m_eventTypeId;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const EventDescription m_eventDescription;
 
     std::shared_ptr<IWindowId> m_originalSource;
@@ -53,45 +55,51 @@ namespace Fsl::UI
     WindowEvent(const WindowEvent&) = delete;
     WindowEvent& operator=(const WindowEvent&) = delete;
 
-    virtual ~WindowEvent();
+    virtual ~WindowEvent() noexcept;
 
-    bool IsOriginalSource(const IWindowId* const pWindowId) const;
-    bool IsSource(const IWindowId* const pWindowId) const;
+    bool IsOriginalSource(const IWindowId* const pWindowId) const noexcept;
+    bool IsSource(const IWindowId* const pWindowId) const noexcept;
 
     //! @brief Get the original source of the event.
-    const std::shared_ptr<IWindowId>& GetOriginalSource() const;
+    const std::shared_ptr<IWindowId>& GetOriginalSource() const noexcept;
 
     //! @brief Get the source of the event.
-    const std::shared_ptr<IWindowId>& GetSource() const;
+    const std::shared_ptr<IWindowId>& GetSource() const noexcept;
 
     //! @brief Check if this event has been handled.
-    bool IsHandled() const;
+    bool IsHandled() const noexcept;
 
     //! @brief mark the event as handled.
-    void Handled();
+    void Handled() noexcept;
 
     //! @brief Get the event type id
-    EventTypeId GetEventTypeId() const
+    EventTypeId GetEventTypeId() const noexcept
     {
       return m_eventTypeId;
     }
 
     //! @brief Get the event description.
-    EventDescription GetDescription() const
+    EventDescription GetDescription() const noexcept
     {
       return m_eventDescription;
     }
 
 
-    void SYS_SetSource(const std::shared_ptr<IWindowId>& value);
-    void SYS_SetOriginalSource(const std::shared_ptr<IWindowId>& value);
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    void SYS_SetSource(const std::shared_ptr<IWindowId>& value) noexcept;
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    void SYS_SetOriginalSource(const std::shared_ptr<IWindowId>& value) noexcept;
 
   protected:
-    WindowEvent(const EventTypeId typeId, EventDescription eventDescription);
-    void SYS_DoConstruct();
-    virtual void SYS_Destruct();
+    WindowEvent(const EventTypeId typeId, EventDescription eventDescription) noexcept;
 
-    bool IsDisposed() const
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    void SYS_DoConstruct() noexcept;
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    virtual void SYS_Destruct() noexcept;
+
+    bool IsDisposed() const noexcept
     {
       return !m_isInitialized;
     }

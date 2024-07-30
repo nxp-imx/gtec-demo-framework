@@ -33,7 +33,6 @@
 
 #include <FslBase/Math/Matrix3Fields.hpp>
 #include <FslBase/Math/Vector3.hpp>
-#include <algorithm>
 #include <cstddef>
 // #include <FslBase/OptimizationFlag.hpp>
 
@@ -53,7 +52,7 @@ namespace Fsl
 
     static constexpr size_type NumElements = 3 * 3;
 
-    constexpr size_type size() const    // NOLINT(readability-convert-member-functions-to-static)
+    constexpr size_type size() const    // NOLINT(readability-convert-member-functions-to-static,readability-identifier-naming)
     {
       return NumElements;
     }
@@ -68,7 +67,7 @@ namespace Fsl
     // const int _M31 = (3 * 2 + 0);
     // const int _M32 = (3 * 2 + 1);
     // const int _M33 = (3 * 2 + 2);
-    float m[NumElements]{};    // NOLINT(modernize-avoid-c-arrays)
+    float m[NumElements]{};    // NOLINT(modernize-avoid-c-arrays,readability-identifier-naming)
 
   public:
     //! @brief Creates a empty matrix (all components are set to zero)

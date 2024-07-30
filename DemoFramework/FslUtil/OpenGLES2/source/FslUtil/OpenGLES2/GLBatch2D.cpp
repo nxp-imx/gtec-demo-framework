@@ -42,8 +42,8 @@ namespace Fsl
   namespace GLES2
   {
     GLBatch2D::GLBatch2D(const PxExtent2D& extentPx)
-      : GenericBatch2D<std::shared_ptr<GLBatch2DQuadRenderer>, GLTextureInfo>(
-          std::make_shared<GLBatch2DQuadRenderer>(GenericBatch2D_DEFAULT_CAPACITY), extentPx)
+      : GenericBatch2D<std::shared_ptr<GLBatch2DQuadRenderer>, GLTextureInfo>(std::make_shared<GLBatch2DQuadRenderer>(GenericBatch2DDefaultCapacity),
+                                                                              extentPx)
     {
     }
 

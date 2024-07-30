@@ -38,6 +38,7 @@
 #include <FslDemoHost/Base/LogStatsMode.hpp>
 #include <FslDemoHost/Base/Service/Test/TestScreenshotConfig.hpp>
 #include <FslDemoPlatform/DurationExitConfig.hpp>
+#include <FslDemoService/Graphics/ColorSpaceType.hpp>
 #include <FslGraphics/ImageFormat.hpp>
 #include <FslNativeWindow/Base/NativeWindowConfig.hpp>
 #include <chrono>
@@ -47,6 +48,8 @@ namespace Fsl
 {
   class DemoHostManagerOptionParser : public IOptionParser
   {
+    ColorSpaceType m_colorSpaceType;
+    bool m_hdrEnabled;
     int32_t m_exitAfterFrame{-1};
     DurationExitConfig m_exitAfterDuration;
     TestScreenshotConfig m_screenshotConfig;
@@ -62,7 +65,18 @@ namespace Fsl
     DemoHostManagerOptionParser(const DemoHostManagerOptionParser&) = delete;
     DemoHostManagerOptionParser& operator=(const DemoHostManagerOptionParser&) = delete;
 
-    DemoHostManagerOptionParser();
+    DemoHostManagerOptionParser(const ColorSpaceType colorSpaceType, const bool hdrEnabled);
+
+
+    ColorSpaceType GetColorSpaceType() const noexcept
+    {
+      return m_colorSpaceType;
+    }
+
+    bool IsHdrEnabled() const noexcept
+    {
+      return m_hdrEnabled;
+    }
 
     std::string GetName() const override
     {
@@ -117,9 +131,7 @@ namespace Fsl
 
   private:
     OptionParseResult ParseDurationExitConfig(const StringViewLite& strOptArg);
-    OptionParseResult ParseScreenshotImageFormat(const StringViewLite& strOptArg);
     OptionParseResult ParseScreenshotNamePrefix(const StringViewLite& strOptArg);
-    OptionParseResult ParseScreenshotNameScheme(const StringViewLite& strOptArg);
   };
 }
 

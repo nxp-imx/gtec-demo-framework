@@ -50,7 +50,7 @@ namespace Fsl
     PxPoint2 OffsetPx;
 
     /// How much the current position should be advanced after drawing the character.
-    PxValueU16 XAdvancePx{};
+    PxValueU16 XAdvancePx;
 
     constexpr BitmapFontChar() = default;
 

@@ -41,6 +41,9 @@ namespace Fsl
 {
   struct VertexPositionTexture3
   {
+    using position_type = Vector3;
+    using texture_coordinate_type = Vector3;
+
     Vector3 Position;
     Vector3 TextureCoordinate;
 
@@ -54,10 +57,10 @@ namespace Fsl
 
     constexpr static VertexDeclarationArray<2> GetVertexDeclarationArray()
     {
-      constexpr BasicVertexDeclarationArray<2> elements = {
+      constexpr BasicVertexDeclarationArray<2> Elements = {
         VertexElement(offsetof(VertexPositionTexture3, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
         VertexElement(offsetof(VertexPositionTexture3, TextureCoordinate), VertexElementFormat::Vector3, VertexElementUsage::TextureCoordinate, 0)};
-      return {elements, sizeof(VertexPositionTexture3)};
+      return {Elements, sizeof(VertexPositionTexture3)};
     }
 
 
@@ -65,8 +68,8 @@ namespace Fsl
     //              At least this workaround still gives us compile time validation of the vertex element data
     static VertexDeclarationSpan AsVertexDeclarationSpan()
     {
-      constexpr static VertexDeclarationArray<2> decl = GetVertexDeclarationArray();
-      return decl.AsReadOnlySpan();
+      constexpr static VertexDeclarationArray<2> Decl = GetVertexDeclarationArray();
+      return Decl.AsReadOnlySpan();
     }
 
     constexpr bool operator==(const VertexPositionTexture3& rhs) const noexcept

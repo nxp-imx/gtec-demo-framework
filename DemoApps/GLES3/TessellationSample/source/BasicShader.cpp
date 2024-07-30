@@ -44,15 +44,15 @@ namespace Fsl
   using namespace GLES3;
 
   BasicShader::BasicShader(const std::shared_ptr<IContentManager>& contentManager, VertexDeclarationSpan vertexDeclaration)
-    : LocWorldView(GLValues::INVALID_LOCATION)
-    , LocWorldViewProjection(GLValues::INVALID_LOCATION)
-    , LocNormalMatrix(GLValues::INVALID_LOCATION)
-    , LocTextureDiffuse(GLValues::INVALID_LOCATION)
-    , LocTextureNormal(GLValues::INVALID_LOCATION)
-    , LocLightDirection(GLValues::INVALID_LOCATION)
-    , LocMatAmbient(GLValues::INVALID_LOCATION)
-    , LocMatSpecular(GLValues::INVALID_LOCATION)
-    , LocMatShininess(GLValues::INVALID_LOCATION)
+    : LocWorldView(GLValues::InvalidLocation)
+    , LocWorldViewProjection(GLValues::InvalidLocation)
+    , LocNormalMatrix(GLValues::InvalidLocation)
+    , LocTextureDiffuse(GLValues::InvalidLocation)
+    , LocTextureNormal(GLValues::InvalidLocation)
+    , LocLightDirection(GLValues::InvalidLocation)
+    , LocMatAmbient(GLValues::InvalidLocation)
+    , LocMatSpecular(GLValues::InvalidLocation)
+    , LocMatShininess(GLValues::InvalidLocation)
     , AttribLink(4)
   {
     Program.Reset(contentManager->ReadAllText("Shaders/BumpedDLightSpecular.vert"), contentManager->ReadAllText("Shaders/BumpedDLightSpecular.frag"));
@@ -86,47 +86,47 @@ namespace Fsl
                                    const int32_t activeTexNormalId)
   {
     // Load the matrices
-    if (LocWorldView != GLValues::INVALID_LOCATION)
+    if (LocWorldView != GLValues::InvalidLocation)
     {
       glUniformMatrix4fv(LocWorldView, 1, 0, cameraConfig.WorldView.DirectAccess());
     }
 
-    if (LocWorldViewProjection != GLValues::INVALID_LOCATION)
+    if (LocWorldViewProjection != GLValues::InvalidLocation)
     {
       glUniformMatrix4fv(LocWorldViewProjection, 1, 0, cameraConfig.WorldViewProjection.DirectAccess());
     }
 
-    if (LocNormalMatrix != GLValues::INVALID_LOCATION)
+    if (LocNormalMatrix != GLValues::InvalidLocation)
     {
       glUniformMatrix3fv(LocNormalMatrix, 1, 0, cameraConfig.NormalMatrix.DirectAccess());
     }
 
-    if (LocLightDirection != GLValues::INVALID_LOCATION)
+    if (LocLightDirection != GLValues::InvalidLocation)
     {
       glUniform3fv(LocLightDirection, 1, cameraConfig.CameraSpaceLightDirection.DirectAccess());
     }
 
-    if (LocMatAmbient != GLValues::INVALID_LOCATION)
+    if (LocMatAmbient != GLValues::InvalidLocation)
     {
       glUniform3fv(LocMatAmbient, 1, material.Ambient.DirectAccess());
     }
 
-    if (LocMatSpecular != GLValues::INVALID_LOCATION)
+    if (LocMatSpecular != GLValues::InvalidLocation)
     {
       glUniform3fv(LocMatSpecular, 1, material.Specular.DirectAccess());
     }
 
-    if (LocMatShininess != GLValues::INVALID_LOCATION)
+    if (LocMatShininess != GLValues::InvalidLocation)
     {
       glUniform1f(LocMatShininess, material.Shininess);
     }
 
-    if (LocTextureDiffuse != GLValues::INVALID_LOCATION)
+    if (LocTextureDiffuse != GLValues::InvalidLocation)
     {
       glUniform1i(LocTextureDiffuse, activeTexDiffuseId);
     }
 
-    if (LocTextureNormal != GLValues::INVALID_LOCATION)
+    if (LocTextureNormal != GLValues::InvalidLocation)
     {
       glUniform1i(LocTextureNormal, activeTexNormalId);
     }

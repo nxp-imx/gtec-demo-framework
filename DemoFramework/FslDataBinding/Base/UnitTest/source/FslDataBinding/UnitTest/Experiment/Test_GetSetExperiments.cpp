@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,6 +78,7 @@ namespace
     template <typename T>
     struct TypedGet final : IGet
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       std::function<T()> m_fnGet;
 
       explicit TypedGet(std::function<T()> fnGet)
@@ -94,6 +95,7 @@ namespace
     template <typename T>
     struct TypedSet final : ISet
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       std::function<void(const int32_t)> m_fnSet;
 
       explicit TypedSet(std::function<void(const int32_t)> fnSet)
@@ -137,7 +139,9 @@ namespace
     template <typename TTarget, typename T>
     struct TypedGet final : ITypedGet<T>
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       const TTarget* m_pBakedThis;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       std::function<T(const TTarget*)> m_fnGet;
 
       TypedGet(const TTarget* pBakedThis, std::function<T(const TTarget*)> fnGet)
@@ -156,7 +160,9 @@ namespace
     template <typename TTarget, typename T>
     struct TypedSet final : ISet
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       TTarget* m_pBakedThis;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       std::function<void(TTarget* pBakedThis, const int32_t)> m_fnSet;
 
       TypedSet(TTarget* pBakedThis, std::function<void(TTarget* pBakedThis, const int32_t)> fnSet)
@@ -182,6 +188,7 @@ namespace
   {
     struct PropertyManager
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       HandleVector<uint32_t> m_uint32;
 
       int32_t Create()
@@ -213,7 +220,9 @@ namespace
 
     struct ExternalDummy
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       std::shared_ptr<PropertyManager> m_propertyManager;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       int32_t m_hTestValue{0};
 
       explicit ExternalDummy(std::shared_ptr<PropertyManager> propertyManager)
@@ -265,6 +274,7 @@ namespace
     template <typename T>
     struct TypedDependencyProperty : IDependencyProperty
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       T m_value{};
 
       T Get() const noexcept
@@ -286,6 +296,7 @@ namespace
 
     struct BakedDummy
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       TypedDependencyProperty<uint32_t> m_property0;
 
       uint32_t GetValue() const noexcept
@@ -337,6 +348,7 @@ namespace
     template <typename T>
     struct BoundDynamicTypedBinding final : IBoundDynamicBinding
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       TypedDependencyProperty<T>* m_pSet;
 
       explicit BoundDynamicTypedBinding(TypedDependencyProperty<T>* pSet)

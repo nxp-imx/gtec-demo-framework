@@ -50,8 +50,8 @@ namespace Fsl
   FractalShaderMandelbrot::FractalShaderMandelbrot(const DemoAppConfig& config, const uint32_t sceneIndex)
     : m_screenResolution(config.ScreenResolution)
     , m_sceneIndex(sceneIndex)
-    , m_locCoordinateOffset(GLValues::INVALID_LOCATION)
-    , m_locCoordinateScale(GLValues::INVALID_LOCATION)
+    , m_locCoordinateOffset(GLValues::InvalidLocation)
+    , m_locCoordinateScale(GLValues::InvalidLocation)
     , m_angle(0, 1.0f)
   {
     std::shared_ptr<BasicOptionParser> options = config.GetOptions<BasicOptionParser>();

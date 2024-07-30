@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,19 +30,18 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Time/TimeSpan.hpp>
-#include <FslBase/Transition/TransitionCache.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslDemoService/Profiler/DefaultProfilerColors.hpp>
 #include <FslDemoService/Profiler/IProfilerService.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
+#include <FslSimpleUI/Activity/ActivitySystem.hpp>
 #include <FslSimpleUI/App/DemoPerformanceCapture.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtensionBase.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtensionCreateInfo.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
-#include <FslSimpleUI/Base/System/UIManager.hpp>
 #include <FslSimpleUI/Render/Base/IRenderSystem.hpp>
 #include <FslSimpleUI/Render/Base/RenderSystemCreateInfo.hpp>
 #include <FslSimpleUI/Render/IMBatch/RenderSystemFactory.hpp>
@@ -75,30 +74,29 @@ namespace Fsl
     }
 
 
-    std::unique_ptr<UI::UIManager> CreateUIManager(const std::shared_ptr<DataBinding::DataBindingService>& dataBindingService,
-                                                   const UIDemoAppExtensionCreateInfo& createInfo)
+    std::unique_ptr<UI::ActivitySystem> CreateActivityManager(const std::shared_ptr<DataBinding::DataBindingService>& dataBindingService,
+                                                              const UIDemoAppExtensionCreateInfo& createInfo)
     {
       UI::RenderIMBatch::RenderSystemFactory defaultFactory(UI::RenderIMBatch::RenderSystemFactory::RenderSystemType::Flex);
 
       const UI::IRenderSystemFactory& factory = createInfo.pRenderSystemFactory != nullptr ? *createInfo.pRenderSystemFactory : defaultFactory;
       auto graphicsService = createInfo.DemoServiceProvider.Get<IGraphicsService>();
 
-      return std::make_unique<UI::UIManager>(
+      return std::make_unique<UI::ActivitySystem>(
         dataBindingService,
         CreateUIRenderSystem(factory, *graphicsService, createInfo,
                              UIAppDefaultMaterial::CreateDefaultMaterial(createInfo.DemoServiceProvider, factory.GetVertexDeclarationSpan(),
                                                                          createInfo.RenderCreateInfo.MaterialCreateInfo.DefaultTexturePixelFormat,
                                                                          createInfo.RenderCreateInfo.MaterialCreateInfo.AllowDynamicCustomViewport,
                                                                          createInfo.RenderCreateInfo.MaterialConfig.AllowDepthBuffer)),
-        graphicsService->GetNativeBatch2D()->SYS_IsTextureCoordinateYFlipped(), Convert(createInfo.WindowMetrics),
-        createInfo.ExternalModuleFactories);
+        createInfo.RenderCreateInfo.ColorSpace, graphicsService->GetNativeBatch2D()->SYS_IsTextureCoordinateYFlipped(),
+        Convert(createInfo.WindowMetrics), createInfo.ExternalModuleFactories);
     }
   }
 
   UIDemoAppExtensionBase::UIDemoAppExtensionBase(const UIDemoAppExtensionCreateInfo& createInfo,
                                                  const std::shared_ptr<UI::IEventListener>& eventListener)
-    : m_uiManager(CreateUIManager(GetDataBinding(), createInfo))
-    , m_transitionCache(std::make_shared<TransitionCache>())
+    : m_activitySystem(CreateActivityManager(GetDataBinding(), createInfo))
     , m_demoPerformanceCapture(createInfo.Profiler)
     , m_profilerService(createInfo.DemoServiceProvider.Get<IProfilerService>())
     , m_hProfileCounterUpdate(m_profilerService, m_profilerService->CreateCustomCounter("update", 0, 200, DefaultProfilerColors::UIUpdate))
@@ -106,7 +104,7 @@ namespace Fsl
     , m_hProfileCounterDraw(m_profilerService, m_profilerService->CreateCustomCounter("draw", 0, 200, DefaultProfilerColors::UIDraw))
     , m_hProfileCounterWin(m_profilerService, m_profilerService->CreateCustomCounter("win", 0, 200, DefaultProfilerColors::UIWinCount))
   {
-    m_uiManager->RegisterEventListener(eventListener);
+    m_activitySystem->RegisterEventListener(eventListener);
   }
 
 
@@ -123,9 +121,9 @@ namespace Fsl
 
   void UIDemoAppExtensionBase::SetUseDrawCache(const bool useDrawCache)
   {
-    if (m_uiManager)
+    if (m_activitySystem)
     {
-      m_uiManager->SetUseDrawCache(useDrawCache);
+      m_activitySystem->SetUseDrawCache(useDrawCache);
     }
   }
 
@@ -137,12 +135,12 @@ namespace Fsl
 
   void UIDemoAppExtensionBase::RegisterEventListener(const std::shared_ptr<UI::IEventListener>& eventListener)
   {
-    m_uiManager->RegisterEventListener(eventListener);
+    m_activitySystem->RegisterEventListener(eventListener);
   }
 
   void UIDemoAppExtensionBase::UnregisterEventListener(const std::shared_ptr<UI::IEventListener>& eventListener)
   {
-    m_uiManager->UnregisterEventListener(eventListener);
+    m_activitySystem->UnregisterEventListener(eventListener);
   }
 
 
@@ -153,7 +151,7 @@ namespace Fsl
       return;
     }
 
-    const bool isHandled = m_uiManager->SendMouseButtonEvent(event.GetPosition(), event.IsPressed(), event.IsTouch());
+    const bool isHandled = m_activitySystem->SendMouseButtonEvent(event.GetTimestamp(), event.GetPosition(), event.IsPressed(), event.IsTouch());
     if (isHandled && !event.IsHandled())
     {
       event.Handled();
@@ -164,7 +162,7 @@ namespace Fsl
 
   void UIDemoAppExtensionBase::OnMouseMoveEvent(const MouseMoveEvent& event)
   {
-    const bool isHandled = m_uiManager->SendMouseMoveEvent(event.GetPosition(), event.IsTouch());
+    const bool isHandled = m_activitySystem->SendMouseMoveEvent(event.GetTimestamp(), event.GetPosition(), event.IsTouch());
     if (isHandled && !event.IsHandled())
     {
       event.Handled();
@@ -175,7 +173,7 @@ namespace Fsl
   void UIDemoAppExtensionBase::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
   {
     DataBindingDemoAppExtension::ConfigurationChanged(windowMetrics);
-    m_uiManager->Resized(Convert(windowMetrics));
+    m_activitySystem->Resized(Convert(windowMetrics));
   }
 
   void UIDemoAppExtensionBase::PreUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
@@ -189,7 +187,7 @@ namespace Fsl
       {
         pDemoPerformanceCapture->BeginProfile(DemoPerformanceCaptureId::UIProcessEvents);
       }
-      m_uiManager->ProcessEvents();
+      m_activitySystem->ProcessEvents();
       if (pDemoPerformanceCapture != nullptr)
       {
         pDemoPerformanceCapture->EndProfile(DemoPerformanceCaptureId::UIProcessEvents);
@@ -207,7 +205,7 @@ namespace Fsl
       {
         pDemoPerformanceCapture->BeginProfile(DemoPerformanceCaptureId::UIProcessEvents);
       }
-      m_uiManager->ProcessEvents();
+      m_activitySystem->ProcessEvents();
       if (pDemoPerformanceCapture != nullptr)
       {
         pDemoPerformanceCapture->EndProfile(DemoPerformanceCaptureId::UIProcessEvents);
@@ -227,7 +225,7 @@ namespace Fsl
         pDemoPerformanceCapture->BeginProfile(DemoPerformanceCaptureId::UIUpdate);
       }
       // We call the UIManager in post update to allow the app to modify the UI in its update method
-      m_uiManager->Update(Convert(demoTime));
+      m_activitySystem->Update(Convert(demoTime));
       if (pDemoPerformanceCapture != nullptr)
       {
         pDemoPerformanceCapture->EndProfile(DemoPerformanceCaptureId::UIUpdate);
@@ -257,40 +255,40 @@ namespace Fsl
 
   std::shared_ptr<UI::IWindowManager> UIDemoAppExtensionBase::GetWindowManager() const
   {
-    return m_uiManager->GetWindowManager();
+    return m_activitySystem->GetWindowManager();
   }
 
   const std::shared_ptr<UI::UIContext>& UIDemoAppExtensionBase::GetUIContext() const
   {
-    return m_uiManager->GetUIContext();
+    return m_activitySystem->GetUIContext();
   }
 
 
   bool UIDemoAppExtensionBase::IsIdle() const noexcept
   {
-    return m_uiManager->IsIdle();
+    return m_activitySystem->IsIdle();
   }
 
 
   bool UIDemoAppExtensionBase::IsRedrawRequired() const noexcept
   {
-    return m_uiManager->IsRedrawRequired();
+    return m_activitySystem->IsRedrawRequired();
   }
 
 
   const UI::IRenderSystemBase& UIDemoAppExtensionBase::GetRenderSystem() const
   {
-    return m_uiManager->GetRenderSystem();
+    return m_activitySystem->GetRenderSystem();
   }
 
   UI::IRenderSystemBase* UIDemoAppExtensionBase::TryGetRenderSystem()
   {
-    return m_uiManager->TryGetRenderSystem();
+    return m_activitySystem->TryGetRenderSystem();
   }
 
   void UIDemoAppExtensionBase::ForceInvalidateLayout()
   {
-    m_uiManager->ForceInvalidateLayout();
+    m_activitySystem->ForceInvalidateLayout();
   }
 
 
@@ -302,25 +300,25 @@ namespace Fsl
 
   void UIDemoAppExtensionBase::DoDraw()
   {
-    m_uiManager->PreDraw();
+    m_activitySystem->PreDraw();
     DemoPerformanceCapture* pDemoPerformanceCapture = TryGetDemoPerformanceCapture();
 
     if (pDemoPerformanceCapture == nullptr)
     {
-      m_uiManager->Draw(nullptr);
+      m_activitySystem->Draw(nullptr);
     }
     else
     {
       UI::RenderPerformanceCapture performanceCapture;
       pDemoPerformanceCapture->BeginProfile(DemoPerformanceCaptureId::UIDraw);
-      m_uiManager->Draw(&performanceCapture);
+      m_activitySystem->Draw(&performanceCapture);
       pDemoPerformanceCapture->EndProfile(DemoPerformanceCaptureId::UIDraw);
       pDemoPerformanceCapture->SetRenderPerformanceCapture(performanceCapture);
     }
 
-    m_uiManager->PostDraw();
+    m_activitySystem->PostDraw();
 
-    const auto stats = m_uiManager->GetStats();
+    const auto stats = m_activitySystem->GetStats();
     m_profilerService->Set(m_hProfileCounterUpdate, UncheckedNumericCast<int32_t>(stats.UpdateCalls));
     m_profilerService->Set(m_hProfileCounterResolve, UncheckedNumericCast<int32_t>(stats.ResolveCalls));
     m_profilerService->Set(m_hProfileCounterDraw, UncheckedNumericCast<int32_t>(stats.DrawCalls));
@@ -329,11 +327,11 @@ namespace Fsl
 
   bool UIDemoAppExtensionBase::SYS_GetUseYFlipTextureCoordinates() const noexcept
   {
-    return m_uiManager->SYS_GetUseYFlipTextureCoordinates();
+    return m_activitySystem->SYS_GetUseYFlipTextureCoordinates();
   }
 
   std::shared_ptr<UI::AExternalModule> UIDemoAppExtensionBase::DoGetExternalModule(const UI::ExternalModuleId& moduleId) const
   {
-    return m_uiManager->GetExternalModule(moduleId);
+    return m_activitySystem->GetExternalModule(moduleId);
   }
 }

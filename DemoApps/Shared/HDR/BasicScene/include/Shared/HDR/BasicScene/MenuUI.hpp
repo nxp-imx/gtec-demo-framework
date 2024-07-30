@@ -31,16 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Transition/TransitionCache.hpp>
 #include <FslBase/Transition/TransitionValue.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/Service/Keyboard/KeyboardState.hpp>
-#include <FslGraphics/ColorSpace.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/CanvasLayout.hpp>
+#include <FslSimpleUI/Base/UIColorSpace.hpp>
 #include <Shared/HDR/BasicScene/OptionParser.hpp>
 #include <string>
 
@@ -57,7 +56,7 @@ namespace Fsl
       bool B3 = false;
     };
 
-    ColorSpace m_uiColorSpace;
+    UI::UIColorSpace m_uiColorSpace;
     // The UI event listener is responsible for forwarding events to this classes implementation of the UI::EventListener (while its still alive).
     UI::CallbackEventListenerScope m_uiEventListener;
     // The UIDemoAppExtension is a simple extension that sets up the basic UI framework and listens for the events it needs.
@@ -72,7 +71,7 @@ namespace Fsl
     std::shared_ptr<UI::Switch> m_checkboxHDR;
 
     SceneState m_state;
-    TransitionCache m_transitionCache;
+
     TransitionValue m_scene1LabelAlpha;
     TransitionValue m_scene2LabelAlpha;
 
@@ -86,7 +85,7 @@ namespace Fsl
   public:
     TransitionValue SplitX;
 
-    explicit MenuUI(const DemoAppConfig& config, const ColorSpace uiColorSpace);
+    explicit MenuUI(const DemoAppConfig& config, const UI::UIColorSpace uiColorSpace);
     ~MenuUI() override;
 
     std::shared_ptr<UIDemoAppExtension> GetUIDemoAppExtension() const
@@ -102,8 +101,8 @@ namespace Fsl
 
     void OnKeyEvent(const KeyEvent& event);
 
-    // virtual void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
-    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
+    // virtual void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
+    void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
 
     void ToggleMenu();
     void ShowMenu(const bool enabled);
@@ -132,7 +131,7 @@ namespace Fsl
     void DestroyMenuUI();
     void UpdateStateBasedOnCheckboxes(const std::shared_ptr<UI::Switch>& source);
     std::shared_ptr<UI::CanvasLayout> CreateUI(const std::shared_ptr<UI::WindowContext>& context);
-    std::shared_ptr<UI::BaseWindow> CreateConfigDialog(const std::shared_ptr<UI::WindowContext>& context, const ColorSpace colorSpace);
+    std::shared_ptr<UI::BaseWindow> CreateConfigDialog(const std::shared_ptr<UI::WindowContext>& context, const UI::UIColorSpace colorSpace);
   };
 }
 

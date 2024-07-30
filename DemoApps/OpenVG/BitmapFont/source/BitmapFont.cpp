@@ -69,8 +69,8 @@ namespace Fsl
 
     // Create child images for each glyph and assign them to the valid chars
     const VGFont parentImage = m_fontImage.GetHandle();
-    const auto imageWidth = UncheckedNumericCast<int32_t>(bitmap.Width());
-    const auto imageHeight = UncheckedNumericCast<int32_t>(bitmap.Height());
+    const int32_t imageWidth = bitmap.RawWidth();
+    const int32_t imageHeight = bitmap.RawHeight();
     const PxSize2D fontSize = EmbeddedFont8x8::CharacterSize();
     std::array<VGfloat, 2> origin = {0.0f, 0.0f};
     std::array<VGfloat, 2> escapement = {static_cast<VGfloat>(fontSize.RawWidth()), 0.0f};

@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Time/MillisecondTickCount32.hpp>
 #include <FslDemoApp/Base/Service/Events/IEvent.hpp>
 
 namespace Fsl
@@ -50,57 +51,68 @@ namespace Fsl
     mutable uint32_t m_flags{0};
 
   public:
-    BasicEvent() = default;
+    constexpr BasicEvent() noexcept = default;
 
-    EventType GetEventType() const override
+    EventType GetEventType() const noexcept final
     {
       return m_type;
     }
 
+    MillisecondTickCount32 GetTimestamp() const noexcept
+    {
+      return m_timestamp;
+    }
 
     //! @brief Check if something has handled the event
-    bool IsHandled() const
+    constexpr bool IsHandled() const noexcept
     {
       return (m_flags & Flags::Handled) != 0;
     }
 
     //! @brief mark the event as handled
-    void Handled() const
+    constexpr void Handled() const noexcept
     {
       m_flags |= Flags::Handled;
     }
 
   protected:
-    explicit BasicEvent(const EventType type)
+    constexpr explicit BasicEvent(const EventType type, const MillisecondTickCount32 timestamp) noexcept
       : m_type(type)
+      , m_timestamp(timestamp)
     {
     }
 
 
-    BasicEvent(const EventType type, const int32_t arg1)
+    constexpr BasicEvent(const EventType type, const MillisecondTickCount32 timestamp, const int32_t arg1) noexcept
       : m_type(type)
+      , m_timestamp(timestamp)
       , m_arg1(arg1)
     {
     }
 
 
-    BasicEvent(const EventType type, const int32_t arg1, const int32_t arg2)
+    constexpr BasicEvent(const EventType type, const MillisecondTickCount32 timestamp, const int32_t arg1, const int32_t arg2) noexcept
       : m_type(type)
+      , m_timestamp(timestamp)
       , m_arg1(arg1)
       , m_arg2(arg2)
     {
     }
 
 
-    BasicEvent(const EventType type, const int32_t arg1, const int32_t arg2, const int32_t arg3)
+    constexpr BasicEvent(const EventType type, const MillisecondTickCount32 timestamp, const int32_t arg1, const int32_t arg2,
+                         const int32_t arg3) noexcept
       : m_type(type)
+      , m_timestamp(timestamp)
       , m_arg1(arg1)
       , m_arg2(arg2)
       , m_arg3(arg3)
     {
     }
 
+
     EventType m_type{EventType::Invalid};
+    MillisecondTickCount32 m_timestamp;
     int32_t m_arg1{0};
     int32_t m_arg2{0};
     int32_t m_arg3{0};

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/NumericCast.hpp>
+#include <FslBase/Span/SpanUtil_Create.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <Shared/OpenCVExperimental/BasicImageConvert.hpp>
@@ -81,7 +82,9 @@ namespace Fsl
     }
 
     // FIX: this should verify the 'src' cv::Mat image format
-    RawBitmap rawSrcBitmap(src.data, src.cols, src.rows, PixelFormat::B8G8R8_UINT, BitmapOrigin::UpperLeft);
+    const size_t srcByteSize = src.total() * src.elemSize();
+    ReadOnlyRawBitmap rawSrcBitmap(ReadOnlyRawBitmap::Create(SpanUtil::CreateReadOnly(src.data, srcByteSize), PxSize2D::Create(src.cols, src.rows),
+                                                             PixelFormat::B8G8R8_UINT, BitmapOrigin::UpperLeft));
 
     rDst.Reset(rawSrcBitmap);
     // FIX: ideally this would utilize the demo framework conversion service instead to support more formats
@@ -116,21 +119,23 @@ namespace Fsl
     }
 
     // FIX: this should ideally support multiple output formats not just B8G8R8_UINT
-    rDst.create(NumericCast<int>(imageCopy.Height()), NumericCast<int>(imageCopy.Width()), CV_8UC3);
+    rDst.create(imageCopy.RawHeight(), imageCopy.RawWidth(), CV_8UC3);
 
 
-    RawBitmap srcBitmap;
-    Bitmap::ScopedDirectAccess access(imageCopy, srcBitmap);
-    RawBitmapEx rawSrcBitmap(rDst.data, rDst.cols, rDst.rows, PixelFormat::B8G8R8_UINT, BitmapOrigin::UpperLeft);
+    const Bitmap::ScopedDirectReadAccess access(imageCopy);
+    const ReadOnlyRawBitmap srcBitmap = access.AsRawBitmap();
+    const size_t dstByteSize = rDst.total() * rDst.elemSize();
+    RawBitmapEx rawSrcBitmap(RawBitmapEx::Create(SpanUtil::Create(rDst.data, dstByteSize), PxSize2D::Create(rDst.cols, rDst.rows),
+                                                 PixelFormat::B8G8R8_UINT, BitmapOrigin::UpperLeft));
 
     const auto* pSrc = static_cast<const uint8_t*>(srcBitmap.Content());
     auto* pDst = static_cast<uint8_t*>(rawSrcBitmap.Content());
     const uint32_t srcStride = srcBitmap.Stride();
     const uint32_t dstStride = rawSrcBitmap.Stride();
 
-    for (uint32_t y = 0; y < srcBitmap.Height(); ++y)
+    for (uint32_t y = 0; y < srcBitmap.RawUnsignedHeight(); ++y)
     {
-      for (uint32_t x = 0; x < (srcBitmap.Width() * 3); ++x)
+      for (uint32_t x = 0; x < (srcBitmap.RawUnsignedWidth() * 3); ++x)
       {
         pDst[x + (y * dstStride)] = pSrc[x + (y * srcStride)];
       }

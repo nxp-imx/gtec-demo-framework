@@ -52,16 +52,18 @@ namespace fmt
   struct formatter<VkMemoryType>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const VkMemoryType& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{propertyFlags: {}, heapIndex: {}}}",
-                       Fsl::Vulkan::Debug::GetBitflagsString(static_cast<VkMemoryPropertyFlagBits>(value.propertyFlags)), value.heapIndex);
+      return fmt::format_to(ctx.out(), "{{propertyFlags: {}, heapIndex: {}}}",
+                            Fsl::Vulkan::Debug::GetBitflagsString(static_cast<VkMemoryPropertyFlagBits>(value.propertyFlags)), value.heapIndex);
     }
   };
 
@@ -70,12 +72,14 @@ namespace fmt
   struct formatter<VkMemoryHeap>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const VkMemoryHeap& value, FormatContext& ctx)
     {
       return format_to(ctx.out(), "{{size: {}, flags: {}}}", value.size,
@@ -287,9 +291,9 @@ namespace Fsl
       }
 
       template <typename... Args>
-      void Print(const char* const pszFormat, const Args&... args) noexcept
+      void Print(fmt::format_string<Args...> formatString, const Args&... args) noexcept
       {
-        Logger::WriteLine(LogType::Info, pszFormat, args...);
+        Logger::WriteLine(LogType::Info, formatString, args...);
       }
     };
 

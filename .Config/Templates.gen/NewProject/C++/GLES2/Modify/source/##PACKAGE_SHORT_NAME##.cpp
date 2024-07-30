@@ -37,11 +37,6 @@
 
 namespace Fsl
 {
-  namespace
-  {
-  }
-
-
   ##PACKAGE_SHORT_NAME##::##PACKAGE_SHORT_NAME##(const DemoAppConfig& config)
     : DemoAppGLES2(config)
     , m_program()

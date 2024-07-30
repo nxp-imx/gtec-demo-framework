@@ -46,19 +46,20 @@
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
 #include <FslUtil/EGL/DebugStrings.hpp>
 #include <FslUtil/EGL/Exceptions.hpp>
+#include <memory>
 #include <sstream>
 
 namespace Fsl
 {
   namespace
   {
-    DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
+    DemoHostFeature CommonSetup(HostDemoAppSetup& rSetup, const ColorSpaceType colorSpaceType)
     {
       // Use the EGLDemoHost for OpenVG
       std::deque<DemoHostFeatureName::Enum> eglHostFeatures;
       eglHostFeatures.push_back(DemoHostFeatureName::OpenVG);
       rSetup.TheHostRegistry.Register(eglHostFeatures, EGLDemoHostSetup::Get());
-      rSetup.TheServiceRegistry.Register<GraphicsServiceFactory>();
+      rSetup.TheServiceRegistry.Register(std::make_shared<GraphicsServiceFactory>(colorSpaceType));
       rSetup.TheServiceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<OpenVG::NativeGraphicsService, INativeGraphicsService>>(
         ServicePriorityList::NativeGraphicsService());
       rSetup.TheServiceRegistry.Register<EGLHostServiceFactory>(ServicePriorityList::EGLHostService());
@@ -99,7 +100,7 @@ namespace Fsl
     {
       // Register a formatter for common OpenVG exceptions (from the libs we utilize)
       rSetup.CustomExceptionFormatter.Add(TryFormatException);
-      const DemoHostFeature feature = CommenSetup(rSetup);
+      const DemoHostFeature feature = CommonSetup(rSetup, demoAppSetup.CustomAppConfig.AppColorSpaceType);
       const auto appHostConfig = std::make_shared<DemoAppHostConfigEGL>(demoHostEGLConfig);
       rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, appHostConfig);
     }

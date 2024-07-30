@@ -53,10 +53,10 @@ namespace Fsl
 
   namespace
   {
-    const float DEFAULT_ZOOM = 10;
-    const float DEFAULT_MODEL_SCALE = 5;
+    constexpr float DefaultZoom = 10;
+    constexpr float DefaultModelScale = 5;
 
-    const uint32_t VERTEX_BUFFER_BIND_ID = 0;
+    constexpr uint32_t VertexBufferBindId = 0;
 
     VulkanBasic::DemoAppVulkanSetup CreateSetup()
     {
@@ -365,7 +365,7 @@ namespace Fsl
     // aiProcessPreset_TargetRealtime_MaxQuality
     auto modelPath = IO::Path::Combine(contentPath, "Models/Knight2/armor.obj");
     SceneImporter sceneImporter;
-    const std::shared_ptr<TestScene> scene = sceneImporter.Load<TestScene>(modelPath, DEFAULT_MODEL_SCALE, true);
+    const std::shared_ptr<TestScene> scene = sceneImporter.Load<TestScene>(modelPath, DefaultModelScale, true);
 
     if (scene->GetMeshCount() <= 0)
     {
@@ -466,7 +466,7 @@ namespace Fsl
     m_rotation.Y += m_rotationSpeed.Y * demoTime.DeltaTime;
     m_rotation.Z += m_rotationSpeed.Z * demoTime.DeltaTime;
     m_matrixWorld = Matrix::CreateRotationX(m_rotation.X) * Matrix::CreateRotationY(m_rotation.Y) * Matrix::CreateRotationZ(m_rotation.Z);
-    m_matrixView = Matrix::CreateTranslation(0, 0, -DEFAULT_ZOOM);
+    m_matrixView = Matrix::CreateTranslation(0, 0, -DefaultZoom);
 
     // Deal with the new Vulkan coordinate system (see method description for more info).
     // Consider using: https://github.com/KhronosGroup/Vulkan-Docs/blob/master/appendices/VK_KHR_maintenance1.txt
@@ -545,7 +545,7 @@ namespace Fsl
     vkCmdBindPipeline(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.Pipeline.Get());
 
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(hCmdBuffer, VertexBufferBindId, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdBindIndexBuffer(hCmdBuffer, m_resources.Mesh.IndexBuffer.GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
     vkCmdDrawIndexed(hCmdBuffer, m_resources.Mesh.IndexBuffer.GetIndexCount(), 1, 0, 0, 0);
   }

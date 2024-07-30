@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxExtent2D.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/String/StringToValue.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
@@ -90,7 +91,7 @@ namespace Fsl::SimpleUIApp
 
     IO::Path DoBuildResourceName(const AnalyzedPath& analyzedPath, const uint32_t selectedDpi)
     {
-      return !analyzedPath.AvailableDpi.Empty() ? IO::Path(fmt::format(analyzedPath.SrcPath.AsUTF8String().AsString(), selectedDpi))
+      return !analyzedPath.AvailableDpi.Empty() ? IO::Path(fmt::vformat(analyzedPath.SrcPath.AsStringView(), fmt::make_format_args(selectedDpi)))
                                                 : analyzedPath.SrcPath;
     }
 
@@ -113,7 +114,7 @@ namespace Fsl::SimpleUIApp
       static_assert(LocalConfig::ValidDpis.size() <= std::numeric_limits<uint32_t>::max(), "expectation failed");
       for (uint32_t i = 0; i < LocalConfig::ValidDpis.size(); ++i)
       {
-        IO::Path filename(fmt::format(patternPath.AsUTF8String().AsString(), LocalConfig::ValidDpis[i]));
+        IO::Path filename(fmt::vformat(patternPath.AsStringView(), fmt::make_format_args(LocalConfig::ValidDpis[i])));
         if (contentManager.Exists(filename))
         {
           availableDp.AddIndex(i);
@@ -391,9 +392,8 @@ namespace Fsl::SimpleUIApp
     const PixelFormat pixelFormat = prepareCreateResult.TextureResult.SrcTexture.GetPixelFormat();
     std::shared_ptr<INativeTexture2D> texture;
     {
-      RawTexture srcRawTexture;
-      Texture::ScopedDirectAccess directAccess(prepareCreateResult.TextureResult.SrcTexture, srcRawTexture);
-      texture = rRenderSystem.CreateTexture2D(srcRawTexture, textureCreationInfo.Texture.FilterHint, textureCreationInfo.Texture.Flags);
+      Texture::ScopedDirectReadAccess directAccess(prepareCreateResult.TextureResult.SrcTexture);
+      texture = rRenderSystem.CreateTexture2D(directAccess.AsRawTexture(), textureCreationInfo.Texture.FilterHint, textureCreationInfo.Texture.Flags);
     }
 
     auto handle = DoAddTexture(prepareCreateResult.CreationInfo, prepareCreateResult.PathInfo, prepareCreateResult.Dpi,
@@ -417,9 +417,9 @@ namespace Fsl::SimpleUIApp
     const PixelFormat pixelFormat = prepareCreateResult.TextureResult.SrcTexture.GetPixelFormat();
     std::shared_ptr<IDynamicNativeTexture2D> texture;
     {
-      RawTexture srcRawTexture;
-      Texture::ScopedDirectAccess directAccess(prepareCreateResult.TextureResult.SrcTexture, srcRawTexture);
-      texture = rRenderSystem.CreateDynamicTexture2D(srcRawTexture, textureCreationInfo.Texture.FilterHint, textureCreationInfo.Texture.Flags);
+      Texture::ScopedDirectReadAccess directAccess(prepareCreateResult.TextureResult.SrcTexture);
+      texture =
+        rRenderSystem.CreateDynamicTexture2D(directAccess.AsRawTexture(), textureCreationInfo.Texture.FilterHint, textureCreationInfo.Texture.Flags);
     }
     auto handle =
       DoAddTexture(prepareCreateResult.CreationInfo, prepareCreateResult.PathInfo, prepareCreateResult.Dpi,
@@ -610,12 +610,12 @@ namespace Fsl::SimpleUIApp
         PrepareTexture(rContentManager, rEntry.PathInfo, isAtlas, rEntry.Dpi, rEntry.CreationInfo, m_options.TestPatternMode);
       assert(result.SrcTexture.GetExtent().Depth.Value == 1u);
       {
-        RawTexture srcRawTexture;
-        Texture::ScopedDirectAccess directAccess(result.SrcTexture, srcRawTexture);
+        Texture::ScopedDirectReadAccess directAccess(result.SrcTexture);
         rEntry.Info.Texture =
           (!UIAppResourceFlagUtil::IsFlagged(rEntry.Flags, UIAppResourceFlag::Dynamic)
-             ? rRenderSystem.CreateTexture2D(srcRawTexture, rEntry.CreationInfo.Texture.FilterHint, rEntry.CreationInfo.Texture.Flags)
-             : rRenderSystem.CreateDynamicTexture2D(srcRawTexture, rEntry.CreationInfo.Texture.FilterHint, rEntry.CreationInfo.Texture.Flags));
+             ? rRenderSystem.CreateTexture2D(directAccess.AsRawTexture(), rEntry.CreationInfo.Texture.FilterHint, rEntry.CreationInfo.Texture.Flags)
+             : rRenderSystem.CreateDynamicTexture2D(directAccess.AsRawTexture(), rEntry.CreationInfo.Texture.FilterHint,
+                                                    rEntry.CreationInfo.Texture.Flags));
         rEntry.Info.ExtentPx = result.SrcTexture.GetExtent2D();
       }
       rEntry.Atlas = std::move(result.Atlas);
@@ -730,10 +730,10 @@ namespace Fsl::SimpleUIApp
         const TextureDefinition& textureDefinition = m_managedTextures.Get(textureRecord.ActualHandle);
         const PixelFormat pixelFormat = texture.GetPixelFormat();
         const auto origin = texture.GetBitmapOrigin();
-        const auto extentPx = texture.GetExtent2D();
+        const auto sizePx = TypeConverter::To<PxSize2D>(texture.GetExtent2D());
         Texture testTexture = textureDefinition.Atlas
-                                ? TestAtlasTextureGenerator::CreateTestPatternTexture(extentPx, pixelFormat, origin, *textureDefinition.Atlas)
-                                : TestAtlasTextureGenerator::CreateTestPatternTexture(extentPx, pixelFormat, origin);
+                                ? TestAtlasTextureGenerator::CreateTestPatternTexture(sizePx, pixelFormat, origin, *textureDefinition.Atlas)
+                                : TestAtlasTextureGenerator::CreateTestPatternTexture(sizePx, pixelFormat, origin);
         m_testPatternTextures[hTexture] = TestPatternRecord{std::move(texture), testTexture};
       }
     }
@@ -753,9 +753,8 @@ namespace Fsl::SimpleUIApp
         {
           FSLLOG3_VERBOSE3("Set texture {} test pattern {}", entry.first.Value, m_options.TestPatternEnabled);
           const auto& srcTexture = m_options.TestPatternEnabled ? entry.second.TestPattern : entry.second.Original;
-          RawTexture rawTexture;
-          Texture::ScopedDirectAccess directAccess(srcTexture, rawTexture);
-          pTexture->SetData(rawTexture, textureDef.CreationInfo.Texture.FilterHint, textureDef.CreationInfo.Texture.Flags);
+          Texture::ScopedDirectReadAccess directAccess(srcTexture);
+          pTexture->SetData(directAccess.AsRawTexture(), textureDef.CreationInfo.Texture.FilterHint, textureDef.CreationInfo.Texture.Flags);
         }
       }
     }

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Time/FmtTimeSpan.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
@@ -41,9 +40,57 @@ namespace
 }
 
 
-TEST(TestLog_Time_FmtTimeSpan, Log)
+TEST(TestLog_Time_FmtTimeSpan, Log_Days)
 {
-  TimeSpan value(2000);
+  TimeSpan value0(TimeSpan::FromDays(5));
+  TimeSpan value1(TimeSpan::FromDays(4) + TimeSpan::FromHours(3) + TimeSpan::FromMinutes(2) + TimeSpan::FromSeconds(1));
+  TimeSpan value2(value1 + TimeSpan::FromMilliseconds(337));
 
-  EXPECT_EQ(std::string("20000ns"), fmt::format("{}", value));
+  EXPECT_EQ(std::string("5.00:00:00"), fmt::format("{}", value0));
+  EXPECT_EQ(std::string("4.03:02:01"), fmt::format("{}", value1));
+  EXPECT_EQ(std::string("4.03:02:01.3370000"), fmt::format("{}", value2));
+}
+
+
+TEST(TestLog_Time_FmtTimeSpan, Log_Hours)
+{
+  TimeSpan value(TimeSpan::FromHours(5));
+
+  EXPECT_EQ(std::string("05:00:00"), fmt::format("{}", value));
+}
+
+
+TEST(TestLog_Time_FmtTimeSpan, Log_Minutes)
+{
+  TimeSpan value(TimeSpan::FromMinutes(5));
+
+  EXPECT_EQ(std::string("00:05:00"), fmt::format("{}", value));
+}
+
+
+TEST(TestLog_Time_FmtTimeSpan, Log_Seconds)
+{
+  TimeSpan value(TimeSpan::FromSeconds(5));
+
+  EXPECT_EQ(std::string("00:00:05"), fmt::format("{}", value));
+}
+
+TEST(TestLog_Time_FmtTimeSpan, Log_Milliseconds)
+{
+  TimeSpan value(TimeSpan::FromMilliseconds(5));
+  EXPECT_EQ(std::string("00:00:00.0050000"), fmt::format("{}", value));
+}
+
+
+TEST(TestLog_Time_FmtTimeSpan, Log_Microseconds)
+{
+  TimeSpan value(TimeSpan::FromMicroseconds(5));
+  EXPECT_EQ(std::string("00:00:00.0000050"), fmt::format("{}", value));
+}
+
+
+TEST(TestLog_Time_FmtTimeSpan, Log_NanoSeconds)
+{
+  TimeSpan value(TimeSpan::FromNanoseconds(500));
+  EXPECT_EQ(std::string("00:00:00.0000005"), fmt::format("{}", value));
 }

@@ -33,7 +33,6 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Dp/DpValue.hpp>
-#include <algorithm>
 
 namespace Fsl
 {

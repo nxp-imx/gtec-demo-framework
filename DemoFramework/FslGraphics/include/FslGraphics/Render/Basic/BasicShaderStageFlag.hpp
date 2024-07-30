@@ -37,7 +37,7 @@ namespace Fsl
   {
     Undefined = 0x00,
     Vertex = 0x01,
-    Fragment = 0x02
+    Fragment = 0x02,
   };
 }
 

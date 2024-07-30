@@ -44,19 +44,19 @@ namespace Fsl
     GetDensityDpi = 0x04
   };
 
-  constexpr inline NativeWindowCapabilityFlags operator|(const NativeWindowCapabilityFlags lhs, const NativeWindowCapabilityFlags rhs)
+  inline constexpr NativeWindowCapabilityFlags operator|(const NativeWindowCapabilityFlags lhs, const NativeWindowCapabilityFlags rhs) noexcept
   {
     return static_cast<NativeWindowCapabilityFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
   }
 
-  constexpr inline NativeWindowCapabilityFlags operator&(const NativeWindowCapabilityFlags lhs, const NativeWindowCapabilityFlags rhs)
+  inline constexpr NativeWindowCapabilityFlags operator&(const NativeWindowCapabilityFlags lhs, const NativeWindowCapabilityFlags rhs) noexcept
   {
     return static_cast<NativeWindowCapabilityFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
   }
 
   namespace NativeWindowCapabilityFlagsUtil
   {
-    constexpr inline bool IsFlagged(const NativeWindowCapabilityFlags srcFlags, const NativeWindowCapabilityFlags flags)
+    inline constexpr bool IsFlagged(const NativeWindowCapabilityFlags srcFlags, const NativeWindowCapabilityFlags flags) noexcept
     {
       return (srcFlags & flags) == flags;
     }

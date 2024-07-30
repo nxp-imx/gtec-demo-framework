@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,10 +30,11 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslDemoApp/Base/Service/DemoAppControl/IDemoAppControl.hpp>
 #include <FslSimpleUI/App/DemoPerformanceCapture.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtensionCreateInfo.hpp>
+#include <FslSimpleUI/Base/UIColors.hpp>
 #include <Shared/UI/Benchmark/App/CustomUIDemoAppExtension.hpp>
 #include <Shared/UI/Benchmark/App/CustomWindowInfoModuleProxy.hpp>
 #include <Shared/UI/Benchmark/App/ITestApp.hpp>
@@ -78,13 +79,13 @@ namespace Fsl
   TestAppHost::~TestAppHost() = default;
 
 
-  Color TestAppHost::GetRootColor() const
+  UI::UIColor TestAppHost::GetRootColor() const
   {
-    return m_appRecord.TestApp ? m_appRecord.TestApp->GetRootColor() : Color::White();
+    return m_appRecord.TestApp ? m_appRecord.TestApp->GetRootColor() : UI::UIColors::White();
   }
 
 
-  bool TestAppHost::TrySetRootColor(const Color color)
+  bool TestAppHost::TrySetRootColor(const UI::UIColor color)
   {
     if (!m_appRecord.TestApp)
     {
@@ -127,9 +128,10 @@ namespace Fsl
       StopTestApp();
     }
 
-    UIDemoAppRenderCreateInfo renderCreateInfo(LocalConfig::DefaultRenderCapacity, materialCreateInfo, materialConfig);
+    UIDemoAppRenderCreateInfo renderCreateInfo(UI::UIColorSpace::SRGBNonLinear, LocalConfig::DefaultRenderCapacity, materialCreateInfo,
+                                               materialConfig);
     m_appRecord.TestApp = testAppFactory.Create(UIDemoAppExtensionCreateInfo(m_serviceProvider, m_appWindowMetrics, renderCreateInfo,
-                                                                             m_demoPerformanceCapture, ReadOnlySpanUtil::AsSpan(m_externalModules)));
+                                                                             m_demoPerformanceCapture, SpanUtil::AsReadOnlySpan(m_externalModules)));
     m_appRecord.TestApp->SetCustomViewport(m_config.AppViewportPx);
     assert(m_appRecord.TestApp);
     m_appRecord.DemoExtension = m_appRecord.TestApp->GetCustomUIDemoAppExtension();
@@ -252,7 +254,8 @@ namespace Fsl
   {
     if (m_appRecord.DemoExtension)
     {
-      MouseButtonEvent fakeEvent(event.GetButton(), event.IsPressed(), event.GetPosition() - m_config.AppViewportPx.Location(), event.IsTouch());
+      MouseButtonEvent fakeEvent(event.GetTimestamp(), event.GetButton(), event.IsPressed(), event.GetPosition() - m_config.AppViewportPx.Location(),
+                                 event.IsTouch());
       m_appRecord.DemoExtension->OnMouseButtonEvent(fakeEvent);
       if (fakeEvent.IsHandled())
       {
@@ -265,7 +268,8 @@ namespace Fsl
   {
     if (m_appRecord.DemoExtension)
     {
-      MouseMoveEvent fakeEvent(event.GetPosition() - m_config.AppViewportPx.Location(), event.GetMouseButtonFlags(), event.IsTouch());
+      MouseMoveEvent fakeEvent(event.GetTimestamp(), event.GetPosition() - m_config.AppViewportPx.Location(), event.GetMouseButtonFlags(),
+                               event.IsTouch());
       m_appRecord.DemoExtension->OnMouseMoveEvent(fakeEvent);
       if (fakeEvent.IsHandled())
       {
@@ -278,7 +282,7 @@ namespace Fsl
   {
     if (m_appRecord.DemoExtension)
     {
-      MouseWheelEvent fakeEvent(event.GetDelta(), event.GetPosition() - m_config.AppViewportPx.Location());
+      MouseWheelEvent fakeEvent(event.GetTimestamp(), event.GetDelta(), event.GetPosition() - m_config.AppViewportPx.Location());
       m_appRecord.DemoExtension->OnMouseWheelEvent(fakeEvent);
       if (fakeEvent.IsHandled())
       {
@@ -291,7 +295,7 @@ namespace Fsl
   {
     if (m_appRecord.DemoExtension)
     {
-      RawMouseMoveEvent fakeEvent(event.GetPosition() - m_config.AppViewportPx.Location(), event.GetMouseButtonFlags());
+      RawMouseMoveEvent fakeEvent(event.GetTimestamp(), event.GetPosition() - m_config.AppViewportPx.Location(), event.GetMouseButtonFlags());
       m_appRecord.DemoExtension->OnRawMouseMoveEvent(fakeEvent);
       if (fakeEvent.IsHandled())
       {

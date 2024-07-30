@@ -39,36 +39,30 @@ namespace Fsl::UI
   class EventListener : public IEventListener
   {
   public:
-    void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+    void OnClickInputPreview(const std::shared_ptr<WindowInputClickEvent>& theEvent) override
     {
-      FSL_PARAM_NOT_USED(args);
       FSL_PARAM_NOT_USED(theEvent);
     }
-    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+    void OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent) override
     {
-      FSL_PARAM_NOT_USED(args);
       FSL_PARAM_NOT_USED(theEvent);
     }
-    void OnMouseOverPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) override
+    void OnMouseOverPreview(const std::shared_ptr<WindowMouseOverEvent>& theEvent) override
     {
-      FSL_PARAM_NOT_USED(args);
       FSL_PARAM_NOT_USED(theEvent);
     }
 
-    void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) override
+    void OnMouseOver(const std::shared_ptr<WindowMouseOverEvent>& theEvent) override
     {
-      FSL_PARAM_NOT_USED(args);
       FSL_PARAM_NOT_USED(theEvent);
     }
 
-    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override
+    void OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent) override
     {
-      FSL_PARAM_NOT_USED(args);
       FSL_PARAM_NOT_USED(theEvent);
     }
-    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override
+    void OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent) override
     {
-      FSL_PARAM_NOT_USED(args);
       FSL_PARAM_NOT_USED(theEvent);
     }
   };

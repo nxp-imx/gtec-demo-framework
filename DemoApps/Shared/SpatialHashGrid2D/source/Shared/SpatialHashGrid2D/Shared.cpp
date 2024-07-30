@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2023 NXP
+ * Copyright 2021-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
@@ -42,6 +43,7 @@
 #include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <FslSimpleUI/Base/UIColors.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
@@ -61,10 +63,22 @@ namespace Fsl
 
       constexpr float VirtualSize = 2020.0f;
 
-      constexpr Color ColorNotSelected(0xFF404040);
-      constexpr Color ColorCandidate(Color::Blue());
-      constexpr Color ColorCandidateArea(Color::Red());
-      constexpr Color ColorSelectionArea(Color::Green());
+    }
+
+    namespace RenderColor
+    {
+      constexpr Color NotSelected(0xFF404040);
+      constexpr Color Candidate(Colors::Blue());
+      constexpr Color CandidateArea(Colors::Red());
+      constexpr Color SelectionArea(Colors::Green());
+    }
+
+    namespace UILegendColor
+    {
+      constexpr UI::UIColor NotSelected(RenderColor::NotSelected);
+      constexpr UI::UIColor Candidate(RenderColor::Candidate);
+      constexpr UI::UIColor CandidateArea(RenderColor::CandidateArea);
+      constexpr UI::UIColor SelectionArea(RenderColor::SelectionArea);
     }
 
     void FillVector(std::vector<DrawRecord>& rRecords, const uint32_t seed, const PxSize2D sizePx)
@@ -89,12 +103,12 @@ namespace Fsl
         const float height = randomHeight(random) * scaleY;
         rRecord.Rect = Rectangle2D(TypeConverter::ChangeTo<int32_t>(posX), TypeConverter::ChangeTo<int32_t>(posY),
                                    TypeConverter::ChangeTo<uint32_t>(width), TypeConverter::ChangeTo<uint32_t>(height));
-        rRecord.BaseColor = LocalConfig::ColorNotSelected;
+        rRecord.BaseColor = RenderColor::NotSelected;
         ++index;
       }
     }
 
-    std::shared_ptr<UI::Layout> CreateLegend(UI::Theme::IThemeControlFactory& uiFactory, const Color& color, const StringViewLite strView)
+    std::shared_ptr<UI::Layout> CreateLegend(UI::Theme::IThemeControlFactory& uiFactory, const UI::UIColor color, const StringViewLite strView)
     {
       auto colorMarkerImage = uiFactory.CreateImage(uiFactory.GetResources().GetColorMarkerNineSliceSprite());
       colorMarkerImage->SetAlignmentY(UI::ItemAlignment::Center);
@@ -131,7 +145,7 @@ namespace Fsl
   Shared::~Shared() = default;
 
 
-  void Shared::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& /*theEvent*/)
+  void Shared::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& /*theEvent*/)
   {
     // if (theEvent->GetSource() == m_uiRecord.BtnSetDefaultValues)
     //{
@@ -139,7 +153,7 @@ namespace Fsl
     //}
   }
 
-  void Shared::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void Shared::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
     if (theEvent->IsHandled())
     {
@@ -167,9 +181,8 @@ namespace Fsl
   }
 
 
-  void Shared::OnClickInput(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowInputClickEvent>& theEvent)
+  void Shared::OnClickInput(const std::shared_ptr<UI::WindowInputClickEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
     if (theEvent->IsHandled())
     {
       return;
@@ -261,10 +274,10 @@ namespace Fsl
   void Shared::Draw(const DemoTime& demoTime)
   {
     FSL_PARAM_NOT_USED(demoTime);
-    constexpr float zPos = 0;
+    constexpr float ZPos = 0;
     m_lineBuilder.Clear();
     m_lineBuilder.AddGridXY(
-      Rectangle(0, 0, UncheckedNumericCast<int32_t>(m_resData.GridWidthPx), UncheckedNumericCast<int32_t>(m_resData.GridHeightPx)), zPos,
+      Rectangle(0, 0, UncheckedNumericCast<int32_t>(m_resData.GridWidthPx), UncheckedNumericCast<int32_t>(m_resData.GridHeightPx)), ZPos,
       m_resData.GridStepsX, m_resData.GridStepsY, Color(0xFF909090));
 
     // Dummy implementation
@@ -274,7 +287,7 @@ namespace Fsl
       // Set all entries to the default not selected color
       for (auto& rRecord : m_resData.Records)
       {
-        rRecord.BaseColor = LocalConfig::ColorNotSelected;
+        rRecord.BaseColor = RenderColor::NotSelected;
       }
 
       // run though the candidate cells in the grid
@@ -298,7 +311,7 @@ namespace Fsl
 
           m_lineBuilder.Add(
             Rectangle::FromLeftTopRigtBottom(cellStartX * cellSizeX, cellStartY * cellSizeY, (cellEndX + 1) * cellSizeX, (cellEndY + 1) * cellSizeY),
-            LocalConfig::ColorCandidateArea);
+            RenderColor::CandidateArea);
 
           for (int32_t y = cellStartY; y <= cellEndY; ++y)
           {
@@ -307,7 +320,7 @@ namespace Fsl
               auto span = m_resData.SpatialHashGrid.GetChunkEntries(x, y);
               for (std::size_t i = 0; i < span.size(); ++i)
               {
-                m_resData.Records[span[i].Id].BaseColor = LocalConfig::ColorCandidate;
+                m_resData.Records[span[i].Id].BaseColor = RenderColor::Candidate;
               }
             }
           }
@@ -315,14 +328,14 @@ namespace Fsl
       }
     }
 
-    // constexpr Color color = Color::White();
+    // constexpr Color color = UIColors::White();
     for (const auto& record : m_resData.Records)
     {
       m_lineBuilder.Add(record.Rect, record.BaseColor);
     }
 
     {    // Draw the candidate area
-      m_lineBuilder.Add(candidateRect, LocalConfig::ColorSelectionArea);
+      m_lineBuilder.Add(candidateRect, RenderColor::SelectionArea);
     }
 
     m_uiExtension->Draw();
@@ -338,9 +351,9 @@ namespace Fsl
   {
     auto context = m_uiExtension->GetContext();
 
-    auto legend0 = CreateLegend(uiFactory, LocalConfig::ColorSelectionArea, "Selection area");
-    auto legend1 = CreateLegend(uiFactory, LocalConfig::ColorCandidateArea, "Candidate area");
-    auto legend2 = CreateLegend(uiFactory, LocalConfig::ColorCandidate, "Candidate cells");
+    auto legend0 = CreateLegend(uiFactory, UILegendColor::SelectionArea, "Selection area");
+    auto legend1 = CreateLegend(uiFactory, UILegendColor::CandidateArea, "Candidate area");
+    auto legend2 = CreateLegend(uiFactory, UILegendColor::Candidate, "Candidate cells");
 
     auto leftBarLayout = std::make_shared<UI::StackLayout>(context);
     leftBarLayout->SetOrientation(UI::LayoutOrientation::Horizontal);

@@ -62,7 +62,7 @@ namespace Fsl::GLES3
         m_handle = other.m_handle;
 
         // Remove the data from other
-        other.m_handle = GLValues::INVALID_HANDLE;
+        other.m_handle = GLValues::InvalidHandle;
       }
       return *this;
     }
@@ -73,7 +73,7 @@ namespace Fsl::GLES3
       : m_handle(other.m_handle)
     {
       // Remove the data from other
-      other.m_handle = GLValues::INVALID_HANDLE;
+      other.m_handle = GLValues::InvalidHandle;
     }
 
     //! @brief Create a uninitialized VertexArray
@@ -95,18 +95,18 @@ namespace Fsl::GLES3
     //! @brief Check if this VertexArray contains a valid gl handle.
     bool IsValid() const
     {
-      return m_handle != GLValues::INVALID_HANDLE;
+      return m_handle != GLValues::InvalidHandle;
     }
 
     //! @brief Get the gl handle associated with the buffer.
-    //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
+    //! @return the handle or GLValues::InvalidHandle if the buffer is unallocated.
     GLuint Get() const
     {
       return m_handle;
     }
 
     //! @brief Get the gl handle associated with the buffer.
-    //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
+    //! @return the handle or GLValues::InvalidHandle if the buffer is unallocated.
     [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
     {
       return m_handle;

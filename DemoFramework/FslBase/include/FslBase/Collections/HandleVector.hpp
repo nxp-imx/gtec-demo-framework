@@ -145,8 +145,8 @@ namespace Fsl
       {
         return;
       }
-      constexpr size_type growBy = 200;
-      const auto finalCapacity = ((capacity / growBy) + ((capacity % growBy) > 0 ? 1 : 0)) * growBy;
+      constexpr size_type GrowBy = 200;
+      const auto finalCapacity = ((capacity / GrowBy) + ((capacity % GrowBy) > 0 ? 1 : 0)) * GrowBy;
 
       // Resize the array
       auto oldCapacity = UncheckedNumericCast<size_type>(m_data.size());
@@ -706,6 +706,7 @@ namespace Fsl
       return index < m_count;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     bool DEBUG_IsValid() const
     {
       for (index_type i = 0; i < m_data.size(); ++i)
@@ -724,6 +725,7 @@ namespace Fsl
       return true;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void DEBUG_SanityCheck()
     {
       std::vector<int32_t> taken(m_data.size());

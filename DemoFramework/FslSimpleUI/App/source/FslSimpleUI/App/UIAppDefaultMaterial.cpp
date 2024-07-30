@@ -56,12 +56,12 @@ namespace Fsl::UIAppDefaultMaterial
 
     BasicMaterialDepthInfo depthInfo(allowDepthBuffer, allowDepthBuffer, BasicCompareOp::Less);
 
-    const BasicMaterialCreateInfo createInfo(BlendState::Opaque, BasicCullMode::Disabled, BasicFrontFace::CounterClockwise, depthInfo,
-                                             vertexDeclaration);
+    const BasicMaterialInfo basicMaterialInfo(BlendState::Opaque, BasicCullMode::Disabled, BasicFrontFace::CounterClockwise, depthInfo);
+    const BasicMaterialCreateInfo createInfo(basicMaterialInfo, vertexDeclaration);
 
     auto defaultMaterial = std::make_shared<BasicSpriteMaterial>(renderSystem->CreateMaterial(createInfo, basicTexture, isDynamic));
 
     // const BasicMaterialHandle hMat = m_defaultMaterial->Material.GetHandle();
-    return {UIAppConfig::MaterialId::Default, defaultBitmap.GetExtent(), true, defaultMaterial};
+    return {UIAppConfig::MaterialId::Default, defaultBitmap.GetExtent(), true, basicMaterialInfo.PrimitiveTopology, defaultMaterial};
   }
 }

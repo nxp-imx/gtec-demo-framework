@@ -34,8 +34,7 @@
 #include <FslBase/Getopt/OptionParser.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslDemoApp/Base/ADemoOptionParser.hpp>
 #include <FslDemoHost/Base/ADemoHostOptionParser.hpp>
@@ -218,7 +217,8 @@ namespace Fsl
       // basic setup
       auto demoBasicSetup = DemoSetupManager::GetSetup(demoRunnerConfig.SetupManagerConfig, rExceptionMessageFormatter,
                                                        serviceFramework->GetServiceRegistry(), verbosityLevel, enableFirewallRequest);
-      const auto demoHostManagerOptionParser = std::make_shared<DemoHostManagerOptionParser>();
+      const auto demoHostManagerOptionParser = std::make_shared<DemoHostManagerOptionParser>(
+        demoBasicSetup.App.AppSetup.CustomAppConfig.AppColorSpaceType, demoBasicSetup.App.AppSetup.CustomAppConfig.HDREnabled);
 
       if (enableFirewallRequest)
       {
@@ -314,7 +314,7 @@ namespace Fsl
         args[i] = StringViewLite(argv[i]);
       }
 
-      return RunDemo(ReadOnlySpanUtil::AsSpan(args), demoRunnerConfig);
+      return RunDemo(SpanUtil::AsReadOnlySpan(args), demoRunnerConfig);
     }
     catch (const std::exception& ex)
     {

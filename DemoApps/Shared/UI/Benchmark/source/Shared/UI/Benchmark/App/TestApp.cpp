@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,6 +49,7 @@
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/UniformStackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/UniformWrapLayout.hpp>
+#include <FslSimpleUI/Base/UIColors.hpp>
 #include <FslSimpleUI/Controls/Charts/AreaChart.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
@@ -61,7 +62,7 @@ namespace Fsl
 {
   TestApp::TestApp(const UIDemoAppExtensionCreateInfo& createInfo)
     : m_uiEventListener(this)
-    , m_uiExtension(std::make_shared<CustomUIDemoAppExtension>(createInfo, m_uiEventListener.GetListener(), "UIAtlas/UIAtlasBig_160dpi"))
+    , m_uiExtension(std::make_shared<CustomUIDemoAppExtension>(createInfo, m_uiEventListener.GetListener(), "UIAtlasBig/UIAtlas_160dpi"))
     , m_windowMetrics(createInfo.WindowMetrics)
     , m_background(createInfo.WindowMetrics, createInfo.DemoServiceProvider)
   {
@@ -80,7 +81,7 @@ namespace Fsl
     //  auto img2 = m_controlFactory->CreateImage(m_controlFactory->GetResources().GetBasicFillSprite());
     //  auto lbl3 = m_controlFactory->CreateLabel("L3");
     //  lbl1->SetAlignmentX(UI::ItemAlignment::Far);
-    //  img2->SetContentColor(Color::Black());
+    //  img2->SetContentColor(UI::UIColors::Black());
     //  auto custom = std::make_shared<UI::FillLayout>(m_controlFactory->GetContext());
     //  custom->AddChild(lbl0);
     //  custom->AddChild(lbl1);
@@ -99,7 +100,7 @@ namespace Fsl
   TestApp::~TestApp() = default;
 
 
-  void TestApp::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void TestApp::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
     if (!theEvent->IsHandled() && m_uiProfile.ActivityStack->IsEmpty())
     {
@@ -121,7 +122,7 @@ namespace Fsl
     }
   }
 
-  void TestApp::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& /*theEvent*/)
+  void TestApp::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& /*theEvent*/)
   {
     // if (theEvent->GetSource() == m_uiRecord.SwitchEmulateDpi)
     //{
@@ -164,12 +165,12 @@ namespace Fsl
   }
 
 
-  Color TestApp::GetRootColor() const
+  UI::UIColor TestApp::GetRootColor() const
   {
-    return m_uiProfile.Layout ? m_uiProfile.Layout->GetBaseColor() : Color::White();
+    return m_uiProfile.Layout ? m_uiProfile.Layout->GetBaseColor() : UI::UIColors::White();
   }
 
-  bool TestApp::TrySetRootColor(const Color color)
+  bool TestApp::TrySetRootColor(const UI::UIColor color)
   {
     return m_uiProfile.Layout->SetBaseColor(color);
   }
@@ -606,8 +607,8 @@ namespace Fsl
 
     auto fillSprite = uiFactory.GetResources().GetBasicMiniFillSprite(true);
 
-    constexpr Color col0(0xFF303030);
-    constexpr Color col1(0xFF202020);
+    constexpr UI::UIColor Col0(PackedColor32(0xFF303030));
+    constexpr UI::UIColor Col1(PackedColor32(0xFF202020));
     // constexpr Color col0(0x60606060);
     // constexpr Color col1(0x40404040);
 
@@ -624,13 +625,13 @@ namespace Fsl
     img0->SetScalePolicy(UI::ItemScalePolicy::Fit);
     img0->SetAlignmentX(UI::ItemAlignment::Stretch);
     img0->SetAlignmentY(UI::ItemAlignment::Stretch);
-    img0->SetContentColor(col0);
+    img0->SetContentColor(Col0);
 
     auto img1 = uiFactory.CreateImage(fillSprite);
     img1->SetScalePolicy(UI::ItemScalePolicy::Fit);
     img1->SetAlignmentX(UI::ItemAlignment::Stretch);
     img1->SetAlignmentY(UI::ItemAlignment::Stretch);
-    img1->SetContentColor(col1);
+    img1->SetContentColor(Col1);
 
     // auto img2 = uiFactory.CreateImage(fillSprite);
     // img2->SetScalePolicy(UI::ItemScalePolicy::Fit);
@@ -642,13 +643,13 @@ namespace Fsl
     img3->SetScalePolicy(UI::ItemScalePolicy::Fit);
     img3->SetAlignmentX(UI::ItemAlignment::Stretch);
     img3->SetAlignmentY(UI::ItemAlignment::Stretch);
-    img3->SetContentColor(col0);
+    img3->SetContentColor(Col0);
 
     auto img4 = uiFactory.CreateImage(fillSprite);
     img4->SetScalePolicy(UI::ItemScalePolicy::Fit);
     img4->SetAlignmentX(UI::ItemAlignment::Stretch);
     img4->SetAlignmentY(UI::ItemAlignment::Stretch);
-    img4->SetContentColor(col1);
+    img4->SetContentColor(Col1);
 
 
     auto back0 = std::make_shared<UI::FillLayout>(context);

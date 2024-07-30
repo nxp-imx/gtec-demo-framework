@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,158 +55,199 @@ TEST(TestTime_TimeSpan, Construct_Ticks)
 
 TEST(TestTime_TimeSpan, Days)
 {
-  constexpr auto units = 2;
-  constexpr auto ticks = units * TimeInfo::TicksPerDay;
+  constexpr auto Units = 2;
+  constexpr auto Ticks = Units * TimeSpan::TicksPerDay;
 
-  const TimeSpan value(ticks);
-  EXPECT_EQ(ticks, value.Ticks());
-  EXPECT_EQ(units, value.Days());
+  const TimeSpan value(Ticks);
+  EXPECT_EQ(Ticks, value.Ticks());
+  EXPECT_EQ(Units, value.Days());
+  EXPECT_EQ(0, value.Hours());
+  EXPECT_EQ(0, value.Minutes());
+  EXPECT_EQ(0, value.Seconds());
+  EXPECT_EQ(0, value.Milliseconds());
+  EXPECT_EQ(0, value.Microseconds());
+}
+
+
+TEST(TestTime_TimeSpan, Hours)
+{
+  constexpr auto Units = 2;
+  constexpr auto Ticks = Units * TimeSpan::TicksPerHour;
+
+  const TimeSpan value(Ticks);
+  EXPECT_EQ(Ticks, value.Ticks());
+  EXPECT_EQ(0, value.Days());
+  EXPECT_EQ(Units, value.Hours());
+  EXPECT_EQ(0, value.Minutes());
+  EXPECT_EQ(0, value.Seconds());
+  EXPECT_EQ(0, value.Milliseconds());
+  EXPECT_EQ(0, value.Microseconds());
 }
 
 
 TEST(TestTime_TimeSpan, Minutes)
 {
-  constexpr auto units = 2;
-  constexpr auto ticks = units * TimeInfo::TicksPerMinute;
+  constexpr auto Units = 2;
+  constexpr auto Ticks = Units * TimeSpan::TicksPerMinute;
 
-  const TimeSpan value(ticks);
-  EXPECT_EQ(ticks, value.Ticks());
-  EXPECT_EQ(units, value.Minutes());
+  const TimeSpan value(Ticks);
+  EXPECT_EQ(Ticks, value.Ticks());
+  EXPECT_EQ(0, value.Days());
+  EXPECT_EQ(0, value.Hours());
+  EXPECT_EQ(Units, value.Minutes());
+  EXPECT_EQ(0, value.Seconds());
+  EXPECT_EQ(0, value.Milliseconds());
+  EXPECT_EQ(0, value.Microseconds());
 }
 
 
 TEST(TestTime_TimeSpan, Seconds)
 {
-  constexpr auto units = 2;
-  constexpr auto ticks = units * TimeInfo::TicksPerSecond;
+  constexpr auto Units = 2;
+  constexpr auto Ticks = Units * TimeSpan::TicksPerSecond;
 
-  const TimeSpan value(ticks);
-  EXPECT_EQ(ticks, value.Ticks());
-  EXPECT_EQ(units, value.Seconds());
+  const TimeSpan value(Ticks);
+  EXPECT_EQ(Ticks, value.Ticks());
+  EXPECT_EQ(0, value.Days());
+  EXPECT_EQ(0, value.Hours());
+  EXPECT_EQ(0, value.Minutes());
+  EXPECT_EQ(Units, value.Seconds());
+  EXPECT_EQ(0, value.Milliseconds());
+  EXPECT_EQ(0, value.Microseconds());
 }
 
 
 TEST(TestTime_TimeSpan, Milliseconds)
 {
-  constexpr auto units = 2;
-  constexpr auto ticks = units * TimeInfo::TicksPerMillisecond;
+  constexpr auto Units = 2;
+  constexpr auto Ticks = Units * TimeSpan::TicksPerMillisecond;
 
-  const TimeSpan value(ticks);
-  EXPECT_EQ(ticks, value.Ticks());
-  EXPECT_EQ(units, value.Milliseconds());
+  const TimeSpan value(Ticks);
+  EXPECT_EQ(Ticks, value.Ticks());
+  EXPECT_EQ(0, value.Days());
+  EXPECT_EQ(0, value.Hours());
+  EXPECT_EQ(0, value.Minutes());
+  EXPECT_EQ(0, value.Seconds());
+  EXPECT_EQ(Units, value.Milliseconds());
+  EXPECT_EQ(0, value.Microseconds());
 }
 
 
 TEST(TestTime_TimeSpan, Microseconds)
 {
-  constexpr auto units = 2;
-  constexpr auto ticks = units * TimeInfo::TicksPerMicrosecond;
+  constexpr auto Units = 2;
+  constexpr auto Ticks = Units * TimeSpan::TicksPerMicrosecond;
 
-  const TimeSpan value(ticks);
-  EXPECT_EQ(ticks, value.Ticks());
-  EXPECT_EQ(units, value.Microseconds());
+  const TimeSpan value(Ticks);
+  EXPECT_EQ(Ticks, value.Ticks());
+  EXPECT_EQ(0, value.Days());
+  EXPECT_EQ(0, value.Hours());
+  EXPECT_EQ(0, value.Minutes());
+  EXPECT_EQ(0, value.Seconds());
+  EXPECT_EQ(0, value.Milliseconds());
+  EXPECT_EQ(Units, value.Microseconds());
 }
 
 
 TEST(TestTime_TimeSpan, Op_AddEqual)
 {
-  constexpr auto ticks0 = 7;
-  constexpr auto ticks1 = 21;
-  TimeSpan value0(ticks0);
-  const TimeSpan value1(ticks1);
+  constexpr auto Ticks0 = 7;
+  constexpr auto Ticks1 = 21;
+  TimeSpan value0(Ticks0);
+  const TimeSpan value1(Ticks1);
 
   value0 += value1;
 
-  EXPECT_EQ(ticks0 + ticks1, value0.Ticks());
+  EXPECT_EQ(Ticks0 + Ticks1, value0.Ticks());
 }
 
 
 TEST(TestTime_TimeSpan, Op_SubEqual)
 {
-  constexpr auto ticks0 = 7;
-  constexpr auto ticks1 = 21;
-  TimeSpan value0(ticks0);
-  const TimeSpan value1(ticks1);
+  constexpr auto Ticks0 = 7;
+  constexpr auto Ticks1 = 21;
+  TimeSpan value0(Ticks0);
+  const TimeSpan value1(Ticks1);
 
   value0 -= value1;
 
-  EXPECT_EQ(ticks0 - ticks1, value0.Ticks());
+  EXPECT_EQ(Ticks0 - Ticks1, value0.Ticks());
 }
 
 
 TEST(TestTime_TimeSpan, Op_MulEqual)
 {
-  constexpr auto ticks0 = 7;
-  constexpr int32_t value = 2;
-  TimeSpan value0(ticks0);
+  constexpr auto Ticks0 = 7;
+  constexpr int32_t Value = 2;
+  TimeSpan value0(Ticks0);
 
-  value0 *= value;
+  value0 *= Value;
 
-  EXPECT_EQ(ticks0 * value, value0.Ticks());
+  EXPECT_EQ(Ticks0 * Value, value0.Ticks());
 }
 
 
 TEST(TestTime_TimeSpan, Op_DivEqual)
 {
-  constexpr auto ticks0 = 8;
-  constexpr int32_t value = 2;
-  TimeSpan value0(ticks0);
+  constexpr auto Ticks0 = 8;
+  constexpr int32_t Value = 2;
+  TimeSpan value0(Ticks0);
 
-  value0 /= value;
+  value0 /= Value;
 
-  EXPECT_EQ(ticks0 / value, value0.Ticks());
+  EXPECT_EQ(Ticks0 / Value, value0.Ticks());
 }
 
 
 TEST(TestTime_TimeSpan, Op_Add)
 {
-  constexpr auto ticks0 = 7;
-  constexpr auto ticks1 = 21;
-  const TimeSpan value0(ticks0);
-  const TimeSpan value1(ticks1);
+  constexpr auto Ticks0 = 7;
+  constexpr auto Ticks1 = 21;
+  const TimeSpan value0(Ticks0);
+  const TimeSpan value1(Ticks1);
 
-  EXPECT_EQ(ticks0 + ticks1, (value0 + value1).Ticks());
+  EXPECT_EQ(Ticks0 + Ticks1, (value0 + value1).Ticks());
 }
 
 
 TEST(TestTime_TimeSpan, Op_Sub)
 {
-  constexpr auto ticks0 = 7;
-  constexpr auto ticks1 = 21;
-  const TimeSpan value0(ticks0);
-  const TimeSpan value1(ticks1);
+  constexpr auto Ticks0 = 7;
+  constexpr auto Ticks1 = 21;
+  const TimeSpan value0(Ticks0);
+  const TimeSpan value1(Ticks1);
 
-  EXPECT_EQ(ticks0 - ticks1, (value0 - value1).Ticks());
+  EXPECT_EQ(Ticks0 - Ticks1, (value0 - value1).Ticks());
 }
 
 
 TEST(TestTime_TimeSpan, Op_MulTimeSpanVal)
 {
-  constexpr auto ticks0 = 7;
-  constexpr int32_t value = 2;
-  const TimeSpan value0(ticks0);
+  constexpr auto Ticks0 = 7;
+  constexpr int32_t Value = 2;
+  const TimeSpan value0(Ticks0);
 
-  EXPECT_EQ(ticks0 * value, (value0 * value).Ticks());
+  EXPECT_EQ(Ticks0 * Value, (value0 * Value).Ticks());
 }
 
 
 TEST(TestTime_TimeSpan, Op_MulValTimeSpan)
 {
-  constexpr auto ticks0 = 7;
-  constexpr int32_t value = 2;
-  const TimeSpan value0(ticks0);
+  constexpr auto Ticks0 = 7;
+  constexpr int32_t Value = 2;
+  const TimeSpan value0(Ticks0);
 
-  EXPECT_EQ(value * ticks0, (value * value0).Ticks());
+  EXPECT_EQ(Value * Ticks0, (Value * value0).Ticks());
 }
 
 
 TEST(TestTime_TimeSpan, Op_DivTimeSpanVal)
 {
-  constexpr auto ticks0 = 8;
-  constexpr int32_t value = 2;
-  const TimeSpan value0(ticks0);
+  constexpr auto Ticks0 = 8;
+  constexpr int32_t Value = 2;
+  const TimeSpan value0(Ticks0);
 
-  EXPECT_EQ(ticks0 / value, (value0 / value).Ticks());
+  EXPECT_EQ(Ticks0 / Value, (value0 / Value).Ticks());
 }
 
 

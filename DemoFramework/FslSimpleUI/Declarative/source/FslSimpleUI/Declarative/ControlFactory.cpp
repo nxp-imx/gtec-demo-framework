@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <FslSimpleUI/Declarative/ControlFactory.hpp>
+#include <FslSimpleUI/Declarative/ControlInfoUtil.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <fmt/format.h>
 #include <cassert>
@@ -52,6 +52,7 @@
 #include "Factories/Control/OutlinedTextButtonDeclarativeControlFactory.hpp"
 #include "Factories/Control/RadioButtonDeclarativeControlFactory.hpp"
 #include "Factories/Control/RightBarDeclarativeControlFactory.hpp"
+#include "Factories/Control/ScrollViewerDeclarativeControlFactory.hpp"
 #include "Factories/Control/SliderFloatDeclarativeControlFactory.hpp"
 #include "Factories/Control/SliderFmtValueFloatDeclarativeControlFactory.hpp"
 #include "Factories/Control/SliderFmtValueInt32DeclarativeControlFactory.hpp"
@@ -71,13 +72,14 @@
 #include "Factories/Layout/UniformStackLayoutDeclarativeControlFactory.hpp"
 #include "Factories/Layout/UniformWrapLayoutDeclarativeControlFactory.hpp"
 #include "Factories/Layout/WrapLayoutDeclarativeControlFactory.hpp"
+#include "RegisterDefaultPrimitiveTypes.hpp"
 
 namespace Fsl::UI::Declarative
 {
   namespace
   {
     Span<RegisteredPropertyRecord> FillScratchpad(std::vector<RegisteredPropertyRecord>& rScratchPad,
-                                                  const ReadOnlySpan<ControlPropertyRecord> propertyRecords)
+                                                  const std::span<const ControlPropertyRecord> propertyRecords)
     {
       rScratchPad.clear();
       rScratchPad.reserve(propertyRecords.size());
@@ -87,7 +89,7 @@ namespace Fsl::UI::Declarative
         assert(pProperty != nullptr);
         rScratchPad.emplace_back(*pProperty, entry.Required);
       }
-      return SpanUtil::AsSubSpan(rScratchPad, 0, propertyRecords.size());
+      return SpanUtil::AsSpan(rScratchPad, 0, propertyRecords.size());
     }
 
     Span<PropertyParserRecord> FillScratchpad(std::vector<PropertyParserRecord>& rScratchPad, const ReadOnlySpan<PropertyRecord> propertyRecords)
@@ -98,7 +100,7 @@ namespace Fsl::UI::Declarative
       {
         rScratchPad.emplace_back(entry.Name.AsStringViewLite(), entry.Value.AsStringViewLite());
       }
-      return SpanUtil::AsSubSpan(rScratchPad, 0, propertyRecords.size());
+      return SpanUtil::AsSpan(rScratchPad, 0, propertyRecords.size());
     }
 
     void EraseClaimed(std::vector<PropertyRecord>& rPropertyRecords, Span<PropertyParserRecord> properties)
@@ -130,6 +132,8 @@ namespace Fsl::UI::Declarative
       throw std::invalid_argument("Must provide a valid theme control factory");
     }
 
+    Fsl::UI::Declarative::Internal::RegisterDefaultPrimitiveTypes(m_primitiveTypeRegistry);
+
     // Theme controls
     Register<BackgroundWindowDeclarativeControlFactory>();
     Register<BottomBarDeclarativeControlFactory>();
@@ -150,6 +154,7 @@ namespace Fsl::UI::Declarative
     Register<SliderFmtValueInt32DeclarativeControlFactory>();
     Register<SliderFmtValueUInt32DeclarativeControlFactory>();
     Register<SliderFmtValueUInt8DeclarativeControlFactory>();
+    Register<ScrollViewerDeclarativeControlFactory>();
     Register<SliderFloatDeclarativeControlFactory>();
     Register<SliderInt32DeclarativeControlFactory>();
     Register<SliderUInt32DeclarativeControlFactory>();
@@ -190,7 +195,7 @@ namespace Fsl::UI::Declarative
   }
 
 
-  std::shared_ptr<BaseWindow> ControlFactory::TryCreate(RadioGroupManager& rRadioGroupManager, const StringViewLite& name,
+  std::shared_ptr<BaseWindow> ControlFactory::TryCreate(RadioGroupManager& rRadioGroupManager, const std::string_view name,
                                                         std::vector<PropertyRecord>& rPropertyRecords)
   {
     Theme::IThemeControlFactory& uiFactory = *m_controlFactory;
@@ -199,7 +204,7 @@ namespace Fsl::UI::Declarative
     if (itrFind != m_factories.end())
     {
       Span<RegisteredPropertyRecord> registeredProperties = FillScratchpad(m_registeredPropertyScratchpad, itrFind->second->Properties());
-      Span<PropertyParserRecord> properties = FillScratchpad(m_createPropertiesScratchpad, ReadOnlySpanUtil::AsSpan(rPropertyRecords));
+      Span<PropertyParserRecord> properties = FillScratchpad(m_createPropertiesScratchpad, SpanUtil::AsReadOnlySpan(rPropertyRecords));
 
       ScopedThemePropertyParser propertyParser(registeredProperties, properties);
       auto res = itrFind->second->Create(DeclarativeControlFactoryCreateInfo(uiFactory, rRadioGroupManager, propertyParser));
@@ -210,4 +215,101 @@ namespace Fsl::UI::Declarative
     // Missing: ImageButton
     return {};
   }
+
+  std::vector<ControlName> ControlFactory::GetControlNames() const
+  {
+    std::vector<ControlName> names;
+    names.reserve(m_factories.size());
+
+    for (const auto& entry : m_factories)
+    {
+      names.push_back(entry.first);
+    }
+    return names;
+  }
+
+
+  std::span<const ControlPropertyRecord> ControlFactory::GetControlThemeProperties(const ControlName& name) const
+  {
+    const auto itrFind = m_factories.find(name);
+    if (itrFind == m_factories.end())
+    {
+      return {};
+    }
+
+    // Extract the 'theme' properties
+    return itrFind->second->Properties();
+  }
+
+
+  DataBinding::DependencyPropertyDefinitionVector ControlFactory::GetControlProperties(const ControlName& name)
+  {
+    auto window = TryCreateDummyControl(name.AsString());
+    if (!window)
+    {
+      return {};
+    }
+
+    DataBinding::DependencyPropertyDefinitionVector result;
+    window->ExtractProperties(result);
+    return result;
+  }
+
+
+  ControlType ControlFactory::GetControlType(const ControlName& name)
+  {
+    auto window = TryCreateDummyControl(name.AsString());
+    if (!window)
+    {
+      return ControlType::Normal;
+    }
+
+    if (ControlInfoUtil::IsContentControl(window.get()))
+    {
+      return ControlType::Content;
+    }
+    if (ControlInfoUtil::IsContainer(window.get()))
+    {
+      return ControlType::Layout;
+    }
+    return ControlType::Normal;
+  }
+
+
+  std::shared_ptr<BaseWindow> ControlFactory::TryCreateDummyControl(const std::string_view name)
+  {
+    const auto itrFind = m_factories.find(name);
+    if (itrFind == m_factories.end())
+    {
+      return {};
+    }
+
+    RadioGroupManager dummyRadioGroupManager;
+    std::vector<PropertyRecord> propertyRecordsDummy;
+
+    std::uint32_t groupNameCount = 0;
+    for (const auto& propertyRecord : itrFind->second->Properties())
+    {
+      std::span<const ThemePropertyValueRecord> validValues = propertyRecord.Property->ValidValues();
+      if (propertyRecord.Required)
+      {
+        if (!validValues.empty())
+        {
+          // for now just select the first value
+          propertyRecordsDummy.emplace_back(propertyRecord.Property->GetName(), validValues[0].Name);
+        }
+        else
+        {
+          // FIX: this is kind of a workaround, as we dont really know for sure its a groupname. But it works for now
+          std::string groupName(fmt::format("groupName:{}", groupNameCount));
+          propertyRecordsDummy.emplace_back(propertyRecord.Property->GetName(), PropertyValue(groupName));
+          dummyRadioGroupManager.Get(groupName.c_str());
+          ++groupNameCount;
+        }
+      }
+    }
+
+    return TryCreate(dummyRadioGroupManager, name, propertyRecordsDummy);
+  }
+
 }

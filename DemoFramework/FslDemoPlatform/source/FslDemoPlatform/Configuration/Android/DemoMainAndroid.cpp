@@ -34,8 +34,7 @@
 #include <FslBase/ITag.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslDemoPlatform/DemoRunner.hpp>
 #include <FslNativeWindow/Platform/Adapter/Android/PlatformNativeWindowSystemAndroidTag.hpp>
 #include <Platform/Android/JNIUtil/JNIUtil.hpp>
@@ -99,15 +98,15 @@ namespace Fsl
     const auto arguments = GetCommandLineArguments(state);
     const char* const pszApp = "AndroidExe";
     std::vector<StringViewLite> argv(arguments.size() + 1);
-    argv[0] = StringViewLiteUtil::AsStringViewLite(pszApp);
+    argv[0] = StringViewLite(pszApp);
     for (std::size_t i = 0; i < arguments.size(); ++i)
     {
-      argv[i + 1] = StringViewLiteUtil::AsStringViewLite(arguments[i]);
+      argv[i + 1] = StringViewLite(arguments[i]);
     }
 
     std::shared_ptr<Fsl::ITag> tag(new Fsl::PlatformNativeWindowSystemAndroidTag(state));
     Fsl::DemoRunnerConfig config(false, contentDir, saveDir, tag);
-    return Fsl::RunDemo(ReadOnlySpanUtil::AsSpan(argv), config);
+    return Fsl::RunDemo(SpanUtil::AsReadOnlySpan(argv), config);
   }
 }
 

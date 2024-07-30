@@ -31,7 +31,6 @@
 
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Time/TimeSpanUtil.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Shared/Log/Host/FmtDemoWindowMetrics.hpp>
 #include <FslDemoHost/Base/ADemoHost.hpp>
@@ -58,8 +57,7 @@ namespace Fsl
     , m_basic2DPreallocEnabled(demoHostManagerOptionParser->IsBasic2DPreallocEnabled())
     , m_exitAfterFrame(demoHostManagerOptionParser->GetExitAfterFrame())
     , m_exitAfterDuration(demoHostManagerOptionParser->GetDurationExitConfig())
-    , m_exitTime(std::chrono::microseconds(TimeSpanUtil::ToMicrosecondsInt64(m_timer.GetTimestamp())) +
-                 std::chrono::microseconds(m_exitAfterDuration.Duration))
+    , m_exitTime(std::chrono::microseconds(m_timer.GetTimestamp().TotalMicrosecondsInt64()) + std::chrono::microseconds(m_exitAfterDuration.Duration))
   {
     // Acquire the various services
     ServiceProvider serviceProvider(demoSetup.ServiceProvider);
@@ -190,7 +188,7 @@ namespace Fsl
         throw NotSupportedException("Unsupported state");
       }
       // We only auto exit after at least one frame was rendered
-      if (m_exitAfterDuration.Enabled && std::chrono::microseconds(TimeSpanUtil::ToMicrosecondsInt64(m_timer.GetTimestamp())) >= m_exitTime)
+      if (m_exitAfterDuration.Enabled && std::chrono::microseconds(m_timer.GetTimestamp().TotalMicrosecondsInt64()) >= m_exitTime)
       {
         m_demoAppManager->RequestExit();
       }
@@ -211,10 +209,10 @@ namespace Fsl
 
   SwapBuffersResult DemoHostManager::AppDrawAndSwapBuffers()
   {
-    const uint32_t MAX_RETRY_COUNT = 5;
+    constexpr uint32_t MaxRetryCount = 5;
     uint32_t retryCount = 0;
     auto result = AppDrawResult::Retry;
-    while (result == AppDrawResult::Retry && retryCount < MAX_RETRY_COUNT)
+    while (result == AppDrawResult::Retry && retryCount < MaxRetryCount)
     {
       result = m_demoAppManager->TryDraw();
       if (result == AppDrawResult::Completed)

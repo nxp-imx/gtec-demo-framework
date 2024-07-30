@@ -1,7 +1,7 @@
 #ifndef FSLBASE_BITS_BYTESPANUTIL_WRITEBE_HPP
 #define FSLBASE_BITS_BYTESPANUTIL_WRITEBE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline Span<uint8_t>::size_type WriteUInt8BE(Span<uint8_t> dst, const uint8_t value)
   {
-    assert(dst.length() >= 1);
+    assert(dst.size() >= 1);
 
     dst[0] = value;
     return 1;
@@ -53,7 +53,7 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline Span<uint8_t>::size_type WriteInt8BE(Span<uint8_t> dst, const int8_t value)
   {
-    assert(dst.length() >= 1);
+    assert(dst.size() >= 1);
 
     dst[0] = static_cast<uint8_t>(value);
     return 1;
@@ -62,52 +62,52 @@ namespace Fsl::ByteSpanUtil
   //! @brief Write a uint16_t to the given span in big endian format
   constexpr inline Span<uint8_t>::size_type WriteUInt16BE(Span<uint8_t> dst, const uint16_t value)
   {
-    assert(dst.length() >= 2);
+    assert(dst.size() >= 2);
 
 
     dst[0] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    dst[1] = static_cast<uint8_t>((value)&0xFF);
+    dst[1] = static_cast<uint8_t>((value) & 0xFF);
     return 2;
   }
 
   //! @brief Write a int16_t to the given span in big endian format
   constexpr inline Span<uint8_t>::size_type WriteInt16BE(Span<uint8_t> dst, const int16_t value)
   {
-    assert(dst.length() >= 2);
+    assert(dst.size() >= 2);
 
     dst[0] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    dst[1] = static_cast<uint8_t>((value)&0xFF);
+    dst[1] = static_cast<uint8_t>((value) & 0xFF);
     return 2;
   }
 
   //! @brief Write a uint32_t to the given span in big endian format
   constexpr inline Span<uint8_t>::size_type WriteUInt32BE(Span<uint8_t> dst, const uint32_t value)
   {
-    assert(dst.length() >= 4);
+    assert(dst.size() >= 4);
 
     dst[0] = static_cast<uint8_t>((value >> 24) & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 16) & 0xFF);
     dst[2] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    dst[3] = static_cast<uint8_t>((value)&0xFF);
+    dst[3] = static_cast<uint8_t>((value) & 0xFF);
     return 4;
   }
 
   //! @brief Write a int32_t to the given span in big endian format
   constexpr inline Span<uint8_t>::size_type WriteInt32BE(Span<uint8_t> dst, const int32_t value)
   {
-    assert(dst.length() >= 4);
+    assert(dst.size() >= 4);
 
     dst[0] = static_cast<uint8_t>((value >> 24) & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 16) & 0xFF);
     dst[2] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    dst[3] = static_cast<uint8_t>((value)&0xFF);
+    dst[3] = static_cast<uint8_t>((value) & 0xFF);
     return 4;
   }
 
   //! @brief Write a uint64_t to the given span in big endian format
   constexpr inline Span<uint8_t>::size_type WriteUInt64BE(Span<uint8_t> dst, const uint64_t value)
   {
-    assert(dst.length() >= 8);
+    assert(dst.size() >= 8);
 
     dst[0] = static_cast<uint8_t>((value >> 56) & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 48) & 0xFF);
@@ -116,14 +116,14 @@ namespace Fsl::ByteSpanUtil
     dst[4] = static_cast<uint8_t>((value >> 24) & 0xFF);
     dst[5] = static_cast<uint8_t>((value >> 16) & 0xFF);
     dst[6] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    dst[7] = static_cast<uint8_t>((value)&0xFF);
+    dst[7] = static_cast<uint8_t>((value) & 0xFF);
     return 8;
   }
 
   //! @brief Read a int64_t to the given span in big endian format
   constexpr inline Span<uint8_t>::size_type WriteInt64BE(Span<uint8_t> dst, const int64_t value)
   {
-    assert(dst.length() >= 8);
+    assert(dst.size() >= 8);
 
     dst[0] = static_cast<uint8_t>((value >> 56) & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 48) & 0xFF);
@@ -132,7 +132,7 @@ namespace Fsl::ByteSpanUtil
     dst[4] = static_cast<uint8_t>((value >> 24) & 0xFF);
     dst[5] = static_cast<uint8_t>((value >> 16) & 0xFF);
     dst[6] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    dst[7] = static_cast<uint8_t>((value)&0xFF);
+    dst[7] = static_cast<uint8_t>((value) & 0xFF);
     return 8;
   }
 
@@ -144,7 +144,7 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline Span<uint8_t>::size_type WriteUInt8BE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const uint8_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteUInt8BE(dst.subspan(dstIndex), value);
   }
 
@@ -153,49 +153,49 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline Span<uint8_t>::size_type WriteInt8BE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int8_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteInt8BE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a uint16_t to the given dstIndex in big endian format
   constexpr inline Span<uint8_t>::size_type WriteUInt16BE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const uint16_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteUInt16BE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a int16_t to the given dstIndex in big endian format
   constexpr inline Span<uint8_t>::size_type WriteInt16BE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int16_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteInt16BE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a uint32_t to the given dstIndex in big endian format
   constexpr inline Span<uint8_t>::size_type WriteUInt32BE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const uint32_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteUInt32BE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a int32_t to the given dstIndex in big endian format
   constexpr inline Span<uint8_t>::size_type WriteInt32BE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int32_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteInt32BE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a uint64_t to the given dstIndex in big endian format
   constexpr inline Span<uint8_t>::size_type WriteUInt64BE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const uint64_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteUInt64BE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Read a int64_t to the given dstIndex in big endian format
   constexpr inline Span<uint8_t>::size_type WriteInt64BE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int64_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteInt64BE(dst.subspan(dstIndex), value);
   }
 
@@ -208,7 +208,7 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline Span<uint8_t>::size_type WriteBE(Span<uint8_t> dst, const uint8_t value)
   {
-    assert(dst.length() >= 1);
+    assert(dst.size() >= 1);
 
     dst[0] = value;
     return 1;
@@ -219,7 +219,7 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline Span<uint8_t>::size_type WriteBE(Span<uint8_t> dst, const int8_t value)
   {
-    assert(dst.length() >= 1);
+    assert(dst.size() >= 1);
 
     dst[0] = static_cast<uint8_t>(value);
     return 1;
@@ -228,51 +228,51 @@ namespace Fsl::ByteSpanUtil
   //! @brief Write a uint16_t to the given span in big endian format
   constexpr inline Span<uint8_t>::size_type WriteBE(Span<uint8_t> dst, const uint16_t value)
   {
-    assert(dst.length() >= 2);
+    assert(dst.size() >= 2);
 
     dst[0] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    dst[1] = static_cast<uint8_t>((value)&0xFF);
+    dst[1] = static_cast<uint8_t>((value) & 0xFF);
     return 2;
   }
 
   //! @brief Write a int16_t to the given span in big endian format
   constexpr inline Span<uint8_t>::size_type WriteBE(Span<uint8_t> dst, const int16_t value)
   {
-    assert(dst.length() >= 2);
+    assert(dst.size() >= 2);
 
     dst[0] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    dst[1] = static_cast<uint8_t>((value)&0xFF);
+    dst[1] = static_cast<uint8_t>((value) & 0xFF);
     return 2;
   }
 
   //! @brief Write a uint32_t to the given span in big endian format
   constexpr inline Span<uint8_t>::size_type WriteBE(Span<uint8_t> dst, const uint32_t value)
   {
-    assert(dst.length() >= 4);
+    assert(dst.size() >= 4);
 
     dst[0] = static_cast<uint8_t>((value >> 24) & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 16) & 0xFF);
     dst[2] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    dst[3] = static_cast<uint8_t>((value)&0xFF);
+    dst[3] = static_cast<uint8_t>((value) & 0xFF);
     return 4;
   }
 
   //! @brief Write a int32_t to the given span in big endian format
   constexpr inline Span<uint8_t>::size_type WriteBE(Span<uint8_t> dst, const int32_t value)
   {
-    assert(dst.length() >= 4);
+    assert(dst.size() >= 4);
 
     dst[0] = static_cast<uint8_t>((value >> 24) & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 16) & 0xFF);
     dst[2] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    dst[3] = static_cast<uint8_t>((value)&0xFF);
+    dst[3] = static_cast<uint8_t>((value) & 0xFF);
     return 4;
   }
 
   //! @brief Write a uint64_t to the given span in big endian format
   constexpr inline Span<uint8_t>::size_type WriteBE(Span<uint8_t> dst, const uint64_t value)
   {
-    assert(dst.length() >= 8);
+    assert(dst.size() >= 8);
 
     dst[0] = static_cast<uint8_t>((value >> 56) & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 48) & 0xFF);
@@ -281,14 +281,14 @@ namespace Fsl::ByteSpanUtil
     dst[4] = static_cast<uint8_t>((value >> 24) & 0xFF);
     dst[5] = static_cast<uint8_t>((value >> 16) & 0xFF);
     dst[6] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    dst[7] = static_cast<uint8_t>((value)&0xFF);
+    dst[7] = static_cast<uint8_t>((value) & 0xFF);
     return 8;
   }
 
   //! @brief Read a int64_t to the given span in big endian format
   constexpr inline Span<uint8_t>::size_type WriteBE(Span<uint8_t> dst, const int64_t value)
   {
-    assert(dst.length() >= 8);
+    assert(dst.size() >= 8);
 
     dst[0] = static_cast<uint8_t>((value >> 56) & 0xFF);
     dst[1] = static_cast<uint8_t>((value >> 48) & 0xFF);
@@ -297,7 +297,7 @@ namespace Fsl::ByteSpanUtil
     dst[4] = static_cast<uint8_t>((value >> 24) & 0xFF);
     dst[5] = static_cast<uint8_t>((value >> 16) & 0xFF);
     dst[6] = static_cast<uint8_t>((value >> 8) & 0xFF);
-    dst[7] = static_cast<uint8_t>((value)&0xFF);
+    dst[7] = static_cast<uint8_t>((value) & 0xFF);
     return 8;
   }
 
@@ -309,7 +309,7 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline Span<uint8_t>::size_type WriteBE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const uint8_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteBE(dst.subspan(dstIndex), value);
   }
 
@@ -318,49 +318,49 @@ namespace Fsl::ByteSpanUtil
   //!       it does some basic validation on the input params like the rest of the methods
   constexpr inline Span<uint8_t>::size_type WriteBE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int8_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteBE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a uint16_t to the given dstIndex in big endian format
   constexpr inline Span<uint8_t>::size_type WriteBE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const uint16_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteBE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a int16_t to the given dstIndex in big endian format
   constexpr inline Span<uint8_t>::size_type WriteBE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int16_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteBE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a uint32_t to the given dstIndex in big endian format
   constexpr inline Span<uint8_t>::size_type WriteBE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const uint32_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteBE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a int32_t to the given dstIndex in big endian format
   constexpr inline Span<uint8_t>::size_type WriteBE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int32_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteBE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Write a uint64_t to the given dstIndex in big endian format
   constexpr inline Span<uint8_t>::size_type WriteBE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const uint64_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteBE(dst.subspan(dstIndex), value);
   }
 
   //! @brief Read a int64_t to the given dstIndex in big endian format
   constexpr inline Span<uint8_t>::size_type WriteBE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int64_t value)
   {
-    assert(dstIndex < dst.length());
+    assert(dstIndex < dst.size());
     return WriteBE(dst.subspan(dstIndex), value);
   }
 }

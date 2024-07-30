@@ -61,7 +61,7 @@ namespace Fsl::IO
     {
       if (!rStream.good())
       {
-        throw IOException(fmt::format("File not found '{0}'", path));
+        throw IOException(fmt::format("File not found '{}'", path));
       }
 
       // Dumb C++ way of getting the stream length

@@ -33,7 +33,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoHost/Base/Service/Image/IImageServiceControl.hpp>
@@ -116,20 +116,15 @@ namespace Fsl
 {
   namespace
   {
-    namespace LocalConfig
-    {
-      constexpr const EGLConfig EmptyValueEGLConfig = nullptr;
-    }
-
     struct RGBConfig
     {
       int32_t R{8};
       int32_t G{8};
       int32_t B{8};
 
-      RGBConfig() = default;
+      constexpr RGBConfig() = default;
 
-      RGBConfig(const int32_t r, const int32_t g, const int32_t b)
+      constexpr RGBConfig(const int32_t r, const int32_t g, const int32_t b)
         : R(r)
         , G(g)
         , B(b)
@@ -137,10 +132,14 @@ namespace Fsl
       }
     };
 
-    const int32_t DEFAULT_DEPTH_BUFFER_SIZE = 24;
-    // const int32_t FALLBACK_DEPTH_BUFFER_SIZE = 16;
-    const RGBConfig DEFAULT_RGB_CONFIG(8, 8, 8);
+    namespace LocalConfig
+    {
+      constexpr const EGLConfig EmptyValueEGLConfig = nullptr;
 
+      constexpr int32_t DefaultDepthBufferSize = 24;
+      // constexpr int32_t FallbackDepthBufferSize = 16;
+      constexpr RGBConfig DefaultRgbConfig(8, 8, 8);
+    }
 
     //! @brief copy the supplied EGL config into a deque
     void CopyConfig(std::deque<EGLint>& rEglAttribs, const EGLint* pEglAttribs)
@@ -148,9 +147,9 @@ namespace Fsl
       rEglAttribs.clear();
       if (pEglAttribs != nullptr)
       {
-        const int MAX = 1024;
+        constexpr int MaxEntries = 1024;
         int count = 0;
-        while (*pEglAttribs != EGL_NONE && count < MAX)
+        while (*pEglAttribs != EGL_NONE && count < MaxEntries)
         {
           rEglAttribs.push_back(*pEglAttribs);
           ++pEglAttribs;
@@ -833,8 +832,8 @@ namespace Fsl
       }
 
       BuildAttribConfig(m_appEglConfigAttribs, m_appHostConfig->GetEglConfigAttribs());
-      BuildEGLConfig(m_finalConfigAttribs, m_appEglConfigAttribs, m_configControl, m_featureConfig, m_options, DEFAULT_RGB_CONFIG,
-                     DEFAULT_DEPTH_BUFFER_SIZE);
+      BuildEGLConfig(m_finalConfigAttribs, m_appEglConfigAttribs, m_configControl, m_featureConfig, m_options, LocalConfig::DefaultRgbConfig,
+                     LocalConfig::DefaultDepthBufferSize);
       assert(m_finalConfigAttribs.size() > 0);
 
       if (m_options->IsLogConfigEnabled())
@@ -1074,7 +1073,7 @@ namespace Fsl
       std::vector<EGLint> finalConfigAttribsCopy = m_finalConfigAttribs;
 
       LOCAL_LOG("Asking EGL to chose via eglChooseConfig");
-      EGL::ReadOnlyEGLAttributeSpan finalAttribSpan(ReadOnlySpanUtil::AsSpan(m_finalConfigAttribs));
+      EGL::ReadOnlyEGLAttributeSpan finalAttribSpan(SpanUtil::AsReadOnlySpan(m_finalConfigAttribs));
       const auto chosenConfig = EGLConfigUtil::TryEGLGuidedChooseConfig(m_hDisplay, finalAttribSpan, true);
       if (!chosenConfig.has_value())
       {
@@ -1145,21 +1144,21 @@ namespace Fsl
     if (configControl != ConfigControl::Exact)
     {
       if (TryConfigFallbackDepth(m_hDisplay, m_finalConfigAttribs, appEglConfigAttribs, m_configControl, m_featureConfig, m_options,
-                                 DEFAULT_RGB_CONFIG, DEFAULT_DEPTH_BUFFER_SIZE, m_hConfig))
+                                 LocalConfig::DefaultRgbConfig, LocalConfig::DefaultDepthBufferSize, m_hConfig))
       {
         return true;
       }
 
       const RGBConfig configRGB888(8, 8, 8);
       if (TryConfigFallbackColorsAndDepth(m_hDisplay, m_finalConfigAttribs, appEglConfigAttribs, m_configControl, m_featureConfig, m_options,
-                                          configRGB888, DEFAULT_DEPTH_BUFFER_SIZE, m_hConfig))
+                                          configRGB888, LocalConfig::DefaultDepthBufferSize, m_hConfig))
       {
         return true;
       }
 
       const RGBConfig configRGB565(5, 6, 5);
       if (TryConfigFallbackColorsAndDepth(m_hDisplay, m_finalConfigAttribs, appEglConfigAttribs, m_configControl, m_featureConfig, m_options,
-                                          configRGB565, DEFAULT_DEPTH_BUFFER_SIZE, m_hConfig))
+                                          configRGB565, LocalConfig::DefaultDepthBufferSize, m_hConfig))
       {
         return true;
       }

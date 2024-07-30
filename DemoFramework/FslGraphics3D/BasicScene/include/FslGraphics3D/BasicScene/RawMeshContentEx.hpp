@@ -38,7 +38,9 @@ namespace Fsl::Graphics3D
 {
   struct RawMeshContentEx
   {
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void* pVertices;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void* pIndices;
     uint32_t IndexCount;
     uint32_t IndexStride;

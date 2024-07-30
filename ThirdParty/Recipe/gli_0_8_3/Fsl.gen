@@ -25,9 +25,9 @@
     </Platform> -->
     <Platform Name="*">
       <!-- Find was disabled since the find_package call fails under linux -->
-      <ExperimentalRecipe Name="gli" Version="0.8.3.0" Find="false" FindTargetName="gli" FindVersion="0.8.3">
+      <ExperimentalRecipe Name="gli" Version="0.8.3.1" Find="false" FindTargetName="gli" FindVersion="0.8.3">
         <Pipeline>
-          <GitClone URL="https://github.com/g-truc/gli.git" Hash="0c171ee87fcfe35a7e0e0445adef06f92e0b6a91"/>
+          <GitClone URL="https://github.com/g-truc/gli.git" Hash="779b99ac6656e4d30c3b24e96e0136a59649a869"/>
           <CMakeBuild Project="gli" Target="install" Configuration="release" OutputPath="_Install"/>
         </Pipeline>
         <Installation>

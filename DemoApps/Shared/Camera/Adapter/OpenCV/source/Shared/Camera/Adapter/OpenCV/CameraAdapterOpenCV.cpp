@@ -39,11 +39,11 @@ namespace Fsl::Helios
 {
   namespace
   {
-    const int DEFAULT_CAMERA_DEVICE = 0;
+    constexpr int DefaultCameraDevice = 0;
   }
 
   CameraAdapterOpenCV::CameraAdapterOpenCV(const CameraAdapterAllocateInfo& allocateInfo)
-    : m_cap(DEFAULT_CAMERA_DEVICE)
+    : m_cap(DefaultCameraDevice)
     , m_config(allocateInfo.Extent, PixelFormat::R8G8B8_UNORM)
     , m_frameId(0)
   {
@@ -159,7 +159,7 @@ namespace Fsl::Helios
         const auto* const pSrcStart = static_cast<const uint8_t*>(m_vidFrame.ptr());
         const uint8_t* pSrc = pSrcStart + ((m_config.Extent.Height.Value - 1) * m_config.Stride);
         const auto stride = m_config.Stride;
-        const auto bytesPerScanline = PixelFormatUtil::CalcMinimumStride(m_config.Extent.Width.Value, m_config.ActivePixelFormat);
+        const auto bytesPerScanline = PixelFormatUtil::CalcMinimumStride(m_config.Extent.Width, m_config.ActivePixelFormat);
         while (pSrc >= pSrcStart)
         {
           std::memcpy(pDst, pSrc, bytesPerScanline);

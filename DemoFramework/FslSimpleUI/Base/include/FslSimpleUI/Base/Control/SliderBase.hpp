@@ -61,6 +61,7 @@ namespace Fsl::UI
     using value_type = T;
 
   protected:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const std::shared_ptr<WindowContext> m_windowContext;
 
   private:
@@ -213,10 +214,8 @@ namespace Fsl::UI
     }
 
   protected:
-    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+    void OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent) override
     {
-      FSL_PARAM_NOT_USED(args);
-
       if (!m_logic.IsEnabled())
       {
         return;
@@ -306,12 +305,15 @@ namespace Fsl::UI
 
 
   public:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline static typename DataBinding::DependencyPropertyDefinition PropertyOrientation =
       DataBinding::DependencyPropertyDefinitionFactory::Create<LayoutOrientation, SliderBase, &SliderBase::GetOrientation,
                                                                &SliderBase::SetOrientation>("Orientation");
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline static typename DataBinding::DependencyPropertyDefinition PropertyDirection =
       DataBinding::DependencyPropertyDefinitionFactory::Create<LayoutDirection, SliderBase, &SliderBase::GetDirection, &SliderBase::SetDirection>(
         "Direction");
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline static typename DataBinding::DependencyPropertyDefinition PropertyValue =
       DataBinding::DependencyPropertyDefinitionFactory::Create<value_type, SliderBase, &SliderBase::GetValue, &SliderBase::SetValue>("Value");
 

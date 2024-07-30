@@ -33,6 +33,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/System/Threading/Thread.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
@@ -85,7 +86,9 @@ namespace Fsl
     {
       // Create the fur 'density' bitmap
       const std::vector<uint8_t> furBitmapContent = FurTexture::Generate(furTextureDim, furTextureDim, hairDensity, layerCount);
-      const RawBitmap furBitmap(furBitmapContent.data(), furTextureDim, furTextureDim, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
+      const ReadOnlyRawBitmap furBitmap(ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(furBitmapContent),
+                                                                  PxSize2D::Create(furTextureDim, furTextureDim), PixelFormat::R8G8B8A8_UNORM,
+                                                                  BitmapOrigin::LowerLeft));
       GLTextureParameters texParams(GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
       return {furBitmap, texParams};
     }
@@ -212,7 +215,7 @@ namespace Fsl
     m_view = Matrix::CreateTranslation(0.0f, 0.0f, -m_config.GetCameraDistance());
 
     m_perspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), GetWindowAspectRatio(), 1, 100.0f);
-    m_MVP = m_world * m_view * m_perspective;
+    m_mvp = m_world * m_view * m_perspective;
 
     // m_xAngle += 10;
     // m_yAngle += 5;
@@ -338,7 +341,7 @@ namespace Fsl
       {
         ShaderBase::ScopedUse shaderScope(m_shaderWhite);
 
-        m_shaderWhite.SetWorldViewProjection(m_MVP);
+        m_shaderWhite.SetWorldViewProjection(m_mvp);
 
         MeshRender& render = m_resources.MeshStuff->RenderNormals;
 

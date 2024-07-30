@@ -40,14 +40,20 @@ namespace Fsl::Vulkan
   class NativeGraphicsDeviceShaders
   {
   public:
-    static ReadOnlySpan<uint8_t> GetVertexShader();
-    static ReadOnlySpan<uint8_t> GetFragmentShader();
-    static ReadOnlySpan<uint8_t> GetSdfFragmentShader();
+    static ReadOnlySpan<uint8_t> GetVertexColorShader();
+    static ReadOnlySpan<uint8_t> GetFragmentColorShader();
+    static ReadOnlySpan<uint8_t> GetVertexColorTextureShader();
+    static ReadOnlySpan<uint8_t> GetFragmentColorTextureShader();
+    static ReadOnlySpan<uint8_t> GetFragmentColorTextureSdfShader();
 
-    static constexpr VertexAttributeDescriptionArray<3> VertexShaderVertexDecl = {
+    static constexpr VertexAttributeDescriptionArray<3> VertexShaderVertexPositionColorTextureDecl = {
       VertexAttributeDescription(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0, "inVertexPosition"),
       VertexAttributeDescription(1, VertexElementFormat::Vector4, VertexElementUsage::Color, 0, "inVertexColor"),
       VertexAttributeDescription(2, VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate, 0, "inVertexTextureCoord")};
+
+    static constexpr VertexAttributeDescriptionArray<2> VertexShaderVertexPositionColorDecl = {
+      VertexAttributeDescription(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0, "inVertexPosition"),
+      VertexAttributeDescription(1, VertexElementFormat::Vector4, VertexElementUsage::Color, 0, "inVertexColor")};
   };
 }
 

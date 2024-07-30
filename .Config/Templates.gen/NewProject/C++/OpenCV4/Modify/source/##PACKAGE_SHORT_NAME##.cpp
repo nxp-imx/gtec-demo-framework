@@ -38,11 +38,6 @@
 
 namespace Fsl
 {
-  namespace
-  {
-  }
-
-
   ##PACKAGE_SHORT_NAME##::##PACKAGE_SHORT_NAME##(const DemoAppConfig& config)
     : DemoAppConsole(config)
   {

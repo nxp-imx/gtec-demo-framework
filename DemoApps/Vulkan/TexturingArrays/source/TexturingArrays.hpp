@@ -23,8 +23,8 @@ namespace Fsl
   // Vertex layout for this example
   struct Vertex
   {
-    float pos[3];    // NOLINT(modernize-avoid-c-arrays)
-    float uv[2];     // NOLINT(modernize-avoid-c-arrays)
+    float Pos[3];    // NOLINT(modernize-avoid-c-arrays)
+    float Uv[2];     // NOLINT(modernize-avoid-c-arrays)
   };
 
   class TexturingArrays : public Willems::VulkanWillemsDemoApp

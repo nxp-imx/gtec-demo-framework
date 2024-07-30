@@ -33,7 +33,7 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
-#include <FslGraphics/Bitmap/RawBitmap.hpp>
+#include <FslGraphics/Bitmap/ReadOnlyRawBitmap.hpp>
 #include <FslUtil/OpenVG/Common.hpp>
 #include <VG/openvg.h>
 
@@ -65,7 +65,7 @@ namespace Fsl
       VGImageBuffer(const Bitmap& bitmap, const VGbitfield quality);
 
       //! @brief Fill it with the provided bitmap.
-      VGImageBuffer(const RawBitmap& bitmap, const VGbitfield quality);
+      VGImageBuffer(const ReadOnlyRawBitmap& bitmap, const VGbitfield quality);
 
       ~VGImageBuffer();
 
@@ -88,7 +88,7 @@ namespace Fsl
       void Reset(const Bitmap& bitmap, const VGbitfield quality);
 
       //! @brief Free any existing image, then reallocate and fill it with the provided bitmap
-      void Reset(const RawBitmap& bitmap, const VGbitfield quality);
+      void Reset(const ReadOnlyRawBitmap& bitmap, const VGbitfield quality);
 
       //! @brief Get the vgimage handle associated with the VGImageBuffer
       //! @return the handle or VG_INVALID_HANDLE if the VGImageBuffer is unallocated.

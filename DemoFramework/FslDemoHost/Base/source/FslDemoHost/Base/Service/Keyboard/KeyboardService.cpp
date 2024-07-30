@@ -42,14 +42,17 @@ namespace Fsl
 {
   namespace
   {
-    const std::size_t INITIAL_KEY_CAPACITY = 16;
+    namespace LocalConfig
+    {
+      constexpr std::size_t InitialKeyCapacity = 16;
+    }
   }
 
   // FIX: this service most likely has a issue with not getting up key events on windows
   //      if the active window is changed while the key is down
   KeyboardService::KeyboardService(const ServiceProvider& serviceProvider)
     : ThreadLocalService(serviceProvider)
-    , m_keys(INITIAL_KEY_CAPACITY)
+    , m_keys(LocalConfig::InitialKeyCapacity)
   {
   }
 
@@ -105,7 +108,7 @@ namespace Fsl
       if (!isPressed)
       {
         m_keys.erase(itr);
-        m_eventPoster->Post(KeyEvent(key, isPressed, deviceId));
+        m_eventPoster->Post(KeyEvent(event.Timestamp, key, isPressed, deviceId));
       }
     }
     else
@@ -114,7 +117,7 @@ namespace Fsl
       if (isPressed)
       {
         m_keys.push_back(key);
-        m_eventPoster->Post(KeyEvent(key, isPressed, deviceId));
+        m_eventPoster->Post(KeyEvent(event.Timestamp, key, isPressed, deviceId));
       }
     }
   }

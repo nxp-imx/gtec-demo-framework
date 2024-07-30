@@ -37,7 +37,7 @@
 namespace Fsl::TextureTypeUtil
 {
   //! @brief Get the expected face count for a given texture type
-  extern uint32_t GetFaceCount(const TextureType textureType);
+  extern uint32_t GetFaceCount(const TextureType textureType) noexcept;
 }
 
 #endif

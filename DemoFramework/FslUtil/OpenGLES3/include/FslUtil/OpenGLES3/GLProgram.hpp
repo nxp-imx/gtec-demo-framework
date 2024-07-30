@@ -68,7 +68,7 @@ namespace Fsl::GLES3
         m_handle = other.m_handle;
 
         // Remove the data from other
-        other.m_handle = GLValues::INVALID_HANDLE;
+        other.m_handle = GLValues::InvalidHandle;
       }
       return *this;
     }
@@ -79,7 +79,7 @@ namespace Fsl::GLES3
       : m_handle(other.m_handle)
     {
       // Remove the data from other
-      other.m_handle = GLValues::INVALID_HANDLE;
+      other.m_handle = GLValues::InvalidHandle;
     }
 
     //! @brief Create a uninitialized program, use Reset to configure it
@@ -120,7 +120,7 @@ namespace Fsl::GLES3
     //! @brief Check if this contains a valid gl handle.
     bool IsValid() const noexcept
     {
-      return m_handle != GLValues::INVALID_HANDLE;
+      return m_handle != GLValues::InvalidHandle;
     }
 
     //! @brief Reset to a uninitialized state.

@@ -47,7 +47,7 @@ namespace Fsl::UI
 {
   namespace
   {
-    [[maybe_unused]] const float CONSIDER_POSITIVE_INFINITY = std::numeric_limits<float>::max();
+    [[maybe_unused]] constexpr float ConsiderPositiveInfinity = std::numeric_limits<float>::max();
 
     inline PxSize1DF CorrectFloatingPointErrors(const PxSize1DF value, const PxSize1DF correctMaxValue)
     {
@@ -58,12 +58,12 @@ namespace Fsl::UI
     {
       assert(targetSize.RawWidth() >= 0.0f);
       assert(targetSize.RawHeight() >= 0.0f);
-      assert(targetSize.RawWidth() < CONSIDER_POSITIVE_INFINITY);
-      assert(targetSize.RawHeight() < CONSIDER_POSITIVE_INFINITY);
+      assert(targetSize.RawWidth() < ConsiderPositiveInfinity);
+      assert(targetSize.RawHeight() < ConsiderPositiveInfinity);
       assert(srcSize.RawWidth() >= 0.0f);
       assert(srcSize.RawHeight() >= 0.0f);
-      assert(srcSize.RawWidth() < CONSIDER_POSITIVE_INFINITY);
-      assert(srcSize.RawHeight() < CONSIDER_POSITIVE_INFINITY);
+      assert(srcSize.RawWidth() < ConsiderPositiveInfinity);
+      assert(srcSize.RawHeight() < ConsiderPositiveInfinity);
 
       if (srcSize.RawWidth() < 0.00001f || srcSize.RawHeight() < 0.00001f)
       {
@@ -97,12 +97,12 @@ namespace Fsl::UI
     {
       assert(targetSize.RawWidth() >= 0.0f);
       assert(targetSize.RawHeight() >= 0.0f);
-      assert(targetSize.RawWidth() < CONSIDER_POSITIVE_INFINITY);
-      assert(targetSize.RawHeight() < CONSIDER_POSITIVE_INFINITY);
+      assert(targetSize.RawWidth() < ConsiderPositiveInfinity);
+      assert(targetSize.RawHeight() < ConsiderPositiveInfinity);
       assert(srcSize.RawWidth() > 0.0f);
       assert(srcSize.RawHeight() > 0.0f);
-      assert(srcSize.RawWidth() < CONSIDER_POSITIVE_INFINITY);
-      assert(srcSize.RawHeight() < CONSIDER_POSITIVE_INFINITY);
+      assert(srcSize.RawWidth() < ConsiderPositiveInfinity);
+      assert(srcSize.RawHeight() < ConsiderPositiveInfinity);
 
       if (srcSize.Width() > targetSize.Width())
       {
@@ -236,10 +236,10 @@ namespace Fsl::UI
     assert(!isnan(srcSize.RawHeight()));
     assert(targetSize.RawWidth() >= 0.0f);
     assert(targetSize.RawHeight() >= 0.0f);
-    assert(targetSize.RawWidth() < CONSIDER_POSITIVE_INFINITY);
-    assert(targetSize.RawHeight() < CONSIDER_POSITIVE_INFINITY);
-    assert(srcSize.RawWidth() < CONSIDER_POSITIVE_INFINITY);
-    assert(srcSize.RawHeight() < CONSIDER_POSITIVE_INFINITY);
+    assert(targetSize.RawWidth() < ConsiderPositiveInfinity);
+    assert(targetSize.RawHeight() < ConsiderPositiveInfinity);
+    assert(srcSize.RawWidth() < ConsiderPositiveInfinity);
+    assert(srcSize.RawHeight() < ConsiderPositiveInfinity);
 
     // Early abort for no scaling
     if (targetSize == srcSize)

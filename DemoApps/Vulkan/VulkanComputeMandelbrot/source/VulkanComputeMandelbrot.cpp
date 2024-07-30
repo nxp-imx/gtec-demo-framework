@@ -45,13 +45,13 @@ namespace Fsl
   namespace
   {
     // const auto IMAGE_NAME = "texture/mandelbrot.tga";
-    const auto IMAGE_NAME = "mandelbrot.bmp";
+    constexpr auto ImageName = "mandelbrot.bmp";
 
-    const auto COMPUTE_SHADER_NAME = "mandelbrot.comp.spv";
+    constexpr auto ComputeShaderName = "mandelbrot.comp.spv";
 
     // Has to be the same as in compute shader.
-    const uint32_t IMAGE_LENGTH = 1024;
-    const uint32_t LOCAL_SIZE = 16;
+    constexpr uint32_t ImageLength = 1024;
+    constexpr uint32_t LocalSize = 16;
   }
 
 
@@ -149,13 +149,13 @@ namespace Fsl
 
         // SaveHelper::Save(IMAGE_NAME, storedImage);
         {    // FIX: quick fix to save for now
-          RawBitmap rawBitmap;
+          ReadOnlyRawBitmap rawBitmap;
           ImageData::ScopedRawBitmapAccess access(storedImage, rawBitmap);
           Bitmap bitmap(rawBitmap);
-          GetPersistentDataManager()->Write(IMAGE_NAME, bitmap);
+          GetPersistentDataManager()->Write(ImageName, bitmap);
         }
 
-        FSLLOG3_INFO("Saved image data as '{}'", IMAGE_NAME);
+        FSLLOG3_INFO("Saved image data as '{}'", ImageName);
         // Returning false requests quitting the application.
         return false;
       }
@@ -177,7 +177,7 @@ namespace Fsl
   {
     RapidVulkan::Fence fence(m_device.Get(), 0);
 
-    ImageData imageData(IMAGE_LENGTH, IMAGE_LENGTH, 1, VK_IMAGE_TYPE_2D, VK_FORMAT_R8G8B8A8_UNORM);
+    ImageData imageData(ImageLength, ImageLength, 1, VK_IMAGE_TYPE_2D, VK_FORMAT_R8G8B8A8_UNORM);
 
     // Check, if we can use a linear tiled image for staging.
     if (m_physicalDevice.IsImageTilingAvailable(VK_IMAGE_TILING_LINEAR, imageData.GetPixelFormat(), imageData.GetImageType(), 0,
@@ -204,7 +204,7 @@ namespace Fsl
         imageCopy.srcOffset = {0, 0, 0};
         imageCopy.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
         imageCopy.dstOffset = {0, 0, 0};
-        imageCopy.extent = {IMAGE_LENGTH, IMAGE_LENGTH, 1u};
+        imageCopy.extent = {ImageLength, ImageLength, 1u};
 
         // Copy form device to host visible image / memory. This command also sets the needed barriers.
         m_currentTexture.CopyImage(m_commandBuffer.Get(), stageTexture.GetImage2(), imageCopy);
@@ -267,11 +267,11 @@ namespace Fsl
       {
         VkBufferImageCopy bufferImageCopy{};
         bufferImageCopy.bufferOffset = 0;
-        bufferImageCopy.bufferRowLength = IMAGE_LENGTH;
-        bufferImageCopy.bufferImageHeight = IMAGE_LENGTH;
+        bufferImageCopy.bufferRowLength = ImageLength;
+        bufferImageCopy.bufferImageHeight = ImageLength;
         bufferImageCopy.imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
         bufferImageCopy.imageOffset = {0, 0, 0};
-        bufferImageCopy.imageExtent = {IMAGE_LENGTH, IMAGE_LENGTH, 1};
+        bufferImageCopy.imageExtent = {ImageLength, ImageLength, 1};
 
         m_currentTexture.CopyImageToBuffer(m_commandBuffer.Get(), stageBuffer.GetBuffer2(), bufferImageCopy);
       }
@@ -295,9 +295,9 @@ namespace Fsl
       VkSubresourceLayout subresourceLayout{};
       subresourceLayout.offset = 0;
       subresourceLayout.size = stageBuffer.GetBuffer().GetSize();
-      subresourceLayout.rowPitch = IMAGE_LENGTH * 4 * sizeof(uint8_t);
-      subresourceLayout.arrayPitch = IMAGE_LENGTH * IMAGE_LENGTH * 4 * sizeof(uint8_t);
-      subresourceLayout.depthPitch = IMAGE_LENGTH * IMAGE_LENGTH * 4 * sizeof(uint8_t);
+      subresourceLayout.rowPitch = ImageLength * 4 * sizeof(uint8_t);
+      subresourceLayout.arrayPitch = ImageLength * ImageLength * 4 * sizeof(uint8_t);
+      subresourceLayout.depthPitch = ImageLength * ImageLength * 4 * sizeof(uint8_t);
 
       stageBuffer.MapMemory(subresourceLayout.offset, subresourceLayout.size, 0);
       {
@@ -343,7 +343,7 @@ namespace Fsl
 
   void VulkanComputeMandelbrot::BuildShader()
   {
-    const auto computeShaderBinary = GetContentManager()->ReadBytes(COMPUTE_SHADER_NAME);
+    const auto computeShaderBinary = GetContentManager()->ReadBytes(ComputeShaderName);
 
     // VKTS_COMPUTE_SHADER_NAME
     m_computeShaderModule.Reset(m_device.Get(), 0, computeShaderBinary.size(), reinterpret_cast<const uint32_t*>(computeShaderBinary.data()));
@@ -467,7 +467,7 @@ namespace Fsl
 
       m_currentTexture.ImageCmdPipelineBarrier(m_commandBuffer.Get(), VK_ACCESS_SHADER_WRITE_BIT, VK_IMAGE_LAYOUT_GENERAL, imageSubresourceRange);
 
-      vkCmdDispatch(m_commandBuffer.Get(), IMAGE_LENGTH / LOCAL_SIZE, IMAGE_LENGTH / LOCAL_SIZE, 1);
+      vkCmdDispatch(m_commandBuffer.Get(), ImageLength / LocalSize, ImageLength / LocalSize, 1);
     }
     m_commandBuffer.End();
   }
@@ -495,7 +495,7 @@ namespace Fsl
                                                        const VkImageLayout initialLayout, const VkMemoryPropertyFlags memoryPropertyFlagBits,
                                                        const VkAccessFlags accessMask)
   {
-    VkExtent3D extent = {IMAGE_LENGTH, IMAGE_LENGTH, 1};
+    VkExtent3D extent = {ImageLength, ImageLength, 1};
 
     const VkFormat imageFormat = VK_FORMAT_R8G8B8A8_UNORM;
     ImageEx image(device, 0, VK_IMAGE_TYPE_2D, imageFormat, extent, 1, 1, VK_SAMPLE_COUNT_1_BIT, imageTiling, usage, VK_SHARING_MODE_EXCLUSIVE, 0,

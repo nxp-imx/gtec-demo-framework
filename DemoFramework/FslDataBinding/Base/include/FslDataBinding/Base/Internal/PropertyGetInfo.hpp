@@ -40,6 +40,7 @@ namespace Fsl::DataBinding::Internal
   struct PropertyGetInfo
   {
     PropertyMethodsImplType ImplType{PropertyMethodsImplType::NotAvailable};
+    // NOLINTNEXTLINE(readability-identifier-naming)
     IPropertyMethods const* pGet{nullptr};
 
     PropertyGetInfo() = default;

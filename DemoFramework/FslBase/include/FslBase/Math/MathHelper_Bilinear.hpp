@@ -35,7 +35,7 @@ namespace Fsl::MathHelper
 {
   //! @brief Performs a bilinear interpolation.
   constexpr inline float Bilinear(const float val00, const float val10, const float val01, const float val11, const float weightX,
-                                  const float weightY)
+                                  const float weightY) noexcept
   {
     float a = (val00 * (1.0f - weightX)) + (val10 * weightX);
     float b = (val01 * (1.0f - weightX)) + (val11 * weightX);

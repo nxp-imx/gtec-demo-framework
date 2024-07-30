@@ -143,11 +143,11 @@ namespace Fsl
 
   Gaussian5 GaussianShaderBuilder::Build5x5(const float kernelWeightMod)
   {
-    constexpr const std::array<float, 5> actualKernel = {1, 4, 6, 4, 1};
+    constexpr const std::array<float, 5> ActualKernel = {1, 4, 6, 4, 1};
 
-    std::array<LinearData, CalcLinearKernelLength(actualKernel.size())> linearKernel;
+    std::array<LinearData, CalcLinearKernelLength(ActualKernel.size())> linearKernel;
 
-    BuildLinearKernel(linearKernel.data(), linearKernel.size(), actualKernel.data(), actualKernel.size());
+    BuildLinearKernel(linearKernel.data(), linearKernel.size(), ActualKernel.data(), ActualKernel.size());
 
     // Normalize kernel coefficients
     NormalizeKernel(linearKernel.data(), linearKernel.size(), kernelWeightMod);
@@ -159,14 +159,14 @@ namespace Fsl
   {
     // yes we could take advantage of the fact that the kernel is mirrored around the middle but for now its not important and
     // the code is more 'clear' when we just ignore it
-    constexpr const std::array<float, 9> actualKernel = {1, 8, 28, 56, 70, 56, 28, 8, 1};
+    constexpr const std::array<float, 9> ActualKernel = {1, 8, 28, 56, 70, 56, 28, 8, 1};
     // constexpr const std::array<float, 9>  = { 0, 5, 0, 5, 5, 5, 0, 5, 0 };
     // constexpr const std::array<float, 9>  = { 5, 0, 5, 0, 5, 0, 5, 0, 5 };
     // constexpr const std::array<float, 9>  = { 5, 5, 5, 5, 5, 5, 5, 5, 5 };
 
-    std::array<LinearData, CalcLinearKernelLength(actualKernel.size())> linearKernel;
+    std::array<LinearData, CalcLinearKernelLength(ActualKernel.size())> linearKernel;
 
-    BuildLinearKernel(linearKernel.data(), linearKernel.size(), actualKernel.data(), actualKernel.size());
+    BuildLinearKernel(linearKernel.data(), linearKernel.size(), ActualKernel.data(), ActualKernel.size());
 
     // Normalize kernel coefficients
     NormalizeKernel(linearKernel.data(), linearKernel.size(), kernelWeightMod);

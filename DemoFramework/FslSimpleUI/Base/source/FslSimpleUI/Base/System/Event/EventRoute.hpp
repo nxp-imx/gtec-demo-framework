@@ -71,7 +71,7 @@ namespace Fsl::UI
     bool IsEmpty() const noexcept;
 
     //! @brief Send the event along the route
-    void Send(IEventHandler* const pEventHandler, const std::shared_ptr<WindowEvent>& theEvent);
+    bool Send(IEventHandler* const pEventHandler, const std::shared_ptr<WindowEvent>& theEvent);
 
     // @brief Clear the route to a empty state
     void Clear();
@@ -87,7 +87,7 @@ namespace Fsl::UI
 
     //! @brief Ensure that a node is removed from the routes
     //! @note This is intended to be used when a TreeNode is disposed to ensure that we don't keep a reference to it (or call it)
-    void RemoveNode(const std::shared_ptr<TreeNode>& node);
+    bool RemoveNode(const std::shared_ptr<TreeNode>& node);
 
     class StackScopedInit
     {
@@ -104,6 +104,11 @@ namespace Fsl::UI
         m_rRoute.Shutdown();
       }
     };
+
+    std::size_t GetWindowCount() const
+    {
+      return m_tunnelList.size() + m_bubbleList.size();
+    }
 
   private:
     void SendTo(IEventHandler& eventHandler, const std::vector<std::shared_ptr<TreeNode>>& nodes, const std::shared_ptr<WindowEvent>& theEvent,

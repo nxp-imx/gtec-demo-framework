@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <Shared/UI/Benchmark/Persistence/Input/AppInputCommandList.hpp>
 #include <utility>
 
@@ -39,7 +39,7 @@ namespace Fsl
                                            const ReadOnlySpan<InputCommandRecord> entries, const uint32_t frameCount)
     : m_recordResolution(recordResolution)
     , m_recordDensityDpi(recordDensityDpi)
-    , m_entries(ReadOnlySpanUtil::ToVector(entries))
+    , m_entries(SpanUtil::ToVector(entries))
     , m_frameCount(frameCount)
   {
   }
@@ -55,7 +55,7 @@ namespace Fsl
 
   ReadOnlySpan<InputCommandRecord> AppInputCommandList::AsSpan() const
   {
-    return ReadOnlySpanUtil::AsSpan(m_entries);
+    return SpanUtil::AsReadOnlySpan(m_entries);
   }
 
   void AppInputCommandList::SetFrameCount(const uint32_t frameCount)

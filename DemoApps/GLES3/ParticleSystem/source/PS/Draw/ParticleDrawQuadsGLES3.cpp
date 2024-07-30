@@ -34,6 +34,7 @@
 #include <FslBase/System/HighResolutionTimer.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
@@ -48,9 +49,9 @@ namespace Fsl
     , m_vertexBuffer(m_buffer, GL_DYNAMIC_DRAW)
     , m_pCurrentBuffer(&m_vertexBuffer)
     , m_pOtherBuffer(nullptr)
-    , m_locWorldViewProjectionMatrix(GLValues::INVALID_LOCATION)
-    , m_locWorldViewMatrix(GLValues::INVALID_LOCATION)
-    , m_locProjMatrix(GLValues::INVALID_LOCATION)
+    , m_locWorldViewProjectionMatrix(GLValues::InvalidLocation)
+    , m_locWorldViewMatrix(GLValues::InvalidLocation)
+    , m_locProjMatrix(GLValues::InvalidLocation)
   {
     Construct(contentManager);
   }
@@ -63,9 +64,9 @@ namespace Fsl
     , m_vertexBuffer2(m_buffer, GL_DYNAMIC_DRAW)
     , m_pCurrentBuffer(&m_vertexBuffer)
     , m_pOtherBuffer(useDoubleBuffering ? &m_vertexBuffer2 : nullptr)
-    , m_locWorldViewProjectionMatrix(GLValues::INVALID_LOCATION)
-    , m_locWorldViewMatrix(GLValues::INVALID_LOCATION)
-    , m_locProjMatrix(GLValues::INVALID_LOCATION)
+    , m_locWorldViewProjectionMatrix(GLValues::InvalidLocation)
+    , m_locWorldViewMatrix(GLValues::InvalidLocation)
+    , m_locProjMatrix(GLValues::InvalidLocation)
   {
     Construct(contentManager);
   }
@@ -82,7 +83,7 @@ namespace Fsl
     glUniformMatrix4fv(m_locWorldViewMatrix, 1, 0, context.MatrixWorldView.DirectAccess());
     glUniformMatrix4fv(m_locProjMatrix, 1, 0, context.MatrixProjection.DirectAccess());
 
-    Vector4 col = Color::White().ToVector4();
+    Vector4 col = Colors::White().ToVector4();
 
     // HighResolutionTimer timer;
     // auto start = timer.GetTime();
@@ -158,15 +159,15 @@ namespace Fsl
     m_program.Reset(contentManager->ReadAllText("ShaderSphereBillboard.vert"), contentManager->ReadAllText("Shader.frag"));
 
     const GLuint hProgram = m_program.Get();
-    constexpr auto vertexDecl = TVertex::GetVertexDeclarationArray();
+    constexpr auto VertexDecl = TVertex::GetVertexDeclarationArray();
     m_particleAttribLink[0] =
-      GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+      GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexPosition"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
     m_particleAttribLink[1] =
-      GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
+      GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexColor"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
     m_particleAttribLink[2] =
-      GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
+      GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexNormal"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
     m_particleAttribLink[3] = GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexTexCoord"),
-                                                 vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+                                                 VertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
 
     m_locWorldViewProjectionMatrix = glGetUniformLocation(hProgram, "WorldViewProjection");
     m_locWorldViewMatrix = glGetUniformLocation(hProgram, "WorldView");

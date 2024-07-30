@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_IMAGE_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_IMAGE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022-2023 NXP
+ * Copyright 2020, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,10 +32,11 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDataBinding/Base/Property/TypedDependencyProperty.hpp>
-#include <FslGraphics/Color.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <FslSimpleUI/Base/ItemScalePolicy.hpp>
 #include <FslSimpleUI/Base/Mesh/SizedSpriteMesh.hpp>
+#include <FslSimpleUI/Base/Property/DependencyPropertyUIColor.hpp>
+#include <FslSimpleUI/Base/UIColors.hpp>
 #include <memory>
 
 namespace Fsl
@@ -52,17 +53,21 @@ namespace Fsl
       using base_type = BaseWindow;
 
     protected:
+      // NOLINTNEXTLINE(readability-identifier-naming)
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
       SizedSpriteMesh m_content;
-      DataBinding::TypedDependencyProperty<Color> m_propertyContentColor{Color::White()};
+      DependencyPropertyUIColor m_propertyContentColor;
       DataBinding::TypedDependencyProperty<ItemScalePolicy> m_propertyScalePolicy{ItemScalePolicy::FitKeepAR};
       DataBinding::TypedDependencyProperty<bool> m_propertyRotateImageCW;
 
     public:
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyContentColor;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyScalePolicy;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyRotateImageCW;
 
       explicit Image(const std::shared_ptr<WindowContext>& context);
@@ -75,12 +80,12 @@ namespace Fsl
       void SetContent(const std::shared_ptr<ISizedSprite>& value);
       void SetContent(std::shared_ptr<ISizedSprite>&& value);
 
-      Color GetContentColor() const noexcept
+      UIColor GetContentColor() const noexcept
       {
         return m_propertyContentColor.Get();
       }
 
-      bool SetContentColor(const Color value);
+      bool SetContentColor(const UIColor value);
 
       ItemScalePolicy GetScalePolicy() const noexcept
       {
@@ -100,6 +105,11 @@ namespace Fsl
       void WinDraw(const UIDrawContext& context) override;
 
     protected:
+      UIRenderColor GetContentInternalColor() const noexcept
+      {
+        return m_propertyContentColor.InternalColor;
+      }
+
       PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
       PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
 

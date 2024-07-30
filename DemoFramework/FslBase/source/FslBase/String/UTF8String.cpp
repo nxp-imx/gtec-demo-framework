@@ -43,8 +43,11 @@ namespace Fsl
 {
   namespace
   {
-    const char UTF8_CHAR_MIN = 0;
-    const char UTF8_CHAR_MAX = 127;
+    namespace LocalConfig
+    {
+      constexpr char Utf8CharMin = 0;
+      constexpr char Utf8CharMax = 127;
+    }
 
 
     constexpr inline bool IsValidUTF8(const char* const psz, const std::size_t startIndex, const std::size_t length)
@@ -58,7 +61,7 @@ namespace Fsl
 
     constexpr inline bool IsValidChar(const int ch)
     {
-      return (ch >= static_cast<int>(UTF8_CHAR_MIN) && ch <= static_cast<int>(UTF8_CHAR_MAX));
+      return (ch >= static_cast<int>(LocalConfig::Utf8CharMin) && ch <= static_cast<int>(LocalConfig::Utf8CharMax));
     }
   }
 
@@ -84,7 +87,7 @@ namespace Fsl
   }
 
 
-  UTF8String::UTF8String(const StringViewLite& str)
+  UTF8String::UTF8String(const StringViewLite str)
   {
     if (!str.empty())
     {
@@ -159,7 +162,7 @@ namespace Fsl
 
 
   //! @brief append the string at the end of the string
-  void UTF8String::Append(const StringViewLite& str)
+  void UTF8String::Append(const StringViewLite str)
   {
     if (!str.empty())
     {
@@ -189,7 +192,7 @@ namespace Fsl
   }
 
   // @brief Insert the string at the beginning at the current string
-  void UTF8String::Prepend(const StringViewLite& str)
+  void UTF8String::Prepend(const StringViewLite str)
   {
     if (!str.empty())
     {
@@ -305,7 +308,7 @@ namespace Fsl
     while (itr != itrEnd)
     {
       const uint32_t value = static_cast<unsigned char>(*itr);
-      if (value <= static_cast<uint32_t>(UTF8_CHAR_MAX))
+      if (value <= static_cast<uint32_t>(LocalConfig::Utf8CharMax))
       {
         fmt::format_to(std::back_inserter(buf), "{}", static_cast<char>(value));
         bIsFirst = true;
@@ -321,7 +324,7 @@ namespace Fsl
   }
 
 
-  UTF8String& UTF8String::operator=(const StringViewLite& str)
+  UTF8String& UTF8String::operator=(const StringViewLite str)
   {
     if (!str.empty())
     {

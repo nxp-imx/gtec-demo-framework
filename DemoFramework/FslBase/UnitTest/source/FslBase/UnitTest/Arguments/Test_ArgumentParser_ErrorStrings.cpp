@@ -33,7 +33,7 @@
 #include <FslBase/Arguments/ArgumentParserErrorStrings.hpp>
 #include <FslBase/Arguments/ParseErrorInfo.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslUnitTest/TestFixture.hpp>
 #include <fmt/format.h>
 #include <array>
@@ -55,23 +55,16 @@ namespace
 {
   using Test_ArgumentParser_ErrorStrings = TestFixture;
 
-  class FmtErrorFormatter : public ArgumentParser::ErrorFormatter
+  class FmtErrorFormatter final : public ArgumentParser::ErrorFormatter
   {
   public:
-    std::string Format(const char* const pszFormat, const StringViewLite strArg0) override
+    std::string Format(fmt::format_string<std::string_view> formatString, const std::string_view str) final
     {
-      assert(pszFormat != nullptr);
-      return fmt::format(pszFormat, strArg0);
+      return fmt::vformat(formatString, fmt::make_format_args(str));
     }
-    std::string Format(const char* const pszFormat, const std::string& str) override
+    std::string Format(fmt::format_string<uint32_t> formatString, const uint32_t arg0) final
     {
-      assert(pszFormat != nullptr);
-      return fmt::format(pszFormat, str);
-    }
-    std::string Format(const char* const pszFormat, const uint32_t arg0) override
-    {
-      assert(pszFormat != nullptr);
-      return fmt::format(pszFormat, arg0);
+      return fmt::vformat(formatString, fmt::make_format_args(arg0));
     }
   };
 
@@ -81,7 +74,7 @@ namespace
   std::string GetErrorString(const ParseResult result, const ParseErrorInfo& parseErrorInfo, const std::array<StringViewLite, TSize>& testArgs,
                              const std::deque<Command>& commands, ArgumentParser::ErrorFormatter& formatter)
   {
-    return ArgumentParser::GetErrorString(result, parseErrorInfo, ReadOnlySpanUtil::AsSpan(testArgs), commands, formatter);
+    return ArgumentParser::GetErrorString(result, parseErrorInfo, SpanUtil::AsReadOnlySpan(testArgs), commands, formatter);
   }
 }
 

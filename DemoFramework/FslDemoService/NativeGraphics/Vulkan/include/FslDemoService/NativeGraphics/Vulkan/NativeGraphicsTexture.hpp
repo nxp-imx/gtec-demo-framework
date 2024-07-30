@@ -34,7 +34,7 @@
 #include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsTextureScopedDescriptorSet.hpp>
 #include <FslGraphics/Render/Texture2DFilterHint.hpp>
-#include <FslGraphics/Texture/RawTexture.hpp>
+#include <FslGraphics/Texture/ReadOnlyRawTexture.hpp>
 #include <FslGraphics/TextureFlags.hpp>
 #include <FslGraphics3D/BasicRender/Adapter/INativeTexture.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
@@ -44,7 +44,7 @@ namespace Fsl::Vulkan
 {
   class NativeGraphicsTexture final : public Graphics3D::INativeTexture
   {
-    PxExtent3D m_extentPx{};
+    PxExtent3D m_extentPx;
     VUTexture m_texture;
     NativeGraphicsTextureScopedDescriptorSet m_descriptorSet;
 
@@ -80,7 +80,7 @@ namespace Fsl::Vulkan
     }
 
     // Graphics3D::INativeTexture
-    void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) final;
+    void SetData(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) final;
   };
 }
 

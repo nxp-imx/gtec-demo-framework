@@ -47,10 +47,10 @@ namespace Fsl
     using raw_value_type = value_type::raw_value_type;
 
   private:
-    value_type m_left{};
-    value_type m_top{};
-    value_type m_right{};
-    value_type m_bottom{};
+    value_type m_left;
+    value_type m_top;
+    value_type m_right;
+    value_type m_bottom;
 
   public:
     constexpr DpThickness() noexcept = default;

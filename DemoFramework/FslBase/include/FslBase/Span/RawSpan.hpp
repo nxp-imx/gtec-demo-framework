@@ -43,6 +43,7 @@ namespace Fsl
     using element_type = TElementType;
     using element_size_type = TElementSizeType;
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const element_type* pData{nullptr};
     element_size_type ElementCount{0};
 

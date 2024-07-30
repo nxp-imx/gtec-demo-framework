@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslBase/String/StringViewLite.hpp>
 #include <FslSimpleUI/Render/Base/RenderSystemInfo.hpp>
 #include <Shared/UI/Benchmark/Persistence/AppRenderMethod.hpp>
 #include <string>
@@ -48,7 +48,7 @@ namespace Fsl
     RenderMethodInfo() = default;
     RenderMethodInfo(const AppRenderMethod batchMethod, const StringViewLite strView, const UI::RenderSystemInfo& renderSystemInfo)
       : RenderMethod(batchMethod)
-      , Name(StringViewLiteUtil::ToString(strView))
+      , Name(strView)
       , SystemInfo(renderSystemInfo)
     {
     }

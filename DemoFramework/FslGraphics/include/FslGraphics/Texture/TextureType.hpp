@@ -42,19 +42,31 @@ namespace Fsl
     // 16..31 Reserved           - 16 bit
     enum Enum
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_COUNT_ID = 10,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_COUNT_DIMENSIONS = 5,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_COUNT_ARRAY_FLAG = 1,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_COUNT_RESERVED = 16,
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_INDEX_ID = 0,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_INDEX_DIMENSIONS = BIT_INDEX_ID + BIT_COUNT_ID,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_INDEX_ARRAY_FLAG = BIT_INDEX_DIMENSIONS + BIT_COUNT_DIMENSIONS,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_INDEX_RESERVED = BIT_INDEX_ARRAY_FLAG + BIT_COUNT_ARRAY_FLAG,
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_MASK_ID = ((1 << BIT_COUNT_ID) - 1) << BIT_INDEX_ID,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_MASK_DIMENSIONS = ((1 << BIT_COUNT_DIMENSIONS) - 1) << BIT_INDEX_DIMENSIONS,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_MASK_ARRAY_FLAG = ((1 << BIT_COUNT_ARRAY_FLAG) - 1) << BIT_INDEX_ARRAY_FLAG,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_MASK_RESERVED = ((1 << BIT_COUNT_RESERVED) - 1) << BIT_INDEX_RESERVED,
 
       // Dimensions
@@ -82,10 +94,13 @@ namespace Fsl
 
     //! This covers all the enum texture types
     //! The first valid value in the range
+    // NOLINTNEXTLINE(readability-identifier-naming)
     ENUM_BEGIN_ID_RANGE = (Tex1D & TextureTypeFlags::BIT_MASK_ID),
     //! The last valid value in the range
+    // NOLINTNEXTLINE(readability-identifier-naming)
     ENUM_END_ID_RANGE = (TexCubeArray & TextureTypeFlags::BIT_MASK_ID),
     //! The total number of entries in the range
+    // NOLINTNEXTLINE(readability-identifier-naming)
     ENUM_ID_RANGE_SIZE = (ENUM_END_ID_RANGE - ENUM_BEGIN_ID_RANGE) + 1,
   };
 }

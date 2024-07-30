@@ -35,6 +35,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/Span/SpanUtil_ValueCompare.hpp>
 #include <FslGraphics/Vertices/VertexAttributeDescription.hpp>
 #include <array>
 
@@ -143,14 +144,14 @@ namespace Fsl
     }
 
     //! @brief Get the element for the given usage and usageIndex (if not found a NotFoundException is thrown)
-    constexpr VertexAttributeDescription VertexAttributeGet(const VertexElementUsage usage, const uint32_t usageIndex) const
+    constexpr const VertexAttributeDescription& VertexAttributeGet(const VertexElementUsage usage, const uint32_t usageIndex) const
     {
       return m_span[VertexAttributeGetIndexOf(usage, usageIndex)];
     }
 
     constexpr bool operator==(const VertexAttributeDescriptionSpan& rhs) const noexcept
     {
-      return m_span == rhs.m_span;
+      return SpanUtil::ValueEquals(m_span, rhs.m_span);
     }
 
     constexpr bool operator!=(const VertexAttributeDescriptionSpan& rhs) const noexcept
@@ -159,11 +160,13 @@ namespace Fsl
     }
 
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const VertexAttributeDescription* data() const noexcept
     {
       return m_span.data();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr uint32_t size() const noexcept
     {
       assert(m_span.size() <= 0xFFFFFFFFu);

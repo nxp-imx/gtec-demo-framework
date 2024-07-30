@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
+#include <FslBase/Span/SpanUtil_ValueCompare.hpp>
 #include <FslDataBinding/Base/Bind/AConverterBinding.hpp>
 #include <FslDataBinding/Base/Bind/AMultiConverterBinding.hpp>
 #include <FslDataBinding/Base/Binding.hpp>
@@ -89,7 +90,7 @@ namespace Fsl::DataBinding
 
       ReadOnlySpan<DataBindingInstanceHandle> SourceHandles() const noexcept
       {
-        return ReadOnlySpanUtil::AsSpan(Handles, Count, OptimizationCheckFlag::NoCheck);
+        return SpanUtil::UncheckedFirstReadOnlySpan(Handles, Count);
       }
     };
 
@@ -147,6 +148,7 @@ namespace Fsl::DataBinding
 
     struct CreateTwoWayGroupContext
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       TwoWayDataBindingGroupManager& rGroupManager;
       const HandleVector<Internal::ServiceBindingRecord>& Instances;
       const DataBindingGroupInstanceHandle Group;
@@ -207,7 +209,7 @@ namespace Fsl::DataBinding
         // Lookup the source
         auto& rOldSource = rInstances.FastGet(srcHandle.Value);
         // then find and remove the key from the source targets vector
-        EraseFirst<Internal::ServicePropertyVectorIndex::Targets>(rOldSource.m_handles, hTarget);
+        EraseFirst<Internal::ServicePropertyVectorIndex::Targets>(rOldSource.SysHandles, hTarget);
       }
       const bool changed = !sourceHandles.empty();
 
@@ -221,7 +223,7 @@ namespace Fsl::DataBinding
     {
       auto newSourceHandles = binding.SourceHandlesAsSpan();
       auto oldSourceHandles = instances.FastGet(hTarget.Value).SourceHandles();
-      return newSourceHandles != oldSourceHandles;
+      return !SpanUtil::ValueEquals(newSourceHandles, oldSourceHandles);
     }
 
 
@@ -290,11 +292,17 @@ namespace Fsl::DataBinding
       if (sourceHandlesSpan.size() != 1u)
       {
         throw BindingUnsupportedException(fmt::format(
-          "a basic bind between a target and source can only contain exactly one source. But {} sources was supplised", sourceHandlesSpan.size()));
+          "a basic bind between a target and source can only contain exactly one source. But {} sources was supplied", sourceHandlesSpan.size()));
+      }
+
+      const Internal::ServiceBindingRecord& sourceRecord = instances.FastGet(sourceHandlesSpan.front().Value);
+      if (binding.Mode() == BindingMode::TwoWay && sourceRecord.Methods->IsReadOnly())
+      {
+        throw TwoWayBindingReadOnlySourceException("A ReadOnly property can not participate in two way binding");
       }
 
       // Verify that the types match
-      if (instances.FastGet(sourceHandlesSpan.front().Value).Methods->GetType() != targetInstance.GetType())
+      if (sourceRecord.Methods->GetType() != targetInstance.GetType())
       {
         // The types did not match
         throw BindingIncompatibleTypesException(
@@ -312,11 +320,15 @@ namespace Fsl::DataBinding
       }
 
       const Internal::ServiceBindingRecord& sourceRecord = instances.FastGet(sourceHandlesSpan.front().Value);
+      if (binding.Mode() == BindingMode::TwoWay && sourceRecord.Methods->IsReadOnly())
+      {
+        throw TwoWayBindingReadOnlySourceException("A ReadOnly property can not participate in two way binding");
+      }
 
       const std::type_index propertySourceType = sourceRecord.Methods->GetType();
       const std::type_index propertyTargetType = targetInstance.GetType();
 
-      // Warning removed as there are good reasons to do this (forexample to do a calculation on the value)
+      // Warning removed as there are good reasons to do this (for example to do a calculation on the value)
       // FSLLOG3_WARNING_IF(propertySourceType == propertyTargetType, "A conversion binding is not necessary as the types are compatible");
 
       const auto* const pConverter = dynamic_cast<const AConverterBinding*>(binding.ComplexBinding().get());
@@ -365,6 +377,10 @@ namespace Fsl::DataBinding
           const auto hSource = sourceHandlesSpan[sourceIndex];
 
           const Internal::ServiceBindingRecord& sourceRecord = instances.FastGet(hSource.Value);
+          if (binding.Mode() == BindingMode::TwoWay && sourceRecord.Methods->IsReadOnly())
+          {
+            throw TwoWayBindingReadOnlySourceException("A ReadOnly property can not participate in two way binding");
+          }
 
           const std::type_index propertySourceType = sourceRecord.Methods->GetType();
           if (propertySourceType != converterSourceTypesSpan[sourceIndex].TypeIndex)
@@ -421,9 +437,10 @@ namespace Fsl::DataBinding
       for (const auto hSource : sourceHandlesSpan)
       {
         const Internal::ServiceBindingRecord& sourcRecord = instances.FastGet(hSource.Value);
-        if (sourcRecord.Instance.GetType() != DataBindingInstanceType::DependencyProperty)
+        if (sourcRecord.Instance.GetType() != DataBindingInstanceType::DependencyProperty &&
+            sourcRecord.Instance.GetType() != DataBindingInstanceType::ReadOnlyDependencyProperty)
         {
-          throw BindingIncompatiblePropertiesException("hSource must be a DependencyProperty");
+          throw BindingIncompatiblePropertiesException("hSource must be a DependencyProperty or ReadOnlyDependencyProperty");
         }
         if (!sourcRecord.Methods)
         {
@@ -474,20 +491,23 @@ namespace Fsl::DataBinding
       {
       case DataBindingInstanceType::DependencyObject:
         ValidateBindToDependencyObject(instances, hTarget, binding);
-        break;
+        return;
       case DataBindingInstanceType::DependencyProperty:
         ValidateBindToDependencyProperty(instances, hTarget, binding);
-        break;
+        return;
       case DataBindingInstanceType::DependencyObserverProperty:
         ValidateBindToDependencyObserverProperty(instances, hTarget, binding);
-        break;
+        return;
       case DataBindingInstanceType::DataSourceObject:
         ValidateBindToDataSourceObject(instances, hTarget, binding);
-        break;
-      default:
-        throw BindingUnsupportedException(fmt::format("Unsupported DataBindingInstanceType: {}", static_cast<int32_t>(targetInstanceType)));
+        return;
+      case DataBindingInstanceType::ReadOnlyDependencyProperty:
+        ValidateBindToDependencyProperty(instances, hTarget, binding);
+        return;
       }
+      throw BindingUnsupportedException(fmt::format("Unsupported DataBindingInstanceType: {}", static_cast<int32_t>(targetInstanceType)));
     }
+
 
     Internal::PropertySetResult ExecuteDependencyPropertyGetSetMultiConverterBinding(const HandleVector<Internal::ServiceBindingRecord>& instances,
                                                                                      const Internal::ServiceBindingRecord& target)
@@ -503,13 +523,13 @@ namespace Fsl::DataBinding
           const Internal::ServiceBindingRecord* const pSourceRecord = instances.TryGet(sourceHandles[i].Value);
           if (pSourceRecord == nullptr)
           {
-            FSLLOG3_DEBUG_WARNING("Failed to acqurie source binding record");
+            FSLLOG3_DEBUG_WARNING("Failed to acquire source binding record");
             return Internal::PropertySetResult::UnsupportedGetType;
           }
           getters[i] = Internal::PropertyGetInfo(pSourceRecord->Instance.GetPropertyMethodsImplType(), pSourceRecord->Methods.get());
         }
         return pMultiConverter->Convert(target.Instance.GetPropertyMethodsImplType(), target.Methods.get(),
-                                        ReadOnlySpanUtil::AsSpan(getters, sourceHandles.size(), OptimizationCheckFlag::NoCheck));
+                                        SpanUtil::UncheckedFirstReadOnlySpan(getters, sourceHandles.size()));
       }
       return Internal::PropertySetResult::UnsupportedBindingType;
     }
@@ -537,8 +557,7 @@ namespace Fsl::DataBinding
           setters[i] = Internal::PropertySetInfo(pTargetRecord->Instance.GetPropertyMethodsImplType(), pTargetRecord->Methods.get());
         }
         std::array<Internal::PropertySetResult, Internal::DbsConstants::MaxMultiBindSize> setResults{};
-        if (!pMultiConverter->TryConvertBack(SpanUtil::AsSpan(setResults),
-                                             ReadOnlySpanUtil::AsSpan(setters, toHandles.size(), OptimizationCheckFlag::NoCheck),
+        if (!pMultiConverter->TryConvertBack(SpanUtil::AsSpan(setResults), SpanUtil::UncheckedFirstReadOnlySpan(setters, toHandles.size()),
                                              Internal::PropertyGetInfo(from.Instance.GetPropertyMethodsImplType(), from.Methods.get())))
         {
           return Internal::PropertySetResult::NotSupported;
@@ -643,6 +662,23 @@ namespace Fsl::DataBinding
                                             flags);
   }
 
+
+  DataBindingInstanceHandle DataBindingService::CreateReadOnlyDependencyObjectProperty(DataBindingInstanceHandle hDependencyObject,
+                                                                                       const DependencyPropertyDefinition& propertyDefinition,
+                                                                                       std::unique_ptr<Internal::IDependencyPropertyMethods> methods)
+  {
+    if (m_callContext.State != CallContextState::Idle && m_callContext.State != CallContextState::ExecutingObserverCallbacks)
+    {
+      throw UsageErrorException("CreateDependencyObjectProperty: Can not be called from this context");
+    }
+
+    // Properties by default are observable (so they can send change notifications)
+    const auto flags = Internal::InstanceState::Flags::Observable;
+    return DoCreateDependencyObjectProperty(hDependencyObject, propertyDefinition, std::move(methods),
+                                            DataBindingInstanceType::ReadOnlyDependencyProperty, flags);
+  }
+
+
   DataBindingInstanceHandle
     DataBindingService::CreateDependencyObjectObserverProperty(const DataBindingInstanceHandle hOwner,
                                                                const DependencyPropertyDefinition& propertyDefinition,
@@ -664,7 +700,8 @@ namespace Fsl::DataBinding
   {
     assert(!m_instances.IsValidHandle(hInstance.Value) ||
            (m_instances.FastGet(hInstance.Value).Instance.GetType() == DataBindingInstanceType::DependencyProperty ||
-            m_instances.FastGet(hInstance.Value).Instance.GetType() == DataBindingInstanceType::DependencyObserverProperty));
+            m_instances.FastGet(hInstance.Value).Instance.GetType() == DataBindingInstanceType::DependencyObserverProperty ||
+            m_instances.FastGet(hInstance.Value).Instance.GetType() == DataBindingInstanceType::ReadOnlyDependencyProperty));
     return DestroyInstance(hInstance);
   }
 
@@ -852,7 +889,7 @@ namespace Fsl::DataBinding
           // Link the source to the target
           // - We do the push first so that if it throws 'the new bind' will be fully reversed.
           //   But we do lose any previous binding that might have been removed already
-          m_instances.FastGet(hSource.Value).m_handles.PushBack(Internal::ServicePropertyVectorIndex::Targets, hTarget);
+          m_instances.FastGet(hSource.Value).SysHandles.PushBack(Internal::ServicePropertyVectorIndex::Targets, hTarget);
         }
 
         // All cyclic dependency checks passed and we updated all the sources with hTarget as a target
@@ -897,7 +934,7 @@ namespace Fsl::DataBinding
         // Rolling back all in-progress changes
         for (const auto hSource : inProgressSourceBindings.SourceHandles())
         {
-          EraseFirst<Internal::ServicePropertyVectorIndex::Targets>(m_instances.FastGet(hSource.Value).m_handles, hTarget);
+          EraseFirst<Internal::ServicePropertyVectorIndex::Targets>(m_instances.FastGet(hSource.Value).SysHandles, hTarget);
         }
         LOCAL_DO_SANITY_CHECK();
         throw;
@@ -914,7 +951,7 @@ namespace Fsl::DataBinding
 
     bool allowChanges = true;
     if (rChangedInstance.Instance.GetState() == DataBindingInstanceState::Alive &&
-        (rChangedInstance.HasValidSourceHandles() || !rChangedInstance.m_handles.Empty(Internal::ServicePropertyVectorIndex::Targets)))
+        (rChangedInstance.HasValidSourceHandles() || !rChangedInstance.SysHandles.Empty(Internal::ServicePropertyVectorIndex::Targets)))
     {
       const auto instanceChangeState = rChangedInstance.Instance.GetPropertyChangeState();
       assert(changeReason == PropertyChangeReason::Refresh || changeReason == PropertyChangeReason::Modified);
@@ -1093,15 +1130,18 @@ namespace Fsl::DataBinding
     std::unique_ptr<Internal::IPropertyMethods> methods, const DataBindingInstanceType propertyType, const Internal::InstanceState::Flags flags)
   {
     assert(m_callContext.State == CallContextState::Idle || m_callContext.State == CallContextState::ExecutingObserverCallbacks);
-    assert(propertyType == DataBindingInstanceType::DependencyProperty || propertyType == DataBindingInstanceType::DependencyObserverProperty);
+    assert(propertyType == DataBindingInstanceType::DependencyProperty || propertyType == DataBindingInstanceType::DependencyObserverProperty ||
+           propertyType == DataBindingInstanceType::ReadOnlyDependencyProperty);
 
     // We can not cache the returned record as we do a add to m_instances before we need to write to it
     {
       auto ownerType = m_instances.Get(hOwner.Value).Instance.GetType();
-      if (ownerType != DataBindingInstanceType::DependencyObject && ownerType != DataBindingInstanceType::DependencyProperty)
+      if (ownerType != DataBindingInstanceType::DependencyObject && ownerType != DataBindingInstanceType::DataSourceObject &&
+          ownerType != DataBindingInstanceType::ReadOnlyDependencyProperty && ownerType != DataBindingInstanceType::DependencyProperty)
       {
         throw InvalidParentInstanceException(
-          "hDependencyObject must be a DataBindingInstanceType::DependencyObject or DataBindingInstanceType::DependencyProperty");
+          "hDependencyObject must be a DataBindingInstanceType::DependencyObject, DataBindingInstanceType::DataSourceObject, "
+          "DataBindingInstanceType::ReadOnlyDependencyProperty or DataBindingInstanceType::DependencyProperty");
       }
     }
     EnsureDestroyCapacity();
@@ -1111,7 +1151,7 @@ namespace Fsl::DataBinding
     try
     {
       Internal::ServiceBindingRecord& rParentInstance = m_instances.FastGet(hOwner.Value);
-      rParentInstance.m_handles.PushBack(Internal::ServicePropertyVectorIndex::Properties, hNew);
+      rParentInstance.SysHandles.PushBack(Internal::ServicePropertyVectorIndex::Properties, hNew);
     }
     catch (const std::exception&)
     {
@@ -1229,7 +1269,7 @@ namespace Fsl::DataBinding
       {
         if (!rChangedInstance.HasValidSourceHandles())
         {    // there is no source attached to the instance
-          if (!rChangedInstance.m_handles.Empty(Internal::ServicePropertyVectorIndex::Targets) && !rChangedInstance.Instance.HasPendingChanges())
+          if (!rChangedInstance.SysHandles.Empty(Internal::ServicePropertyVectorIndex::Targets) && !rChangedInstance.Instance.HasPendingChanges())
           {
             rChangedInstance.Instance.MarkPendingChanges();
             m_changesOneWay.push(hChangedInstance);
@@ -1333,7 +1373,7 @@ namespace Fsl::DataBinding
       catch (const std::exception&)
       {
         m_callContext = {};
-        FSLLOG3_ERROR("Exeception during DataBinding ExecutePendingOneWayChangesNow");
+        FSLLOG3_ERROR("Exception during DataBinding ExecutePendingOneWayChangesNow");
         throw;
       }
       LOCAL_DO_SANITY_CHECK();
@@ -1634,7 +1674,7 @@ namespace Fsl::DataBinding
       }
 
       // Remove all bindings that use this instance as a source
-      for (const auto hTarget : pRecord->m_handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Targets))
+      for (const auto hTarget : pRecord->SysHandles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Targets))
       {
         Internal::ServiceBindingRecord& rToRecord = m_instances.FastGet(hTarget.Value);
         assert(rToRecord.ContainsSource(hInstance));
@@ -1646,7 +1686,7 @@ namespace Fsl::DataBinding
           {
             FSLLOG3_VERBOSE4("- Remove source {} from {}", srcHandle.Value, hTarget.Value);
             Internal::ServiceBindingRecord& rMultiBindSource = m_instances.FastGet(srcHandle.Value);
-            EraseFirst<Internal::ServicePropertyVectorIndex::Targets>(rMultiBindSource.m_handles, hTarget);
+            EraseFirst<Internal::ServicePropertyVectorIndex::Targets>(rMultiBindSource.SysHandles, hTarget);
           }
         }
         else

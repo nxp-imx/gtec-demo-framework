@@ -34,8 +34,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslGraphics/Sprite/BasicImageSprite.hpp>
 #include <FslGraphics/Sprite/BasicNineSliceSprite.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
@@ -43,7 +42,7 @@
 #include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslGraphics/Sprite/NineSliceSprite.hpp>
 #include <FslGraphics/Sprite/OptimizedNineSliceSprite.hpp>
-#include <FslGraphics2D/Procedural/Builder/UITextMeshBuilder.hpp>
+#include <FslSimpleUI/Render/Builder/UITextMeshBuilder.hpp>
 #include "HandleCoding.hpp"
 #include "Log/FmtRenderDrawSpriteType.hpp"
 #include "MeshManager.hpp"
@@ -310,7 +309,7 @@ namespace Fsl::UI::RenderIMBatch
 
   StringViewLite MeshManager::SpriteFontMeshRecord::GetText() const
   {
-    return StringViewLiteUtil::AsStringViewLite(m_text);
+    return std::string_view(m_text);
   }
 
 
@@ -319,7 +318,7 @@ namespace Fsl::UI::RenderIMBatch
     const bool changed = text != m_text;
     if (changed)
     {
-      StringViewLiteUtil::Set(m_text, text);
+      m_text = text;
       UpdateCache();
     }
     return changed;
@@ -753,8 +752,8 @@ namespace Fsl::UI::RenderIMBatch
         {
           throw NotSupportedException("The spriteMaterialIndex was not zero as expected");
         }
-        constexpr uint32_t spriteMaterialIndex1 = 1u;
-        const BatchMaterialHandle batchMaterialHandle1 = m_materialLookup.Acquire(sprite.get(), spriteMaterialIndex1);
+        constexpr uint32_t SpriteMaterialIndex1 = 1u;
+        const BatchMaterialHandle batchMaterialHandle1 = m_materialLookup.Acquire(sprite.get(), SpriteMaterialIndex1);
         try
         {
           const auto transparencyFlags = AtlasNineSliceFlagsUtil::GetTransparencyFlags(spriteEx->GetRenderInfo().Flags);
@@ -774,7 +773,7 @@ namespace Fsl::UI::RenderIMBatch
 
           const auto hMeshValue = m_meshesOptimizedNineSliceSprite.Add(
             OptimizedNineSliceSpriteMeshRecord(std::move(spriteEx), batchMaterialHandle, spriteMaterialIndex, batchMaterialHandle1,
-                                               spriteMaterialIndex1, finalVertexCapacity, finalIndexCapacity, meshType));
+                                               SpriteMaterialIndex1, finalVertexCapacity, finalIndexCapacity, meshType));
           return {RenderDrawSpriteType::OptimizedNineSliceSprite, finalVertexCapacity, finalIndexCapacity, hMeshValue};
         }
         catch (const std::exception& ex)

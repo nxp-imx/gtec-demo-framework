@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <FslGraphics/Vertices/VertexElementFormatUtil.hpp>
@@ -251,7 +251,7 @@ namespace Fsl
 
   VertexDeclarationSpan VertexDeclaration::AsSpan() const noexcept
   {
-    return {ReadOnlySpanUtil::AsSpan(m_elements), m_vertexStride, OptimizationCheckFlag::NoCheck};
+    return {SpanUtil::AsReadOnlySpan(m_elements), m_vertexStride, OptimizationCheckFlag::NoCheck};
   }
 
 

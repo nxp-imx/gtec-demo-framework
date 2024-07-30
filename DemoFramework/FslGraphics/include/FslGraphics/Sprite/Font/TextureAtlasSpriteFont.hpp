@@ -54,7 +54,7 @@ namespace Fsl
   class TextureAtlasSpriteFont final
   {
     SpriteFontFastLookup m_lookup;
-    SpriteFontCharInfo m_unknownChar{};
+    SpriteFontCharInfo m_unknownChar;
     PxThicknessU16 m_charPaddingPx;
     BitmapFontType m_fontType{BitmapFontType::Bitmap};
 

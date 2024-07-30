@@ -49,11 +49,11 @@ namespace Fsl
       return m_isConsoleBasedHost;
     }
 
-    void OnConstructed() override{};
-    void OnActivate() override{};
-    void OnDeactivate() override{};
-    void OnSuspend() override{};
-    void OnResume() override{};
+    void OnConstructed() override {};
+    void OnActivate() override {};
+    void OnDeactivate() override {};
+    void OnSuspend() override {};
+    void OnResume() override {};
   };
 }
 

@@ -51,12 +51,12 @@ namespace Fsl
   {
     struct LocationRecord
     {
-      GLint OutlineDistance{GLES2::GLValues::INVALID_LOCATION};
-      GLint ProjMatrix{GLES2::GLValues::INVALID_LOCATION};
-      GLint Smoothing{GLES2::GLValues::INVALID_LOCATION};
-      GLint ShadowOffset{GLES2::GLValues::INVALID_LOCATION};
-      GLint ShadowSmoothing{GLES2::GLValues::INVALID_LOCATION};
-      GLint Texture{GLES2::GLValues::INVALID_LOCATION};
+      GLint OutlineDistance{GLES2::GLValues::InvalidLocation};
+      GLint ProjMatrix{GLES2::GLValues::InvalidLocation};
+      GLint Smoothing{GLES2::GLValues::InvalidLocation};
+      GLint ShadowOffset{GLES2::GLValues::InvalidLocation};
+      GLint ShadowSmoothing{GLES2::GLValues::InvalidLocation};
+      GLint Texture{GLES2::GLValues::InvalidLocation};
     };
 
 

@@ -69,8 +69,8 @@ namespace Fsl::GLES2
     //! @brief Move constructor
     //! Transfer ownership from other to this
     GLVertexBuffer(GLVertexBuffer&& other) noexcept
-      : GLBuffer(std::move(other))    // NOLINT(bugprone-use-after-move)
-      , m_vertexElements(std::move(other.m_vertexElements))
+      : GLBuffer(std::move(other))                             // NOLINT(bugprone-use-after-move)
+      , m_vertexElements(std::move(other.m_vertexElements))    // NOLINT(bugprone-use-after-move)
     {
       // Remove the data from other
     }

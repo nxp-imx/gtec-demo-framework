@@ -57,7 +57,7 @@ namespace Fsl::Stub
   }
 
 
-  void NativeGraphicsService::Capture(Bitmap& /*rBitmap*/, const Rectangle& /*srcRectangle*/)
+  void NativeGraphicsService::Capture(Bitmap& /*rBitmap*/, const PxRectangle& /*srcRectanglePx*/)
   {
     FSLLOG3_WARNING("Stub::NativeGraphicsService.Capture not implemented");
   }

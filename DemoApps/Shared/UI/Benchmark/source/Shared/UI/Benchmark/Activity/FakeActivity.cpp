@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,46 +60,46 @@ namespace Fsl::UI
 
   FakeActivity::~FakeActivity() = default;
 
-  void FakeActivity::OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+  void FakeActivity::OnClickInputPreview(const std::shared_ptr<WindowInputClickEvent>& theEvent)
   {
-    ContentControlBase::OnClickInputPreview(args, theEvent);
+    ContentControlBase::OnClickInputPreview(theEvent);
   }
 
-  void FakeActivity::OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+  void FakeActivity::OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent)
   {
-    ContentControlBase::OnClickInput(args, theEvent);
+    ContentControlBase::OnClickInput(theEvent);
     if (!theEvent->IsHandled())
     {
       theEvent->Handled();
     }
   }
 
-  void FakeActivity::OnMouseOverPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent)
+  void FakeActivity::OnMouseOverPreview(const std::shared_ptr<WindowMouseOverEvent>& theEvent)
   {
-    ContentControlBase::OnMouseOverPreview(args, theEvent);
+    ContentControlBase::OnMouseOverPreview(theEvent);
   }
 
-  void FakeActivity::OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent)
+  void FakeActivity::OnMouseOver(const std::shared_ptr<WindowMouseOverEvent>& theEvent)
   {
-    ContentControlBase::OnMouseOver(args, theEvent);
+    ContentControlBase::OnMouseOver(theEvent);
     if (!theEvent->IsHandled())
     {
       theEvent->Handled();
     }
   }
 
-  void FakeActivity::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  void FakeActivity::OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent)
   {
-    ContentControlBase::OnSelect(args, theEvent);
+    ContentControlBase::OnSelect(theEvent);
     if (!theEvent->IsHandled())
     {
       theEvent->Handled();
     }
   }
 
-  void FakeActivity::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
+  void FakeActivity::OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent)
   {
-    ContentControlBase::OnContentChanged(args, theEvent);
+    ContentControlBase::OnContentChanged(theEvent);
     if (!theEvent->IsHandled())
     {
       theEvent->Handled();

@@ -38,10 +38,10 @@
 namespace Fsl
 {
   // Basic events must be exactly the same size as a BasicEvent (so they can have no member variables).
-  class TimeStateEvent : public BasicEvent
+  class TimeStateEvent final : public BasicEvent
   {
   public:
-    explicit TimeStateEvent(const BasicEvent& encodedEvent)
+    explicit constexpr TimeStateEvent(const BasicEvent& encodedEvent)
       : BasicEvent(encodedEvent)
     {
       if (m_type != EventType::TimeState)
@@ -51,12 +51,12 @@ namespace Fsl
     }
 
 
-    explicit TimeStateEvent(const TimeStateCommand command)
-      : BasicEvent(EventType::TimeState, static_cast<int32_t>(command))
+    explicit constexpr TimeStateEvent(const TimeStateCommand command) noexcept
+      : BasicEvent(EventType::TimeState, {}, static_cast<int32_t>(command))
     {
     }
 
-    TimeStateCommand GetCommand() const
+    constexpr TimeStateCommand GetCommand() const noexcept
     {
       return static_cast<TimeStateCommand>(m_arg1);
     }

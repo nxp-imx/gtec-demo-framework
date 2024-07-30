@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019, 2022 NXP
+ * Copyright 2019, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Span/Span.hpp>
-#include <FslBase/UnitTest/Helper/Common.hpp>
+#include <FslBase/Span/SpanUtil_ValueCompare.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 
@@ -55,7 +55,6 @@ TEST(TestSpan, Construct)
   EXPECT_TRUE(span.empty());
   EXPECT_EQ(span.data(), nullptr);
   EXPECT_EQ(span.size(), 0u);
-  EXPECT_EQ(span.length(), 0u);
 }
 
 TEST(TestSpan, Construct_FromArray)
@@ -66,45 +65,317 @@ TEST(TestSpan, Construct_FromArray)
   EXPECT_FALSE(span.empty());
   EXPECT_NE(span.data(), nullptr);
   EXPECT_EQ(span.size(), content.size());
-  EXPECT_EQ(span.length(), content.size());
 }
 
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// subspan
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 TEST(TestSpan, SubSpan)
 {
-  std::array<uint8_t, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-  auto span = Convert(content);
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  std::array<char, 9> content123456789 = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  std::array<char, 1> content9 = {'9'};
+  std::array<char, 2> content12 = {'1', '2'};
+  Span<char> span(content);
 
-  std::array<uint8_t, 9> res123456789 = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
-  std::array<uint8_t, 2> res12 = {'1', '2'};
-  std::array<uint8_t, 1> res9 = {'9'};
+  EXPECT_TRUE(SpanUtil::ValueEquals(span, span.subspan(0)));
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(content123456789), span.subspan(1u)));
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(content9), span.subspan(9u)));
 
-  EXPECT_EQ(span, span.subspan());
-  EXPECT_EQ(Convert(res123456789), span.subspan(1u));
-  EXPECT_EQ(Convert(res9), span.subspan(9u));
-
-  EXPECT_EQ(Convert(res12), span.subspan(1u, 2));
-  EXPECT_EQ(Convert(res9), span.subspan(9u, 2));
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(content12), span.subspan(1u, 2)));
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(content9), span.subspan(9u, 1u)));
 
   // its ok to read the last char
-  EXPECT_EQ(Span<uint8_t>(), span.subspan(10u));
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(), span.subspan(10u)));
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 TEST(TestSpan, SubSpan_Empty)
 {
-  Span<uint8_t> span;
-  EXPECT_EQ(Span<uint8_t>(), span.subspan());
+  Span<char> span;
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(), span.subspan(0)));
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, SubSpan_LastChar1)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
+  const auto subspan = span.subspan(10u, 0u);
+  EXPECT_TRUE(subspan.empty());
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, SubSpan_LastChar2)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
+  const auto subspan = span.subspan(10u);
+  EXPECT_TRUE(subspan.empty());
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 TEST(TestSpan, SubSpan_InvalidPos)
 {
-  std::array<uint8_t, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-  auto span = Convert(content);
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
 
+  EXPECT_THROW(span.subspan(10u, 1u), std::out_of_range);
   EXPECT_THROW(span.subspan(11u), std::out_of_range);
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// unchecked_subspan
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, UncheckedSubSpan)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  std::array<char, 9> content123456789 = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  std::array<char, 1> content9 = {'9'};
+  std::array<char, 2> content12 = {'1', '2'};
+  Span<char> span(content);
+
+  EXPECT_TRUE(SpanUtil::ValueEquals(span, span.unchecked_subspan(0, span.size())));
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(content123456789), span.unchecked_subspan(1u, span.size() - 1u)));
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(content9), span.unchecked_subspan(9u, span.size() - 9u)));
+
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(content12), span.unchecked_subspan(1u, 2u)));
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(content9), span.unchecked_subspan(9u, 1u)));
+
+  // its ok to access the span at size() if the length is zero
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(), span.unchecked_subspan(9u, span.size() - 10u)));
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, UncheckedSubSpan_Empty)
+{
+  Span<char> span;
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(), span.unchecked_subspan(0u, 0u)));
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// ClampedSubspan
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, ClampedSubSpan)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  std::array<char, 9> content123456789 = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  std::array<char, 1> content9 = {'9'};
+  std::array<char, 2> content12 = {'1', '2'};
+  Span<char> span(content);
+
+  EXPECT_TRUE(SpanUtil::ValueEquals(span, span.clamped_subspan(0)));
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(content123456789), span.clamped_subspan(1u)));
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(content9), span.clamped_subspan(9u)));
+
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(content12), span.clamped_subspan(1u, 2)));
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(content9), span.clamped_subspan(9u, 1u)));
+
+  // its ok to read the last char
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(), span.clamped_subspan(10u)));
+}
+
+TEST(TestSpan, ClampedSubSpan_Empty)
+{
+  Span<char> span;
+  EXPECT_TRUE(SpanUtil::ValueEquals(Span<char>(), span.clamped_subspan(0)));
+}
+
+TEST(TestSpan, ClampedSubSpan_Last1)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
+  const auto subspan = span.clamped_subspan(10u, 0u);
+  EXPECT_TRUE(subspan.empty());
+}
+
+TEST(TestSpan, ClampedSubSpan_Last2)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
+  const auto subspan = span.clamped_subspan(10u);
+  EXPECT_TRUE(subspan.empty());
+}
+
+TEST(TestSpan, ClampedSubSpan_InvalidPos1)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
+  Span<char> subspan = span.clamped_subspan(11u);
+  EXPECT_TRUE(subspan.empty());
+}
+
+TEST(TestSpan, ClampedSubSpan_InvalidPos2)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
+
+  EXPECT_TRUE(span.clamped_subspan(10u, 0u).empty());
+  EXPECT_TRUE(span.clamped_subspan(10u, 1u).empty());
+  EXPECT_TRUE(span.clamped_subspan(11u).empty());
+  EXPECT_EQ(span.clamped_subspan(0u, 11u).size(), span.size());
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// unchecked_first
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, UncheckedFirst)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
+  EXPECT_EQ(span.unchecked_first(0u).size(), 0u);
+  EXPECT_EQ(span.unchecked_first(8u).size(), 8u);
+  EXPECT_EQ(span.unchecked_first(9u).size(), 9u);
+  EXPECT_EQ(span.unchecked_first(10u).size(), 10u);
+
+  EXPECT_EQ(span.unchecked_first(1u)[0], span[0]);
+
+  EXPECT_EQ(span.unchecked_first(2u)[0], span[0]);
+  EXPECT_EQ(span.unchecked_first(2u)[1], span[1]);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// first
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, First)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
+  EXPECT_EQ(span.first(0u).size(), 0u);
+  EXPECT_EQ(span.first(8u).size(), 8u);
+  EXPECT_EQ(span.first(9u).size(), 9u);
+  EXPECT_EQ(span.first(10u).size(), 10u);
+
+  EXPECT_EQ(span.first(1u)[0], span[0]);
+
+  EXPECT_EQ(span.first(2u)[0], span[0]);
+  EXPECT_EQ(span.first(2u)[1], span[1]);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, First_InvalidPos)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
+  EXPECT_THROW(span.first(11u), std::out_of_range);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// clamped_first
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, ClampedFirst)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
+  EXPECT_EQ(span.clamped_first(0u).size(), 0u);
+  EXPECT_EQ(span.clamped_first(8u).size(), 8u);
+  EXPECT_EQ(span.clamped_first(9u).size(), 9u);
+  EXPECT_EQ(span.clamped_first(10u).size(), 10u);
+
+  EXPECT_EQ(span.clamped_first(1u)[0], span[0]);
+
+  EXPECT_EQ(span.clamped_first(2u)[0], span[0]);
+  EXPECT_EQ(span.clamped_first(2u)[1], span[1]);
+}
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, ClampedFirst_InvalidPos)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
+  EXPECT_EQ(span.clamped_first(11u).size(), 10u);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// unchecked_last
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, UncheckedLast)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
+  EXPECT_EQ(span.unchecked_last(0u).size(), 0u);
+  EXPECT_EQ(span.unchecked_last(8u).size(), 8u);
+  EXPECT_EQ(span.unchecked_last(9u).size(), 9u);
+  EXPECT_EQ(span.unchecked_last(10u).size(), 10u);
+
+  EXPECT_EQ(span.unchecked_last(1u)[0], span[9]);
+
+  EXPECT_EQ(span.unchecked_last(2u)[0], span[8]);
+  EXPECT_EQ(span.unchecked_last(2u)[1], span[9]);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// last
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, Last)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
+  EXPECT_EQ(span.last(0u).size(), 0u);
+  EXPECT_EQ(span.last(8u).size(), 8u);
+  EXPECT_EQ(span.last(9u).size(), 9u);
+  EXPECT_EQ(span.last(10u).size(), 10u);
+
+  EXPECT_EQ(span.last(1u)[0], span[9]);
+
+  EXPECT_EQ(span.last(2u)[0], span[8]);
+  EXPECT_EQ(span.last(2u)[1], span[9]);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, Last_InvalidPos)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
+  EXPECT_THROW(span.last(11u), std::out_of_range);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// clamped_last
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, ClampedLast)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
+  EXPECT_EQ(span.clamped_last(0u).size(), 0u);
+  EXPECT_EQ(span.clamped_last(8u).size(), 8u);
+  EXPECT_EQ(span.clamped_last(9u).size(), 9u);
+  EXPECT_EQ(span.clamped_last(10u).size(), 10u);
+
+  EXPECT_EQ(span.clamped_last(1u)[0], span[9]);
+
+  EXPECT_EQ(span.clamped_last(2u)[0], span[8]);
+  EXPECT_EQ(span.clamped_last(2u)[1], span[9]);
+}
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, ClampedLast_InvalidPos)
+{
+  std::array<char, 10> content = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  Span<char> span(content);
+  EXPECT_EQ(span.clamped_last(11u).size(), 10u);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// front
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 TEST(TestSpan, front)
 {
@@ -182,7 +453,7 @@ TEST(TestSpan, At_Empty_OutOfBounds)
   EXPECT_THROW(span.at(span.size()), std::out_of_range);
 }
 
-
+#if 0
 TEST(TestSpan, opEqual_Empty)
 {
   Span<uint8_t> span1;
@@ -781,7 +1052,7 @@ TEST(TestSpan, OperatorGreaterThanOrEqual)
 
 TEST(TestSpan, OperatorEqual)
 {
-  std::array<uint8_t, 1> content_a = {'a'};
+  std::array<uint8_t, 1> contentLowerA = {'a'};
   std::array<uint8_t, 1> contentA = {'A'};
   std::array<uint8_t, 1> contentB = {'B'};
   std::array<uint8_t, 1> contentC = {'C'};
@@ -793,7 +1064,7 @@ TEST(TestSpan, OperatorEqual)
   EXPECT_TRUE(Span<uint8_t>().empty());
   EXPECT_FALSE(Convert(contentA).empty());
   EXPECT_FALSE(Convert(contentA) == Convert(contentB));
-  EXPECT_FALSE(Convert(contentA) == Convert(content_a));
+  EXPECT_FALSE(Convert(contentA) == Convert(contentLowerA));
 
   EXPECT_FALSE(Convert(contentA) == Convert(contentB));
   EXPECT_TRUE(Convert(contentB) == Convert(contentB));
@@ -823,7 +1094,7 @@ TEST(TestSpan, OperatorEqual)
 
 TEST(TestSpan, OperatorNotEqual)
 {
-  std::array<uint8_t, 1> content_a = {'a'};
+  std::array<uint8_t, 1> contentLowerA = {'a'};
   std::array<uint8_t, 1> contentA = {'A'};
   std::array<uint8_t, 1> contentB = {'B'};
   std::array<uint8_t, 1> contentC = {'C'};
@@ -835,7 +1106,7 @@ TEST(TestSpan, OperatorNotEqual)
   EXPECT_FALSE(!Span<uint8_t>().empty());
   EXPECT_TRUE(!Convert(contentA).empty());
   EXPECT_TRUE(Convert(contentA) != Convert(contentB));
-  EXPECT_TRUE(Convert(contentA) != Convert(content_a));
+  EXPECT_TRUE(Convert(contentA) != Convert(contentLowerA));
 
   EXPECT_TRUE(Convert(contentA) != Convert(contentB));
   EXPECT_FALSE(Convert(contentB) != Convert(contentB));
@@ -858,7 +1129,7 @@ TEST(TestSpan, OperatorNotEqual)
   EXPECT_TRUE(Convert(contentB) != Convert(contentBA));
   EXPECT_TRUE(Convert(contentB) != Convert(contentCA));
 }
-
+#endif
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
 // iterators
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1061,33 +1332,33 @@ TEST(TestSpan, begin_foreach_with_compare_const)
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
-TEST(TestSpan, cbegin_empty)
-{
-  ReadOnlySpan<char> span;
-
-  ASSERT_EQ(span.cend(), span.cbegin());
-}
-
-//---------------------------------------------------------------------------------------------------------------------------------------------------
-
-TEST(TestSpan, cbegin_iterator_to_cend_const)
-{
-  std::array<uint8_t, 11> content = {'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
-  const Span<uint8_t> span = Convert(content);
-
-  // NOLINTNEXTLINE(readability-qualified-auto)
-  auto itrSource = content.begin();
-  // NOLINTNEXTLINE(readability-qualified-auto)
-  const auto itrSourceEnd = content.end();
-
-  auto itr = span.cbegin();
-  auto itrEnd = span.cend();
-  while (itr != itrEnd && itrSource != itrSourceEnd)
-  {
-    EXPECT_EQ(*itrSource, *itr);
-    ++itrSource;
-    ++itr;
-  }
-  ASSERT_EQ(itrEnd, itr);
-  ASSERT_EQ(itrSourceEnd, itrSource);
-}
+// TEST(TestSpan, cbegin_empty)
+//{
+//   ReadOnlySpan<char> span;
+//
+//   ASSERT_EQ(span.cend(), span.cbegin());
+// }
+//
+////---------------------------------------------------------------------------------------------------------------------------------------------------
+//
+// TEST(TestSpan, cbegin_iterator_to_cend_const)
+//{
+//  std::array<uint8_t, 11> content = {'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+//  const Span<uint8_t> span = Convert(content);
+//
+//  // NOLINTNEXTLINE(readability-qualified-auto)
+//  auto itrSource = content.begin();
+//  // NOLINTNEXTLINE(readability-qualified-auto)
+//  const auto itrSourceEnd = content.end();
+//
+//  auto itr = span.cbegin();
+//  auto itrEnd = span.cend();
+//  while (itr != itrEnd && itrSource != itrSourceEnd)
+//  {
+//    EXPECT_EQ(*itrSource, *itr);
+//    ++itrSource;
+//    ++itr;
+//  }
+//  ASSERT_EQ(itrEnd, itr);
+//  ASSERT_EQ(itrSourceEnd, itrSource);
+//}

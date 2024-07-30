@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="FslDemoService.ImageConverter.HDR" CreationYear="2024">
+    <Define Name="FSL_FEATURE_IMAGECONVERTER_HDR" Access="Public"/>
+    <Dependency Name="FslDemoService.ImageConverter"/>
+    <Dependency Name="FslService.Impl"/>
+    <Dependency Name="FslGraphics2D.PixelFormatConverter" Access="Private"/>
+  </Library>
+</FslBuildGen>

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_SLIDERANDFMTVALUELABEL_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_SLIDERANDFMTVALUELABEL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022-2023 NXP
+ * Copyright 2020, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,8 +59,8 @@ namespace Fsl::UI
     value_type m_cachedMinValue{0};
     value_type m_cachedMaxValue{0};
 
-    typename DataBinding::TypedDependencyProperty<Color> m_propertyFontColor{DefaultColor::Palette::Font};
-    typename DataBinding::TypedDependencyProperty<Color> m_propertyFontDisabledColor{DefaultColor::Palette::FontDisabled};
+    typename DataBinding::TypedDependencyProperty<UIColor> m_propertyFontColor{DefaultColor::Palette::Font};
+    typename DataBinding::TypedDependencyProperty<UIColor> m_propertyFontDisabledColor{DefaultColor::Palette::FontDisabled};
 
   public:
     explicit SliderAndFmtValueLabel(const std::shared_ptr<WindowContext>& context)
@@ -225,15 +225,25 @@ namespace Fsl::UI
       return m_slider->SetTickFrequency(tickFrequency);
     }
 
+    const std::shared_ptr<SpriteFont>& GetFont() const
+    {
+      return m_label->GetFont();
+    }
+
+    void SetFont(const std::shared_ptr<SpriteFont>& value)
+    {
+      m_label->SetFont(value);
+    }
+
     // -----
 
 
-    Color GetFontColor() const noexcept
+    UIColor GetFontColor() const noexcept
     {
       return m_propertyFontColor.Get();
     }
 
-    bool SetFontColor(const Color value)
+    bool SetFontColor(const UIColor value)
     {
       const bool changed = m_propertyFontColor.Set(ThisDependencyObject(), value);
       if (changed)
@@ -245,12 +255,12 @@ namespace Fsl::UI
     }
 
 
-    Color GetFontDisabledColor() const noexcept
+    UIColor GetFontDisabledColor() const noexcept
     {
       return m_propertyFontDisabledColor.Get();
     }
 
-    bool SetFontDisabledColor(const Color value)
+    bool SetFontDisabledColor(const UIColor value)
     {
       const bool changed = m_propertyFontDisabledColor.Set(ThisDependencyObject(), value);
       if (changed)
@@ -293,22 +303,22 @@ namespace Fsl::UI
       m_slider->SetCursorSize(value);
     }
 
-    const Color& GetCursorColor() const
+    UIColor GetCursorColor() const
     {
       return m_slider->GetCursorColor();
     }
 
-    void SetCursorColor(const Color& value)
+    void SetCursorColor(const UIColor value)
     {
       m_slider->SetCursorColor(value);
     }
 
-    const Color& GetCursorDisabledColor() const
+    UIColor GetCursorDisabledColor() const
     {
       return m_slider->GetCursorDisabledColor();
     }
 
-    void SetCursorDisabledColor(const Color& value)
+    void SetCursorDisabledColor(const UIColor value)
     {
       m_slider->SetCursorDisabledColor(value);
     }
@@ -326,12 +336,12 @@ namespace Fsl::UI
       m_slider->SetCursorOverlaySprite(value);
     }
 
-    const Color& GetCursorOverlayColor() const
+    UIColor GetCursorOverlayColor() const
     {
       return m_slider->GetCursorOverlayColor();
     }
 
-    void SetCursorOverlayColor(const Color& value)
+    void SetCursorOverlayColor(const UIColor value)
     {
       m_slider->SetCursorOverlayColor(value);
     }
@@ -350,22 +360,22 @@ namespace Fsl::UI
     }
 
 
-    const Color& GetBackgroundColor() const
+    UIColor GetBackgroundColor() const
     {
       return m_slider->GetBackgroundColor();
     }
 
-    void SetBackgroundColor(const Color& value)
+    void SetBackgroundColor(const UIColor value)
     {
       m_slider->SetBackgroundColor(value);
     }
 
-    const Color& GetBackgroundDisabledColor() const
+    UIColor GetBackgroundDisabledColor() const
     {
       return m_slider->GetBackgroundDisabledColor();
     }
 
-    void SetBackgroundDisabledColor(const Color& value)
+    void SetBackgroundDisabledColor(const UIColor value)
     {
       m_slider->SetBackgroundDisabledColor(value);
     }
@@ -420,28 +430,31 @@ namespace Fsl::UI
       return modified;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline static typename DataBinding::DependencyPropertyDefinition PropertyValue =
       DataBinding::DependencyPropertyDefinitionFactory::Create<value_type, SliderAndFmtValueLabel, &SliderAndFmtValueLabel::GetValue,
                                                                &SliderAndFmtValueLabel::SetValue>("Value");
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline static typename DataBinding::DependencyPropertyDefinition PropertyOrientation =
       DataBinding::DependencyPropertyDefinitionFactory::Create<LayoutOrientation, SliderAndFmtValueLabel, &SliderAndFmtValueLabel::GetOrientation,
                                                                &SliderAndFmtValueLabel::SetOrientation>("Orientation");
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline static typename DataBinding::DependencyPropertyDefinition PropertyDirection =
       DataBinding::DependencyPropertyDefinitionFactory::Create<LayoutDirection, SliderAndFmtValueLabel, &SliderAndFmtValueLabel::GetDirection,
                                                                &SliderAndFmtValueLabel::SetDirection>("Direction");
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline static typename DataBinding::DependencyPropertyDefinition PropertyFontColor =
-      DataBinding::DependencyPropertyDefinitionFactory::Create<Color, SliderAndFmtValueLabel, &SliderAndFmtValueLabel::GetFontColor,
+      DataBinding::DependencyPropertyDefinitionFactory::Create<UIColor, SliderAndFmtValueLabel, &SliderAndFmtValueLabel::GetFontColor,
                                                                &SliderAndFmtValueLabel::SetFontColor>("FontColor");
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline static typename DataBinding::DependencyPropertyDefinition PropertyFontDisabledColor =
-      DataBinding::DependencyPropertyDefinitionFactory::Create<Color, SliderAndFmtValueLabel, &SliderAndFmtValueLabel::GetFontDisabledColor,
+      DataBinding::DependencyPropertyDefinitionFactory::Create<UIColor, SliderAndFmtValueLabel, &SliderAndFmtValueLabel::GetFontDisabledColor,
                                                                &SliderAndFmtValueLabel::SetFontDisabledColor>("FontDisabledColor");
 
   protected:
-    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final
+    void OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent) final
     {
-      FSL_PARAM_NOT_USED(args);
-
       UpdateLinkedContent();
       if (!theEvent->IsHandled())
       {

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Span/ReadOnlyFlexSpanUtil.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/UnitTest/Helper/Common.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <cstring>
@@ -46,27 +45,27 @@ namespace
 
 TEST(TestReadOnlyFlexSpanUtilReadOnlySpan, AsSpan)
 {
-  constexpr static std::array<char, 11> data = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
-  const auto srcData = ReadOnlySpanUtil::AsSpan(data);
+  constexpr static std::array<char, 11> Data = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+  const auto srcData = SpanUtil::AsReadOnlySpan(Data);
   ReadOnlyFlexSpan span = ReadOnlyFlexSpanUtil::AsSpan(srcData);
 
   EXPECT_FALSE(span.empty());
-  EXPECT_EQ(span.data(), data.data());
-  EXPECT_EQ(span.size(), data.size());
-  EXPECT_EQ(span.length(), data.size());
+  EXPECT_EQ(span.data(), Data.data());
+  EXPECT_EQ(span.size(), Data.size());
+  EXPECT_EQ(span.length(), Data.size());
   EXPECT_EQ(span.stride(), sizeof(char));
 }
 
 
 TEST(TestReadOnlyFlexSpanUtilReadOnlySpan, AsSpan_Empty)
 {
-  constexpr static std::array<char, 0> data{};
-  const auto srcData = ReadOnlySpanUtil::AsSpan(data);
+  constexpr static std::array<char, 0> Data{};
+  const auto srcData = SpanUtil::AsReadOnlySpan(Data);
   ReadOnlyFlexSpan span = ReadOnlyFlexSpanUtil::AsSpan(srcData);
 
   EXPECT_TRUE(span.empty());
-  EXPECT_EQ(span.data(), data.data());
-  EXPECT_EQ(span.size(), data.size());
-  EXPECT_EQ(span.length(), data.size());
+  EXPECT_EQ(span.data(), Data.data());
+  EXPECT_EQ(span.size(), Data.size());
+  EXPECT_EQ(span.length(), Data.size());
   EXPECT_EQ(span.stride(), sizeof(char));
 }

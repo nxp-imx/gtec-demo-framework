@@ -32,9 +32,10 @@
 #include "PointBench.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <VG/openvg.h>
 #include <array>
 #include <cassert>
@@ -45,7 +46,7 @@ namespace Fsl
   // FIX: The modify path code is not correct as the path length could change :/
   namespace
   {
-    const int32_t POINTS_PER_LINE = 200;
+    const int32_t g_pointsPerLine = 200;
 
     void BenchPointsViaClear(const uint32_t index, const int32_t count, const int32_t width, const ReadOnlySpan<Vector4> colors)
     {
@@ -283,7 +284,7 @@ namespace Fsl
       const std::size_t colorCount = colors.size();
       std::size_t colorIndex = index % colorCount;
 
-      constexpr const std::array<float, 2> origin = {0, 0};
+      constexpr const std::array<float, 2> Origin = {0, 0};
       vgSeti(VG_MATRIX_MODE, VG_MATRIX_GLYPH_USER_TO_SURFACE);
 
       int dstIndex = 0;
@@ -310,7 +311,7 @@ namespace Fsl
           {
             vgLoadIdentity();
             vgTranslate(static_cast<VGfloat>(x), y);
-            vgSetfv(VG_GLYPH_ORIGIN, UncheckedNumericCast<VGint>(origin.size()), origin.data());
+            vgSetfv(VG_GLYPH_ORIGIN, UncheckedNumericCast<VGint>(Origin.size()), Origin.data());
             vgDrawGlyphs(hFont, dstIndex, pGlyphs, pDstCoordsX, pDstCoordsY, VG_FILL_PATH, VG_TRUE);
             dstIndex = 0;
           }
@@ -324,7 +325,7 @@ namespace Fsl
         x = offset & 1;
         vgLoadIdentity();
         vgTranslate(static_cast<VGfloat>(x), y);
-        vgSetfv(VG_GLYPH_ORIGIN, UncheckedNumericCast<VGint>(origin.size()), origin.data());
+        vgSetfv(VG_GLYPH_ORIGIN, UncheckedNumericCast<VGint>(Origin.size()), Origin.data());
         vgDrawGlyphs(hFont, dstIndex, pGlyphs, pDstCoordsX, pDstCoordsY, VG_FILL_PATH, VG_TRUE);
       }
     }
@@ -335,17 +336,17 @@ namespace Fsl
     : m_pointCount(pointCount)
     , m_mode(mode)
     , m_index(0)
-    , m_pathCoords(POINTS_PER_LINE * 4)
-    , m_pathSegments(POINTS_PER_LINE * 2)
+    , m_pathCoords(g_pointsPerLine * 4)
+    , m_pathSegments(g_pointsPerLine * 2)
     , m_hPath(VG_INVALID_HANDLE)
-    , m_fontGlyphs(POINTS_PER_LINE)
+    , m_fontGlyphs(g_pointsPerLine)
   {
     Bitmap bitmap(8, 1, PixelFormat::R8G8B8A8_UNORM);
 
-    m_colors[0] = Color::White();
-    m_colors[1] = Color::Red();
-    m_colors[2] = Color::Green();
-    m_colors[3] = Color::Blue();
+    m_colors[0] = Colors::White();
+    m_colors[1] = Colors::Red();
+    m_colors[2] = Colors::Green();
+    m_colors[3] = Colors::Blue();
     m_colors[4] = Color(0xFF808080);
     m_colors[5] = Color(0xFFFF00FF);
     m_colors[6] = Color(0xFF00FFFF);
@@ -356,7 +357,7 @@ namespace Fsl
     for (uint32_t i = 0; i < colorCount; ++i)
     {
       m_colorsV4[i] = m_colors[i].ToVector4();
-      bitmap.SetNativePixel(i, 0u, m_colors[i].PackedValue());
+      bitmap.SetNativePixel(i, 0u, m_colors[i].AsPackedColor32().RawValue);
     }
     m_imageColorParent.Reset(bitmap, VG_IMAGE_QUALITY_FASTER);
     for (uint32_t i = 0; i < colorCount; ++i)
@@ -461,27 +462,27 @@ namespace Fsl
 
   void PointBench::Draw(const PxSize2D& sizePc)
   {
-    const int32_t width = POINTS_PER_LINE * 2;
+    const int32_t width = g_pointsPerLine * 2;
 
     switch (m_mode)
     {
     case Mode::Clear:
-      BenchPointsViaClear(m_index, m_pointCount, width, ReadOnlySpanUtil::AsSpan(m_colorsV4));
+      BenchPointsViaClear(m_index, m_pointCount, width, SpanUtil::AsReadOnlySpan(m_colorsV4));
       break;
     case Mode::Line:
-      BenchPointsViaLine(m_index, m_pointCount, width, m_buffer.GetHandle(), m_paint.GetHandle(), ReadOnlySpanUtil::AsSpan(m_colorsV4));
+      BenchPointsViaLine(m_index, m_pointCount, width, m_buffer.GetHandle(), m_paint.GetHandle(), SpanUtil::AsReadOnlySpan(m_colorsV4));
       break;
     case Mode::NewPath:
-      BenchPointsViaNewPath(m_index, m_pointCount, width, m_paint.GetHandle(), ReadOnlySpanUtil::AsSpan(m_colorsV4), m_pathCoords, m_pathSegments);
+      BenchPointsViaNewPath(m_index, m_pointCount, width, m_paint.GetHandle(), SpanUtil::AsReadOnlySpan(m_colorsV4), m_pathCoords, m_pathSegments);
       break;
     // case Mode::ModifyPath:
     //  BenchPointsViaModifyPath(m_index, m_pointCount, width, m_hPath, m_paint.GetHandle(), m_colorsV4, m_pathCoords, m_pathSegments);
     //  break;
     case Mode::Bitmap:
-      BenchPointsViaBitmap(m_index, m_pointCount, width, ReadOnlySpanUtil::AsSpan(m_imageColors));
+      BenchPointsViaBitmap(m_index, m_pointCount, width, SpanUtil::AsReadOnlySpan(m_imageColors));
       break;
     case Mode::BitmapFont:
-      BenchPointsViaBitmapFont(m_index, m_pointCount, width, m_fontBuffer.GetHandle(), ReadOnlySpanUtil::AsSpan(m_colors), m_fontGlyphs,
+      BenchPointsViaBitmapFont(m_index, m_pointCount, width, m_fontBuffer.GetHandle(), SpanUtil::AsReadOnlySpan(m_colors), m_fontGlyphs,
                                m_pathCoords);
       break;
     default:

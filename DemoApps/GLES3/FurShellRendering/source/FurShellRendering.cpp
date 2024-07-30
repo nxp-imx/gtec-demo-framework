@@ -113,18 +113,22 @@ namespace Fsl
     }
 
     //! Create the fur 'density' bitmap
-    GLES3::GLTexture CreateFurDensityTexture(const int demoId, const Point2& furTextureDim, const float hairDensity, const int layerCount)
+    GLES3::GLTexture CreateFurDensityTexture(const int demoId, const PxSize2D furTextureSize, const float hairDensity, const int layerCount)
     {
       // if (furTextureDim.X != 1024 || furTextureDim.Y != 512)
       if (demoId != 2)
       {
-        const std::vector<uint8_t> furBitmapContent = FurTexture::GenerateSmooth(furTextureDim.X, furTextureDim.Y, hairDensity, layerCount);
-        const RawBitmap furBitmap(&furBitmapContent[0], furTextureDim.X, furTextureDim.Y, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
+        const std::vector<uint8_t> furBitmapContent =
+          FurTexture::GenerateSmooth(furTextureSize.RawWidth(), furTextureSize.RawHeight(), hairDensity, layerCount);
+        const ReadOnlyRawBitmap furBitmap(ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(furBitmapContent), furTextureSize,
+                                                                    PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft));
         GLTextureParameters texParams(GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
         return {furBitmap, texParams};
       }
-      const std::vector<uint8_t> furBitmapContent = FurTexture::GenerateWave(furTextureDim.X, furTextureDim.Y, hairDensity, layerCount);
-      const RawBitmap furBitmap(&furBitmapContent[0], furTextureDim.X, furTextureDim.Y, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
+      const std::vector<uint8_t> furBitmapContent =
+        FurTexture::GenerateWave(furTextureSize.RawWidth(), furTextureSize.RawHeight(), hairDensity, layerCount);
+      const ReadOnlyRawBitmap furBitmap(
+        ReadOnlyRawBitmap::Create(SpanUtil::AsReadOnlySpan(furBitmapContent), furTextureSize, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft));
       GLTextureParameters texParams(GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
       return {furBitmap, texParams};
 
@@ -222,7 +226,7 @@ namespace Fsl
   {
     using namespace GLES3;
 
-    const Point2 furTextureDim = m_config.GetFurTextureDimensions();
+    const PxSize2D furTextureDim = m_config.GetFurTextureSize();
     const float hairDensity = m_config.GetHairDensity();
     float hairLength = m_config.GetHairLength();
     const int layerCount = m_config.GetLayerCount();
@@ -414,7 +418,7 @@ namespace Fsl
     m_view *= Matrix::CreateTranslation(0.0f, m_cameraPosY, -cameraDistance);
 
     m_perspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), GetWindowAspectRatio(), 1, m_perspectiveZ);
-    m_MVP = m_world * m_view * m_perspective;
+    m_mvp = m_world * m_view * m_perspective;
 
     m_radians += 1.00f * demoTime.DeltaTime;
     m_xAngle += m_xSpeed * demoTime.DeltaTime;
@@ -488,7 +492,7 @@ namespace Fsl
       {
         ShaderBase::ScopedUse shaderScope(m_shader2);
 
-        m_shader2.SetWorldViewProjection(m_MVP);
+        m_shader2.SetWorldViewProjection(m_mvp);
 
         MeshRender& render = m_resources.MeshStuff->RenderNormals;
 

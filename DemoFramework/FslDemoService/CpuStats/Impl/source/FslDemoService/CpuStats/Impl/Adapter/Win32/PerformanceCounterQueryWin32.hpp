@@ -33,7 +33,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Time/TimeSpan.hpp>
+#include <FslBase/Time/TickCount.hpp>
+#include <FslDemoService/CpuStats/CpuUsageRecord.hpp>
 #include <pdh.h>
 #include <array>
 
@@ -56,14 +57,14 @@ namespace Fsl
     uint32_t m_cpuCount{};
     PDH_HQUERY m_hQuery{};
 
-    mutable TimeSpan m_lastTryGetCpuUsage;
+    mutable TickCount m_lastTryGetCpuUsage;
 
 
   public:
-    explicit PerformanceCounterQueryWin32(const uint32_t cpuCount, const TimeSpan currentTime);
+    explicit PerformanceCounterQueryWin32(const uint32_t cpuCount, const TickCount currentTime);
     ~PerformanceCounterQueryWin32();
 
-    bool TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex, const TimeSpan currentTime) const;
+    bool TryGetCpuUsage(CpuUsageRecord& rUsageRecord, const uint32_t cpuIndex, const TickCount currentTime) const;
     bool TryQueryCountersNow() const;
 
   private:

@@ -45,25 +45,25 @@ namespace
 
 TEST(TestReadOnlyFlexSpanUtilArray, AsSpan)
 {
-  constexpr static std::array<char, 11> data = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
-  ReadOnlyFlexSpan span = ReadOnlyFlexSpanUtil::AsSpan(data);
+  constexpr static std::array<char, 11> Data = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+  ReadOnlyFlexSpan span = ReadOnlyFlexSpanUtil::AsSpan(Data);
 
   EXPECT_FALSE(span.empty());
-  EXPECT_EQ(span.data(), data.data());
-  EXPECT_EQ(span.size(), data.size());
-  EXPECT_EQ(span.length(), data.size());
+  EXPECT_EQ(span.data(), Data.data());
+  EXPECT_EQ(span.size(), Data.size());
+  EXPECT_EQ(span.length(), Data.size());
   EXPECT_EQ(span.stride(), sizeof(char));
 }
 
 
 TEST(TestReadOnlyFlexSpanUtilArray, AsSpan_Empty)
 {
-  constexpr static std::array<char, 0> data{};
-  ReadOnlyFlexSpan span = ReadOnlyFlexSpanUtil::AsSpan(data);
+  constexpr static std::array<char, 0> Data{};
+  ReadOnlyFlexSpan span = ReadOnlyFlexSpanUtil::AsSpan(Data);
 
   EXPECT_TRUE(span.empty());
-  EXPECT_EQ(span.data(), data.data());
-  EXPECT_EQ(span.size(), data.size());
-  EXPECT_EQ(span.length(), data.size());
+  EXPECT_EQ(span.data(), Data.data());
+  EXPECT_EQ(span.size(), Data.size());
+  EXPECT_EQ(span.length(), Data.size());
   EXPECT_EQ(span.stride(), sizeof(char));
 }

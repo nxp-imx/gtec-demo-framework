@@ -39,10 +39,10 @@ namespace Fsl
   class CpuStatsAdapterAll final : public ICpuStatsAdapter
   {
   public:
-    void Process() final{};
+    void Process() final {};
     uint32_t GetCpuCount() const final;
-    bool TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex) const final;
-    bool TryGetApplicationCpuUsage(float& rUsagePercentage) const final;
+    bool TryGetCpuUsage(CpuUsageRecord& rUsageRecord, const uint32_t cpuIndex) const final;
+    bool TryGetApplicationCpuUsage(CpuUsageRecord& rUsageRecord) const final;
     bool TryGetApplicationRamUsage(uint64_t& rRamUsage) const final;
   };
 }

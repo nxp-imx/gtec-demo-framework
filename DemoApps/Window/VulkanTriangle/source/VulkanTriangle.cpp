@@ -45,10 +45,10 @@ namespace Fsl
 {
   namespace
   {
-    const std::size_t VKTS_NUMBER_BUFFERS = 2;
+    constexpr std::size_t VktsNumberBuffers = 2;
 
-    const auto VKTS_VERTEX_SHADER_NAME = "vertex_only_ndc.vert.spv";
-    const auto VKTS_FRAGMENT_SHADER_NAME = "red.frag.spv";
+    constexpr auto VktsVertexShaderName = "vertex_only_ndc.vert.spv";
+    constexpr auto VktsFragmentShaderName = "red.frag.spv";
   }
 
 
@@ -168,12 +168,12 @@ namespace Fsl
   {
     // Window clip origin is upper left.
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-    static const float vertices[3 * 4] = {-0.5f, 0.5f, 0.0f, 1.0f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, -0.5f, 0.0f, 1.0f};
+    static const float g_vertices[3 * 4] = {-0.5f, 0.5f, 0.0f, 1.0f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, -0.5f, 0.0f, 1.0f};
 
     VkBufferCreateInfo bufferCreateInfo{};
     bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferCreateInfo.flags = 0;
-    bufferCreateInfo.size = sizeof(vertices);
+    bufferCreateInfo.size = sizeof(g_vertices);
     bufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
     bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     bufferCreateInfo.queueFamilyIndexCount = 0;
@@ -192,9 +192,9 @@ namespace Fsl
     void* mappedData = nullptr;
 
     // TODO: (Improvement) Use a scoped map memory command since it would be exception safe
-    RAPIDVULKAN_CHECK(vkMapMemory(m_deviceMemoryVertexBuffer.GetDevice(), m_deviceMemoryVertexBuffer.Get(), 0, sizeof(vertices), 0, &mappedData));
+    RAPIDVULKAN_CHECK(vkMapMemory(m_deviceMemoryVertexBuffer.GetDevice(), m_deviceMemoryVertexBuffer.Get(), 0, sizeof(g_vertices), 0, &mappedData));
     {
-      std::memcpy(mappedData, vertices, sizeof(vertices));
+      std::memcpy(mappedData, g_vertices, sizeof(g_vertices));
 
       if ((physicalDeviceMemoryProperties.memoryTypes[memoryTypeIndex].propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == 0u)
       {
@@ -202,7 +202,7 @@ namespace Fsl
         mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
         mappedMemoryRange.memory = m_deviceMemoryVertexBuffer.Get();
         mappedMemoryRange.offset = 0;
-        mappedMemoryRange.size = sizeof(vertices);
+        mappedMemoryRange.size = sizeof(g_vertices);
 
         RAPIDVULKAN_CHECK(vkFlushMappedMemoryRanges(m_deviceMemoryVertexBuffer.GetDevice(), 1, &mappedMemoryRange));
       }
@@ -215,8 +215,8 @@ namespace Fsl
 
   void VulkanTriangle::BuildShader()
   {
-    const auto vertexShaderBinary = GetContentManager()->ReadBytes(VKTS_VERTEX_SHADER_NAME);
-    const auto fragmentShaderBinary = GetContentManager()->ReadBytes(VKTS_FRAGMENT_SHADER_NAME);
+    const auto vertexShaderBinary = GetContentManager()->ReadBytes(VktsVertexShaderName);
+    const auto fragmentShaderBinary = GetContentManager()->ReadBytes(VktsFragmentShaderName);
 
     m_vertexShaderModule.Reset(m_device.Get(), 0, vertexShaderBinary.size(), reinterpret_cast<const uint32_t*>(vertexShaderBinary.data()));
     m_fragmentShaderModule.Reset(m_device.Get(), 0, fragmentShaderBinary.size(), reinterpret_cast<const uint32_t*>(fragmentShaderBinary.data()));
@@ -233,8 +233,8 @@ namespace Fsl
   {
     auto fallbackExtent = TypeConverter::UncheckedTo<VkExtent2D>(GetScreenExtent());
     m_swapchain = Vulkan::SwapchainKHRUtil::CreateSwapchain(
-      m_physicalDevice.Device, m_device.Get(), 0, m_surface, VKTS_NUMBER_BUFFERS, 1, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_SHARING_MODE_EXCLUSIVE,
-      0, nullptr, VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, VK_TRUE, m_swapchain.Get(), fallbackExtent, Vulkan::SurfaceFormatInfo());
+      m_physicalDevice.Device, m_device.Get(), 0, m_surface, VktsNumberBuffers, 1, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_SHARING_MODE_EXCLUSIVE, 0,
+      nullptr, VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, VK_TRUE, m_swapchain.Get(), fallbackExtent, Vulkan::SurfaceFormatInfo());
 
     uint32_t swapchainImagesCount = m_swapchain.GetImageCount();
     if (swapchainImagesCount == 0)

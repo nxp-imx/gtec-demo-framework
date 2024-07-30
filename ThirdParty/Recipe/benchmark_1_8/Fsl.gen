@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.benchmark_1_8" CreationYear="2022">
+    <Requirement Name="GoogleBenchmark" Type="feature"/>
+    <!--Dependency Name="GTest"/-->
+    <Default.Platform.Supported Value="false"/>
+    <Platform Name="Ubuntu" Supported="true">
+      <ExperimentalRecipe Name="benchmark" Version="1.8" FindTargetName="benchmark::benchmark benchmark::benchmark_main">
+        <Pipeline>
+          <Download URL="https://github.com/google/benchmark/archive/refs/tags/v1.8.3.tar.gz" To="googlebenchmark-1.8.3.tar.gz" Hash="6bc180a57d23d4d9515519f92b0c83d61b05b5bab188961f36ac7b06b0d9e9ce"/>
+          <Unpack File="googlebenchmark-1.8.3.tar.gz" OutputPath="benchmark-1.8.3"/>
+          <CMakeBuild Project="bvenhmark" Target="install" Configuration="release" Options="-DBENCHMARK_ENABLE_TESTING=OFF -DBENCHMARK_USE_BUNDLED_GTEST=OFF" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/libbenchmark.a"/>
+          <AddLib Name="lib/libbenchmark_main.a"/>
+          <Path Name="include/benchmark/benchmark.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+    <Platform Name="Windows" Supported="true">
+      <ExperimentalRecipe Name="benchmark" Version="1.8" FindTargetName="benchmark::benchmark benchmark::benchmark_main" Find="true">
+        <Pipeline>
+          <Download URL="https://github.com/google/benchmark/archive/refs/tags/v1.8.3.tar.gz" To="googlebenchmark-1.8.3.tar.gz" Hash="6bc180a57d23d4d9515519f92b0c83d61b05b5bab188961f36ac7b06b0d9e9ce"/>
+          <Unpack File="googlebenchmark-1.8.3.tar.gz" OutputPath="benchmark-1.8.3"/>
+          <Copy>
+            <GitApply From="{RECIPE_PATH}/patch_debug.patch"/>
+          </Copy>
+          <CMakeBuild Project="bvenhmark" Target="install" Configuration="debug;release" Options="-DBENCHMARK_ENABLE_TESTING=OFF -DBENCHMARK_USE_BUNDLED_GTEST=OFF" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/benchmark.lib" DebugName="lib/benchmarkd.lib"/>
+          <AddLib Name="lib/benchmark_main.lib" DebugName="lib/benchmark_maind.lib"/>
+          <Path Name="include/benchmark/benchmark.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

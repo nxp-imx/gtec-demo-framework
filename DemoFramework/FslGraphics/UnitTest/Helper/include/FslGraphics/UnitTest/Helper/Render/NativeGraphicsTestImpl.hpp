@@ -42,13 +42,13 @@ namespace Fsl
   class NativeGraphicsTestImpl : public INativeGraphics
   {
   public:
-    std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+    std::shared_ptr<INativeTexture2D> CreateTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                       const TextureFlags textureFlags) override
     {
       return std::make_shared<NativeTextureTestImpl>(texture, filterHint, textureFlags);
     }
 
-    std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+    std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                                     const TextureFlags textureFlags) override
     {
       return std::make_shared<DynamicNativeTextureTestImpl>(texture, filterHint, textureFlags);

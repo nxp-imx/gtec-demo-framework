@@ -46,7 +46,7 @@ namespace Fsl
   }
 
 
-  Texture2D::Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
+  Texture2D::Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const ReadOnlyRawBitmap& bitmap, const Texture2DFilterHint filterHint,
                        const TextureFlags textureFlags)
     : Texture2D()
   {
@@ -62,8 +62,8 @@ namespace Fsl
   }
 
 
-  Texture2D::Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawTexture& texture, const Texture2DFilterHint filterHint,
-                       const TextureFlags textureFlags)
+  Texture2D::Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const ReadOnlyRawTexture& texture,
+                       const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
     : Texture2D()
   {
     Reset(nativeGraphics, texture, filterHint, textureFlags);
@@ -73,9 +73,8 @@ namespace Fsl
   void Texture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint,
                         const TextureFlags textureFlags)
   {
-    RawBitmap rawBitmap;
-    Bitmap::ScopedDirectAccess directAccess(bitmap, rawBitmap);
-    Reset(nativeGraphics, rawBitmap, filterHint, textureFlags);
+    const Bitmap::ScopedDirectReadAccess directAccess(bitmap);
+    Reset(nativeGraphics, directAccess.AsRawBitmap(), filterHint, textureFlags);
   }
 
 
@@ -85,14 +84,14 @@ namespace Fsl
   }
 
 
-  void Texture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
+  void Texture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const ReadOnlyRawBitmap& bitmap, const Texture2DFilterHint filterHint,
                         const TextureFlags textureFlags)
   {
     if (!bitmap.IsValid())
     {
       throw std::invalid_argument("bitmap is invalid");
     }
-    if (bitmap.Width() < 1 || bitmap.Height() < 1)
+    if (bitmap.RawUnsignedWidth() < 1u || bitmap.RawUnsignedHeight() < 1u)
     {
       throw std::invalid_argument("bitmap size is invalid");
     }
@@ -104,14 +103,13 @@ namespace Fsl
   void Texture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Texture& texture, const Texture2DFilterHint filterHint,
                         const TextureFlags textureFlags)
   {
-    RawTexture rawTexture;
-    Texture::ScopedDirectAccess directAccess(texture, rawTexture);
-    Reset(nativeGraphics, rawTexture, filterHint, textureFlags);
+    Texture::ScopedDirectReadAccess directAccess(texture);
+    Reset(nativeGraphics, directAccess.AsRawTexture(), filterHint, textureFlags);
   }
 
 
-  void Texture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawTexture& texture, const Texture2DFilterHint filterHint,
-                        const TextureFlags textureFlags)
+  void Texture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const ReadOnlyRawTexture& texture,
+                        const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
   {
     if (!nativeGraphics)
     {

@@ -73,10 +73,10 @@ namespace Fsl::UI
 
   protected:
     // Event forwarding
-    void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) final;
-    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) final;
-    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final;
-    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final;
+    void OnClickInputPreview(const std::shared_ptr<WindowInputClickEvent>& theEvent) final;
+    void OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent) final;
+    void OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent) final;
+    void OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent) final;
 
     //! Layout
     PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final

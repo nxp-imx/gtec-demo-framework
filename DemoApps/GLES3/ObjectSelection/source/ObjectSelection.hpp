@@ -73,19 +73,19 @@ namespace Fsl
     struct ProgramDirectionalLight
     {
       GLES3::GLProgram Program;
-      GLint LocWorldView = GLES3::GLValues::INVALID_LOCATION;
-      GLint LocWorldViewProjection = GLES3::GLValues::INVALID_LOCATION;
-      GLint LocNormalMatrix = GLES3::GLValues::INVALID_LOCATION;
-      GLint LocTexture0 = GLES3::GLValues::INVALID_LOCATION;
-      GLint LocLightDirection = GLES3::GLValues::INVALID_LOCATION;
-      GLint LocLightColor = GLES3::GLValues::INVALID_LOCATION;
-      GLint LocAmbientColor = GLES3::GLValues::INVALID_LOCATION;
+      GLint LocWorldView = GLES3::GLValues::InvalidLocation;
+      GLint LocWorldViewProjection = GLES3::GLValues::InvalidLocation;
+      GLint LocNormalMatrix = GLES3::GLValues::InvalidLocation;
+      GLint LocTexture0 = GLES3::GLValues::InvalidLocation;
+      GLint LocLightDirection = GLES3::GLValues::InvalidLocation;
+      GLint LocLightColor = GLES3::GLValues::InvalidLocation;
+      GLint LocAmbientColor = GLES3::GLValues::InvalidLocation;
     };
 
     struct ProgramColor
     {
       GLES3::GLProgram Program;
-      GLint LocWorldViewProjection = GLES3::GLValues::INVALID_LOCATION;
+      GLint LocWorldViewProjection = GLES3::GLValues::InvalidLocation;
     };
 
     struct MeshObject

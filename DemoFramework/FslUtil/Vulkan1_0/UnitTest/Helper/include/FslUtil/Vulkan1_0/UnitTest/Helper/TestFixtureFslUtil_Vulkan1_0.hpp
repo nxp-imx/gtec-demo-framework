@@ -34,6 +34,7 @@
 #include <FslBase/IO/Path.hpp>
 #include <FslUnitTest/TestFixture.hpp>
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 class TestFixtureFslUtil_Vulkan1_0 : public TestFixture
 {
 public:

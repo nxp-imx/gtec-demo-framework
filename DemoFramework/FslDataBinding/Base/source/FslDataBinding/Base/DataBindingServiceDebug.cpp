@@ -92,7 +92,7 @@ namespace Fsl::DataBinding
       {
         return {};
       }
-      // No default to get a compiler warnign if we miss somthing
+      // No default to get a compiler warning if we miss something
       switch (userBinding->GetBindingType())
       {
       case BindingType::AConverterBinding:
@@ -115,6 +115,8 @@ namespace Fsl::DataBinding
         return fmt::format("DependencyObserverProperty{}", hNode.Value);
       case DataBindingInstanceType::DataSourceObject:
         return fmt::format("DataSourceObject{}", hNode.Value);
+      case DataBindingInstanceType::ReadOnlyDependencyProperty:
+        return fmt::format("DependencyProperty{}", hNode.Value);
       default:
         return fmt::format("Unknown{}", hNode.Value);
       }
@@ -132,6 +134,8 @@ namespace Fsl::DataBinding
         return fmt::format("DependencyObserverProperty ({})", hNode.Value);
       case DataBindingInstanceType::DataSourceObject:
         return fmt::format("DataSourceObject ({})", hNode.Value);
+      case DataBindingInstanceType::ReadOnlyDependencyProperty:
+        return fmt::format("ReadOnlyDependencyProperty ({})\\n<{}>", hNode.Value, ToType(instance.Methods));
       default:
         return fmt::format("Unknown ({})", hNode.Value);
       }

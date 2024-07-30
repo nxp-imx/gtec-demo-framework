@@ -35,6 +35,7 @@ namespace Fsl
   {
     class VulkanMeshLoaderAssimp : public VulkanMeshLoader
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       Assimp::Importer Importer;
 
     public:

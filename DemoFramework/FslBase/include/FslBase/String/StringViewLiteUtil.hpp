@@ -1,7 +1,7 @@
 #ifndef FSLBASE_STRING_STRINGVIEWLITEUTIL_HPP
 #define FSLBASE_STRING_STRINGVIEWLITEUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,98 +39,67 @@ namespace Fsl
   // Adds comparision operators for std::string
   // Added in a external file to ensure that not all StringViewLite users need to depend on std::string (and its header)
 
-  namespace StringViewLiteUtil
+  inline bool operator==(const StringViewLite lhs, const std::string& rhs) noexcept
   {
-    constexpr inline const char* NotNull(const char* const psz) noexcept
-    {
-      return psz != nullptr ? psz : "";
-    }
-
-    inline StringViewLite AsStringViewLite(const std::string& str) noexcept
-    {
-      return StringViewLite(NotNull(str.c_str()), str.size());
-    }
-
-    inline std::string ToString(const StringViewLite& strView)
-    {
-      return {strView.data(), strView.size()};
-    }
-
-    inline void Set(std::string& rStr, const StringViewLite& strView)
-    {
-      if (!strView.empty())
-      {
-        rStr.assign(strView.data(), strView.size());
-      }
-      else
-      {
-        rStr.clear();
-      }
-      // rStr.assign(strView.data(), strView.size());
-    }
+    return lhs == StringViewLite(rhs);
   }
-
-  inline bool operator==(const StringViewLite& lhs, const std::string& rhs) noexcept
+  inline bool operator==(const std::string& lhs, const StringViewLite rhs) noexcept
   {
-    return lhs == StringViewLiteUtil::AsStringViewLite(rhs);
-  }
-  inline bool operator==(const std::string& lhs, const StringViewLite& rhs) noexcept
-  {
-    return StringViewLiteUtil::AsStringViewLite(lhs) == rhs;
+    return StringViewLite(lhs) == rhs;
   }
 
 
-  inline bool operator!=(const StringViewLite& lhs, const std::string& rhs) noexcept
+  inline bool operator!=(const StringViewLite lhs, const std::string& rhs) noexcept
   {
-    return lhs != StringViewLiteUtil::AsStringViewLite(rhs);
+    return lhs != StringViewLite(rhs);
   }
-  inline bool operator!=(const std::string& lhs, const StringViewLite& rhs) noexcept
+  inline bool operator!=(const std::string& lhs, const StringViewLite rhs) noexcept
   {
-    return StringViewLiteUtil::AsStringViewLite(lhs) != rhs;
-  }
-
-
-  inline bool operator<(const StringViewLite& lhs, const std::string& rhs) noexcept
-  {
-    return lhs < StringViewLiteUtil::AsStringViewLite(rhs);
-  }
-
-  inline bool operator<(const std::string& lhs, const StringViewLite& rhs) noexcept
-  {
-    return StringViewLiteUtil::AsStringViewLite(lhs) < rhs;
+    return StringViewLite(lhs) != rhs;
   }
 
 
-  inline bool operator<=(const StringViewLite& lhs, const std::string& rhs) noexcept
+  inline bool operator<(const StringViewLite lhs, const std::string& rhs) noexcept
   {
-    return lhs <= StringViewLiteUtil::AsStringViewLite(rhs);
+    return lhs < StringViewLite(rhs);
   }
 
-  inline bool operator<=(const std::string& lhs, const StringViewLite& rhs) noexcept
+  inline bool operator<(const std::string& lhs, const StringViewLite rhs) noexcept
   {
-    return StringViewLiteUtil::AsStringViewLite(lhs) <= rhs;
-  }
-
-
-  inline bool operator>(const StringViewLite& lhs, const std::string& rhs) noexcept
-  {
-    return lhs > StringViewLiteUtil::AsStringViewLite(rhs);
-  }
-
-  inline bool operator>(const std::string& lhs, const StringViewLite& rhs) noexcept
-  {
-    return StringViewLiteUtil::AsStringViewLite(lhs) > rhs;
+    return StringViewLite(lhs) < rhs;
   }
 
 
-  inline bool operator>=(const StringViewLite& lhs, const std::string& rhs) noexcept
+  inline bool operator<=(const StringViewLite lhs, const std::string& rhs) noexcept
   {
-    return lhs >= StringViewLiteUtil::AsStringViewLite(rhs);
+    return lhs <= StringViewLite(rhs);
   }
 
-  inline bool operator>=(const std::string& lhs, const StringViewLite& rhs) noexcept
+  inline bool operator<=(const std::string& lhs, const StringViewLite rhs) noexcept
   {
-    return StringViewLiteUtil::AsStringViewLite(lhs) >= rhs;
+    return StringViewLite(lhs) <= rhs;
+  }
+
+
+  inline bool operator>(const StringViewLite lhs, const std::string& rhs) noexcept
+  {
+    return lhs > StringViewLite(rhs);
+  }
+
+  inline bool operator>(const std::string& lhs, const StringViewLite rhs) noexcept
+  {
+    return StringViewLite(lhs) > rhs;
+  }
+
+
+  inline bool operator>=(const StringViewLite lhs, const std::string& rhs) noexcept
+  {
+    return lhs >= StringViewLite(rhs);
+  }
+
+  inline bool operator>=(const std::string& lhs, const StringViewLite rhs) noexcept
+  {
+    return StringViewLite(lhs) >= rhs;
   }
 
 }

@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/OpenGLES3/GLVertexElementAttribLinks.hpp>
 #include <FslUtil/OpenGLES3/GLVertexElements.hpp>
@@ -46,7 +46,7 @@ namespace Fsl::GLES3
 
   GLVertexElementAttribLinks::GLVertexElementAttribLinks(const ReadOnlySpan<GLVertexElementAttribConfig>& vertexElementAttribConfigs,
                                                          const uint32_t vertexStride)
-    : m_entries(ReadOnlySpanUtil::ToVector(vertexElementAttribConfigs))
+    : m_entries(SpanUtil::ToVector(vertexElementAttribConfigs))
     , m_vertexStride(vertexStride)
   {
   }
@@ -81,6 +81,6 @@ namespace Fsl::GLES3
 
   ReadOnlySpan<GLVertexElementAttribConfig> GLVertexElementAttribLinks::AsSpan() const
   {
-    return ReadOnlySpanUtil::AsSpan(m_entries);
+    return SpanUtil::AsReadOnlySpan(m_entries);
   }
 }

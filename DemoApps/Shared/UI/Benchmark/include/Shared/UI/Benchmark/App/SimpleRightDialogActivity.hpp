@@ -56,7 +56,7 @@ namespace Fsl::UI
     SimpleRightDialogActivity(std::weak_ptr<IActivityStack> activityStack, const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
                               const Theme::WindowType windowType);
 
-    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override;
+    void OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent) override;
   };
 }
 

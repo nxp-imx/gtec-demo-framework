@@ -58,7 +58,7 @@ namespace Fsl
 {
   namespace
   {
-    const auto TEXTURE_PATH = "Textures/GPUSdkTest";
+    constexpr auto TexturePath = "Textures/GPUSdkTest";
 
     struct CreateContext
     {
@@ -83,7 +83,7 @@ namespace Fsl
 
     std::shared_ptr<UI::BaseWindow> CreateTextureControl(const CreateContext& context, const Texture& texture, const std::string& caption)
     {
-      constexpr UI::DpLayoutSize1D forcedSizeDp(DpValue(320));
+      constexpr UI::DpLayoutSize1D ForcedSizeDp(DpValue(320));
 
       Texture2D sourceTexture(context.GraphicsService.GetNativeGraphics(), texture, Texture2DFilterHint::Smooth);
 
@@ -97,7 +97,7 @@ namespace Fsl
       label->SetContentAlignmentX(UI::ItemAlignment::Center);
       label->SetContentAlignmentY(UI::ItemAlignment::Far);
       label->SetContent(caption);
-      label->SetWidth(forcedSizeDp);
+      label->SetWidth(ForcedSizeDp);
 
       auto tex = std::make_shared<UI::Image>(context.WindowContext);
       tex->SetScalePolicy(UI::ItemScalePolicy::FitKeepAR);
@@ -186,7 +186,7 @@ namespace Fsl
     void CreateTextureControlsIfSupported(std::deque<std::shared_ptr<UI::BaseWindow>>& rTextures, const CreateContext& context, const IO::Path& path,
                                           const PixelFormat switchPF, const Texture& notSupportedTexture)
     {
-      IO::Path newPath = IO::Path::Combine(TEXTURE_PATH, path);
+      IO::Path newPath = IO::Path::Combine(TexturePath, path);
 
       //  If no format feature flags are supported, the format itself is not supported, and images of that format cannot be created.
       auto texture = context.ContentManager.ReadTexture(newPath, switchPF, BitmapOrigin::UpperLeft);
@@ -218,7 +218,7 @@ namespace Fsl
         std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))    // Prepare the extension
   {
     // ASTC (Adaptive scalable texture compression)
-    const bool hasASTC_LDR = m_deviceActiveFeatures.textureCompressionASTC_LDR != VK_FALSE;
+    const bool hasAstcLdr = m_deviceActiveFeatures.textureCompressionASTC_LDR != VK_FALSE;
     const bool hasETC2 = m_deviceActiveFeatures.textureCompressionETC2 != VK_FALSE;
     const bool hasBC = m_deviceActiveFeatures.textureCompressionBC != VK_FALSE;
 
@@ -229,12 +229,12 @@ namespace Fsl
 
     FSLLOG3_INFO("Compression extensions");
     FSLLOG3_INFO("ASTC");
-    FSLLOG3_INFO("- textureCompressionASTC_LDR: {}", hasASTC_LDR);
+    FSLLOG3_INFO("- textureCompressionASTC_LDR: {}", hasAstcLdr);
     // FSLLOG3_INFO("- " << VK_EXT_ASTC_DECODE_MODE_EXTENSION_NAME << ": " << hasASTC_DecodeMode);
 
 
     FSLLOG3_INFO("ASTC (Adaptive scalable texture compression)");
-    FSLLOG3_INFO("- LDR: {}", hasASTC_LDR);
+    FSLLOG3_INFO("- LDR: {}", hasAstcLdr);
     // FSLLOG3_INFO("- HDR: " << hasASTC_HDR);
     // FSLLOG3_INFO("- DecodeMode: " << hasASTC_DecodeMode);
     FSLLOG3_INFO("ETC2 (Ericsson Texture Compression): {}", hasETC2);

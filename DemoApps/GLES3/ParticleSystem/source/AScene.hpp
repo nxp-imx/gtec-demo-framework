@@ -55,15 +55,15 @@ namespace Fsl
     explicit AScene(const DemoAppConfig& config);
     virtual ~AScene() = default;
 
-    virtual void OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& /*theEvent*/){};
-    virtual void OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& /*theEvent*/){};
-    virtual void OnKeyEvent(const KeyEvent& /*event*/){};
-    virtual void OnMouseButtonEvent(const MouseButtonEvent& /*event*/){};
-    virtual void OnMouseMoveEvent(const MouseMoveEvent& /*event*/){};
-    virtual void OnMouseWheelEvent(const MouseWheelEvent& /*event*/){};
+    virtual void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& /*theEvent*/) {};
+    virtual void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& /*theEvent*/) {};
+    virtual void OnKeyEvent(const KeyEvent& /*event*/) {};
+    virtual void OnMouseButtonEvent(const MouseButtonEvent& /*event*/) {};
+    virtual void OnMouseMoveEvent(const MouseMoveEvent& /*event*/) {};
+    virtual void OnMouseWheelEvent(const MouseWheelEvent& /*event*/) {};
 
-    virtual void Update(const DemoTime& /*demoTime*/){};
-    virtual void Draw(){};
+    virtual void Update(const DemoTime& /*demoTime*/) {};
+    virtual void Draw() {};
 
   protected:
     PxSize2D GetSizePx() const

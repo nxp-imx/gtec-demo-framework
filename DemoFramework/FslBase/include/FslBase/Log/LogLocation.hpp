@@ -35,14 +35,16 @@ namespace Fsl
 {
   struct LogLocation
   {
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const char* pszFile;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const char* pszFunction;
-    int line;
+    int Line;
 
-    constexpr LogLocation(const char* const _pszFile, const char* const _pszFunction, const int _line)
-      : pszFile(_pszFile)
-      , pszFunction(_pszFunction)
-      , line(_line)
+    constexpr LogLocation(const char* const pszFile, const char* const pszFunction, const int line)
+      : pszFile(pszFile)
+      , pszFunction(pszFunction)
+      , Line(line)
     {
     }
   };

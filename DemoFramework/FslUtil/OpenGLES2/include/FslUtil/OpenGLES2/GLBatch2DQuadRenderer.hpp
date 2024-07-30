@@ -93,11 +93,11 @@ namespace Fsl
         std::array<OldVertexAttrib, 3> Attrib{};
 
         OldState()
-          : ActiveTexture(GLValues::INVALID_HANDLE)
-          , CurrentTexture(GLValues::INVALID_HANDLE)
-          , CurrentProgram(GLValues::INVALID_HANDLE)
-          , VertexBuffer(GLValues::INVALID_HANDLE)
-          , IndexBuffer(GLValues::INVALID_HANDLE)
+          : ActiveTexture(GLValues::InvalidHandle)
+          , CurrentTexture(GLValues::InvalidHandle)
+          , CurrentProgram(GLValues::InvalidHandle)
+          , VertexBuffer(GLValues::InvalidHandle)
+          , IndexBuffer(GLValues::InvalidHandle)
         {
         }
       };
@@ -106,9 +106,9 @@ namespace Fsl
       {
         GLProgram Program;
         std::array<GLVertexAttribLink, 3> AttribLink;
-        GLint LocMatModelViewProj{GLValues::INVALID_LOCATION};
-        GLint LocTexture{GLValues::INVALID_LOCATION};
-        GLint LocSmoothing{GLValues::INVALID_LOCATION};
+        GLint LocMatModelViewProj{GLValues::InvalidLocation};
+        GLint LocTexture{GLValues::InvalidLocation};
+        GLint LocSmoothing{GLValues::InvalidLocation};
         PxSize2D CachedSizePx;
       };
 

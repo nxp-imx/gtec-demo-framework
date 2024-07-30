@@ -39,10 +39,15 @@ namespace Fsl
   class Spring
   {
   public:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     PointMass* m_pEnd1;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     PointMass* m_pEnd2;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     float m_targetLength;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     float m_stiffness;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     float m_damping;
 
 

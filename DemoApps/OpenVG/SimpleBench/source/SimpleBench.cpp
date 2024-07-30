@@ -43,7 +43,7 @@ namespace Fsl
 {
   namespace
   {
-    const int32_t NUM_DRAWS_PER_BENCH = 10;
+    const int32_t g_numDrawsPerBench = 10;
   }
 
 
@@ -106,8 +106,8 @@ namespace Fsl
 
   void SimpleBench::Draw(const FrameInfo& frameInfo)
   {
-    constexpr std::array<VGfloat, 4> color = {0.0f, 0.0f, 0.0f, 0.0f};
-    vgSetfv(VG_CLEAR_COLOR, UncheckedNumericCast<VGint>(color.size()), color.data());
+    constexpr std::array<VGfloat, 4> Color = {0.0f, 0.0f, 0.0f, 0.0f};
+    vgSetfv(VG_CLEAR_COLOR, UncheckedNumericCast<VGint>(Color.size()), Color.data());
 
     const PxSize2D currentSizePx = GetWindowSizePx();
     vgClear(0, 0, currentSizePx.RawWidth(), currentSizePx.RawHeight());
@@ -123,7 +123,7 @@ namespace Fsl
     m_taskTime += endTime - beginTime;
 
     ++m_benchDrawCount;
-    if (m_benchDrawCount >= NUM_DRAWS_PER_BENCH)
+    if (m_benchDrawCount >= g_numDrawsPerBench)
     {
       FSLLOG3_INFO("Benchmark {} time: {} microseconds", m_current->GetName(), TimeSpanUtil::ToMicrosecondsInt64(m_taskTime));
       NextBenchmark();

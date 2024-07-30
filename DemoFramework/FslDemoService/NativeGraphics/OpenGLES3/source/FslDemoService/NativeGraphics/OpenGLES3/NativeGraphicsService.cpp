@@ -65,15 +65,15 @@ namespace Fsl::GLES3
   }
 
 
-  void NativeGraphicsService::Capture(Bitmap& rBitmap, const Rectangle& srcRectangle)
+  void NativeGraphicsService::Capture(Bitmap& rBitmap, const PxRectangle& srcRectanglePx)
   {
-    GLUtil::Capture(rBitmap, PixelFormat::R8G8B8A8_UINT, srcRectangle);
+    GLUtil::Capture(rBitmap, PixelFormat::R8G8B8A8_UINT, srcRectanglePx);
   }
 
 
   std::shared_ptr<INativeGraphicsBasic2D> NativeGraphicsService::CreateBasic2D(const PxExtent2D& extentPx)
   {
-    auto quadRenderer = std::make_shared<GLBatch2DQuadRenderer>(GenericBatch2D_DEFAULT_CAPACITY);
+    auto quadRenderer = std::make_shared<GLBatch2DQuadRenderer>(GenericBatch2DDefaultCapacity);
     return std::make_shared<NativeGraphicsBasic2D>(quadRenderer, extentPx);
   }
 

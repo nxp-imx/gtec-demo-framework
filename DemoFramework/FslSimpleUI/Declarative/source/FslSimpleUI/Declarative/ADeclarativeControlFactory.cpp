@@ -29,8 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslSimpleUI/Declarative/ADeclarativeControlFactory.hpp>
 #include <fmt/format.h>
 
@@ -60,8 +58,8 @@ namespace Fsl::UI::Declarative
   }
 
 
-  ReadOnlySpan<ControlPropertyRecord> ADeclarativeControlFactory::Properties() const
+  std::span<const ControlPropertyRecord> ADeclarativeControlFactory::Properties() const
   {
-    return ReadOnlySpanUtil::AsSpan(m_properties);
+    return m_properties;
   }
 }

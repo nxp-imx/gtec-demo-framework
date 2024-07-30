@@ -42,7 +42,7 @@ namespace Fsl::UI::Declarative
   {
   public:
     WindowTypeThemeProperty()
-      : WindowTypeThemeProperty(PropertyName("theme:Type"))
+      : WindowTypeThemeProperty(PropertyName("theme_Type"))
     {
     }
 

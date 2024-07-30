@@ -54,7 +54,7 @@ namespace Fsl::UI
     virtual void SetEnabled(const bool enable);
 
   protected:
-    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
+    void OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
 
     //! @brief Check if the button is down at the moment
     bool IsDown() const

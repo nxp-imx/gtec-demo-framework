@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Bitmap/RawBitmap.hpp>
+#include <FslGraphics/Bitmap/ReadOnlyRawBitmap.hpp>
 
 namespace Fsl
 {
@@ -44,9 +44,9 @@ namespace Fsl
   public:
     //! @brief Given a raw bitmap calculate the row alignment that fits the stride or throw a UnsupportedStrideException if
     //         none fits (the alignment is the minimum padding necessary after a pixel row to start the next one at the given alignment).
-    static int CalcAlignment(const RawBitmap& rawBitmap, const uint32_t bytesPerPixel)
+    static int CalcAlignment(const ReadOnlyRawBitmap& rawBitmap, const uint32_t bytesPerPixel)
     {
-      return CalcAlignment(rawBitmap.GetPixelFormat(), rawBitmap.Width(), rawBitmap.Stride(), bytesPerPixel);
+      return CalcAlignment(rawBitmap.GetPixelFormat(), rawBitmap.RawUnsignedWidth(), rawBitmap.Stride(), bytesPerPixel);
     }
 
     //! @brief Given a raw bitmap calculate the row alignment that fits the stride or throw a UnsupportedStrideException if
@@ -55,7 +55,7 @@ namespace Fsl
 
     //! @brief Check if the given bitmap uses the minimum stride for the requested alignment
     //! @throw a UnsupportedStrideException if not
-    static void CheckIsUsingMinimumStrideForAlignment(const RawBitmap& rawBitmap, const uint32_t alignment);
+    static void CheckIsUsingMinimumStrideForAlignment(const ReadOnlyRawBitmap& rawBitmap, const uint32_t alignment);
 
     //! @brief Swizzle the color channels in a 24 or 32bpp image according to the supplied rules
     //! @param rBitmap the bitmap to swizzle.
@@ -139,14 +139,14 @@ namespace Fsl
     //!        The only verification this does is that the bytes per pixel matches and the bitmaps are valid and that width, height and origin
     //!        matches.
     //! @note  If the memory buffers of the bitmaps overlap the result is undefined.
-    static void MemoryCopy(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap);
+    static void MemoryCopy(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap);
 
     //! @brief Swizzle the color channels in a 24bpp image according to the supplied rules
     //! @param rDstBitmap the bitmap to swizzle to.
     //! @param srcBitmap the bitmap to swizzle from.
     //! @note Works on any 3 bytes per pixel format, but the validity is up to the caller to ensure.
     //        This works on overlapping buffers as long as rDstBitmap.Content == srcBitmap.Content and srcBitmap.Stride >= rDstBitmap.Stride
-    static void Swizzle24From012To210(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap);
+    static void Swizzle24From012To210(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap);
 
 
     //! @brief Swizzle the color channels in a 24bpp image according to the supplied rules
@@ -157,7 +157,7 @@ namespace Fsl
     //! @param srcIdx2 the location to read 'byte2' from (0-2)
     //! @note Works on any 3 bytes per pixel format, but the validity is up to the caller to ensure.
     //        This works on overlapping buffers as long as rDstBitmap.Content == srcBitmap.Content and srcBitmap.Stride >= rDstBitmap.Stride
-    static void Swizzle24(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
+    static void Swizzle24(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
                           const uint32_t srcIdx2);
 
     //! @brief Swizzle the color channels in a 32bpp image according to the supplied rules
@@ -168,8 +168,8 @@ namespace Fsl
     //! @param srcIdx3 the location to read 'byte3' from (0-3)
     //! @note Works on any 4 bytes per pixel format, but the validity is up to the caller to ensure.
     //        This works on overlapping buffers as long as rDstBitmap.Content == srcBitmap.Content and srcBitmap.Stride >= rDstBitmap.Stride
-    static void Swizzle32(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1, const uint32_t srcIdx2,
-                          const uint32_t srcIdx3);
+    static void Swizzle32(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
+                          const uint32_t srcIdx2, const uint32_t srcIdx3);
 
     //! @brief Swizzle the color channels in a 32bpp image into a 24bit three channel format using the dstStride to write the new image
     //! @param rBitmap the bitmap to swizzle.
@@ -178,7 +178,7 @@ namespace Fsl
     //! @param srcIdx2 the location to read 'byte2' from (0-3)
     //! @note Works on any 4 bytes per pixel format to 3 bytes per pixel formats, but the validity is up to the caller to ensure.
     //        This does not work on overlapping buffers at all!
-    static void Swizzle32To24(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
+    static void Swizzle32To24(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
                               const uint32_t srcIdx2);
 
     //! @brief Swizzle the color channels in a 32bpp image into a 24bit three channel format using the dstStride to write the new image
@@ -189,7 +189,7 @@ namespace Fsl
     //! @param dstIdx3 the location to write value3 to (0-3)
     //! @note Works on any 4 bytes per pixel format to 3 bytes per pixel formats, but the validity is up to the caller to ensure.
     //        This does not work on overlapping buffers at all!
-    static void Swizzle24To32(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap, const uint32_t dstIdx0, const uint32_t dstIdx1,
+    static void Swizzle24To32(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap, const uint32_t dstIdx0, const uint32_t dstIdx1,
                               const uint32_t dstIdx2, const uint32_t dstIdx3, const uint8_t value3);
 
     //! @brief Average the content of three of the 32bpp images four channels into a 8bit format using the dstStride to write the new image
@@ -200,7 +200,7 @@ namespace Fsl
     //! @param srcIdx2 the location to read 'byte2' from (0-3)
     //! @note Works on any 3 byte format, but the validity is up to the caller to ensure.
     //        This works on overlapping buffers as long as rDstBitmap.Content == srcBitmap.Content and srcBitmap.Stride >= rDstBitmap.Stride
-    static void Average24To8(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
+    static void Average24To8(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
                              const uint32_t srcIdx2);
 
     //! @brief Average the content of three of the 32bpp images four channels into a 8bit format using the dstStride to write the new image
@@ -211,25 +211,25 @@ namespace Fsl
     //! @param srcIdx2 the location to read 'byte2' from (0-3)
     //! @note Works on any 4 byte format, but the validity is up to the caller to ensure.
     //        This works on overlapping buffers as long as rDstBitmap.Content == srcBitmap.Content and srcBitmap.Stride >= rDstBitmap.Stride
-    static void Average32To8(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
+    static void Average32To8(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1,
                              const uint32_t srcIdx2);
 
     //! @brief Expands a 1byte format into the number of bytes that the rDstBitmap pixel format uses.
     //! @note Works on any 1 byte format, but the validity is up to the caller to ensure.
     //        This does not work on overlapping buffers.
-    static void Expand1ByteToNBytes(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap);
+    static void Expand1ByteToNBytes(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap);
 
     //! @brief Downscales a image using nearest neighbor
-    static void DownscaleNearest(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap);
-    static void DownscaleNearest32(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap);
+    static void DownscaleNearest(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap);
+    static void DownscaleNearest32(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap);
 
     //! @brief Downscale a image using a simple box filter
     //! @note  The rDstBitmap is expected to be half the size of the srcBitmap and must use the same pixel format and origin.
-    static void DownscaleBoxFilter(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap);
+    static void DownscaleBoxFilter(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap);
 
     //! @brief Downscale a image using a simple box filter (only works on 32bit images with four 8bit channels)
     //! @note  The rDstBitmap is expected to be half the size of the srcBitmap and must use the same pixel format and origin.
-    static void DownscaleBoxFilter32(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap);
+    static void DownscaleBoxFilter32(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap);
   };
 }
 

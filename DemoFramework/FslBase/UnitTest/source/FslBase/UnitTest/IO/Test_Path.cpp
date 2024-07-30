@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1269,9 +1269,9 @@ TEST(TestIO_Path, OpAssign_StringViewLite)
   IO::Path src("old school");
   //---------0123456789
 
-  constexpr StringViewLite strNew("the quick brown fox");
-  src = strNew;
-  EXPECT_EQ(strNew, src);
+  constexpr StringViewLite StrNew("the quick brown fox");
+  src = StrNew;
+  EXPECT_EQ(StrNew, src);
 }
 
 TEST(TestIO_Path, OpAssign_PathView)
@@ -1280,9 +1280,9 @@ TEST(TestIO_Path, OpAssign_PathView)
   IO::Path src("old school");
   //---------0123456789
 
-  constexpr IO::PathView strNew("the quick brown fox");
-  src = strNew;
-  EXPECT_EQ(strNew, src);
+  constexpr IO::PathView StrNew("the quick brown fox");
+  src = StrNew;
+  EXPECT_EQ(StrNew, src);
 }
 
 TEST(TestIO_Path, OpAssign_UTF8String)
@@ -1316,8 +1316,8 @@ TEST(TestIO_Path, OpAssign_CString_Null)
   IO::Path src("old school");
   //---------0123456789
 
-  constexpr const char* const pszNull = nullptr;
-  src = pszNull;
+  constexpr const char* const PszNull = nullptr;
+  src = PszNull;
 
   EXPECT_EQ("", src);
 }
@@ -1329,9 +1329,9 @@ TEST(TestIO_Path, OpAssign_StringViewLite_Empty)
   IO::Path src("old school");
   //---------0123456789
 
-  constexpr StringViewLite strNew;
-  src = strNew;
-  EXPECT_EQ(strNew, src);
+  constexpr StringViewLite StrNew;
+  src = StrNew;
+  EXPECT_EQ(StrNew, src);
 }
 
 
@@ -1341,9 +1341,9 @@ TEST(TestIO_Path, OpAssign_PathView_Empty)
   IO::Path src("old school");
   //---------0123456789
 
-  constexpr IO::PathView strNew;
-  src = strNew;
-  EXPECT_EQ(strNew, src);
+  constexpr IO::PathView StrNew;
+  src = StrNew;
+  EXPECT_EQ(StrNew, src);
 }
 
 
@@ -2961,139 +2961,139 @@ TEST(TestIO_Path, OperatorNotEqual_UTF8String_RHS)
 TEST(TestIO_Path, OperatorLessThan_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
 
   EXPECT_FALSE(IO::Path("A") < pszNull);
-  EXPECT_FALSE(IO::Path("A") < strViewNull);
+  EXPECT_FALSE(IO::Path("A") < StrViewNull);
   EXPECT_TRUE(pszNull < IO::Path("A"));
-  EXPECT_TRUE(strViewNull < IO::Path("A"));
+  EXPECT_TRUE(StrViewNull < IO::Path("A"));
 
   // Compare against empty string
   EXPECT_FALSE(IO::Path("") < pszNull);
-  EXPECT_FALSE(IO::Path("") < strViewNull);
+  EXPECT_FALSE(IO::Path("") < StrViewNull);
   EXPECT_FALSE(pszNull < IO::Path(""));
-  EXPECT_FALSE(strViewNull < IO::Path(""));
+  EXPECT_FALSE(StrViewNull < IO::Path(""));
 
   // Compare against null
-  EXPECT_FALSE(pszNull < strViewNull);
-  EXPECT_FALSE(strViewNull < pszNull);
-  EXPECT_FALSE(strViewNull < strViewNull);
+  EXPECT_FALSE(pszNull < StrViewNull);
+  EXPECT_FALSE(StrViewNull < pszNull);
+  EXPECT_FALSE(StrViewNull < StrViewNull);
 }
 
 
 TEST(TestIO_Path, OperatorLessThanOrEqual_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
 
   EXPECT_FALSE(IO::Path("A") <= pszNull);
-  EXPECT_FALSE(IO::Path("A") <= strViewNull);
+  EXPECT_FALSE(IO::Path("A") <= StrViewNull);
   EXPECT_TRUE(pszNull <= IO::Path("A"));
-  EXPECT_TRUE(strViewNull <= IO::Path("A"));
+  EXPECT_TRUE(StrViewNull <= IO::Path("A"));
 
   // Compare against empty string
   EXPECT_TRUE(IO::Path("") <= pszNull);
-  EXPECT_TRUE(IO::Path("") <= strViewNull);
+  EXPECT_TRUE(IO::Path("") <= StrViewNull);
   EXPECT_TRUE(pszNull <= IO::Path(""));
-  EXPECT_TRUE(strViewNull <= IO::Path(""));
+  EXPECT_TRUE(StrViewNull <= IO::Path(""));
 
   // Compare against null
-  EXPECT_TRUE(pszNull <= strViewNull);
-  EXPECT_TRUE(strViewNull <= pszNull);
-  EXPECT_TRUE(strViewNull <= strViewNull);
+  EXPECT_TRUE(pszNull <= StrViewNull);
+  EXPECT_TRUE(StrViewNull <= pszNull);
+  EXPECT_TRUE(StrViewNull <= StrViewNull);
 }
 
 
 TEST(TestIO_Path, OperatorGreaterThan_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
 
   EXPECT_TRUE(IO::Path("A") > pszNull);
-  EXPECT_TRUE(IO::Path("A") > strViewNull);
+  EXPECT_TRUE(IO::Path("A") > StrViewNull);
   EXPECT_FALSE(pszNull > IO::Path("A"));
-  EXPECT_FALSE(strViewNull > IO::Path("A"));
+  EXPECT_FALSE(StrViewNull > IO::Path("A"));
 
   // Compare against empty string
   EXPECT_FALSE(IO::Path("") > pszNull);
-  EXPECT_FALSE(IO::Path("") > strViewNull);
+  EXPECT_FALSE(IO::Path("") > StrViewNull);
   EXPECT_FALSE(pszNull > IO::Path(""));
-  EXPECT_FALSE(strViewNull > IO::Path(""));
+  EXPECT_FALSE(StrViewNull > IO::Path(""));
 
   // Compare against null
-  EXPECT_FALSE(pszNull > strViewNull);
-  EXPECT_FALSE(strViewNull > pszNull);
-  EXPECT_FALSE(strViewNull > strViewNull);
+  EXPECT_FALSE(pszNull > StrViewNull);
+  EXPECT_FALSE(StrViewNull > pszNull);
+  EXPECT_FALSE(StrViewNull > StrViewNull);
 }
 
 
 TEST(TestIO_Path, OperatorGreaterThanOrEqual_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
   // IO::Path str8ViewNull(nullptr);
 
   EXPECT_TRUE(IO::Path("A") >= pszNull);
-  EXPECT_TRUE(IO::Path("A") >= strViewNull);
+  EXPECT_TRUE(IO::Path("A") >= StrViewNull);
   EXPECT_FALSE(pszNull >= IO::Path("A"));
-  EXPECT_FALSE(strViewNull >= IO::Path("A"));
+  EXPECT_FALSE(StrViewNull >= IO::Path("A"));
 
   // Compare against empty string
   EXPECT_TRUE(IO::Path("") >= pszNull);
-  EXPECT_TRUE(IO::Path("") >= strViewNull);
+  EXPECT_TRUE(IO::Path("") >= StrViewNull);
   EXPECT_TRUE(pszNull >= IO::Path(""));
-  EXPECT_TRUE(strViewNull >= IO::Path(""));
+  EXPECT_TRUE(StrViewNull >= IO::Path(""));
 
   // Compare against null
-  EXPECT_TRUE(pszNull >= strViewNull);
-  EXPECT_TRUE(strViewNull >= pszNull);
-  EXPECT_TRUE(strViewNull >= strViewNull);
+  EXPECT_TRUE(pszNull >= StrViewNull);
+  EXPECT_TRUE(StrViewNull >= pszNull);
+  EXPECT_TRUE(StrViewNull >= StrViewNull);
 }
 
 
 TEST(TestIO_Path, OperatorEqual_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
 
   EXPECT_FALSE(IO::Path("A") == pszNull);
-  EXPECT_FALSE(IO::Path("A") == strViewNull);
+  EXPECT_FALSE(IO::Path("A") == StrViewNull);
   EXPECT_FALSE(pszNull == IO::Path("A"));
-  EXPECT_FALSE(strViewNull == IO::Path("A"));
+  EXPECT_FALSE(StrViewNull == IO::Path("A"));
 
   // Compare against empty string
   EXPECT_TRUE(pszNull == IO::Path(""));
-  EXPECT_TRUE(strViewNull == IO::Path(""));
+  EXPECT_TRUE(StrViewNull == IO::Path(""));
   EXPECT_TRUE(IO::Path("") == pszNull);
-  EXPECT_TRUE(IO::Path("") == strViewNull);
+  EXPECT_TRUE(IO::Path("") == StrViewNull);
 
   // Compare against null
-  EXPECT_TRUE(pszNull == strViewNull);
-  EXPECT_TRUE(strViewNull == pszNull);
-  EXPECT_TRUE(strViewNull == strViewNull);
+  EXPECT_TRUE(pszNull == StrViewNull);
+  EXPECT_TRUE(StrViewNull == pszNull);
+  EXPECT_TRUE(StrViewNull == StrViewNull);
 }
 
 
 TEST(TestIO_Path, OperatorNotEqual_Null)
 {
   const char* pszNull = nullptr;
-  constexpr StringViewLite strViewNull(nullptr);
+  constexpr StringViewLite StrViewNull(nullptr);
 
   EXPECT_TRUE(IO::Path("A") != pszNull);
-  EXPECT_TRUE(IO::Path("A") != strViewNull);
+  EXPECT_TRUE(IO::Path("A") != StrViewNull);
   EXPECT_TRUE(pszNull != IO::Path("A"));
-  EXPECT_TRUE(strViewNull != IO::Path("A"));
+  EXPECT_TRUE(StrViewNull != IO::Path("A"));
 
   // Compare against empty string
   EXPECT_FALSE(pszNull != IO::Path(""));
-  EXPECT_FALSE(strViewNull != IO::Path(""));
+  EXPECT_FALSE(StrViewNull != IO::Path(""));
   EXPECT_FALSE(IO::Path("") != pszNull);
-  EXPECT_FALSE(IO::Path("") != strViewNull);
+  EXPECT_FALSE(IO::Path("") != StrViewNull);
 
   // Compare against null
-  EXPECT_FALSE(pszNull != strViewNull);
-  EXPECT_FALSE(strViewNull != pszNull);
-  EXPECT_FALSE(strViewNull != strViewNull);
+  EXPECT_FALSE(pszNull != StrViewNull);
+  EXPECT_FALSE(StrViewNull != pszNull);
+  EXPECT_FALSE(StrViewNull != StrViewNull);
 }
 
 

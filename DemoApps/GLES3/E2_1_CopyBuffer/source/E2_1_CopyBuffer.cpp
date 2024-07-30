@@ -18,11 +18,11 @@ namespace Fsl
   namespace
   {
     // Attribute Arrays Indexes and Sizes
-    constexpr GLint VERTEX_POS_SIZE = 3;        // x, y and z
-    constexpr GLsizei VERTEX_COLOR_SIZE = 4;    // r, g, b, and a
+    constexpr GLint VertexPosSize = 3;        // x, y and z
+    constexpr GLsizei VertexColorSize = 4;    // r, g, b, and a
 
-    constexpr GLuint VERTEX_POS_INDX = 0;
-    constexpr GLuint VERTEX_COLOR_INDX = 1;
+    constexpr GLuint VertexPosIndx = 0;
+    constexpr GLuint VertexColorIndx = 1;
   }
 
 
@@ -43,15 +43,15 @@ namespace Fsl
 
   E2_1_CopyBuffer::~E2_1_CopyBuffer()
   {
-    if (m_userData.copyVboIds[0] == GLValues::INVALID_HANDLE)
+    if (m_userData.CopyVboIds[0] == GLValues::InvalidHandle)
     {
-      glDeleteBuffers(UncheckedNumericCast<GLsizei>(m_userData.copyVboIds.size()), m_userData.copyVboIds.data());
-      m_userData.copyVboIds[0] = GLValues::INVALID_HANDLE;
+      glDeleteBuffers(UncheckedNumericCast<GLsizei>(m_userData.CopyVboIds.size()), m_userData.CopyVboIds.data());
+      m_userData.CopyVboIds[0] = GLValues::InvalidHandle;
     }
-    if (m_userData.vboIds[0] == GLValues::INVALID_HANDLE)
+    if (m_userData.VboIds[0] == GLValues::InvalidHandle)
     {
-      glDeleteBuffers(UncheckedNumericCast<GLsizei>(m_userData.vboIds.size()), m_userData.vboIds.data());
-      m_userData.vboIds[0] = GLValues::INVALID_HANDLE;
+      glDeleteBuffers(UncheckedNumericCast<GLsizei>(m_userData.VboIds.size()), m_userData.VboIds.data());
+      m_userData.VboIds[0] = GLValues::InvalidHandle;
     }
   }
 
@@ -72,7 +72,7 @@ namespace Fsl
 
 
     // 3 vertices, with (x,y,z) ,(r, g, b, a) per-vertex
-    const std::array<GLfloat, 3 * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE)> vertices = {
+    const std::array<GLfloat, 3 * (VertexPosSize + VertexColorSize)> vertices = {
       -0.5f, 0.5f,  0.0f,          // v0
       .4f,   0.2f,  0.4f, 1.0f,    // c0
       -1.0f, -0.5f, 0.0f,          // v1
@@ -86,65 +86,65 @@ namespace Fsl
 
     // vboIds[0] - used to store vertex attribute data
     // vboIds[l] - used to store element indices
-    if (m_userData.vboIds[0] == GLValues::INVALID_HANDLE && m_userData.vboIds[1] == GLValues::INVALID_HANDLE)
+    if (m_userData.VboIds[0] == GLValues::InvalidHandle && m_userData.VboIds[1] == GLValues::InvalidHandle)
     {
       // OSTEP1 GENERATE SOURCE BUFFERS
-      glGenBuffers(UncheckedNumericCast<GLsizei>(m_userData.vboIds.size()), m_userData.vboIds.data());
+      glGenBuffers(UncheckedNumericCast<GLsizei>(m_userData.VboIds.size()), m_userData.VboIds.data());
       // OSTEP2 GENERATE DESTINATION BUFFERS
-      glGenBuffers(UncheckedNumericCast<GLsizei>(m_userData.copyVboIds.size()), m_userData.copyVboIds.data());
+      glGenBuffers(UncheckedNumericCast<GLsizei>(m_userData.CopyVboIds.size()), m_userData.CopyVboIds.data());
 
       // OSTEP3 BIND THE ORIGINAL BUFFERS AND FILL THEM WITH DATA
-      constexpr auto cbVertices = sizeof(GLfloat) * vertices.size();
-      constexpr auto cbIndices = sizeof(GLushort) * indices.size();
-      glBindBuffer(GL_ARRAY_BUFFER, m_userData.vboIds[0]);
-      glBufferData(GL_ARRAY_BUFFER, cbVertices, vertices.data(), GL_STATIC_DRAW);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_userData.vboIds[1]);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, cbIndices, indices.data(), GL_STATIC_DRAW);
+      constexpr auto CbVertices = sizeof(GLfloat) * vertices.size();
+      constexpr auto CbIndices = sizeof(GLushort) * indices.size();
+      glBindBuffer(GL_ARRAY_BUFFER, m_userData.VboIds[0]);
+      glBufferData(GL_ARRAY_BUFFER, CbVertices, vertices.data(), GL_STATIC_DRAW);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_userData.VboIds[1]);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, CbIndices, indices.data(), GL_STATIC_DRAW);
 
       // OSTEP4 BIND THE DESTINATION BUFFERS AND ALLOCATE SPACE FOR THEM
-      glBindBuffer(GL_ARRAY_BUFFER, m_userData.copyVboIds[0]);
-      glBufferData(GL_ARRAY_BUFFER, cbVertices, nullptr, GL_STATIC_DRAW);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_userData.copyVboIds[1]);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, cbIndices, nullptr, GL_STATIC_DRAW);
+      glBindBuffer(GL_ARRAY_BUFFER, m_userData.CopyVboIds[0]);
+      glBufferData(GL_ARRAY_BUFFER, CbVertices, nullptr, GL_STATIC_DRAW);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_userData.CopyVboIds[1]);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, CbIndices, nullptr, GL_STATIC_DRAW);
 
       // OSTEP5 Unbind Buffers, needed to be able to execute operations on the buffers!
       glBindBuffer(GL_ARRAY_BUFFER, 0);
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
       // OSTEP6 BIND TARGET AND DESTINATION BUFFERS, here we will copy Vertex Data
-      glBindBuffer(GL_COPY_READ_BUFFER, m_userData.vboIds[0]);
-      glBindBuffer(GL_COPY_WRITE_BUFFER, m_userData.copyVboIds[0]);
+      glBindBuffer(GL_COPY_READ_BUFFER, m_userData.VboIds[0]);
+      glBindBuffer(GL_COPY_WRITE_BUFFER, m_userData.CopyVboIds[0]);
 
       // OSTEP7 Copy the actual Vertex Data!
-      glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, cbVertices);
+      glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, CbVertices);
 
       // OSTEP8 BIND TARGET AND DESTINATION BUFFERS, here we will copy Index Data
-      glBindBuffer(GL_COPY_READ_BUFFER, m_userData.vboIds[1]);
-      glBindBuffer(GL_COPY_WRITE_BUFFER, m_userData.copyVboIds[1]);
+      glBindBuffer(GL_COPY_READ_BUFFER, m_userData.VboIds[1]);
+      glBindBuffer(GL_COPY_WRITE_BUFFER, m_userData.CopyVboIds[1]);
 
       // OSTEP9 Copy the actual Index Data!
-      glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, cbIndices);
+      glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, CbIndices);
     }
 
     // USE THE COPIED BUFFERS TO DRAW
-    glBindBuffer(GL_ARRAY_BUFFER, m_userData.copyVboIds[0]);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_userData.copyVboIds[1]);
+    glBindBuffer(GL_ARRAY_BUFFER, m_userData.CopyVboIds[0]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_userData.CopyVboIds[1]);
 
-    glEnableVertexAttribArray(VERTEX_POS_INDX);
-    glEnableVertexAttribArray(VERTEX_COLOR_INDX);
+    glEnableVertexAttribArray(VertexPosIndx);
+    glEnableVertexAttribArray(VertexColorIndx);
 
     intptr_t offset = 0;
-    glVertexAttribPointer(VERTEX_POS_INDX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE),
+    glVertexAttribPointer(VertexPosIndx, VertexPosSize, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * (VertexPosSize + VertexColorSize),
                           reinterpret_cast<const void*>(offset));
 
-    offset += VERTEX_POS_SIZE * sizeof(GLfloat);
-    glVertexAttribPointer(VERTEX_COLOR_INDX, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE),
+    offset += VertexPosSize * sizeof(GLfloat);
+    glVertexAttribPointer(VertexColorIndx, VertexColorSize, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * (VertexPosSize + VertexColorSize),
                           reinterpret_cast<const void*>(offset));
 
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, nullptr);
 
-    glDisableVertexAttribArray(VERTEX_POS_INDX);
-    glDisableVertexAttribArray(VERTEX_COLOR_INDX);
+    glDisableVertexAttribArray(VertexPosIndx);
+    glDisableVertexAttribArray(VertexColorIndx);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

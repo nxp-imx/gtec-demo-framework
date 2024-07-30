@@ -43,6 +43,7 @@ namespace Fsl::SceneFormat
     TriangleList = 2,
     TriangleStrip = 3,
     // Only for internal use. Not a valid PrimitiveType
+    // NOLINTNEXTLINE(readability-identifier-naming)
     SYS_COUNT
   };
 }

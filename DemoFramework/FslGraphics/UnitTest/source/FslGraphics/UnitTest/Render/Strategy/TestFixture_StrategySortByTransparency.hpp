@@ -49,20 +49,20 @@ namespace Fsl
 
   namespace TestConfigHelper
   {
-    static constexpr auto VERTEX_COUNT = TestStrategySortByTransparency::VERTICES_PER_QUAD;
+    static constexpr auto VertexCount = TestStrategySortByTransparency::VerticesPerQuad;
 
 
     inline void CheckOpaqueSpan(const Fsl::TestStrategySortByTransparency& strategy, const std::vector<Fsl::TestQuad>& content)
     {
       auto span = strategy.GetOpaqueSpan();
       ASSERT_NE(span.pVertices, nullptr);
-      EXPECT_EQ(span.VertexCount, static_cast<uint32_t>(content.size() * VERTEX_COUNT));
+      EXPECT_EQ(span.VertexCount, static_cast<uint32_t>(content.size() * VertexCount));
 
       // Opaque quads are stored in a front-to-back order (reverse of insertion)
       const auto quadCount = static_cast<uint32_t>(content.size());
       for (uint32_t i = 0; i < quadCount; ++i)
       {
-        Expect_EQ(span, content[quadCount - i - 1], i);
+        ExpectEq(span, content[quadCount - i - 1], i);
       }
     }
 
@@ -70,13 +70,13 @@ namespace Fsl
     {
       auto span = strategy.GetTransparentSpan();
       ASSERT_NE(span.pVertices, nullptr);
-      EXPECT_EQ(span.VertexCount, static_cast<uint32_t>(content.size() * VERTEX_COUNT));
+      EXPECT_EQ(span.VertexCount, static_cast<uint32_t>(content.size() * VertexCount));
 
       // Transparent quads are stored in a back-to-front order (equal to insertion order)
       const auto quadCount = static_cast<uint32_t>(content.size());
       for (uint32_t i = 0; i < quadCount; ++i)
       {
-        Expect_EQ(span, content[i], i);
+        ExpectEq(span, content[i], i);
       }
     }
 
@@ -87,7 +87,7 @@ namespace Fsl
       for (uint32_t i = 0; i < segmentCount; ++i)
       {
         auto segment = strategy.GetOpaqueSegment(i);
-        EXPECT_EQ(segment.VertexCount / VERTEX_COUNT, content[i].QuadCount);
+        EXPECT_EQ(segment.VertexCount / VertexCount, content[i].QuadCount);
         EXPECT_EQ(segment.TextureInfo, content[i].TextureInfo);
         EXPECT_EQ(segment.ActiveBlendState, content[i].ActiveBlendState);
       }
@@ -100,7 +100,7 @@ namespace Fsl
       for (uint32_t i = 0; i < segmentCount; ++i)
       {
         auto segment = strategy.GetTransparentSegment(i);
-        EXPECT_EQ(segment.VertexCount / VERTEX_COUNT, content[i].QuadCount);
+        EXPECT_EQ(segment.VertexCount / VertexCount, content[i].QuadCount);
         EXPECT_EQ(segment.TextureInfo, content[i].TextureInfo);
         EXPECT_EQ(segment.ActiveBlendState, content[i].ActiveBlendState);
       }
@@ -195,10 +195,12 @@ namespace Fsl
     }
   };
 
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class TestFixture_SortByTransparencyBase : public TestFixtureFslGraphics
   {
   public:
     using strategy_type = Fsl::TestStrategySortByTransparency;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     strategy_type m_strategy;
 
     static void AddQuad(strategy_type& rStrategy, const Fsl::TestQuad& quad)
@@ -278,6 +280,7 @@ namespace Fsl
   };
 
   template <typename TConfig>
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class TestFixture_SortByTransparency : public TestFixture_SortByTransparencyBase
   {
   public:

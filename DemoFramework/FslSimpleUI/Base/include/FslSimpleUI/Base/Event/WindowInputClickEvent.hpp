@@ -45,15 +45,17 @@ namespace Fsl::UI
 
     //! @brief Return the screen position in pixels.
     //! @warning This is not the window position so convert it to window coordinates before using it!!!!)
-    PxPoint2 GetScreenPosition() const
+    PxPoint2 GetScreenPosition() const noexcept
     {
       return m_screenPositionPx;
     }
 
   protected:
-    void SYS_Construct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat,
-                       const PxPoint2& screenPositionPx);
-    void SYS_Destruct() override;
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    void SYS_Construct(const MillisecondTickCount32 timestamp, const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state,
+                       const bool isRepeat, const PxPoint2& screenPositionPx) noexcept;
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    void SYS_Destruct() noexcept override;
     friend class WindowEventPool;
   };
 }

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019, 2022 NXP
+ * Copyright 2019, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslBase/UnitTest/Helper/Common.hpp>
+#include <FslBase/Span/SpanUtil_ValueCompare.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <cstring>
@@ -61,7 +61,6 @@ TEST(TestReadOnlySpan, Construct)
   EXPECT_TRUE(span.empty());
   EXPECT_EQ(span.data(), nullptr);
   EXPECT_EQ(span.size(), 0u);
-  EXPECT_EQ(span.length(), 0u);
 }
 
 
@@ -74,7 +73,6 @@ TEST(TestReadOnlySpan, Construct_FromZeroTerminated)
   EXPECT_FALSE(span.empty());
   EXPECT_NE(span.data(), nullptr);
   EXPECT_EQ(span.size(), lenPsz);
-  EXPECT_EQ(span.length(), lenPsz);
 }
 
 
@@ -86,40 +84,292 @@ TEST(TestReadOnlySpan, Construct_FromStr)
   EXPECT_FALSE(span.empty());
   EXPECT_NE(span.data(), nullptr);
   EXPECT_EQ(span.size(), str.size());
-  EXPECT_EQ(span.length(), str.size());
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// subspan
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 TEST(TestReadOnlySpan, SubSpan)
 {
   const char* const psz = "0123456789";
   ReadOnlySpan<char> span(psz, strlen(psz));
 
-  EXPECT_EQ(span, span.subspan());
-  EXPECT_EQ(ReadOnlySpan<char>("123456789", 9), span.subspan(1u));
-  EXPECT_EQ(ReadOnlySpan<char>("9", 1), span.subspan(9u));
+  EXPECT_TRUE(SpanUtil::ValueEquals(span, span.subspan(0)));
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>("123456789", 9), span.subspan(1u)));
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>("9", 1), span.subspan(9u)));
 
-  EXPECT_EQ(ReadOnlySpan<char>("12", 2), span.subspan(1u, 2));
-  EXPECT_EQ(ReadOnlySpan<char>("9", 1), span.subspan(9u, 2));
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>("12", 2), span.subspan(1u, 2)));
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>("9", 1), span.subspan(9u, 1u)));
 
   // its ok to read the last char
-  EXPECT_EQ(ReadOnlySpan<char>(), span.subspan(10u));
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>(), span.subspan(10u)));
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 TEST(TestReadOnlySpan, SubSpan_Empty)
 {
   ReadOnlySpan<char> span;
-  EXPECT_EQ(ReadOnlySpan<char>(), span.subspan());
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>(), span.subspan(0)));
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, SubSpan_LastChar1)
+{
+  ReadOnlySpan<char> span("0123456789", 10);
+  const auto subspan = span.subspan(10u, 0u);
+  EXPECT_TRUE(subspan.empty());
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, SubSpan_LastChar2)
+{
+  ReadOnlySpan<char> span("0123456789", 10);
+  const auto subspan = span.subspan(10u);
+  EXPECT_TRUE(subspan.empty());
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 TEST(TestReadOnlySpan, SubSpan_InvalidPos)
 {
   ReadOnlySpan<char> span("0123456789", 10);
 
+  EXPECT_THROW(span.subspan(10u, 1u), std::out_of_range);
   EXPECT_THROW(span.subspan(11u), std::out_of_range);
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// unchecked_subspan
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, UncheckedSubSpan)
+{
+  const char* const psz = "0123456789";
+  ReadOnlySpan<char> span(psz, strlen(psz));
+
+  EXPECT_TRUE(SpanUtil::ValueEquals(span, span.unchecked_subspan(0, span.size())));
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>("123456789", 9), span.unchecked_subspan(1u, span.size() - 1u)));
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>("9", 1), span.unchecked_subspan(9u, span.size() - 9u)));
+
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>("12", 2), span.unchecked_subspan(1u, 2u)));
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>("9", 1), span.unchecked_subspan(9u, 1u)));
+
+  // its ok to access the span at size() if the length is zero
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>(), span.unchecked_subspan(9u, span.size() - 10u)));
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, UncheckedSubSpan_Empty)
+{
+  ReadOnlySpan<char> span;
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>(), span.unchecked_subspan(0u, 0u)));
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// clamped_subspan
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, ClampedSubSpan)
+{
+  const char* const psz = "0123456789";
+  ReadOnlySpan<char> span(psz, strlen(psz));
+
+  EXPECT_TRUE(SpanUtil::ValueEquals(span, span.clamped_subspan(0)));
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>("123456789", 9), span.clamped_subspan(1u)));
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>("9", 1), span.clamped_subspan(9u)));
+
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>("12", 2), span.clamped_subspan(1u, 2)));
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>("9", 1), span.clamped_subspan(9u, 1u)));
+
+  // its ok to read the last char
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>(), span.clamped_subspan(10u)));
+}
+
+TEST(TestReadOnlySpan, ClampedSubSpan_Empty)
+{
+  ReadOnlySpan<char> span;
+  EXPECT_TRUE(SpanUtil::ValueEquals(ReadOnlySpan<char>(), span.clamped_subspan(0)));
+}
+
+TEST(TestReadOnlySpan, ClampedSubSpan_Last1)
+{
+  ReadOnlySpan<char> span("0123456789", 10);
+  const auto subspan = span.clamped_subspan(10u, 0u);
+  EXPECT_TRUE(subspan.empty());
+}
+
+TEST(TestReadOnlySpan, ClampedSubSpan_Last2)
+{
+  ReadOnlySpan<char> span("0123456789", 10);
+  const auto subspan = span.clamped_subspan(10u);
+  EXPECT_TRUE(subspan.empty());
+}
+
+TEST(TestReadOnlySpan, ClampedSubSpan_InvalidPos1)
+{
+  ReadOnlySpan<char> span("0123456789", 10);
+  ReadOnlySpan<char> subspan = span.clamped_subspan(11u);
+  EXPECT_TRUE(subspan.empty());
+}
+
+TEST(TestReadOnlySpan, ClampedSubSpan_InvalidPos2)
+{
+  ReadOnlySpan<char> span("0123456789", 10);
+
+  EXPECT_TRUE(span.clamped_subspan(10u, 0u).empty());
+  EXPECT_TRUE(span.clamped_subspan(10u, 1u).empty());
+  EXPECT_TRUE(span.clamped_subspan(11u).empty());
+  EXPECT_EQ(span.clamped_subspan(0u, 11u).size(), span.size());
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// unchecked_first
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, UncheckedFirst)
+{
+  ReadOnlySpan<char> span("0123456789", 10);
+  EXPECT_EQ(span.unchecked_first(0u).size(), 0u);
+  EXPECT_EQ(span.unchecked_first(8u).size(), 8u);
+  EXPECT_EQ(span.unchecked_first(9u).size(), 9u);
+  EXPECT_EQ(span.unchecked_first(10u).size(), 10u);
+
+  EXPECT_EQ(span.unchecked_first(1u)[0], span[0]);
+
+  EXPECT_EQ(span.unchecked_first(2u)[0], span[0]);
+  EXPECT_EQ(span.unchecked_first(2u)[1], span[1]);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// first
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, First)
+{
+  ReadOnlySpan<char> span("0123456789", 10);
+  EXPECT_EQ(span.first(0u).size(), 0u);
+  EXPECT_EQ(span.first(8u).size(), 8u);
+  EXPECT_EQ(span.first(9u).size(), 9u);
+  EXPECT_EQ(span.first(10u).size(), 10u);
+
+  EXPECT_EQ(span.first(1u)[0], span[0]);
+
+  EXPECT_EQ(span.first(2u)[0], span[0]);
+  EXPECT_EQ(span.first(2u)[1], span[1]);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, First_InvalidPos)
+{
+  ReadOnlySpan<char> span("0123456789", 10);
+  EXPECT_THROW(span.first(11u), std::out_of_range);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// clamped_first
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, ClampedFirst)
+{
+  ReadOnlySpan<char> span("0123456789", 10);
+  EXPECT_EQ(span.clamped_first(0u).size(), 0u);
+  EXPECT_EQ(span.clamped_first(8u).size(), 8u);
+  EXPECT_EQ(span.clamped_first(9u).size(), 9u);
+  EXPECT_EQ(span.clamped_first(10u).size(), 10u);
+
+  EXPECT_EQ(span.clamped_first(1u)[0], span[0]);
+
+  EXPECT_EQ(span.clamped_first(2u)[0], span[0]);
+  EXPECT_EQ(span.clamped_first(2u)[1], span[1]);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, ClampedFirst_InvalidPos)
+{
+  ReadOnlySpan<char> span("0123456789", 10);
+  EXPECT_EQ(span.clamped_first(11u).size(), 10u);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// unchecked_last
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, UncheckedLast)
+{
+  ReadOnlySpan<char> span("0123456789", 10);
+  EXPECT_EQ(span.unchecked_last(0u).size(), 0u);
+  EXPECT_EQ(span.unchecked_last(8u).size(), 8u);
+  EXPECT_EQ(span.unchecked_last(9u).size(), 9u);
+  EXPECT_EQ(span.unchecked_last(10u).size(), 10u);
+
+  EXPECT_EQ(span.unchecked_last(1u)[0], span[9]);
+
+  EXPECT_EQ(span.unchecked_last(2u)[0], span[8]);
+  EXPECT_EQ(span.unchecked_last(2u)[1], span[9]);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// last
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, Last)
+{
+  ReadOnlySpan<char> span("0123456789", 10);
+  EXPECT_EQ(span.last(0u).size(), 0u);
+  EXPECT_EQ(span.last(8u).size(), 8u);
+  EXPECT_EQ(span.last(9u).size(), 9u);
+  EXPECT_EQ(span.last(10u).size(), 10u);
+
+  EXPECT_EQ(span.last(1u)[0], span[9]);
+
+  EXPECT_EQ(span.last(2u)[0], span[8]);
+  EXPECT_EQ(span.last(2u)[1], span[9]);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, CheckedLast_InvalidPos)
+{
+  ReadOnlySpan<char> span("0123456789", 10);
+  EXPECT_THROW(span.last(11u), std::out_of_range);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// clamped_last
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, ClampedLast)
+{
+  ReadOnlySpan<char> span("0123456789", 10);
+  EXPECT_EQ(span.clamped_last(0u).size(), 0u);
+  EXPECT_EQ(span.clamped_last(8u).size(), 8u);
+  EXPECT_EQ(span.clamped_last(9u).size(), 9u);
+  EXPECT_EQ(span.clamped_last(10u).size(), 10u);
+
+  EXPECT_EQ(span.clamped_last(1u)[0], span[9]);
+
+  EXPECT_EQ(span.clamped_last(2u)[0], span[8]);
+  EXPECT_EQ(span.clamped_last(2u)[1], span[9]);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, ClampedLast_InvalidPos)
+{
+  ReadOnlySpan<char> span("0123456789", 10);
+  EXPECT_EQ(span.clamped_last(11u).size(), 10u);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// front
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 TEST(TestReadOnlySpan, front)
 {
@@ -188,856 +438,11 @@ TEST(TestReadOnlySpan, opEqual_Empty)
   ReadOnlySpan<char> strView1 = Convert(str1);
   ReadOnlySpan<char> strView2 = Convert(str2);
 
-  EXPECT_TRUE(strView1 == strView2);
-}
-
-TEST(TestReadOnlySpan, opEqual1)
-{
-  std::string str1("Hello world");
-  std::string str2("Hello world");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 == strView2);
-}
-
-TEST(TestReadOnlySpan, opEqual2)
-{
-  std::string str1("Hello world");
-  std::string str2("Hello worlD");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 == strView2);
-}
-
-
-TEST(TestReadOnlySpan, opEqual3)
-{
-  std::string str1("Hello world");
-  std::string str2("Hello worl");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 == strView2);
-}
-
-
-TEST(TestReadOnlySpan, opEqual4)
-{
-  std::string str1("Hello world");
-  std::string str2("Hello world2");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 == strView2);
-}
-
-
-TEST(TestReadOnlySpan, opEqual5)
-{
-  std::string str1("Hello world");
-  std::string str2;
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 == strView2);
-}
-
-
-TEST(TestReadOnlySpan, opNotEqual_Empty)
-{
-  std::string str1;
-  std::string str2;
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 != strView2);
-}
-
-TEST(TestReadOnlySpan, opNotEqual1)
-{
-  std::string str1("Hello world");
-  std::string str2("Hello world");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 != strView2);
-}
-
-TEST(TestReadOnlySpan, opNotEqual2)
-{
-  std::string str1("Hello world");
-  std::string str2("Hello worlD");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 != strView2);
-}
-
-
-TEST(TestReadOnlySpan, opNotEqual3)
-{
-  std::string str1("Hello world");
-  std::string str2("Hello worl");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 != strView2);
-}
-
-
-TEST(TestReadOnlySpan, opNotEqual4)
-{
-  std::string str1("Hello world");
-  std::string str2("Hello world2");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 != strView2);
-}
-
-
-TEST(TestReadOnlySpan, opNotEqual5)
-{
-  std::string str1("Hello world");
-  std::string str2;
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 != strView2);
-}
-
-
-TEST(TestReadOnlySpan, opLess_Empty)
-{
-  std::string str1;
-  std::string str2;
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 < strView2);
-}
-
-
-TEST(TestReadOnlySpan, opLess1)
-{
-  std::string str1("ab");
-  std::string str2("ac");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 < strView2);
-}
-
-
-TEST(TestReadOnlySpan, opLess2)
-{
-  std::string str1("ab");
-  std::string str2("aa");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 < strView2);
-}
-
-
-TEST(TestReadOnlySpan, opLess3)
-{
-  std::string str1("ab");
-  std::string str2("ab");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 < strView2);
-}
-
-
-TEST(TestReadOnlySpan, opLess4)
-{
-  std::string str1("a");
-  std::string str2("aa");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 < strView2);
-}
-
-
-TEST(TestReadOnlySpan, opLess5)
-{
-  std::string str1("aa");
-  std::string str2("a");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 < strView2);
-}
-
-TEST(TestReadOnlySpan, opLessOrEqual_Empty)
-{
-  std::string str1;
-  std::string str2;
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 <= strView2);
-}
-
-
-TEST(TestReadOnlySpan, opLessOrEqual1)
-{
-  std::string str1("ab");
-  std::string str2("ac");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 <= strView2);
-}
-
-
-TEST(TestReadOnlySpan, opLessOrEqual2)
-{
-  std::string str1("ab");
-  std::string str2("aa");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 <= strView2);
-}
-
-
-TEST(TestReadOnlySpan, opLessOrEqual3)
-{
-  std::string str1("ab");
-  std::string str2("ab");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 <= strView2);
-}
-
-
-TEST(TestReadOnlySpan, opLessOrEqual4)
-{
-  std::string str1("a");
-  std::string str2("aa");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 <= strView2);
-}
-
-
-TEST(TestReadOnlySpan, opLessOrEqual5)
-{
-  std::string str1("aa");
-  std::string str2("a");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 <= strView2);
-}
-
-TEST(TestReadOnlySpan, opGreater_Empty)
-{
-  std::string str1;
-  std::string str2;
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 > strView2);
-}
-
-
-TEST(TestReadOnlySpan, opGreater1)
-{
-  std::string str1("ab");
-  std::string str2("ac");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 > strView2);
-}
-
-
-TEST(TestReadOnlySpan, opGreater2)
-{
-  std::string str1("ab");
-  std::string str2("aa");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 > strView2);
-}
-
-
-TEST(TestReadOnlySpan, opGreater3)
-{
-  std::string str1("ab");
-  std::string str2("ab");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 > strView2);
-}
-
-
-TEST(TestReadOnlySpan, opGreater4)
-{
-  std::string str1("a");
-  std::string str2("aa");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 > strView2);
-}
-
-
-TEST(TestReadOnlySpan, opGreater5)
-{
-  std::string str1("aa");
-  std::string str2("a");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 > strView2);
-}
-
-TEST(TestReadOnlySpan, opGreaterOrEqual_Empty)
-{
-  std::string str1;
-  std::string str2;
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 >= strView2);
-}
-
-
-TEST(TestReadOnlySpan, opGreaterOrEqual1)
-{
-  std::string str1("ab");
-  std::string str2("ac");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 >= strView2);
-}
-
-
-TEST(TestReadOnlySpan, opGreaterOrEqual2)
-{
-  std::string str1("ab");
-  std::string str2("aa");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 >= strView2);
-}
-
-
-TEST(TestReadOnlySpan, opGreaterOrEqual3)
-{
-  std::string str1("ab");
-  std::string str2("ab");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 >= strView2);
-}
-
-
-TEST(TestReadOnlySpan, opGreaterOrEqual4)
-{
-  std::string str1("a");
-  std::string str2("aa");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_FALSE(strView1 >= strView2);
-}
-
-
-TEST(TestReadOnlySpan, opGreaterOrEqual5)
-{
-  std::string str1("aa");
-  std::string str2("a");
-  ReadOnlySpan<char> strView1 = Convert(str1);
-  ReadOnlySpan<char> strView2 = Convert(str2);
-
-  EXPECT_TRUE(strView1 >= strView2);
-}
-
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-// compare
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-TEST(TestReadOnlySpan, compare)
-{
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1).compare(ReadOnlySpan<char>("B", 1)) < 0);
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1).compare(ReadOnlySpan<char>("B", 1)) == 0);
-  EXPECT_TRUE(ReadOnlySpan<char>("C", 1).compare(ReadOnlySpan<char>("B", 1)) > 0);
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1).compare(ReadOnlySpan<char>("A", 1)) > 0);
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1).compare(ReadOnlySpan<char>("C", 1)) < 0);
-
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1).compare(ReadOnlySpan<char>("BA", 2)) < 0);
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1).compare(ReadOnlySpan<char>("BA", 2)) < 0);
-  EXPECT_TRUE(ReadOnlySpan<char>("C", 1).compare(ReadOnlySpan<char>("BA", 2)) > 0);
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2).compare(ReadOnlySpan<char>("A", 1)) > 0);
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2).compare(ReadOnlySpan<char>("B", 1)) > 0);
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2).compare(ReadOnlySpan<char>("C", 1)) < 0);
-
-  EXPECT_TRUE(ReadOnlySpan<char>("AA", 2).compare(ReadOnlySpan<char>("B", 1)) < 0);
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2).compare(ReadOnlySpan<char>("B", 1)) > 0);
-  EXPECT_TRUE(ReadOnlySpan<char>("CA", 2).compare(ReadOnlySpan<char>("B", 1)) > 0);
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1).compare(ReadOnlySpan<char>("AA", 2)) > 0);
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1).compare(ReadOnlySpan<char>("BA", 2)) < 0);
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1).compare(ReadOnlySpan<char>("CA", 2)) < 0);
-}
-
-TEST(TestReadOnlySpan, compare_Null)
-{
-  EXPECT_TRUE(ReadOnlySpan<char>().compare(ReadOnlySpan<char>()) == 0);
-  EXPECT_TRUE(ReadOnlySpan<char>("", 0).compare(ReadOnlySpan<char>()) == 0);
-  EXPECT_TRUE(ReadOnlySpan<char>().compare(ReadOnlySpan<char>("", 0)) == 0);
-}
-
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-// starts_with
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-TEST(TestReadOnlySpan, starts_with)
-{
-  EXPECT_TRUE(ReadOnlySpan<char>().starts_with(ReadOnlySpan<char>()));
-  EXPECT_TRUE(ReadOnlySpan<char>().starts_with(ReadOnlySpan<char>("", 0)));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("", 0).starts_with(ReadOnlySpan<char>()));
-  EXPECT_TRUE(ReadOnlySpan<char>("", 0).starts_with(ReadOnlySpan<char>("", 0)));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1).starts_with(ReadOnlySpan<char>()));
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1).starts_with(ReadOnlySpan<char>("", 0)));
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1).starts_with(ReadOnlySpan<char>("A", 1)));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("AB", 2).starts_with(ReadOnlySpan<char>()));
-  EXPECT_TRUE(ReadOnlySpan<char>("AB", 2).starts_with(ReadOnlySpan<char>("", 0)));
-  EXPECT_TRUE(ReadOnlySpan<char>("AB", 2).starts_with(ReadOnlySpan<char>("A", 1)));
-  EXPECT_TRUE(ReadOnlySpan<char>("AB", 2).starts_with(ReadOnlySpan<char>("AB", 2)));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("ABC", 3).starts_with(ReadOnlySpan<char>()));
-  EXPECT_TRUE(ReadOnlySpan<char>("ABC", 3).starts_with(ReadOnlySpan<char>("", 0)));
-  EXPECT_TRUE(ReadOnlySpan<char>("ABC", 3).starts_with(ReadOnlySpan<char>("A", 1)));
-  EXPECT_TRUE(ReadOnlySpan<char>("ABC", 3).starts_with(ReadOnlySpan<char>("AB", 2)));
-  EXPECT_TRUE(ReadOnlySpan<char>("ABC", 3).starts_with(ReadOnlySpan<char>("ABC", 3)));
-
-  EXPECT_FALSE(ReadOnlySpan<char>().starts_with(ReadOnlySpan<char>("A", 1)));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("", 0).starts_with(ReadOnlySpan<char>("A", 1)));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 2).starts_with(ReadOnlySpan<char>("B", 1)));
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 2).starts_with(ReadOnlySpan<char>("AB", 2)));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("AB", 2).starts_with(ReadOnlySpan<char>("B", 1)));
-  EXPECT_FALSE(ReadOnlySpan<char>("AB", 2).starts_with(ReadOnlySpan<char>("AC", 2)));
-  EXPECT_FALSE(ReadOnlySpan<char>("AB", 2).starts_with(ReadOnlySpan<char>("ABC", 3)));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("ABC", 3).starts_with(ReadOnlySpan<char>("B", 1)));
-  EXPECT_FALSE(ReadOnlySpan<char>("ABC", 3).starts_with(ReadOnlySpan<char>("AC", 2)));
-  EXPECT_FALSE(ReadOnlySpan<char>("ABC", 3).starts_with(ReadOnlySpan<char>("ABD", 3)));
-  EXPECT_FALSE(ReadOnlySpan<char>("ABC", 3).starts_with(ReadOnlySpan<char>("ABDA", 4)));
-}
-
-TEST(TestReadOnlySpan, starts_with_value)
-{
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1).starts_with('A'));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1).starts_with('B'));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("AB", 2).starts_with('A'));
-  EXPECT_TRUE(ReadOnlySpan<char>("BC", 2).starts_with('B'));
-
-  EXPECT_FALSE(ReadOnlySpan<char>().starts_with(' '));
-  EXPECT_FALSE(ReadOnlySpan<char>().starts_with('a'));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("", 0).starts_with(' '));
-  EXPECT_FALSE(ReadOnlySpan<char>("", 0).starts_with('a'));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 1).starts_with(' '));
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 1).starts_with('a'));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("AB", 2).starts_with(' '));
-  EXPECT_FALSE(ReadOnlySpan<char>("AB", 2).starts_with('a'));
-}
-
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-// ends_with
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-TEST(TestReadOnlySpan, ends_with)
-{
-  EXPECT_TRUE(ReadOnlySpan<char>().ends_with(ReadOnlySpan<char>()));
-  EXPECT_TRUE(ReadOnlySpan<char>().ends_with(ReadOnlySpan<char>("", 0)));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("", 0).ends_with(ReadOnlySpan<char>()));
-  EXPECT_TRUE(ReadOnlySpan<char>("", 0).ends_with(ReadOnlySpan<char>("", 0)));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1).ends_with(ReadOnlySpan<char>()));
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1).ends_with(ReadOnlySpan<char>("", 0)));
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1).ends_with(ReadOnlySpan<char>("A", 1)));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2).ends_with(ReadOnlySpan<char>()));
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2).ends_with(ReadOnlySpan<char>("", 0)));
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2).ends_with(ReadOnlySpan<char>("A", 1)));
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2).ends_with(ReadOnlySpan<char>("BA", 2)));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("CBA", 3).ends_with(ReadOnlySpan<char>()));
-  EXPECT_TRUE(ReadOnlySpan<char>("CBA", 3).ends_with(ReadOnlySpan<char>("", 0)));
-  EXPECT_TRUE(ReadOnlySpan<char>("CBA", 3).ends_with(ReadOnlySpan<char>("A", 1)));
-  EXPECT_TRUE(ReadOnlySpan<char>("CBA", 3).ends_with(ReadOnlySpan<char>("BA", 2)));
-  EXPECT_TRUE(ReadOnlySpan<char>("CBA", 3).ends_with(ReadOnlySpan<char>("CBA", 3)));
-
-  EXPECT_FALSE(ReadOnlySpan<char>().ends_with(ReadOnlySpan<char>("A", 1)));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("", 0).ends_with(ReadOnlySpan<char>("A", 1)));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 1).ends_with(ReadOnlySpan<char>("B", 1)));
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 1).ends_with(ReadOnlySpan<char>("BA", 2)));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2).ends_with(ReadOnlySpan<char>("B", 1)));
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2).ends_with(ReadOnlySpan<char>("CA", 2)));
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2).ends_with(ReadOnlySpan<char>("CBA", 3)));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("CBA", 3).ends_with(ReadOnlySpan<char>("B", 1)));
-  EXPECT_FALSE(ReadOnlySpan<char>("CBA", 3).ends_with(ReadOnlySpan<char>("CA", 2)));
-  EXPECT_FALSE(ReadOnlySpan<char>("CBA", 3).ends_with(ReadOnlySpan<char>("DBA", 3)));
-  EXPECT_FALSE(ReadOnlySpan<char>("CBA", 3).ends_with(ReadOnlySpan<char>("ADBA", 4)));
-}
-
-TEST(TestReadOnlySpan, ends_with_value)
-{
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1).ends_with('A'));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1).ends_with('B'));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2).ends_with('A'));
-  EXPECT_TRUE(ReadOnlySpan<char>("CB", 2).ends_with('B'));
-
-  EXPECT_FALSE(ReadOnlySpan<char>().ends_with(' '));
-  EXPECT_FALSE(ReadOnlySpan<char>().ends_with('a'));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("", 0).ends_with(' '));
-  EXPECT_FALSE(ReadOnlySpan<char>("", 0).ends_with('a'));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 1).ends_with(' '));
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 1).ends_with('a'));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2).ends_with(' '));
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2).ends_with('a'));
-}
-
-
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-// find
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-TEST(TestReadOnlySpan, find_char)
-{
-  EXPECT_EQ(0u, ReadOnlySpan<char>("a", 1).find('a'));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("a", 1).find('a', 1u));
-
-  EXPECT_EQ(0u, ReadOnlySpan<char>("aa", 2).find('a'));
-  EXPECT_EQ(1u, ReadOnlySpan<char>("aa", 2).find('a', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("aa", 2).find('a', 2u));
-
-  EXPECT_EQ(0u, ReadOnlySpan<char>("aba", 3).find('a'));
-  EXPECT_EQ(2u, ReadOnlySpan<char>("aba", 3).find('a', 1u));
-  EXPECT_EQ(2u, ReadOnlySpan<char>("aba", 3).find('a', 2u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("aba", 3).find('a', 3u));
-
-  EXPECT_EQ(2u, ReadOnlySpan<char>("cba", 3).find('a'));
-  EXPECT_EQ(2u, ReadOnlySpan<char>("cba", 3).find('a', 1u));
-  EXPECT_EQ(2u, ReadOnlySpan<char>("cba", 3).find('a', 2u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("cba", 3).find('a', 3u));
-
-
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>().find(' '));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>().find('a'));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>().find(' ', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>().find('a', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>().find(' ', 2u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>().find('a', 2u));
-
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("", 0).find(' '));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("", 0).find('a'));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("", 0).find(' ', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("", 0).find('a', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("", 0).find(' ', 2u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("", 0).find('a', 2u));
-
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("a", 1).find(' '));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("b", 1).find('a'));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("a", 1).find(' ', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("b", 1).find('a', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("a", 1).find(' ', 2u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("b", 1).find('a', 2u));
-
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("ab", 2).find(' '));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("bc", 2).find('a'));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("ab", 2).find(' ', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("bc", 2).find('a', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("ab", 2).find(' ', 2u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("bc", 2).find('a', 2u));
-}
-
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-// rfind
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-TEST(TestReadOnlySpan, rfind_char)
-{
-  EXPECT_EQ(0u, ReadOnlySpan<char>("a", 1).rfind('a'));
-  EXPECT_EQ(0u, ReadOnlySpan<char>("a", 1).rfind('a', 0u));
-  EXPECT_EQ(0u, ReadOnlySpan<char>("a", 1).rfind('a', 1u));
-
-  EXPECT_EQ(1u, ReadOnlySpan<char>("aa", 2).rfind('a'));
-  EXPECT_EQ(0u, ReadOnlySpan<char>("aa", 2).rfind('a', 0u));
-  EXPECT_EQ(1u, ReadOnlySpan<char>("aa", 2).rfind('a', 1u));
-  EXPECT_EQ(1u, ReadOnlySpan<char>("aa", 2).rfind('a', 2u));
-
-  EXPECT_EQ(2u, ReadOnlySpan<char>("aba", 3).rfind('a'));
-  EXPECT_EQ(0u, ReadOnlySpan<char>("aba", 3).rfind('a', 0u));
-  EXPECT_EQ(0u, ReadOnlySpan<char>("aba", 3).rfind('a', 1u));
-  EXPECT_EQ(2u, ReadOnlySpan<char>("aba", 3).rfind('a', 2u));
-  EXPECT_EQ(2u, ReadOnlySpan<char>("aba", 3).rfind('a', 3u));
-
-  EXPECT_EQ(2u, ReadOnlySpan<char>("cba", 3).rfind('a'));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("cba", 3).rfind('a', 0u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("cba", 3).rfind('a', 1u));
-  EXPECT_EQ(2u, ReadOnlySpan<char>("cba", 3).rfind('a', 2u));
-  EXPECT_EQ(2u, ReadOnlySpan<char>("cba", 3).rfind('a', 3u));
-
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>().rfind(' '));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>().rfind('a'));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>().rfind(' ', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>().rfind('a', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>().rfind(' ', 2u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>().rfind('a', 2u));
-
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("", 0).rfind(' '));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("", 0).rfind('a'));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("", 0).rfind(' ', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("", 0).rfind('a', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("", 0).rfind(' ', 2u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("", 0).rfind('a', 2u));
-
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("a", 1).rfind(' '));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("b", 1).rfind('a'));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("a", 1).rfind(' ', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("b", 1).rfind('a', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("a", 1).rfind(' ', 2u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("b", 1).rfind('a', 2u));
-
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("ab", 2).rfind(' '));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("bc", 2).rfind('a'));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("ab", 2).rfind(' ', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("bc", 2).rfind('a', 1u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("ab", 2).rfind(' ', 2u));
-  EXPECT_EQ(ReadOnlySpan<char>::extent, ReadOnlySpan<char>("bc", 2).rfind('a', 2u));
-}
-
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-// Operator <
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-TEST(TestReadOnlySpan, OperatorLessThan)
-{
-  EXPECT_LT(ReadOnlySpan<char>("A", 1), ReadOnlySpan<char>("B", 1));
-  EXPECT_LT(ReadOnlySpan<char>("A", 1), ReadOnlySpan<char>("AB", 2));
-  EXPECT_LT(ReadOnlySpan<char>("", 0), ReadOnlySpan<char>("AB", 2));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1) < ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) < ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("C", 1) < ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) < ReadOnlySpan<char>("A", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) < ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) < ReadOnlySpan<char>("C", 1));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1) < ReadOnlySpan<char>("BA", 2));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) < ReadOnlySpan<char>("BA", 2));
-  EXPECT_FALSE(ReadOnlySpan<char>("C", 1) < ReadOnlySpan<char>("BA", 2));
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2) < ReadOnlySpan<char>("A", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2) < ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2) < ReadOnlySpan<char>("C", 1));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("AA", 2) < ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2) < ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("CA", 2) < ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) < ReadOnlySpan<char>("AA", 2));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) < ReadOnlySpan<char>("BA", 2));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) < ReadOnlySpan<char>("CA", 2));
-}
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-// Operator <=
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-TEST(TestReadOnlySpan, OperatorLessThanOrEqual)
-{
-  EXPECT_LE(ReadOnlySpan<char>("A", 1), ReadOnlySpan<char>("B", 1));
-  EXPECT_LE(ReadOnlySpan<char>("A", 1), ReadOnlySpan<char>("AB", 2));
-  EXPECT_LE(ReadOnlySpan<char>("", 0), ReadOnlySpan<char>("AB", 2));
-  EXPECT_LE(ReadOnlySpan<char>("A", 1), ReadOnlySpan<char>("A", 1));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1) <= ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) <= ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("C", 1) <= ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) <= ReadOnlySpan<char>("A", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) <= ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) <= ReadOnlySpan<char>("C", 1));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1) <= ReadOnlySpan<char>("BA", 2));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) <= ReadOnlySpan<char>("BA", 2));
-  EXPECT_FALSE(ReadOnlySpan<char>("C", 1) <= ReadOnlySpan<char>("BA", 2));
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2) <= ReadOnlySpan<char>("A", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2) <= ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2) <= ReadOnlySpan<char>("C", 1));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("AA", 2) <= ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2) <= ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("CA", 2) <= ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) <= ReadOnlySpan<char>("AA", 2));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) <= ReadOnlySpan<char>("BA", 2));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) <= ReadOnlySpan<char>("CA", 2));
-}
-
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-// Operator >
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-TEST(TestReadOnlySpan, OperatorGreaterThan)
-{
-  EXPECT_GT(ReadOnlySpan<char>("B", 1), ReadOnlySpan<char>("A", 1));
-  EXPECT_GT(ReadOnlySpan<char>("AB", 2), ReadOnlySpan<char>("A", 1));
-  EXPECT_GT(ReadOnlySpan<char>("AB", 2), ReadOnlySpan<char>("", 0));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 1) > ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) > ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("C", 1) > ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) > ReadOnlySpan<char>("A", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) > ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) > ReadOnlySpan<char>("C", 1));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 1) > ReadOnlySpan<char>("BA", 2));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) > ReadOnlySpan<char>("BA", 2));
-  EXPECT_TRUE(ReadOnlySpan<char>("C", 1) > ReadOnlySpan<char>("BA", 2));
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2) > ReadOnlySpan<char>("A", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2) > ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2) > ReadOnlySpan<char>("C", 1));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("AA", 2) > ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2) > ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("CA", 2) > ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) > ReadOnlySpan<char>("AA", 2));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) > ReadOnlySpan<char>("BA", 2));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) > ReadOnlySpan<char>("CA", 2));
-}
-
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-// Operator >=
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-TEST(TestReadOnlySpan, OperatorGreaterThanOrEqual)
-{
-  EXPECT_GE(ReadOnlySpan<char>("B", 1), ReadOnlySpan<char>("A", 1));
-  EXPECT_GE(ReadOnlySpan<char>("AB", 2), ReadOnlySpan<char>("A", 1));
-  EXPECT_GE(ReadOnlySpan<char>("AB", 2), ReadOnlySpan<char>("", 0));
-  EXPECT_GE(ReadOnlySpan<char>("A", 1), ReadOnlySpan<char>("A", 1));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 1) >= ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) >= ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("C", 1) >= ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) >= ReadOnlySpan<char>("A", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) >= ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) >= ReadOnlySpan<char>("C", 1));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 1) >= ReadOnlySpan<char>("BA", 2));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) >= ReadOnlySpan<char>("BA", 2));
-  EXPECT_TRUE(ReadOnlySpan<char>("C", 1) >= ReadOnlySpan<char>("BA", 2));
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2) >= ReadOnlySpan<char>("A", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2) >= ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2) >= ReadOnlySpan<char>("C", 1));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("AA", 2) >= ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2) >= ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("CA", 2) >= ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) >= ReadOnlySpan<char>("AA", 2));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) >= ReadOnlySpan<char>("BA", 2));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) >= ReadOnlySpan<char>("CA", 2));
-}
-
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-// Operator !=
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-TEST(TestReadOnlySpan, OperatorEqual)
-{
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1) == ReadOnlySpan<char>("A", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("", 0) == ReadOnlySpan<char>("", 0));
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 1) == ReadOnlySpan<char>("", 0));
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 1) == ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 1) == ReadOnlySpan<char>("a", 1));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 1) == ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) == ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("C", 1) == ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) == ReadOnlySpan<char>("A", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) == ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) == ReadOnlySpan<char>("C", 1));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 1) == ReadOnlySpan<char>("BA", 2));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) == ReadOnlySpan<char>("BA", 2));
-  EXPECT_FALSE(ReadOnlySpan<char>("C", 1) == ReadOnlySpan<char>("BA", 2));
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2) == ReadOnlySpan<char>("A", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2) == ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2) == ReadOnlySpan<char>("C", 1));
-
-  EXPECT_FALSE(ReadOnlySpan<char>("AA", 2) == ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("BA", 2) == ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("CA", 2) == ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) == ReadOnlySpan<char>("AA", 2));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) == ReadOnlySpan<char>("BA", 2));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) == ReadOnlySpan<char>("CA", 2));
-}
-
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-// Operator !=
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-TEST(TestReadOnlySpan, OperatorNotEqual)
-{
-  EXPECT_FALSE(ReadOnlySpan<char>("A", 1) != ReadOnlySpan<char>("A", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("", 0) != ReadOnlySpan<char>("", 0));
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1) != ReadOnlySpan<char>("", 0));
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1) != ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1) != ReadOnlySpan<char>("a", 1));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1) != ReadOnlySpan<char>("B", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) != ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("C", 1) != ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) != ReadOnlySpan<char>("A", 1));
-  EXPECT_FALSE(ReadOnlySpan<char>("B", 1) != ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) != ReadOnlySpan<char>("C", 1));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("A", 1) != ReadOnlySpan<char>("BA", 2));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) != ReadOnlySpan<char>("BA", 2));
-  EXPECT_TRUE(ReadOnlySpan<char>("C", 1) != ReadOnlySpan<char>("BA", 2));
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2) != ReadOnlySpan<char>("A", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2) != ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2) != ReadOnlySpan<char>("C", 1));
-
-  EXPECT_TRUE(ReadOnlySpan<char>("AA", 2) != ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("BA", 2) != ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("CA", 2) != ReadOnlySpan<char>("B", 1));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) != ReadOnlySpan<char>("AA", 2));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) != ReadOnlySpan<char>("BA", 2));
-  EXPECT_TRUE(ReadOnlySpan<char>("B", 1) != ReadOnlySpan<char>("CA", 2));
+  std::span<const char> q1 = strView1;
+  std::span<const char> q2 = strView2;
+
+  // EXPECT_TRUE(SpanUtil::ValueCompare(strView1, strView2) == 0);
+  EXPECT_TRUE(SpanUtil::ValueCompare(q1, q2) == 0);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1101,33 +506,34 @@ TEST(TestReadOnlySpan, begin_foreach_with_compare)
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-TEST(TestReadOnlySpan, cbegin_empty)
-{
-  ReadOnlySpan<char> span;
-
-  ASSERT_EQ(span.cend(), span.cbegin());
-}
-
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-TEST(TestReadOnlySpan, cbegin_iterator_to_cend)
-{
-  const std::array<uint8_t, 11> content = {'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
-  ReadOnlySpan<uint8_t> span = Convert(content);
-
-  // NOLINTNEXTLINE(readability-qualified-auto)
-  auto itrSource = content.begin();
-  // NOLINTNEXTLINE(readability-qualified-auto)
-  const auto itrSourceEnd = content.end();
-
-  auto itr = span.cbegin();
-  auto itrEnd = span.cend();
-  while (itr != itrEnd && itrSource != itrSourceEnd)
-  {
-    EXPECT_EQ(*itrSource, *itr);
-    ++itrSource;
-    ++itr;
-  }
-  ASSERT_EQ(itrEnd, itr);
-  ASSERT_EQ(itrSourceEnd, itrSource);
-}
+// TEST(TestReadOnlySpan, cbegin_empty)
+//{
+//   ReadOnlySpan<char> span;
+//
+//   ASSERT_EQ(span.cend(), span.cbegin());
+// }
+//
+////
+///---------------------------------------------------------------------------------------------------------------------------------------------------
+//
+// TEST(TestReadOnlySpan, cbegin_iterator_to_cend)
+//{
+//  const std::array<uint8_t, 11> content = {'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+//  ReadOnlySpan<uint8_t> span = Convert(content);
+//
+//  // NOLINTNEXTLINE(readability-qualified-auto)
+//  auto itrSource = content.begin();
+//  // NOLINTNEXTLINE(readability-qualified-auto)
+//  const auto itrSourceEnd = content.end();
+//
+//  auto itr = span.cbegin();
+//  auto itrEnd = span.cend();
+//  while (itr != itrEnd && itrSource != itrSourceEnd)
+//  {
+//    EXPECT_EQ(*itrSource, *itr);
+//    ++itrSource;
+//    ++itr;
+//  }
+//  ASSERT_EQ(itrEnd, itr);
+//  ASSERT_EQ(itrSourceEnd, itrSource);
+//}

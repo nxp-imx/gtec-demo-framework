@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Time/MillisecondTickCount32.hpp>
 #include <FslSimpleUI/Base/Event/EventTransactionState.hpp>
 #include <memory>
 
@@ -64,11 +65,12 @@ namespace Fsl
       bool IsIdle() const noexcept;
 
       //! @brief Notify the input module that the mouse is moving
-      bool MouseMove(const int32_t sourceId, const int32_t sourceSubId, const PxPoint2& screenPositionPx, const bool isTouch);
+      bool MouseMove(const MillisecondTickCount32 timestamp, const int32_t sourceId, const int32_t sourceSubId, const PxPoint2& screenPositionPx,
+                     const bool isTouch);
 
       //! @brief Send a click event
-      bool SendClickEvent(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat,
-                          const PxPoint2& screenPositionPx, const bool isTouch);
+      bool SendClickEvent(const MillisecondTickCount32 timestamp, const int32_t sourceId, const int32_t sourceSubId,
+                          const EventTransactionState state, const bool isRepeat, const PxPoint2& screenPositionPx, const bool isTouch);
     };
   }
 }

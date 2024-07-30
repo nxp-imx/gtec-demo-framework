@@ -43,7 +43,7 @@ using namespace Fsl;
 
 namespace
 {
-  constexpr const uint32_t TEST_DP = 320;
+  constexpr const uint32_t TestDp = 320;
   using TestTextureAtlas_TextureAtlasMap = TestFixtureFslGraphics;
 }
 
@@ -59,7 +59,7 @@ TEST(TestTextureAtlas_TextureAtlasMap, Construct)
 {
   BasicTextureAtlas atlas;
   atlas.Reset(1);
-  atlas.SetEntry(0, PxRectangleU32::Create(4, 6, 8, 12), PxThicknessU::Create(3, 4, 9, 14), TEST_DP, "hello");
+  atlas.SetEntry(0, PxRectangleU32::Create(4, 6, 8, 12), PxThicknessU::Create(3, 4, 9, 14), TestDp, "hello");
 
   EXPECT_NO_THROW(TextureAtlasMap dummy(atlas));
 }
@@ -69,7 +69,7 @@ TEST(TestTextureAtlas_TextureAtlasMap, GetAtlasTextureInfo)
 {
   BasicTextureAtlas atlas;
   atlas.Reset(1);
-  atlas.SetEntry(0, PxRectangleU32::Create(4, 6, 8, 12), PxThicknessU::Create(3, 4, 9, 14), TEST_DP, "hello");
+  atlas.SetEntry(0, PxRectangleU32::Create(4, 6, 8, 12), PxThicknessU::Create(3, 4, 9, 14), TestDp, "hello");
 
   TextureAtlasMap map(atlas);
   auto textureInfo = map.GetAtlasTextureInfo("hello");
@@ -77,7 +77,7 @@ TEST(TestTextureAtlas_TextureAtlasMap, GetAtlasTextureInfo)
   EXPECT_EQ(PxExtent2D::Create(20, 30), textureInfo.ExtentPx);
   EXPECT_EQ(PxThicknessU::Create(3, 4, 9, 14), textureInfo.TrimMarginPx);
   EXPECT_EQ(PxRectangleU32::Create(4, 6, 8, 12), textureInfo.TrimmedRectPx);
-  EXPECT_EQ(TEST_DP, textureInfo.Dpi);
+  EXPECT_EQ(TestDp, textureInfo.Dpi);
 }
 
 
@@ -85,7 +85,7 @@ TEST(TestTextureAtlas_TextureAtlasMap, NotFound)
 {
   BasicTextureAtlas atlas;
   atlas.Reset(1);
-  atlas.SetEntry(0, PxRectangleU32::Create(4, 6, 8, 12), PxThicknessU::Create(3, 4, 9, 14), TEST_DP, "hello");
+  atlas.SetEntry(0, PxRectangleU32::Create(4, 6, 8, 12), PxThicknessU::Create(3, 4, 9, 14), TestDp, "hello");
 
   TextureAtlasMap map(atlas);
   EXPECT_THROW(map.GetAtlasTextureInfo("/hello"), NotFoundException);

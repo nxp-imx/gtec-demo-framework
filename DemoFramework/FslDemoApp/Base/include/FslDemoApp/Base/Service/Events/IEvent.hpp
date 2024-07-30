@@ -38,8 +38,8 @@ namespace Fsl
   class IEvent
   {
   public:
-    virtual ~IEvent() = default;
-    virtual EventType GetEventType() const = 0;
+    virtual ~IEvent() noexcept = default;
+    virtual EventType GetEventType() const noexcept = 0;
   };
 }
 

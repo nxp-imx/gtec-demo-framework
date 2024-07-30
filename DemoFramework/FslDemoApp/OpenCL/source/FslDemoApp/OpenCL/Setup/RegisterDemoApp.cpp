@@ -49,7 +49,7 @@ namespace Fsl
 {
   namespace
   {
-    DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
+    DemoHostFeature CommonSetup(HostDemoAppSetup& rSetup)
     {
       std::deque<DemoHostFeatureName::Enum> hostFeatures;
       hostFeatures.push_back(DemoHostFeatureName::OpenCL);
@@ -84,7 +84,7 @@ namespace Fsl
       // Register a formatter for common OpenCL exceptions (from the libs we utilize)
       rSetup.CustomExceptionFormatter.Add(TryFormatException);
 
-      const DemoHostFeature feature = CommenSetup(rSetup);
+      const DemoHostFeature feature = CommonSetup(rSetup);
       rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature);
     }
   }

@@ -147,6 +147,8 @@ namespace Fsl::UI::Theme
                  rResourceManager.CreateBasicImageSprite(createInfo.DefaultTransparentMaterialId, TextureName::Fill))
     , MiniFillSprite(rResourceManager.CreateBasicImageSprite(createInfo.DefaultOpaqueMaterialId, TextureName::MiniFill),
                      rResourceManager.CreateBasicImageSprite(createInfo.DefaultTransparentMaterialId, TextureName::MiniFill))
+    , LineListSprite(rResourceManager.CreateBasicImageSprite(createInfo.DefaultLineListOpaqueMaterialId, TextureName::Fill),
+                     rResourceManager.CreateBasicImageSprite(createInfo.DefaultLineListTransparentMaterialId, TextureName::Fill))
     , TestSprite(rResourceManager.CreateBasicImageSprite(createInfo.DefaultOpaqueMaterialId, TextureName::Test),
                  rResourceManager.CreateBasicImageSprite(createInfo.DefaultTransparentMaterialId, TextureName::Test))
     , OpaqueFillSprite(rResourceManager.CreateImageSprite(createInfo.DefaultOpaqueMaterialId, TextureName::Fill))

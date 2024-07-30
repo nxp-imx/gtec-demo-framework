@@ -35,68 +35,66 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Time/TimeSpan.hpp>
+#include <FslBase/Transition/EasingFunctionUtil.hpp>
 #include <FslBase/Transition/TransitionState.hpp>
 #include <FslBase/Transition/TransitionType.hpp>
-#include <memory>
-#include <vector>
 
 namespace Fsl
 {
-  class TransitionCache;
-
   class TransitionValue
   {
-    std::shared_ptr<std::vector<float>> m_transition;
     TransitionType m_transitionType{TransitionType::Smooth};
+    EasingFunctionUtil::FNEasingFunction m_fnEasingFunction{EasingFunctionUtil::GetEasingFunction(m_transitionType)};
+
     float m_val{0};
     float m_from{0};
     float m_target{0};
 
-    int64_t m_currentTime{0};
-    int64_t m_endTime{0};
-    int32_t m_startDelay{0};
+    TimeSpan m_endTime;
+    TimeSpan m_currentTime;
+    TimeSpan m_startDelay;
 
   public:
-    TransitionValue();
-    TransitionValue(TransitionCache& rTransitionCache, const TimeSpan& time);
-    TransitionValue(TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type);
+    TransitionValue() noexcept;
+    explicit TransitionValue(const TimeSpan time) noexcept;
+    TransitionValue(const TimeSpan time, const TransitionType type) noexcept;
 
-    //! @brief The timepan that we will wait before we start the actual animation (however the animation is considered in progresses while waiting)
-    TimeSpan GetStartDelay() const;
+    //! @brief The timespan that we will wait before we start the actual animation (however the animation is considered in progresses while waiting)
+    TimeSpan GetStartDelay() const noexcept;
 
-    void SetStartDelay(const TimeSpan& value);
+    void SetStartDelay(const TimeSpan value) noexcept;
 
     //! @brief Check if the animation is completed
-    bool IsCompleted() const
+    bool IsCompleted() const noexcept
     {
       return m_currentTime >= m_endTime;
     }
 
     //! @brief Get the current value
-    float GetValue() const
+    float GetValue() const noexcept
     {
       return m_val;
     }
     void SetValue(const float value);
 
     //! @brief Get the actual value (the value the animation will finish at)
-    float GetActualValue() const
+    float GetActualValue() const noexcept
     {
       return m_target;
     }
 
     //! @brief Set the actual value, this force completes the animation
-    void SetActualValue(const float value);
+    void SetActualValue(const float value) noexcept;
 
-    void ForceComplete();
+    void ForceComplete() noexcept;
 
-    TimeSpan GetTransitionTime() const;
-    void SetTransitionTime(TransitionCache& rTransitionCache, const TimeSpan& time);
-    void SetTransitionTime(TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type);
-    TransitionState Update(const TimeSpan& deltaTime);
+    TimeSpan GetTransitionTime() const noexcept;
+    void SetTransitionTime(const TimeSpan time) noexcept;
+    void SetTransitionTime(const TimeSpan time, const TransitionType type) noexcept;
+    TransitionState Update(const TimeSpan deltaTime) noexcept;
 
   private:
-    void CalcTransition();
+    void CalcTransition() noexcept;
   };
 }
 

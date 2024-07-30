@@ -72,6 +72,7 @@ readability-container-size-empty,
 readability-delete-null-pointer,
 readability-deleted-default,
 readability-else-after-return,
+readability-identifier-naming,
 readability-inconsistent-declaration-parameter-name,
 readability-isolate-declaration,
 readability-misleading-indentation,
@@ -86,9 +87,8 @@ readability-static-accessed-through-instance,
 readability-uniqueptr-delete-release'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
-AnalyzeTemporaryDtors: false
 FormatStyle:     file
-CheckOptions:    
+CheckOptions:
   - key:             google-readability-braces-around-statements.ShortStatementLines
     value:           '1'
   - key:             modernize-loop-convert.NamingStyle
@@ -102,7 +102,7 @@ CheckOptions:
   - key:             readability-identifier-naming.ClassCase
     value:           CamelCase
   - key:             readability-identifier-naming.ClassConstantCase
-    value:           UPPER_CASE
+    value:           CamelCase
   - key:             readability-identifier-naming.ClassConstantPrefix
     value:           ''
   - key:             readability-identifier-naming.ClassConstantSuffix
@@ -113,6 +113,8 @@ CheckOptions:
     value:           'g_'
   - key:             readability-identifier-naming.ClassMemberSuffix
     value:           ''
+  - key:             readability-identifier-naming.ClassMemberHungarianPrefix 
+    value:           Off
   - key:             readability-identifier-naming.ClassMethodCase
     value:           CamelCase
   - key:             readability-identifier-naming.ClassMethodPrefix
@@ -126,7 +128,7 @@ CheckOptions:
   - key:             readability-identifier-naming.ConstantCase
     value:           UPPER_CASE
   - key:             readability-identifier-naming.ConstantMemberCase
-    value:           UPPER_CASE
+    value:           CamelCase
   - key:             readability-identifier-naming.ConstantMemberPrefix
     value:           ''
   - key:             readability-identifier-naming.ConstantMemberSuffix
@@ -154,7 +156,7 @@ CheckOptions:
   - key:             readability-identifier-naming.ConstexprMethodSuffix
     value:           ''
   - key:             readability-identifier-naming.ConstexprVariableCase
-    value:           camelBack
+    value:           CamelCase
   - key:             readability-identifier-naming.ConstexprVariablePrefix
     value:           ''
   - key:             readability-identifier-naming.ConstexprVariableSuffix
@@ -178,9 +180,9 @@ CheckOptions:
   - key:             readability-identifier-naming.FunctionSuffix
     value:           ''
   - key:             readability-identifier-naming.GlobalConstantCase
-    value:           UPPER_CASE
+    value:           camelBack
   - key:             readability-identifier-naming.GlobalConstantPrefix
-    value:           ''
+    value:           g_
   - key:             readability-identifier-naming.GlobalConstantSuffix
     value:           ''
   - key:             readability-identifier-naming.GlobalFunctionCase
@@ -263,10 +265,12 @@ CheckOptions:
     value:           ''
   - key:             readability-identifier-naming.PublicMemberSuffix
     value:           ''
+  - key:             readability-identifier-naming.PublicMemberHungarianPrefix
+    value:           Off
   - key:             readability-identifier-naming.StaticConstantCase
-    value:           UPPER_CASE
+    value:           camelBack
   - key:             readability-identifier-naming.StaticConstantPrefix
-    value:           ''
+    value:           g_
   - key:             readability-identifier-naming.StaticConstantSuffix
     value:           ''
   - key:             readability-identifier-naming.StaticVariableCase
@@ -312,9 +316,9 @@ CheckOptions:
   - key:             readability-identifier-naming.UnionSuffix
     value:           ''
   - key:             readability-identifier-naming.ValueTemplateParameterCase
-    value:           camelBack
+    value:           CamelCase
   - key:             readability-identifier-naming.ValueTemplateParameterPrefix
-    value:           ''
+    value:           'T'
   - key:             readability-identifier-naming.ValueTemplateParameterSuffix
     value:           ''
   - key:             readability-identifier-naming.VariableCase
@@ -333,141 +337,5 @@ CheckOptions:
     value:           '0'
   - key:             readability-implicit-bool-conversion.AllowPointerConditions
     value:           '0'
-    
-# readability-identifier-naming.ClassMember = static class member variables
-# 
-	
-#  - key:             google-readability-redundant-smartptr-get 
-#    value:           '1'
-#  - key:             modernize-use-nullptr.NullMacros
-#    value:           'NULL'
-#  - key:             modernize-use-using.IgnoreMacros
-#    value:           '1'
-#  - key:             readability-simplify-boolean-expr.ChainedConditionalAssignment
-#    value:           '0'
-#  - key:             readability-simplify-boolean-expr.ChainedConditionalReturn
-#    value:           '0'
-...
-
-# Create command line option to add and also one to only run this check
-# readability-identifier-naming
-
-
-# Good idea but requires quite a bit of work
-# cert-dcl50-cpp
-# cert-err60-cpp,
-# cppcoreguidelines-special-member-functions,
-# google-default-arguments,
-# misc-misplaced-const,
-# modernize-loop-convert
-# modernize-raw-string-literal
-# readability-function-size
-# readability-identifier-naming,
-
-# Also might conflict with google test
-#cert-err58-cpp,
-
-# Good idea but conflicts with gli
-# cppcoreguidelines-pro-type-union-access,
    
-# Use when C++17
-# modernize-unary-static-assert
-
-# Use when the GSL is added
-# cppcoreguidelines-pro-bounds-array-to-pointer-decay
-# cppcoreguidelines-pro-bounds-constant-array-index,
-# cppcoreguidelines-pro-bounds-pointer-arithmetic  
-  
-# Candidates
-# google-readability-function-size
-# google-runtime-int
-# hicpp-new-delete-operators
-
-# Not likely
-# cppcoreguidelines-pro-type-reinterpret-cast
-# google-build-using-namespace
-# google-readability-namespace-comments
-# google-readability-todo
-# google-runtime-operator
-# llvm-namespace-comment
-# readability-avoid-const-params-in-decls
-
-# Evaluate
-# bugprone-macro-parentheses,  # We do have a few logging macros this will cause trouble with.
-# bugprone-multiple-statement-macro
-# cppcoreguidelines-avoid-goto   # seems to conflict with google test
-# bugprone-bool-pointer-implicit-conversion
-# bugprone-exception-escape
-# bugprone-forward-declaration-namespace
-# bugprone-unused-return-value 
-# cert-msc50-cpp
-# cppcoreguidelines-owning-memory
-# misc-unused-parameters
-# llvm-include-order
-# hicpp-signed-bitwise
-
-# Dont use:
-# boost-use-to-string
-# bugprone-argument-comment
-# fuchsia-default-arguments
-# fuchsia-overloaded-operator
-# fuchsia-virtual-inheritance
-# google-objc-avoid-throwing-exception
-# google-objc-global-variable-declaration
-# google-runtime-references
-# objc-avoid-nserror-init
-# objc-avoid-spinlock
-# objc-forbidden-subclassing
-# objc-property-declaration
-# llvm-header-guard,
-# llvm-twine-local
-# mpi-buffer-deref
-# mpi-type-mismatch
-
-# Alias
-# cert-dcl03-c
-# cert-dcl54-cpp
-# cert-dcl59-cpp
-# cert-err09-cpp
-# cert-err61-cpp
-# cert-fio38-c
-# cert-msc30-c
-# cert-oop11-cpp
-# google-readability-redundant-smartptr-get
-# hicpp-braces-around-statements
-# hicpp-deprecated-headers
-# hicpp-explicit-conversions
-# hicpp-function-size
-# hicpp-invalid-access-moved
-# hicpp-member-init
-# hicpp-move-const-arg
-# hicpp-named-parameter
-# hicpp-no-array-decay
-# hicpp-no-malloc
-# hicpp-noexcept-move
-# hicpp-use-noexcept
-# hicpp-special-member-functions
-# hicpp-static-assert
-# hicpp-undelegated-constructor
-# hicpp-use-auto
-# hicpp-use-emplace
-# hicpp-use-equals-default
-# hicpp-use-equals-delete
-# hicpp-use-nullptr
-# hicpp-use-override
-# hicpp-vararg
-
-# Android
-# android-cloexec-accept
-# android-cloexec-accept4
-# android-cloexec-creat
-# android-cloexec-dup
-# android-cloexec-epoll-create
-# android-cloexec-epoll-create1
-# android-cloexec-fopen
-# android-cloexec-inotify-init
-# android-cloexec-inotify-init1
-# android-cloexec-memfd-create
-# android-cloexec-open
-# android-cloexec-socket
-    
+...

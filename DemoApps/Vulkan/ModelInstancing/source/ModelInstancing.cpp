@@ -34,7 +34,8 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Vector.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorNormalTexture.hpp>
@@ -404,8 +405,8 @@ namespace Fsl
       m_resources.Mesh.IndexBuffer.Reset(m_resources.BufferManager, meshRecord.Indices, Vulkan::VMBufferUsage::STATIC);
 
       // 'auto' fill the vertex based desc
-      Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(SpanUtil::AsSubSpan(m_resources.Mesh.VertexAttributeDescription, 0, 4),
-                                                                      ReadOnlySpanUtil::AsSpan(shaderBindOrder), m_resources.Mesh.VertexBuffer);
+      Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(SpanUtil::AsSpan(m_resources.Mesh.VertexAttributeDescription, 0, 4),
+                                                                      SpanUtil::AsReadOnlySpan(shaderBindOrder), m_resources.Mesh.VertexBuffer);
       // Add the instance information
       m_resources.Mesh.VertexAttributeDescription[4].location = 4;
       m_resources.Mesh.VertexAttributeDescription[4].binding = LocalConfig::InstanceBufferBindId;
@@ -505,7 +506,7 @@ namespace Fsl
 
     // Upload the changes
     m_resources.MainFrameResources[currentFrameIndex].UboBuffer.Upload(0, &m_uboData, sizeof(UBOData));
-    m_resources.MainFrameResources[currentFrameIndex].InstanceBuffer.Upload(0, instanceData.data(), instanceData.byte_size());
+    m_resources.MainFrameResources[currentFrameIndex].InstanceBuffer.Upload(0, instanceData.data(), instanceData.size_bytes());
 
     const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
     rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);

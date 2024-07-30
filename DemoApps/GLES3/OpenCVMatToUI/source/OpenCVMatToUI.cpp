@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,10 +53,10 @@ namespace Fsl
 {
   namespace
   {
-    const auto TEST_IMAGE1 = "Image1.png";
-    const auto TEST_IMAGE_R = "TestRed.png";
-    const auto TEST_IMAGE_G = "TestGreen.png";
-    const auto TEST_IMAGE_B = "TestBlue.png";
+    constexpr auto TestImage1 = "Image1.png";
+    constexpr auto TestImageR = "TestRed.png";
+    constexpr auto TestImageG = "TestGreen.png";
+    constexpr auto TestImageB = "TestBlue.png";
 
     cv::Mat SafeImread(const IO::Path& path)
     {
@@ -180,10 +180,10 @@ namespace Fsl
 
   void OpenCVMatToUI::CreateReferenceTextures(const std::shared_ptr<IContentManager>& contentManager)
   {
-    auto bitmapTest = contentManager->ReadBitmap(TEST_IMAGE1, PixelFormat::R8G8B8_UNORM);
-    auto bitmapTestR = contentManager->ReadBitmap(TEST_IMAGE_R, PixelFormat::R8G8B8_UNORM);
-    auto bitmapTestG = contentManager->ReadBitmap(TEST_IMAGE_G, PixelFormat::R8G8B8_UNORM);
-    auto bitmapTestB = contentManager->ReadBitmap(TEST_IMAGE_B, PixelFormat::R8G8B8_UNORM);
+    auto bitmapTest = contentManager->ReadBitmap(TestImage1, PixelFormat::R8G8B8_UNORM);
+    auto bitmapTestR = contentManager->ReadBitmap(TestImageR, PixelFormat::R8G8B8_UNORM);
+    auto bitmapTestG = contentManager->ReadBitmap(TestImageG, PixelFormat::R8G8B8_UNORM);
+    auto bitmapTestB = contentManager->ReadBitmap(TestImageB, PixelFormat::R8G8B8_UNORM);
 
     const auto nativeGraphics = m_graphics->GetNativeGraphics();
 
@@ -199,10 +199,10 @@ namespace Fsl
   {
     const IO::Path contentPath = contentManager->GetContentPath();
 
-    IO::Path pathImg1 = IO::Path::Combine(contentPath, TEST_IMAGE1);
-    IO::Path pathImgR = IO::Path::Combine(contentPath, TEST_IMAGE_R);
-    IO::Path pathImgG = IO::Path::Combine(contentPath, TEST_IMAGE_G);
-    IO::Path pathImgB = IO::Path::Combine(contentPath, TEST_IMAGE_B);
+    IO::Path pathImg1 = IO::Path::Combine(contentPath, TestImage1);
+    IO::Path pathImgR = IO::Path::Combine(contentPath, TestImageR);
+    IO::Path pathImgG = IO::Path::Combine(contentPath, TestImageG);
+    IO::Path pathImgB = IO::Path::Combine(contentPath, TestImageB);
 
     // Read a image using OpenCV (we use imread since we want to demonstrate how to convert a OpenCV image to a texture for use by INativeBatch2D)
     const cv::Mat mat1 = SafeImread(pathImg1);

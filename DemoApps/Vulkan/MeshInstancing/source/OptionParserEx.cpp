@@ -56,15 +56,15 @@ namespace Fsl
 
     namespace
     {
-      const uint32_t INSTANCE_COUNT_ULTRA = 4096;    // Original sample was 2048
-      const uint32_t INSTANCE_COUNT_HIGH = 2048;
-      const uint32_t INSTANCE_COUNT_MEDIUM = 1024;
-      const uint32_t INSTANCE_COUNT_LOW = 512;
+      constexpr uint32_t InstanceCountUltra = 4096;    // Original sample was 2048
+      constexpr uint32_t InstanceCountHigh = 2048;
+      constexpr uint32_t InstanceCountMedium = 1024;
+      constexpr uint32_t InstanceCountLow = 512;
     }
   }
 
   OptionParserEx::OptionParserEx()
-    : m_instanceCount(INSTANCE_COUNT_MEDIUM)
+    : m_instanceCount(InstanceCountMedium)
   {
   }
 
@@ -92,19 +92,19 @@ namespace Fsl
         }
         if (strOptArg == "low")
         {
-          m_instanceCount = INSTANCE_COUNT_LOW;
+          m_instanceCount = InstanceCountLow;
         }
         else if (strOptArg == "medium")
         {
-          m_instanceCount = INSTANCE_COUNT_MEDIUM;
+          m_instanceCount = InstanceCountMedium;
         }
         else if (strOptArg == "high")
         {
-          m_instanceCount = INSTANCE_COUNT_HIGH;
+          m_instanceCount = InstanceCountHigh;
         }
         else if (strOptArg == "ultra")
         {
-          m_instanceCount = INSTANCE_COUNT_ULTRA;
+          m_instanceCount = InstanceCountUltra;
         }
         else
         {

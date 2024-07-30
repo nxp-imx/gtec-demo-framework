@@ -34,11 +34,14 @@
 #include <FslSimpleUI/App/UIDemoAppMaterialConfig.hpp>
 #include <FslSimpleUI/App/UIDemoAppMaterialCreateInfo.hpp>
 #include <FslSimpleUI/App/UIDemoAppRenderCapacityInfo.hpp>
+#include <FslSimpleUI/Base/UIColorSpace.hpp>
 
 namespace Fsl
 {
   struct UIDemoAppRenderCreateInfo
   {
+    UI::UIColorSpace ColorSpace{UI::UIColorSpace::SRGBNonLinear};
+
     UIDemoAppRenderCapacityInfo Capacity;
     //! Material create info that can only be configured during creation
     UIDemoAppMaterialCreateInfo MaterialCreateInfo;
@@ -48,25 +51,27 @@ namespace Fsl
     constexpr UIDemoAppRenderCreateInfo() noexcept = default;
 
 
-    explicit constexpr UIDemoAppRenderCreateInfo(const UIDemoAppRenderCapacityInfo capacity,
+    explicit constexpr UIDemoAppRenderCreateInfo(const UI::UIColorSpace colorSpace, const UIDemoAppRenderCapacityInfo capacity,
                                                  const UIDemoAppMaterialCreateInfo materialCreateInfo = {},
                                                  const UIDemoAppMaterialConfig materialConfig = {}) noexcept
-      : Capacity(capacity)
+      : ColorSpace(colorSpace)
+      , Capacity(capacity)
       , MaterialCreateInfo(materialCreateInfo)
       , MaterialConfig(materialConfig)
     {
     }
 
 
-    explicit constexpr UIDemoAppRenderCreateInfo(const UIDemoAppMaterialCreateInfo materialCreateInfo,
+    explicit constexpr UIDemoAppRenderCreateInfo(const UI::UIColorSpace colorSpace, const UIDemoAppMaterialCreateInfo materialCreateInfo,
                                                  const UIDemoAppMaterialConfig materialConfig = {}) noexcept
-      : UIDemoAppRenderCreateInfo(UIDemoAppRenderCapacityInfo(), materialCreateInfo, materialConfig)
+      : UIDemoAppRenderCreateInfo(colorSpace, UIDemoAppRenderCapacityInfo(), materialCreateInfo, materialConfig)
     {
     }
 
     constexpr bool operator==(const UIDemoAppRenderCreateInfo& rhs) const noexcept
     {
-      return Capacity == rhs.Capacity && MaterialCreateInfo == rhs.MaterialCreateInfo && MaterialConfig == rhs.MaterialConfig;
+      return ColorSpace == rhs.ColorSpace && Capacity == rhs.Capacity && MaterialCreateInfo == rhs.MaterialCreateInfo &&
+             MaterialConfig == rhs.MaterialConfig;
     }
 
 

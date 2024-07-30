@@ -92,6 +92,7 @@ namespace Fsl
              (dataByteSize - dataOffset));
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr bool empty() const noexcept
     {
       return ElementFormat == BasicMaterialVariableElementFormat::Undefined;

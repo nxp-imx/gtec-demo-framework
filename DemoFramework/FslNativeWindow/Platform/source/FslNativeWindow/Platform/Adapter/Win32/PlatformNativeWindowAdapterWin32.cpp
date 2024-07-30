@@ -83,7 +83,11 @@ namespace Fsl
 {
   namespace
   {
-    const bool USE_FORCE_ACTIVATED = true;    // For now we always force activation (meaning we dont lose deactivate on windows focus loss)
+    namespace LocalConfig
+    {
+      constexpr bool UseForceActivated = true;    // For now we always force activation (meaning we dont lose deactivate on windows focus loss)
+      constexpr uint32_t MagicDefaultDpi = 96;
+    }
 
     inline void UpdateButton(uint32_t& rButtonFlags, const uint16_t wButtons, const uint16_t xinputFlag, const VirtualGamepadButton virtualFlag)
     {
@@ -135,16 +139,15 @@ namespace Fsl
       rRect.bottom = point.y;
       return true;
     }
-  }    // namespace
+  }
 
   struct PlatformGamepadStateWin32
   {
     VirtualGamepadState State;
 
-    PlatformGamepadStateWin32() = default;
+    PlatformGamepadStateWin32() noexcept = default;
 
     PlatformGamepadStateWin32(const uint32_t deviceId, const bool isConnected, const XINPUT_STATE& state)
-
     {
       State.IsConnected = isConnected;
       assert(deviceId <= 255);
@@ -175,12 +178,11 @@ namespace Fsl
 
   namespace
   {
-    const uint32_t MAGIC_DEFAULT_DPI = 96;
-
-    inline void SendButtonEventIfChanged(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const uint32_t deviceId,
-                                         const VirtualGamepadState& oldState, const VirtualGamepadState& newState, const VirtualGamepadButton button,
-                                         const VirtualKey::Enum key)
+    inline void SendButtonEventIfChanged(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp,
+                                         const uint32_t deviceId, const VirtualGamepadState& oldState, const VirtualGamepadState& newState,
+                                         const VirtualGamepadButton button, const VirtualKey::Enum key)
     {
+      FSL_PARAM_NOT_USED(timestamp);
       FSL_PARAM_NOT_USED(deviceId);
       const bool isPressed = newState.IsPressed(button);
       if (oldState.IsPressed(button) == isPressed)
@@ -193,23 +195,27 @@ namespace Fsl
     }
 
 
-    void SendKeyboardGamepadEvents(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const uint32_t deviceId,
-                                   const VirtualGamepadState& oldState, const VirtualGamepadState& newState)
+    void SendKeyboardGamepadEvents(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp,
+                                   const uint32_t deviceId, const VirtualGamepadState& oldState, const VirtualGamepadState& newState)
     {
-      SendButtonEventIfChanged(eventQueue, deviceId, oldState, newState, VirtualGamepadButton::A, VirtualKey::GamePadButtonA);
-      SendButtonEventIfChanged(eventQueue, deviceId, oldState, newState, VirtualGamepadButton::B, VirtualKey::GamePadButtonB);
-      SendButtonEventIfChanged(eventQueue, deviceId, oldState, newState, VirtualGamepadButton::X, VirtualKey::GamePadButtonX);
-      SendButtonEventIfChanged(eventQueue, deviceId, oldState, newState, VirtualGamepadButton::Y, VirtualKey::GamePadButtonY);
-      SendButtonEventIfChanged(eventQueue, deviceId, oldState, newState, VirtualGamepadButton::LeftShoulder, VirtualKey::GamePadButtonLeftShoulder);
-      SendButtonEventIfChanged(eventQueue, deviceId, oldState, newState, VirtualGamepadButton::RightShoulder, VirtualKey::GamePadButtonRightShoulder);
-      SendButtonEventIfChanged(eventQueue, deviceId, oldState, newState, VirtualGamepadButton::Start, VirtualKey::GamePadButtonStart);
-      SendButtonEventIfChanged(eventQueue, deviceId, oldState, newState, VirtualGamepadButton::Back, VirtualKey::GamePadButtonBack);
-      SendButtonEventIfChanged(eventQueue, deviceId, oldState, newState, VirtualGamepadButton::LeftThumb, VirtualKey::GamePadButtonLeftThumb);
-      SendButtonEventIfChanged(eventQueue, deviceId, oldState, newState, VirtualGamepadButton::RightThumb, VirtualKey::GamePadButtonRightThumb);
-      SendButtonEventIfChanged(eventQueue, deviceId, oldState, newState, VirtualGamepadButton::DpadUp, VirtualKey::GamePadDpadUp);
-      SendButtonEventIfChanged(eventQueue, deviceId, oldState, newState, VirtualGamepadButton::DpadDown, VirtualKey::GamePadDpadDown);
-      SendButtonEventIfChanged(eventQueue, deviceId, oldState, newState, VirtualGamepadButton::DpadLeft, VirtualKey::GamePadDpadLeft);
-      SendButtonEventIfChanged(eventQueue, deviceId, oldState, newState, VirtualGamepadButton::DpadRight, VirtualKey::GamePadDpadRight);
+      SendButtonEventIfChanged(eventQueue, timestamp, deviceId, oldState, newState, VirtualGamepadButton::A, VirtualKey::GamePadButtonA);
+      SendButtonEventIfChanged(eventQueue, timestamp, deviceId, oldState, newState, VirtualGamepadButton::B, VirtualKey::GamePadButtonB);
+      SendButtonEventIfChanged(eventQueue, timestamp, deviceId, oldState, newState, VirtualGamepadButton::X, VirtualKey::GamePadButtonX);
+      SendButtonEventIfChanged(eventQueue, timestamp, deviceId, oldState, newState, VirtualGamepadButton::Y, VirtualKey::GamePadButtonY);
+      SendButtonEventIfChanged(eventQueue, timestamp, deviceId, oldState, newState, VirtualGamepadButton::LeftShoulder,
+                               VirtualKey::GamePadButtonLeftShoulder);
+      SendButtonEventIfChanged(eventQueue, timestamp, deviceId, oldState, newState, VirtualGamepadButton::RightShoulder,
+                               VirtualKey::GamePadButtonRightShoulder);
+      SendButtonEventIfChanged(eventQueue, timestamp, deviceId, oldState, newState, VirtualGamepadButton::Start, VirtualKey::GamePadButtonStart);
+      SendButtonEventIfChanged(eventQueue, timestamp, deviceId, oldState, newState, VirtualGamepadButton::Back, VirtualKey::GamePadButtonBack);
+      SendButtonEventIfChanged(eventQueue, timestamp, deviceId, oldState, newState, VirtualGamepadButton::LeftThumb,
+                               VirtualKey::GamePadButtonLeftThumb);
+      SendButtonEventIfChanged(eventQueue, timestamp, deviceId, oldState, newState, VirtualGamepadButton::RightThumb,
+                               VirtualKey::GamePadButtonRightThumb);
+      SendButtonEventIfChanged(eventQueue, timestamp, deviceId, oldState, newState, VirtualGamepadButton::DpadUp, VirtualKey::GamePadDpadUp);
+      SendButtonEventIfChanged(eventQueue, timestamp, deviceId, oldState, newState, VirtualGamepadButton::DpadDown, VirtualKey::GamePadDpadDown);
+      SendButtonEventIfChanged(eventQueue, timestamp, deviceId, oldState, newState, VirtualGamepadButton::DpadLeft, VirtualKey::GamePadDpadLeft);
+      SendButtonEventIfChanged(eventQueue, timestamp, deviceId, oldState, newState, VirtualGamepadButton::DpadRight, VirtualKey::GamePadDpadRight);
     }
 
 
@@ -327,7 +333,7 @@ namespace Fsl
   public:
     explicit PlatformNativeWindowSystemWin32State(std::weak_ptr<INativeWindowEventQueue> eventQueue)
       : m_eventQueue(std::move(eventQueue))
-      , m_forceActivated(USE_FORCE_ACTIVATED)
+      , m_forceActivated(LocalConfig::UseForceActivated)
 
     {
     }
@@ -375,8 +381,10 @@ namespace Fsl
     }
 
 
-    LRESULT OnKeyMessage(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam, const bool isPressed)
+    LRESULT OnKeyMessage(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp, WPARAM wParam,
+                         LPARAM lParam, const bool isPressed)
     {
+      FSL_PARAM_NOT_USED(timestamp);
       FSL_PARAM_NOT_USED(hWnd);
       FSL_PARAM_NOT_USED(lParam);
       VirtualKey::Enum keycode = VirtualKey::Undefined;
@@ -389,22 +397,22 @@ namespace Fsl
     }
 
 
-    LRESULT OnMouseButton(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam,
-                          const VirtualMouseButton::Enum button, const bool isPressed)
+    LRESULT OnMouseButton(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp,
+                          WPARAM wParam, LPARAM lParam, const VirtualMouseButton button, const bool isPressed)
     {
       FSL_PARAM_NOT_USED(hWnd);
       FSL_PARAM_NOT_USED(wParam);
       const auto position = PxPoint2::Create(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-      const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseButtonEvent(button, isPressed, position);
+      const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseButtonEvent(timestamp, button, isPressed, position);
       eventQueue->PostEvent(event);
 
       if (isPressed)
       {
-        m_mouseButtonState |= button;
+        m_mouseButtonState |= static_cast<uint32_t>(button);
       }
       else
       {
-        m_mouseButtonState &= ~button;
+        m_mouseButtonState &= ~static_cast<uint32_t>(button);
       }
 
       auto window = TryGetWindow(hWnd);
@@ -416,7 +424,8 @@ namespace Fsl
     }
 
 
-    LRESULT OnMouseMove(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam)
+    LRESULT OnMouseMove(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp, WPARAM wParam,
+                        LPARAM lParam)
     {
       FSL_PARAM_NOT_USED(wParam);
       const auto position = PxPoint2::Create(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
@@ -424,13 +433,14 @@ namespace Fsl
       auto window = TryGetWindow(hWnd);
       if (window)
       {
-        window->OnMouseMove(eventQueue, position);
+        window->OnMouseMove(eventQueue, timestamp, position);
       }
       return 0;
     }
 
 
-    LRESULT OnMouseWheel(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam)
+    LRESULT OnMouseWheel(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp, WPARAM wParam,
+                         LPARAM lParam)
     {
       FSL_PARAM_NOT_USED(hWnd);
       const int32_t zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
@@ -443,7 +453,7 @@ namespace Fsl
       {
         const auto position = PxPoint2::Create(pt.x, pt.y);
 
-        const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseWheelEvent(zDelta, position);
+        const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseWheelEvent(timestamp, zDelta, position);
         eventQueue->PostEvent(event);
         // FSLLOG3_INFO("WHEEL: X: " << position.X << " Y: " << position.Y);
       }
@@ -455,7 +465,8 @@ namespace Fsl
     }
 
 
-    void OnRawInput(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam)
+    void OnRawInput(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp, WPARAM wParam,
+                    LPARAM lParam)
     {
       FSL_PARAM_NOT_USED(wParam);
       if (!m_activated)
@@ -466,13 +477,15 @@ namespace Fsl
       auto window = TryGetWindow(hWnd);
       if (window)
       {
-        window->OnRawInput(eventQueue, lParam);
+        window->OnRawInput(eventQueue, timestamp, lParam);
       }
     }
 
 
-    LRESULT OnActivateMessage(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam)
+    LRESULT OnActivateMessage(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp,
+                              WPARAM wParam, LPARAM lParam)
     {
+      FSL_PARAM_NOT_USED(timestamp);
       FSL_PARAM_NOT_USED(hWnd);
       FSL_PARAM_NOT_USED(lParam);
       const uint32_t hiWord = ((wParam >> 16) & 0xFFFF);
@@ -506,8 +519,10 @@ namespace Fsl
     }
 
 
-    LRESULT OnSize(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam)
+    LRESULT OnSize(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp, WPARAM wParam,
+                   LPARAM lParam)
     {
+      FSL_PARAM_NOT_USED(timestamp);
       FSL_PARAM_NOT_USED(hWnd);
       FSL_PARAM_NOT_USED(lParam);
       // The window has been resized, but neither the SIZE_MINIMIZED nor SIZE_MAXIMIZED value applies.
@@ -518,7 +533,7 @@ namespace Fsl
       return 0;
     }
 
-    LRESULT OnDPICHanged(HWND hWnd, WPARAM wParam, LPARAM lParam)
+    LRESULT OnDPICHanged(HWND hWnd, const MillisecondTickCount32 timestamp, WPARAM wParam, LPARAM lParam)
     {
       FSL_PARAM_NOT_USED(lParam);
       // wParam = new DPI
@@ -528,7 +543,7 @@ namespace Fsl
       auto window = TryGetWindow(hWnd);
       if (window)
       {
-        window->OnDPIChanged(Point2(newDpiX, newDpiY));
+        window->OnDPIChanged(timestamp, Point2(newDpiX, newDpiY));
       }
 
       // A pointer to a RECT structure that provides a suggested size and position of the current window scaled for the new DPI.
@@ -544,8 +559,9 @@ namespace Fsl
       return 1;
     }
 
-    void OnWindowCaptureChanged(HWND hWnd, WPARAM wParam, LPARAM lParam)
+    void OnWindowCaptureChanged(HWND hWnd, const MillisecondTickCount32 timestamp, WPARAM wParam, LPARAM lParam)
     {
+      FSL_PARAM_NOT_USED(timestamp);
       FSL_PARAM_NOT_USED(wParam);
       auto window = TryGetWindow(hWnd);
       if (window)
@@ -558,6 +574,7 @@ namespace Fsl
   namespace
   {
     std::weak_ptr<PlatformNativeWindowSystemWin32State> g_windowSystemState;
+
 
     LRESULT CALLBACK WndProc(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lParam)
     {
@@ -574,39 +591,40 @@ namespace Fsl
         auto eventQueue = windowSystemState->GetEventQueue().lock();
         if (eventQueue)
         {
+          const MillisecondTickCount32 timestamp = MillisecondTickCount32::FromMilliseconds(GetMessageTime());
           switch (uiMsg)
           {
           case WM_ACTIVATE:
-            return windowSystemState->OnActivateMessage(hWnd, eventQueue, wParam, lParam);
+            return windowSystemState->OnActivateMessage(hWnd, eventQueue, timestamp, wParam, lParam);
           case WM_KEYDOWN:
-            return windowSystemState->OnKeyMessage(hWnd, eventQueue, wParam, lParam, true);
+            return windowSystemState->OnKeyMessage(hWnd, eventQueue, timestamp, wParam, lParam, true);
           case WM_KEYUP:
-            return windowSystemState->OnKeyMessage(hWnd, eventQueue, wParam, lParam, false);
+            return windowSystemState->OnKeyMessage(hWnd, eventQueue, timestamp, wParam, lParam, false);
           case WM_LBUTTONDOWN:
-            return windowSystemState->OnMouseButton(hWnd, eventQueue, wParam, lParam, VirtualMouseButton::Left, true);
+            return windowSystemState->OnMouseButton(hWnd, eventQueue, timestamp, wParam, lParam, VirtualMouseButton::Left, true);
           case WM_LBUTTONUP:
-            return windowSystemState->OnMouseButton(hWnd, eventQueue, wParam, lParam, VirtualMouseButton::Left, false);
+            return windowSystemState->OnMouseButton(hWnd, eventQueue, timestamp, wParam, lParam, VirtualMouseButton::Left, false);
           case WM_MBUTTONDOWN:
-            return windowSystemState->OnMouseButton(hWnd, eventQueue, wParam, lParam, VirtualMouseButton::Middle, true);
+            return windowSystemState->OnMouseButton(hWnd, eventQueue, timestamp, wParam, lParam, VirtualMouseButton::Middle, true);
           case WM_MBUTTONUP:
-            return windowSystemState->OnMouseButton(hWnd, eventQueue, wParam, lParam, VirtualMouseButton::Middle, false);
+            return windowSystemState->OnMouseButton(hWnd, eventQueue, timestamp, wParam, lParam, VirtualMouseButton::Middle, false);
           case WM_RBUTTONDOWN:
-            return windowSystemState->OnMouseButton(hWnd, eventQueue, wParam, lParam, VirtualMouseButton::Right, true);
+            return windowSystemState->OnMouseButton(hWnd, eventQueue, timestamp, wParam, lParam, VirtualMouseButton::Right, true);
           case WM_RBUTTONUP:
-            return windowSystemState->OnMouseButton(hWnd, eventQueue, wParam, lParam, VirtualMouseButton::Right, false);
+            return windowSystemState->OnMouseButton(hWnd, eventQueue, timestamp, wParam, lParam, VirtualMouseButton::Right, false);
           case WM_MOUSEMOVE:
-            return windowSystemState->OnMouseMove(hWnd, eventQueue, wParam, lParam);
+            return windowSystemState->OnMouseMove(hWnd, eventQueue, timestamp, wParam, lParam);
           case WM_MOUSEWHEEL:
-            return windowSystemState->OnMouseWheel(hWnd, eventQueue, wParam, lParam);
+            return windowSystemState->OnMouseWheel(hWnd, eventQueue, timestamp, wParam, lParam);
           case WM_INPUT:
-            windowSystemState->OnRawInput(hWnd, eventQueue, wParam, lParam);
+            windowSystemState->OnRawInput(hWnd, eventQueue, timestamp, wParam, lParam);
             break;
           case WM_SIZE:
-            return windowSystemState->OnSize(hWnd, eventQueue, wParam, lParam);
+            return windowSystemState->OnSize(hWnd, eventQueue, timestamp, wParam, lParam);
           case WM_DPICHANGED:
-            return windowSystemState->OnDPICHanged(hWnd, wParam, lParam);
+            return windowSystemState->OnDPICHanged(hWnd, timestamp, wParam, lParam);
           case WM_CAPTURECHANGED:
-            windowSystemState->OnWindowCaptureChanged(hWnd, wParam, lParam);
+            windowSystemState->OnWindowCaptureChanged(hWnd, timestamp, wParam, lParam);
             break;
           case WM_QUIT:
           case WM_QUERYENDSESSION:
@@ -770,7 +788,6 @@ namespace Fsl
 
   bool PlatformNativeWindowSystemAdapterWin32::ProcessMessages(const NativeWindowProcessMessagesArgs& args)
   {
-    FSL_PARAM_NOT_USED(args);
     MSG sMessage;
     bool bQuit = false;
     while (PeekMessage(&sMessage, nullptr, 0, 0, PM_REMOVE) != 0)
@@ -788,6 +805,7 @@ namespace Fsl
       DispatchMessage(&sMessage);
     }
 
+    // For now we do not provide a timestamp for gamepad events
     ScanGamepads();
     return !bQuit;
   }
@@ -835,7 +853,7 @@ namespace Fsl
         const NativeWindowEvent event = NativeWindowEventHelper::EncodeVirtualGamepadStateEvent(newState.State);
         eventQueue->PostEvent(event);
 
-        SendKeyboardGamepadEvents(eventQueue, deviceIndex, oldState.State, newState.State);
+        SendKeyboardGamepadEvents(eventQueue, NativeWindowEventHelper::UnknownTimestamp(), deviceIndex, oldState.State, newState.State);
       }
     }
   }
@@ -948,7 +966,7 @@ namespace Fsl
     if (!m_dpiHelper->TryGetDpi(m_platformWindow, m_cachedDPIValue))
     {
       FSLLOG3_DEBUG_WARNING("Failed to cache DPI value, using default");
-      m_cachedDPIValue = Point2(MAGIC_DEFAULT_DPI, MAGIC_DEFAULT_DPI);
+      m_cachedDPIValue = Point2(LocalConfig::MagicDefaultDpi, LocalConfig::MagicDefaultDpi);
     }
 
     // Register for raw input
@@ -987,7 +1005,7 @@ namespace Fsl
     auto windowSystemState = g_windowSystemState.lock();
     if (windowSystemState)
     {
-      windowSystemState->SetUseForceActivated(enableCapture ? false : USE_FORCE_ACTIVATED);
+      windowSystemState->SetUseForceActivated(enableCapture ? false : LocalConfig::UseForceActivated);
     }
 
 
@@ -996,8 +1014,9 @@ namespace Fsl
   }
 
 
-  void PlatformNativeWindowAdapterWin32::OnDPIChanged(const Point2& value)
+  void PlatformNativeWindowAdapterWin32::OnDPIChanged(const MillisecondTickCount32 timestamp, const Point2 value)
   {
+    FSL_PARAM_NOT_USED(timestamp);
     if (value == m_cachedDPIValue)
     {
       return;
@@ -1008,12 +1027,14 @@ namespace Fsl
     auto eventQueue = TryGetEventQueue();
     if (eventQueue)
     {
+      // For now we do not provide a timestamp for this event type
       eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowConfigChanged());
     }
   }
 
 
-  void PlatformNativeWindowAdapterWin32::OnRawInput(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const LPARAM lParam)
+  void PlatformNativeWindowAdapterWin32::OnRawInput(const std::shared_ptr<INativeWindowEventQueue>& eventQueue,
+                                                    const MillisecondTickCount32 timestamp, const LPARAM lParam)
   {
     const HRAWINPUT hRawInput = reinterpret_cast<HRAWINPUT>(lParam);    // NOLINT(modernize-use-auto)
 
@@ -1069,15 +1090,16 @@ namespace Fsl
       }
 
       const auto position = PxPoint2::Create(deltaX, deltaY);
-      const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputRawMouseMoveEvent(position, m_rawMouseButtonFlags);
+      const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputRawMouseMoveEvent(timestamp, position, m_rawMouseButtonFlags);
       eventQueue->PostEvent(event);
     }
   }
 
 
-  void PlatformNativeWindowAdapterWin32::OnMouseMove(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const PxPoint2& position)
+  void PlatformNativeWindowAdapterWin32::OnMouseMove(const std::shared_ptr<INativeWindowEventQueue>& eventQueue,
+                                                     const MillisecondTickCount32 timestamp, const PxPoint2 positionPx)
   {
-    const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseMoveEvent(position);
+    const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseMoveEvent(timestamp, positionPx);
     eventQueue->PostEvent(event);
     // FSLLOG3_INFO("MOVE: X: {} Y: {}", position.X, position.Y);
 

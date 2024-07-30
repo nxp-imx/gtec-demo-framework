@@ -64,6 +64,7 @@ namespace Fsl::GLES3
       BasicNativeBufferHandle IndexBufferHandle;
       BasicNativeBufferHandle VertexBufferHandle;
       BasicNativeMaterialHandle MaterialHandle;
+      GLenum MaterialPrimitiveType{GL_TRIANGLES};
       ExtendedCameraInfo CameraInfo;
       uint32_t CameraChangeId{0};
       bool VertexBufferModified{true};
@@ -153,12 +154,12 @@ namespace Fsl::GLES3
     // Graphics3D::INativeTextureFactory
     Graphics3D::NativeTextureFactoryCaps GetTextureCaps() const noexcept final;
 
-    BasicNativeTextureHandle CreateTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags,
+    BasicNativeTextureHandle CreateTexture(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags,
                                            const bool isDynamic) final;
 
     bool DestroyTexture(const BasicNativeTextureHandle hTexture) noexcept final;
 
-    void SetTextureData(const BasicNativeTextureHandle hTexture, const RawTexture& texture, const Texture2DFilterHint filterHint,
+    void SetTextureData(const BasicNativeTextureHandle hTexture, const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                         const TextureFlags textureFlags) final;
     const IBasicNativeTexture* TryGetTexture(const BasicNativeTextureHandle hTexture) const noexcept final;
 

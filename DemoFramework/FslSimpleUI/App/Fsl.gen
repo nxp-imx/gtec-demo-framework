@@ -3,8 +3,10 @@
   <Library Name="FslSimpleUI.App" CreationYear="2017">
     <Dependency Name="FslDataBinding.App"/>
     <Dependency Name="FslDemoApp.Base"/>
+    <Dependency Name="FslSimpleUI.Activity"/>
     <Dependency Name="FslSimpleUI.Base"/>
     <Dependency Name="FslSimpleUI.Render.IMBatch" Access="Private"/>
+    <Dependency Name="FslSimpleUI.Render.Builder" Access="Private"/>
     <Platform Name="Windows" ProjectId="09819A06-9C64-4821-8E61-669705339B64"/>
   </Library>
 </FslBuildGen>

@@ -46,7 +46,7 @@ namespace Fsl::UI
     uint32_t m_value{0};
 
   public:
-    static constexpr int FlagBitsReserved = 9;
+    static constexpr int FlagBitsReserved = 10;
     static constexpr int VisibilityBitsReserved = 2;
     static constexpr int VisibilityShift = FlagBitsReserved;
     static constexpr const uint32_t VisibilityMask = (0x1 | 0x2) << VisibilityShift;
@@ -66,9 +66,9 @@ namespace Fsl::UI
       ClickInput = 0x20,
       MouseOver = 0x40,
       //! enable the WinResolve callback (called before the window layout cycle is started to help resolve complex state issues)
-      ResolveEnabled = 0x80,
+      ResolveEnabled = 0x100,
       //! enable the WinPostLayout callback (called after layout has been resolved)
-      PostLayoutEnabled = 0x100,
+      PostLayoutEnabled = 0x200,
 
       All = WinInit | LayoutDirty | UpdateEnabled | DrawEnabled | ClickInput | MouseOver | ResolveEnabled | PostLayoutEnabled | ContentRenderingDirty,
       InputAll = ClickInput | MouseOver

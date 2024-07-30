@@ -45,21 +45,21 @@ namespace Fsl
 
   namespace
   {
-    constexpr const int ANIMATION_IDLE = 0;
-    constexpr const int ANIMATION_EXECUTING_POS = 1;
-    constexpr const int ANIMATION_EXECUTING_SCALE = 2;
-    constexpr const int FRAMES_PER_TRANSITION = 30;
+    constexpr const int AnimationIdle = 0;
+    constexpr const int AnimationExecutingPos = 1;
+    constexpr const int AnimationExecutingScale = 2;
+    constexpr const int FramesPerTransition = 30;
 
-    std::vector<Vector2> slot_coordinates(8);
-    std::vector<Vector2> scale_values(2);
-    std::vector<Vector2> special_slot_coordinates(1);
+    std::vector<Vector2> g_slotCoordinates(8);
+    std::vector<Vector2> g_scaleValues(2);
+    std::vector<Vector2> g_specialSlotCoordinates(1);
 
 
     void VGAnimationStateMachine(CoverAlbum& rObject, Vector2 startPos, Vector2 endPos, Vector2 startScale, Vector2 endScale)
     {
       switch (rObject.CoverFlowState)
       {
-      case ANIMATION_IDLE:
+      case AnimationIdle:
         if ((rObject.AnimationDuration - 1) == 0)
         {
           rObject.AnimationDuration = 0;
@@ -75,7 +75,7 @@ namespace Fsl
           rObject.AngleIncrement = (360.0f / static_cast<float>(rObject.AnimationDuration - 1));
           // Define Animations duration
           rObject.AnimationState = 0;
-          rObject.CoverFlowState = ANIMATION_EXECUTING_POS;
+          rObject.CoverFlowState = AnimationExecutingPos;
         }
         else
         {
@@ -92,7 +92,7 @@ namespace Fsl
           rObject.ScaleIncrementY = (endScale.Y - startScale.Y) / static_cast<float>(rObject.AnimationDuration - 1);
 
           rObject.AnimationState = 0;
-          rObject.CoverFlowState = ANIMATION_EXECUTING_SCALE;
+          rObject.CoverFlowState = AnimationExecutingScale;
         }
         else
         {
@@ -101,7 +101,7 @@ namespace Fsl
         }
         break;
 
-      case ANIMATION_EXECUTING_POS:
+      case AnimationExecutingPos:
         if (rObject.AnimationDuration > 0)
         {
           rObject.CurrentX = startPos.X + (rObject.IncrementX * static_cast<float>(rObject.AnimationState));
@@ -116,12 +116,12 @@ namespace Fsl
           rObject.CurrentX = endPos.X;
           rObject.CurrentY = endPos.Y;
           rObject.PosAnimation = 0;
-          rObject.CoverFlowState = ANIMATION_IDLE;
+          rObject.CoverFlowState = AnimationIdle;
           rObject.CurrentAngle = 0;
         }
         break;
 
-      case ANIMATION_EXECUTING_SCALE:
+      case AnimationExecutingScale:
         if (rObject.AnimationDuration > 0)
         {
           rObject.ScaleX = startScale.X + (rObject.ScaleIncrementX * static_cast<float>(rObject.AnimationState));
@@ -132,7 +132,7 @@ namespace Fsl
         else
         {
           rObject.ScaleAnimation = 0;
-          rObject.CoverFlowState = ANIMATION_IDLE;
+          rObject.CoverFlowState = AnimationIdle;
         }
         break;
       }
@@ -205,28 +205,28 @@ namespace Fsl
     vgClear(0, 0, currentSizePx.RawWidth(), currentSizePx.RawHeight());
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
     // slot_coordinates.resize(8);
-    slot_coordinates[0] = Vector2(0.0f, 0.0f);
+    g_slotCoordinates[0] = Vector2(0.0f, 0.0f);
     // Slot 0
-    slot_coordinates[1] = Vector2(550.0f, 550.0f);
+    g_slotCoordinates[1] = Vector2(550.0f, 550.0f);
     // Slot 1
-    slot_coordinates[2] = Vector2(600.0f, 400.0f);
+    g_slotCoordinates[2] = Vector2(600.0f, 400.0f);
     // Slot 2
-    slot_coordinates[3] = Vector2(550.0f, 250.0f);
+    g_slotCoordinates[3] = Vector2(550.0f, 250.0f);
     // Slot 3
     Vector2(600.0f, 100.0f),
       // Slot 4
-      slot_coordinates[4] = Vector2(550.0f, -50.0f);
+      g_slotCoordinates[4] = Vector2(550.0f, -50.0f);
     // Slot 5
-    slot_coordinates[5] = Vector2(600.0f, -200.0f);
+    g_slotCoordinates[5] = Vector2(600.0f, -200.0f);
     // Slot 6
-    slot_coordinates[6] = Vector2(550.0f, -350.0f);
+    g_slotCoordinates[6] = Vector2(550.0f, -350.0f);
     // Slot 7
-    slot_coordinates[7] = Vector2(600.0f, -550.0f);
+    g_slotCoordinates[7] = Vector2(600.0f, -550.0f);
 
-    scale_values[0] = Vector2(1.0f, 1.0f);
-    scale_values[1] = Vector2(2.0f, 2.0f);
+    g_scaleValues[0] = Vector2(1.0f, 1.0f);
+    g_scaleValues[1] = Vector2(2.0f, 2.0f);
 
-    special_slot_coordinates[0] = Vector2(250.0f, 250.0f);
+    g_specialSlotCoordinates[0] = Vector2(250.0f, 250.0f);
   }
 
 
@@ -256,10 +256,10 @@ namespace Fsl
           m_coverBigAlbums[0].AnimationDuration = static_cast<uint32_t>(3000 * demoTime.DeltaTime);
         }
       }
-      VGAnimationStateMachine(m_coverAlbums[j], slot_coordinates[m_coverAlbums[j].PastIndex], slot_coordinates[m_coverAlbums[j].CurrentIndex],
+      VGAnimationStateMachine(m_coverAlbums[j], g_slotCoordinates[m_coverAlbums[j].PastIndex], g_slotCoordinates[m_coverAlbums[j].CurrentIndex],
                               Vector2(0.0f, 0.0f), Vector2(0.0f, 0.0f));
     }
-    VGAnimationStateMachine(m_coverBigAlbums[0], Vector2(0.0f, 0.0f), special_slot_coordinates[0], scale_values[0], scale_values[1]);
+    VGAnimationStateMachine(m_coverBigAlbums[0], Vector2(0.0f, 0.0f), g_specialSlotCoordinates[0], g_scaleValues[0], g_scaleValues[1]);
   }
 
 

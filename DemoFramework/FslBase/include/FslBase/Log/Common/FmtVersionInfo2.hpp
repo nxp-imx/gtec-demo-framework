@@ -1,7 +1,7 @@
 #ifndef FSLBASE_LOG_COMMON_FMTVERSIONINFO2_HPP
 #define FSLBASE_LOG_COMMON_FMTVERSIONINFO2_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,26 +32,24 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/VersionInfo2.hpp>
-#include <fmt/core.h>
-#include <string>
+#include <fmt/format.h>
 
-namespace fmt
+template <>
+struct fmt::formatter<Fsl::VersionInfo2>
 {
-  template <>
-  struct formatter<Fsl::VersionInfo2>
+  template <typename ParseContext>
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  constexpr auto parse(ParseContext& ctx)
   {
-    template <typename ParseContext>
-    constexpr auto parse(ParseContext& ctx)
-    {
-      return ctx.begin();
-    }
+    return ctx.begin();
+  }
 
-    template <typename FormatContext>
-    auto format(const Fsl::VersionInfo2& value, FormatContext& ctx)
-    {
-      return format_to(ctx.out(), "{}.{}.{}.{}", value.Major, value.Minor, value.Patch, value.Tweak);
-    }
-  };
-}
+  template <typename FormatContext>
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  auto format(const Fsl::VersionInfo2& value, FormatContext& ctx)
+  {
+    return fmt::format_to(ctx.out(), "{}.{}.{}.{}", value.Major, value.Minor, value.Patch, value.Tweak);
+  }
+};
 
 #endif

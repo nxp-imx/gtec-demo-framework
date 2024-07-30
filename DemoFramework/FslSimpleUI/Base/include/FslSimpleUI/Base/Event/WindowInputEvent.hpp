@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Vector2.hpp>
 #include <FslSimpleUI/Base/Event/WindowTransactionEvent.hpp>
 
 namespace Fsl::UI
@@ -40,12 +39,16 @@ namespace Fsl::UI
   {
   public:
     //! @brief Check if this is a begin event
-    bool IsBegin() const;
+    bool IsBegin() const noexcept
+    {
+      return GetState() == EventTransactionState::Begin;
+    }
 
   protected:
-    WindowInputEvent(const EventTypeId typeId, const EventDescription& eventDescription);
-    void SYS_DoConstruct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat);
-    void SYS_Destruct() override;
+    WindowInputEvent(const EventTypeId typeId, const EventDescription& eventDescription) noexcept;
+    void SYS_DoConstruct(const MillisecondTickCount32 timestamp, const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state,
+                         const bool isRepeat) noexcept;
+    void SYS_Destruct() noexcept override;
   };
 }
 

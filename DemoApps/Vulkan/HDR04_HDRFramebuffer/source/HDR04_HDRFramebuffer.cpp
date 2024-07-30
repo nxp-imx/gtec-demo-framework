@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019, 2022 NXP
+ * Copyright 2019, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,12 +54,12 @@ namespace Fsl
 {
   namespace
   {
-    const auto VERTEX_BUFFER_BIND_ID = 0;
-    const uint32_t SUBPASS_RENDER = 0;
-    const uint32_t SUBPASS_TONEMAP = 1;
+    constexpr auto VertexBufferBindId = 0;
+    constexpr uint32_t SubpassRender = 0;
+    constexpr uint32_t SubpassTonemap = 1;
 
-    const Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, -20.0f);
-    const Vector3 DEFAULT_CAMERA_TARGET(0.0f, 0.0f, -25.0f);
+    constexpr Vector3 DefaultCameraPosition(0.0f, 0.0f, -20.0f);
+    constexpr Vector3 DefaultCameraTarget(0.0f, 0.0f, -25.0f);
 
 
     VulkanBasic::DemoAppVulkanSetup CreateSetup()
@@ -68,7 +68,7 @@ namespace Fsl
 
       DemoAppVulkanSetup setup;
       setup.DepthBuffer = DepthBufferMode::Enabled;
-      setup.SubpassSystemUI = SUBPASS_TONEMAP;
+      setup.SubpassSystemUI = SubpassTonemap;
       return setup;
     }
 
@@ -372,7 +372,7 @@ namespace Fsl
     , m_hasHDRFramebuffer(GetSurfaceFormatInfo().ColorSpace != VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
     , m_bufferManager(
         std::make_shared<Vulkan::VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
-    , m_menuUI(config, !m_hasHDRFramebuffer ? ColorSpace::SRGBNonLinear : ColorSpace::SCRGBLinear)
+    , m_menuUI(config, !m_hasHDRFramebuffer ? UI::UIColorSpace::SRGBNonLinear : UI::UIColorSpace::SRGBLinear)
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
@@ -417,7 +417,7 @@ namespace Fsl
     m_menuUI.SetMenuTextLeft("Linear");
     m_menuUI.SetMenuTextRight("Tonemapped");
 
-    m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+    m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
 
     const auto contentManager = GetContentManager();
 
@@ -524,7 +524,7 @@ namespace Fsl
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
-        m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+        m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
         event.Handled();
       }
       break;
@@ -617,23 +617,23 @@ namespace Fsl
 
     m_dependentResources.PipelineRender = CommonMethods::CreatePipeline(
       m_resources.MainPipelineLayout, context.SwapchainImageExtent, m_resources.VertShaderModule.Get(), m_resources.FragShaderModule.Get(),
-      m_resources.MeshTunnel, m_dependentResources.MainRenderPass.Get(), SUBPASS_RENDER);
+      m_resources.MeshTunnel, m_dependentResources.MainRenderPass.Get(), SubpassRender);
 
     m_dependentResources.PipelineTonemapper = CommonMethods::CreatePipeline(
       m_resources.TonemapPipelineLayout, context.SwapchainImageExtent, m_resources.TonemapperVertShaderModule.Get(),
-      m_resources.TonemapperFragShaderModule.Get(), m_resources.MeshQuad, m_dependentResources.MainRenderPass.Get(), SUBPASS_TONEMAP);
+      m_resources.TonemapperFragShaderModule.Get(), m_resources.MeshQuad, m_dependentResources.MainRenderPass.Get(), SubpassTonemap);
 
     m_dependentResources.PipelineTonemapperDebug = CommonMethods::CreatePipeline(
       m_resources.TonemapPipelineLayout, context.SwapchainImageExtent, m_resources.TonemapperVertShaderModule.Get(),
-      m_resources.TonemapperDebugFragShaderModule.Get(), m_resources.MeshQuad, m_dependentResources.MainRenderPass.Get(), SUBPASS_TONEMAP);
+      m_resources.TonemapperDebugFragShaderModule.Get(), m_resources.MeshQuad, m_dependentResources.MainRenderPass.Get(), SubpassTonemap);
 
     m_dependentResources.PipelineTonemapperLinear = CommonMethods::CreatePipeline(
       m_resources.TonemapPipelineLayout, context.SwapchainImageExtent, m_resources.TonemapperVertShaderModule.Get(),
-      m_resources.TonemapperLinearFragShaderModule.Get(), m_resources.MeshQuad, m_dependentResources.MainRenderPass.Get(), SUBPASS_TONEMAP);
+      m_resources.TonemapperLinearFragShaderModule.Get(), m_resources.MeshQuad, m_dependentResources.MainRenderPass.Get(), SubpassTonemap);
 
     m_dependentResources.PipelineTonemapperLinearDebug = CommonMethods::CreatePipeline(
       m_resources.TonemapPipelineLayout, context.SwapchainImageExtent, m_resources.TonemapperVertShaderModule.Get(),
-      m_resources.TonemapperLinearDebugFragShaderModule.Get(), m_resources.MeshQuad, m_dependentResources.MainRenderPass.Get(), SUBPASS_TONEMAP);
+      m_resources.TonemapperLinearDebugFragShaderModule.Get(), m_resources.MeshQuad, m_dependentResources.MainRenderPass.Get(), SubpassTonemap);
 
     return m_dependentResources.MainRenderPass.Get();
   }
@@ -772,7 +772,7 @@ namespace Fsl
     FSL_PARAM_NOT_USED(frame);
 
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MeshTunnel.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(commandBuffer, VertexBufferBindId, 1, m_resources.MeshTunnel.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(commandBuffer, m_resources.MeshTunnel.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 
@@ -782,7 +782,7 @@ namespace Fsl
     FSL_PARAM_NOT_USED(frame);
 
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MeshQuad.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(commandBuffer, VertexBufferBindId, 1, m_resources.MeshQuad.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(commandBuffer, m_resources.MeshQuad.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022-2023 NXP
+ * Copyright 2020, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@
 #include <FslBase/Math/Dp/TypeConverter_Math.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
 #include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
 #include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
@@ -65,30 +64,34 @@ namespace Fsl::UI
   using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
 
   TDef TClass::PropertyFontColorChecked =
-    TFactory::Create<Color, TClass, &TClass::GetFontColorChecked, &TClass::SetFontColorChecked>("FontColorChecked");
+    TFactory::Create<UIColor, TClass, &TClass::GetFontColorChecked, &TClass::SetFontColorChecked>("FontColorChecked");
   TDef TClass::PropertyFontColorUnchecked =
-    TFactory::Create<Color, TClass, &TClass::GetFontColorUnchecked, &TClass::SetFontColorChecked>("FontColorUnchecked");
+    TFactory::Create<UIColor, TClass, &TClass::GetFontColorUnchecked, &TClass::SetFontColorChecked>("FontColorUnchecked");
   TDef TClass::PropertyFontColorDisabled =
-    TFactory::Create<Color, TClass, &TClass::GetFontColorDisabled, &TClass::SetFontColorDisabled>("FontColorDisabled");
+    TFactory::Create<UIColor, TClass, &TClass::GetFontColorDisabled, &TClass::SetFontColorDisabled>("FontColorDisabled");
   TDef TClass::PropertyCursorColorChecked =
-    TFactory::Create<Color, TClass, &TClass::GetCursorColorChecked, &TClass::SetCursorColorChecked>("CursorColorChecked");
+    TFactory::Create<UIColor, TClass, &TClass::GetCursorColorChecked, &TClass::SetCursorColorChecked>("CursorColorChecked");
   TDef TClass::PropertyCursorColorUnchecked =
-    TFactory::Create<Color, TClass, &TClass::GetCursorColorUnchecked, &TClass::SetCursorColorUnchecked>("CursorColorUnchecked");
+    TFactory::Create<UIColor, TClass, &TClass::GetCursorColorUnchecked, &TClass::SetCursorColorUnchecked>("CursorColorUnchecked");
   TDef TClass::PropertyCursorColorCheckedDisabled =
-    TFactory::Create<Color, TClass, &TClass::GetCursorColorCheckedDisabled, &TClass::SetCursorColorCheckedDisabled>("CursorColorCheckedDisabled");
+    TFactory::Create<UIColor, TClass, &TClass::GetCursorColorCheckedDisabled, &TClass::SetCursorColorCheckedDisabled>("CursorColorCheckedDisabled");
   TDef TClass::PropertyCursorColorUncheckedDisabled =
-    TFactory::Create<Color, TClass, &TClass::GetCursorColorUncheckedDisabled, &TClass::SetCursorColorUncheckedDisabled>(
+    TFactory::Create<UIColor, TClass, &TClass::GetCursorColorUncheckedDisabled, &TClass::SetCursorColorUncheckedDisabled>(
       "CursorColorUncheckedDisabled");
   TDef TClass::PropertyBackgroundColorChecked =
-    TFactory::Create<Color, TClass, &TClass::GetBackgroundColorChecked, &TClass::SetBackgroundColorChecked>("BackgroundColorChecked");
+    TFactory::Create<UIColor, TClass, &TClass::GetBackgroundColorChecked, &TClass::SetBackgroundColorChecked>("BackgroundColorChecked");
   TDef TClass::PropertyBackgroundColorUnchecked =
-    TFactory::Create<Color, TClass, &TClass::GetBackgroundColorUnchecked, &TClass::SetBackgroundColorUnchecked>("BackgroundColorUnchecked");
+    TFactory::Create<UIColor, TClass, &TClass::GetBackgroundColorUnchecked, &TClass::SetBackgroundColorUnchecked>("BackgroundColorUnchecked");
   TDef TClass::PropertyBackgroundColorCheckedDisabled =
-    TFactory::Create<Color, TClass, &TClass::GetBackgroundColorCheckedDisabled, &TClass::SetBackgroundColorCheckedDisabled>(
+    TFactory::Create<UIColor, TClass, &TClass::GetBackgroundColorCheckedDisabled, &TClass::SetBackgroundColorCheckedDisabled>(
       "BackgroundColorCheckedDisabled");
   TDef TClass::PropertyBackgroundColorUncheckedDisabled =
-    TFactory::Create<Color, TClass, &TClass::GetBackgroundColorUncheckedDisabled, &TClass::SetBackgroundColorUncheckedDisabled>(
+    TFactory::Create<UIColor, TClass, &TClass::GetBackgroundColorUncheckedDisabled, &TClass::SetBackgroundColorUncheckedDisabled>(
       "BackgroundColorUncheckedDisabled");
+  TDef TClass::PropertyHoverOverlayCheckedColor =
+    TFactory::Create<UIColor, TClass, &TClass::GetHoverOverlayCheckedColor, &TClass::SetHoverOverlayCheckedColor>("HoverOverlayCheckedColor");
+  TDef TClass::PropertyHoverOverlayUncheckedColor =
+    TFactory::Create<UIColor, TClass, &TClass::GetHoverOverlayUncheckedColor, &TClass::SetHoverOverlayUncheckedColor>("HoverOverlayUncheckedColor");
   TDef TClass::PropertyImageAlignment =
     TFactory::Create<ItemAlignment, TClass, &TClass::GetImageAlignment, &TClass::SetImageAlignment>("ImageAlignment");
   TDef TClass::PropertyIsChecked = TFactory::Create<bool, TClass, &TClass::IsChecked, &TClass::SetIsChecked>("Checked");
@@ -101,14 +104,14 @@ namespace Fsl::UI
   ToggleButton::ToggleButton(const std::shared_ptr<WindowContext>& context)
     : BaseWindow(context)
     , m_windowContext(context)
-    , m_font(context->TheUIContext.Get()->MeshManager, context->DefaultFont, context->UITransitionCache, DefaultAnim::ColorChangeTime,
-             DefaultAnim::ColorChangeTransitionType)
-    , m_cursor(context->TheUIContext.Get()->MeshManager, context->UITransitionCache, DefaultAnim::HoverOverlayTime,
-               DefaultAnim::HoverOverlayTransitionType)
-    , m_background(context->TheUIContext.Get()->MeshManager, context->UITransitionCache, DefaultAnim::HoverOverlayTime,
-                   DefaultAnim::HoverOverlayTransitionType)
-    , m_hoverOverlay(context->TheUIContext.Get()->MeshManager, context->UITransitionCache, DefaultAnim::HoverOverlayTime,
-                     DefaultAnim::HoverOverlayTransitionType, DefaultAnim::HoverOverlayTime, DefaultAnim::HoverOverlayTransitionType)
+    , m_font(context->TheUIContext.Get()->MeshManager, context->DefaultFont, DefaultAnim::ColorChangeTime, DefaultAnim::ColorChangeTransitionType,
+             context->ColorConverter)
+    , m_cursor(context->TheUIContext.Get()->MeshManager, DefaultAnim::HoverOverlayTime, DefaultAnim::HoverOverlayTransitionType,
+               context->ColorConverter)
+    , m_background(context->TheUIContext.Get()->MeshManager, DefaultAnim::HoverOverlayTime, DefaultAnim::HoverOverlayTransitionType,
+                   context->ColorConverter)
+    , m_hoverOverlay(context->TheUIContext.Get()->MeshManager, DefaultAnim::HoverOverlayTime, DefaultAnim::HoverOverlayTransitionType,
+                     DefaultAnim::HoverOverlayTime, DefaultAnim::HoverOverlayTransitionType, context->ColorConverter)
   {
     assert(m_font.Mesh.GetSprite());
     Enable(WindowFlags(WindowFlags::DrawEnabled | WindowFlags::ClickInput | WindowFlags::MouseOver));
@@ -162,6 +165,7 @@ namespace Fsl::UI
     return changed;
   }
 
+
   bool ToggleButton::SetText(std::string&& value)
   {
     const bool changed = m_propertyText.Set(ThisDependencyObject(), std::move(value));
@@ -173,23 +177,28 @@ namespace Fsl::UI
     return changed;
   }
 
-  void ToggleButton::SetHoverOverlayCheckedColor(const Color& value)
+
+  bool ToggleButton::SetHoverOverlayCheckedColor(const UIColor value)
   {
-    if (value != m_hoverOverlay.Checked.PrimaryColor)
+    const bool changed = m_hoverOverlay.Checked.PrimaryColor.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
+    if (changed)
     {
-      m_hoverOverlay.Checked.PrimaryColor = value;
       PropertyUpdated(PropertyType::Other);
     }
+    return changed;
   }
 
-  void ToggleButton::SetHoverOverlayUncheckedColor(const Color& value)
+
+  bool ToggleButton::SetHoverOverlayUncheckedColor(const UIColor value)
   {
-    if (value != m_hoverOverlay.Unchecked.PrimaryColor)
+    const bool changed = m_hoverOverlay.Unchecked.PrimaryColor.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
+    if (changed)
     {
-      m_hoverOverlay.Unchecked.PrimaryColor = value;
       PropertyUpdated(PropertyType::Other);
     }
+    return changed;
   }
+
 
   void ToggleButton::SetCursorCheckedPosition(const DpPoint2& valueDp)
   {
@@ -218,9 +227,9 @@ namespace Fsl::UI
   }
 
 
-  bool ToggleButton::SetCursorColorChecked(const Color value)
+  bool ToggleButton::SetCursorColorChecked(const UIColor value)
   {
-    const bool changed = m_cursor.PropertyColorChecked.Set(ThisDependencyObject(), value);
+    const bool changed = m_cursor.PropertyColorChecked.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -228,20 +237,9 @@ namespace Fsl::UI
     return changed;
   }
 
-  bool ToggleButton::SetCursorColorUnchecked(const Color value)
+  bool ToggleButton::SetCursorColorUnchecked(const UIColor value)
   {
-    const bool changed = m_cursor.PropertyColorUnchecked.Set(ThisDependencyObject(), value);
-    if (changed)
-    {
-      PropertyUpdated(PropertyType::Other);
-    }
-    return changed;
-  }
-
-
-  bool ToggleButton::SetCursorColorCheckedDisabled(const Color value)
-  {
-    const bool changed = m_cursor.PropertyColorCheckedDisabled.Set(ThisDependencyObject(), value);
+    const bool changed = m_cursor.PropertyColorUnchecked.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -250,9 +248,9 @@ namespace Fsl::UI
   }
 
 
-  bool ToggleButton::SetCursorColorUncheckedDisabled(const Color value)
+  bool ToggleButton::SetCursorColorCheckedDisabled(const UIColor value)
   {
-    const bool changed = m_cursor.PropertyColorUncheckedDisabled.Set(ThisDependencyObject(), value);
+    const bool changed = m_cursor.PropertyColorCheckedDisabled.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -261,9 +259,9 @@ namespace Fsl::UI
   }
 
 
-  bool ToggleButton::SetBackgroundColorChecked(const Color value)
+  bool ToggleButton::SetCursorColorUncheckedDisabled(const UIColor value)
   {
-    const bool changed = m_background.PropertyColorChecked.Set(ThisDependencyObject(), value);
+    const bool changed = m_cursor.PropertyColorUncheckedDisabled.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -272,9 +270,9 @@ namespace Fsl::UI
   }
 
 
-  bool ToggleButton::SetBackgroundColorUnchecked(const Color value)
+  bool ToggleButton::SetBackgroundColorChecked(const UIColor value)
   {
-    const bool changed = m_background.PropertyColorUnchecked.Set(ThisDependencyObject(), value);
+    const bool changed = m_background.PropertyColorChecked.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -283,9 +281,9 @@ namespace Fsl::UI
   }
 
 
-  bool ToggleButton::SetBackgroundColorCheckedDisabled(const Color value)
+  bool ToggleButton::SetBackgroundColorUnchecked(const UIColor value)
   {
-    const bool changed = m_background.PropertyColorCheckedDisabled.Set(ThisDependencyObject(), value);
+    const bool changed = m_background.PropertyColorUnchecked.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -294,9 +292,9 @@ namespace Fsl::UI
   }
 
 
-  bool ToggleButton::SetBackgroundColorUncheckedDisabled(const Color value)
+  bool ToggleButton::SetBackgroundColorCheckedDisabled(const UIColor value)
   {
-    const bool changed = m_background.PropertyColorUncheckedDisabled.Set(ThisDependencyObject(), value);
+    const bool changed = m_background.PropertyColorCheckedDisabled.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -305,9 +303,20 @@ namespace Fsl::UI
   }
 
 
-  bool ToggleButton::SetFontColorChecked(const Color value)
+  bool ToggleButton::SetBackgroundColorUncheckedDisabled(const UIColor value)
   {
-    const bool changed = m_font.PropertyColorChecked.Set(ThisDependencyObject(), value);
+    const bool changed = m_background.PropertyColorUncheckedDisabled.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
+    if (changed)
+    {
+      PropertyUpdated(PropertyType::Other);
+    }
+    return changed;
+  }
+
+
+  bool ToggleButton::SetFontColorChecked(const UIColor value)
+  {
+    const bool changed = m_font.PropertyColorChecked.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Content);
@@ -316,9 +325,9 @@ namespace Fsl::UI
   }
 
 
-  bool ToggleButton::SetFontColorUnchecked(const Color value)
+  bool ToggleButton::SetFontColorUnchecked(const UIColor value)
   {
-    const bool changed = m_font.PropertyColorUnchecked.Set(ThisDependencyObject(), value);
+    const bool changed = m_font.PropertyColorUnchecked.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Content);
@@ -327,9 +336,9 @@ namespace Fsl::UI
   }
 
 
-  bool ToggleButton::SetFontColorDisabled(const Color value)
+  bool ToggleButton::SetFontColorDisabled(const UIColor value)
   {
-    const bool changed = m_font.PropertyColorDisabled.Set(ThisDependencyObject(), value);
+    const bool changed = m_font.PropertyColorDisabled.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Content);
@@ -383,12 +392,12 @@ namespace Fsl::UI
 
     const PxVector2 positionPxf = context.TargetRect.TopLeft();
     const PxSize2D renderSizePx = RenderSizePx();
-    const Color finalColor(GetFinalBaseColor());
+    const UIRenderColor finalColor(GetFinalBaseColor());
 
     // Draw the text if it has been set
     {
-      const Color fontColor = m_font.CurrentColor.GetValue();
-      if (m_font.Mesh.IsValid() && !m_propertyText.Get().empty() && fontColor.A() > 0)
+      const UIRenderColor fontColor = m_font.CurrentColor.GetValue();
+      if (m_font.Mesh.IsValid() && !m_propertyText.Get().empty() && fontColor.RawA() > 0)
       {
         PxValue centeredYPx;
         if (m_cachedFontMeasureInfo.MeasureSizePx.Height() < renderSizePx.Height())
@@ -472,10 +481,8 @@ namespace Fsl::UI
     }
   }
 
-  void ToggleButton::OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+  void ToggleButton::OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
-
     if (m_propertyIsEnabled.Get() && !theEvent->IsHandled())
     {
       theEvent->Handled();
@@ -486,9 +493,8 @@ namespace Fsl::UI
     }
   }
 
-  void ToggleButton::OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent)
+  void ToggleButton::OnMouseOver(const std::shared_ptr<WindowMouseOverEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
     // We allow the m_isHovering state to be modified even when disabled as that will allow us to render the "hover overlay"
     // at the correct position if the control is enabled while the mouse was hovering.
 
@@ -524,17 +530,19 @@ namespace Fsl::UI
   DataBinding::DataBindingInstanceHandle ToggleButton::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
   {
     auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(
-      this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyFontColorChecked, m_font.PropertyColorChecked),
-      DataBinding::PropLinkRefs(PropertyFontColorChecked, m_font.PropertyColorChecked),
-      DataBinding::PropLinkRefs(PropertyFontColorDisabled, m_font.PropertyColorDisabled),
-      DataBinding::PropLinkRefs(PropertyCursorColorChecked, m_cursor.PropertyColorChecked),
-      DataBinding::PropLinkRefs(PropertyCursorColorUnchecked, m_cursor.PropertyColorUnchecked),
-      DataBinding::PropLinkRefs(PropertyCursorColorCheckedDisabled, m_cursor.PropertyColorCheckedDisabled),
-      DataBinding::PropLinkRefs(PropertyCursorColorUncheckedDisabled, m_cursor.PropertyColorUncheckedDisabled),
-      DataBinding::PropLinkRefs(PropertyBackgroundColorChecked, m_background.PropertyColorChecked),
-      DataBinding::PropLinkRefs(PropertyBackgroundColorUnchecked, m_background.PropertyColorUnchecked),
-      DataBinding::PropLinkRefs(PropertyBackgroundColorCheckedDisabled, m_background.PropertyColorCheckedDisabled),
-      DataBinding::PropLinkRefs(PropertyBackgroundColorUncheckedDisabled, m_background.PropertyColorUncheckedDisabled),
+      this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyFontColorChecked, m_font.PropertyColorChecked.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyFontColorChecked, m_font.PropertyColorChecked.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyFontColorDisabled, m_font.PropertyColorDisabled.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyCursorColorChecked, m_cursor.PropertyColorChecked.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyCursorColorUnchecked, m_cursor.PropertyColorUnchecked.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyCursorColorCheckedDisabled, m_cursor.PropertyColorCheckedDisabled.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyCursorColorUncheckedDisabled, m_cursor.PropertyColorUncheckedDisabled.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorChecked, m_background.PropertyColorChecked.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorUnchecked, m_background.PropertyColorUnchecked.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorCheckedDisabled, m_background.PropertyColorCheckedDisabled.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorUncheckedDisabled, m_background.PropertyColorUncheckedDisabled.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyHoverOverlayCheckedColor, m_hoverOverlay.Checked.PrimaryColor.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyHoverOverlayUncheckedColor, m_hoverOverlay.Unchecked.PrimaryColor.ExternalColor),
       DataBinding::PropLinkRefs(PropertyImageAlignment, m_propertyImageAlignment), DataBinding::PropLinkRefs(PropertyIsChecked, m_propertyIsChecked),
       DataBinding::PropLinkRefs(PropertyIsEnabled, m_propertyIsEnabled), DataBinding::PropLinkRefs(PropertyText, m_propertyText));
     return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
@@ -545,17 +553,20 @@ namespace Fsl::UI
                                                                        const DataBinding::Binding& binding)
   {
     auto res = DataBinding::DependencyObjectHelper::TrySetBinding(
-      this, ThisDependencyObject(), targetDef, binding, DataBinding::PropLinkRefs(PropertyFontColorChecked, m_font.PropertyColorChecked),
-      DataBinding::PropLinkRefs(PropertyFontColorChecked, m_font.PropertyColorChecked),
-      DataBinding::PropLinkRefs(PropertyFontColorDisabled, m_font.PropertyColorDisabled),
-      DataBinding::PropLinkRefs(PropertyCursorColorChecked, m_cursor.PropertyColorChecked),
-      DataBinding::PropLinkRefs(PropertyCursorColorUnchecked, m_cursor.PropertyColorUnchecked),
-      DataBinding::PropLinkRefs(PropertyCursorColorCheckedDisabled, m_cursor.PropertyColorCheckedDisabled),
-      DataBinding::PropLinkRefs(PropertyCursorColorUncheckedDisabled, m_cursor.PropertyColorUncheckedDisabled),
-      DataBinding::PropLinkRefs(PropertyBackgroundColorChecked, m_background.PropertyColorChecked),
-      DataBinding::PropLinkRefs(PropertyBackgroundColorUnchecked, m_background.PropertyColorUnchecked),
-      DataBinding::PropLinkRefs(PropertyBackgroundColorCheckedDisabled, m_background.PropertyColorCheckedDisabled),
-      DataBinding::PropLinkRefs(PropertyBackgroundColorUncheckedDisabled, m_background.PropertyColorUncheckedDisabled),
+      this, ThisDependencyObject(), targetDef, binding,
+      DataBinding::PropLinkRefs(PropertyFontColorChecked, m_font.PropertyColorChecked.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyFontColorChecked, m_font.PropertyColorChecked.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyFontColorDisabled, m_font.PropertyColorDisabled.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyCursorColorChecked, m_cursor.PropertyColorChecked.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyCursorColorUnchecked, m_cursor.PropertyColorUnchecked.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyCursorColorCheckedDisabled, m_cursor.PropertyColorCheckedDisabled.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyCursorColorUncheckedDisabled, m_cursor.PropertyColorUncheckedDisabled.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorChecked, m_background.PropertyColorChecked.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorUnchecked, m_background.PropertyColorUnchecked.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorCheckedDisabled, m_background.PropertyColorCheckedDisabled.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorUncheckedDisabled, m_background.PropertyColorUncheckedDisabled.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyHoverOverlayCheckedColor, m_hoverOverlay.Checked.PrimaryColor.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyHoverOverlayUncheckedColor, m_hoverOverlay.Unchecked.PrimaryColor.ExternalColor),
       DataBinding::PropLinkRefs(PropertyImageAlignment, m_propertyImageAlignment), DataBinding::PropLinkRefs(PropertyIsChecked, m_propertyIsChecked),
       DataBinding::PropLinkRefs(PropertyIsEnabled, m_propertyIsEnabled), DataBinding::PropLinkRefs(PropertyText, m_propertyText));
     return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
@@ -576,6 +587,8 @@ namespace Fsl::UI
     rProperties.push_back(PropertyBackgroundColorUnchecked);
     rProperties.push_back(PropertyBackgroundColorCheckedDisabled);
     rProperties.push_back(PropertyBackgroundColorUncheckedDisabled);
+    rProperties.push_back(PropertyHoverOverlayCheckedColor);
+    rProperties.push_back(PropertyHoverOverlayUncheckedColor);
     rProperties.push_back(PropertyImageAlignment);
     rProperties.push_back(PropertyIsChecked);
     rProperties.push_back(PropertyIsEnabled);
@@ -605,21 +618,22 @@ namespace Fsl::UI
     const bool isEnabled = IsEnabled();
     // Determine if the hover overlay should be shown or not
     const bool isChecked = m_propertyIsChecked.Get();
-    const Color hoverOverlayColor = isChecked ? m_hoverOverlay.Checked.PrimaryColor : m_hoverOverlay.Unchecked.PrimaryColor;
+    const UIRenderColor hoverOverlayColor =
+      isChecked ? m_hoverOverlay.Checked.PrimaryColor.InternalColor : m_hoverOverlay.Unchecked.PrimaryColor.InternalColor;
     const bool showHoverOverlay = m_hoverOverlay.IsHovering && isEnabled;
-    m_hoverOverlay.CurrentColor.SetValue(showHoverOverlay ? hoverOverlayColor : Color::ClearA(hoverOverlayColor));
+    m_hoverOverlay.CurrentColor.SetValue(showHoverOverlay ? hoverOverlayColor : UIRenderColor::ClearA(hoverOverlayColor));
     m_hoverOverlay.CurrentPositionDp.SetValue(isChecked ? TypeConverter::To<Vector2>(m_hoverOverlay.Checked.PositionDp)
                                                         : TypeConverter::To<Vector2>(m_hoverOverlay.Unchecked.PositionDp));
 
-    m_font.CurrentColor.SetValue(isEnabled ? (isChecked ? m_font.PropertyColorChecked.Get() : m_font.PropertyColorUnchecked.Get())
-                                           : m_font.PropertyColorDisabled.Get());
+    m_font.CurrentColor.SetValue(isEnabled ? (isChecked ? m_font.PropertyColorChecked.InternalColor : m_font.PropertyColorUnchecked.InternalColor)
+                                           : m_font.PropertyColorDisabled.InternalColor);
 
-    m_cursor.CurrentColor.SetValue(isEnabled
-                                     ? (isChecked ? m_cursor.PropertyColorChecked.Get() : m_cursor.PropertyColorUnchecked.Get())
-                                     : (isChecked ? m_cursor.PropertyColorCheckedDisabled.Get() : m_cursor.PropertyColorUncheckedDisabled.Get()));
+    m_cursor.CurrentColor.SetValue(
+      isEnabled ? (isChecked ? m_cursor.PropertyColorChecked.InternalColor : m_cursor.PropertyColorUnchecked.InternalColor)
+                : (isChecked ? m_cursor.PropertyColorCheckedDisabled.InternalColor : m_cursor.PropertyColorUncheckedDisabled.InternalColor));
     m_background.CurrentColor.SetValue(
-      isEnabled ? (isChecked ? m_background.PropertyColorChecked.Get() : m_background.PropertyColorUnchecked.Get())
-                : (isChecked ? m_background.PropertyColorCheckedDisabled.Get() : m_background.PropertyColorUncheckedDisabled.Get()));
+      isEnabled ? (isChecked ? m_background.PropertyColorChecked.InternalColor : m_background.PropertyColorUnchecked.InternalColor)
+                : (isChecked ? m_background.PropertyColorCheckedDisabled.InternalColor : m_background.PropertyColorUncheckedDisabled.InternalColor));
 
     if (forceCompleteAnimation)
     {

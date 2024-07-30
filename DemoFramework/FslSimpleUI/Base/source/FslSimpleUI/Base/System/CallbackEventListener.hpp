@@ -46,56 +46,57 @@ namespace Fsl::UI
       m_callback = nullptr;
     }
 
-    void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) final
+    void OnClickInputPreview(const std::shared_ptr<WindowInputClickEvent>& theEvent) final
     {
       if (m_callback != nullptr)
       {
-        m_callback->OnClickInputPreview(args, theEvent);
+        m_callback->OnClickInputPreview(theEvent);
       }
     }
 
 
-    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) final
+    void OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent) final
     {
       if (m_callback != nullptr)
       {
-        m_callback->OnClickInput(args, theEvent);
+        m_callback->OnClickInput(theEvent);
       }
     }
 
-    void OnMouseOverPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) final
+    void OnMouseOverPreview(const std::shared_ptr<WindowMouseOverEvent>& theEvent) final
     {
       if (m_callback != nullptr)
       {
-        m_callback->OnMouseOverPreview(args, theEvent);
+        m_callback->OnMouseOverPreview(theEvent);
       }
     }
 
-    void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) final
+    void OnMouseOver(const std::shared_ptr<WindowMouseOverEvent>& theEvent) final
     {
       if (m_callback != nullptr)
       {
-        m_callback->OnMouseOver(args, theEvent);
-      }
-    }
-
-
-    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final
-    {
-      if (m_callback != nullptr)
-      {
-        m_callback->OnSelect(args, theEvent);
+        m_callback->OnMouseOver(theEvent);
       }
     }
 
 
-    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final
+    void OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent) final
     {
       if (m_callback != nullptr)
       {
-        m_callback->OnContentChanged(args, theEvent);
+        m_callback->OnSelect(theEvent);
       }
     }
+
+
+    void OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent) final
+    {
+      if (m_callback != nullptr)
+      {
+        m_callback->OnContentChanged(theEvent);
+      }
+    }
+
 
   private:
     explicit CallbackEventListener(IEventListener* const pForwardTo)

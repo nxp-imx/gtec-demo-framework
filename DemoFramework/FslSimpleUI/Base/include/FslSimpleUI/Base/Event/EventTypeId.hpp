@@ -42,14 +42,8 @@ namespace Fsl::UI
     // InputGamepad,
     // InputGeneric,
     // InputKey,
-    // ManipulationBegin,
-    // ManipulationEnd,
-    // ManipulationUpdate,
     Select,
     ContentChanged,
-    // Tap,
-    // Tunnel,
-    // Bubble
     MouseOver,
   };
 }

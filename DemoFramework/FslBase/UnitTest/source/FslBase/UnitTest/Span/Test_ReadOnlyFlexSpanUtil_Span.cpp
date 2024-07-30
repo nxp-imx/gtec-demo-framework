@@ -30,8 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Span/ReadOnlyFlexSpanUtil.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
-#include <FslBase/UnitTest/Helper/Common.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <cstring>

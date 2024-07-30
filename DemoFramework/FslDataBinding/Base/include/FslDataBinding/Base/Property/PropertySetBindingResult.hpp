@@ -38,6 +38,8 @@ namespace Fsl::DataBinding
     Changed,
     Unchanged,
     NotFound,
+    // Can not be set as its read only
+    ReadOnly
   };
 }
 

@@ -154,7 +154,7 @@ namespace Fsl::VulkanBasic
 
   DemoAppVulkanBasic::DemoAppVulkanBasic(const DemoAppConfig& demoAppConfig, const DemoAppVulkanSetup& demoAppVulkanSetup)
     : DemoAppVulkan(demoAppConfig)
-    , m_appSetup(ProcessDemoAppSetup(demoAppVulkanSetup))
+    , AppSetup(ProcessDemoAppSetup(demoAppVulkanSetup))
     , m_cachedExtentPx(demoAppConfig.WindowMetrics.ExtentPx)
   {
     auto hostInfo = demoAppConfig.DemoServiceProvider.Get<IHostInfo>();
@@ -291,7 +291,7 @@ namespace Fsl::VulkanBasic
       m_cachedExtentPx = windowMetrics.ExtentPx;
 
       // Quick, dirty and slow resize support by destroying any screen size dependent Vulkan resources.
-      if (m_appSetup.ActiveResizeStrategy == ResizeStrategy::RebuildResources)
+      if (AppSetup.ActiveResizeStrategy == ResizeStrategy::RebuildResources)
       {
         if (IsResourcesAllocated())
         {
@@ -379,7 +379,7 @@ namespace Fsl::VulkanBasic
       FSLLOG3_VERBOSE2("DemoAppVulkanBasic::BuildResources(): Creating swapchain");
       // m_launchOptions.ScreenshotsEnabled
 
-      auto desiredSwapchainImageUsageFlags = m_appSetup.DesiredSwapchainImageUsageFlags;
+      auto desiredSwapchainImageUsageFlags = AppSetup.DesiredSwapchainImageUsageFlags;
       if (m_launchOptions.ScreenshotsEnabled != OptionUserChoice::Off)
       {
         // Add this to allow for screenshot support and we rely on the filtering below to remove it if its unsupported
@@ -387,8 +387,7 @@ namespace Fsl::VulkanBasic
       }
 
       auto fallbackExtent = TypeConverter::UncheckedTo<VkExtent2D>(GetScreenExtent());
-      const VkPresentModeKHR presentMode =
-        !m_launchOptions.OverridePresentMode ? m_appSetup.DesiredSwapchainPresentMode : m_launchOptions.PresentMode;
+      const VkPresentModeKHR presentMode = !m_launchOptions.OverridePresentMode ? AppSetup.DesiredSwapchainPresentMode : m_launchOptions.PresentMode;
       const auto supportedImageUsageFlags = FilterUnsupportedImageUsageFlags(m_physicalDevice.Device, m_surface, desiredSwapchainImageUsageFlags);
       const VkImageUsageFlags desiredImageUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | supportedImageUsageFlags;
 
@@ -409,12 +408,12 @@ namespace Fsl::VulkanBasic
       // Ensure that the render loop frame counter never goes above this value
       GetDemoAppControl()->SetRenderLoopFrameCounter(m_dependentResources.FramesInFlightCount);
 
-      if (m_appSetup.DepthBuffer == DepthBufferMode::Enabled)
+      if (AppSetup.DepthBuffer == DepthBufferMode::Enabled)
       {
         FSLLOG3_VERBOSE2("DemoAppVulkanBasic::BuildResources(): Creating depth image view");
         auto extent = m_swapchain.GetImageExtent();
-        extent = VkExtent2D{std::max(extent.width, m_appSetup.DepthBufferMinimumExtent.Width.Value),
-                            std::max(extent.height, m_appSetup.DepthBufferMinimumExtent.Height.Value)};
+        extent = VkExtent2D{std::max(extent.width, AppSetup.DepthBufferMinimumExtent.Width.Value),
+                            std::max(extent.height, AppSetup.DepthBufferMinimumExtent.Height.Value)};
         m_dependentResources.DepthImage = CreateBasicDepthImageView(m_device, extent, m_resources.MainCommandPool.Get());
 
         FSLLOG3_VERBOSE2("DemoAppVulkanBasic::BuildResources(): DepthBuffer PixelFormat: {}", m_dependentResources.DepthImage.Image().GetFormat());
@@ -458,7 +457,7 @@ namespace Fsl::VulkanBasic
 
         // This also links the swapchain info with the native graphics service this information is used for enabling the screenshot capabilities.
         const VkPipelineCache pipelineCache = VK_NULL_HANDLE;
-        Vulkan::BasicNativeDependentCustomVulkanCreateInfo vulkanCreateInfo(pipelineCache, mainRenderPass, m_appSetup.SubpassSystemUI,
+        Vulkan::BasicNativeDependentCustomVulkanCreateInfo vulkanCreateInfo(pipelineCache, mainRenderPass, AppSetup.SubpassSystemUI,
                                                                             m_dependentResources.NGScreenshotLink);
 
         GraphicsDependentCreateInfo createInfo(GetScreenExtent(), &vulkanCreateInfo);

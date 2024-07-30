@@ -32,12 +32,14 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
-#include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslGraphics/Bitmap/BitmapClearMethod.hpp>
+#include <FslGraphics/Bitmap/BitmapMemory.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
-#include <FslGraphics/Bitmap/RawBitmap.hpp>
 #include <FslGraphics/Bitmap/RawBitmapEx.hpp>
+#include <FslGraphics/Bitmap/ReadOnlyRawBitmap.hpp>
 #include <FslGraphics/StrideRequirement.hpp>
 #include <cstdlib>
 #include <vector>
@@ -51,7 +53,7 @@ namespace Fsl
   {
     //! The raw image data
     std::vector<uint8_t> m_content;
-    PxExtent2D m_extent;
+    PxSize2D m_sizePx;
     uint32_t m_stride{0};
     uint32_t m_bytesPerPixel{0};
     PixelFormat m_pixelFormat{PixelFormat::Undefined};
@@ -72,177 +74,324 @@ namespace Fsl
     Bitmap();
 
     //! @brief Create a empty bitmap of the given width, height and pixel format (The default stride preference is StrideRequirement::Any)
-    Bitmap(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+    Bitmap(const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+
+    //! @brief Create a empty bitmap of the given width, height, pixel format and stride requirement
+    Bitmap(const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin, const StrideRequirement strideRequirement);
 
     //! @brief Create a empty bitmap of the given width, height, pixel format and stride (The default stride preference is StrideRequirement::Any)
-    Bitmap(const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+    Bitmap(const PxSize2D sizePx, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+
+    //! @brief Create a empty bitmap of the given width, height and pixel format (The default stride preference is StrideRequirement::Any)
+    Bitmap(const PxExtent2D extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+
+    //! @brief Create a empty bitmap of the given width, height, pixel format and stride (The default stride preference is StrideRequirement::Any)
+    Bitmap(const PxExtent2D extent, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+
+
+    explicit Bitmap(BitmapMemory&& bitmapMemory);
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The input bitmap is assumed to use the minimum stride and the created bitmap will use StrideRequirement::Any to find its stride.
-    Bitmap(const void* const pContent, const std::size_t cbContent, const PxExtent2D& extent, const PixelFormat pixelFormat,
+    Bitmap(const ReadOnlySpan<uint8_t> contentSpan, const PxSize2D sizePx, const PixelFormat pixelFormat,
            const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
-    Bitmap(const void* const pContent, const std::size_t cbContent, const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
+    Bitmap(const ReadOnlySpan<uint8_t> contentSpan, const PxSize2D sizePx, const PixelFormat pixelFormat, const uint32_t stride,
+           const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+
+    //! @brief Create a bitmap from the supplied content (the content will be copied).
+    //         The input bitmap is assumed to use the minimum stride and the created bitmap will use StrideRequirement::Any to find its stride.
+    Bitmap(const ReadOnlySpan<uint8_t> contentSpan, const PxExtent2D extent, const PixelFormat pixelFormat,
            const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
-    Bitmap(const RawBitmap& srcBitmap);    // NOLINT(google-explicit-constructor)
+    Bitmap(const ReadOnlySpan<uint8_t> contentSpan, const PxExtent2D extent, const PixelFormat pixelFormat, const uint32_t stride,
+           const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+
+    //! @brief Create a bitmap from the supplied content (the content will be copied).
+    //         The input bitmap is assumed to use the minimum stride and the created bitmap will use StrideRequirement::Any to find its stride.
+    [[deprecated("use the span version instead")]] Bitmap(const void* const pContent, const std::size_t cbContent, const PxExtent2D extent,
+                                                          const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+
+    //! @brief Create a bitmap from the supplied content (the content will be copied).
+    //         The created bitmap will use StrideRequirement::Any to find its stride.
+    [[deprecated("use the span version instead")]] Bitmap(const void* const pContent, const std::size_t cbContent, const PxExtent2D extent,
+                                                          const PixelFormat pixelFormat, const uint32_t stride,
+                                                          const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+
+    //! @brief Create a bitmap from the supplied content (the content will be copied).
+    //         The created bitmap will use StrideRequirement::Any to find its stride.
+    Bitmap(const ReadOnlyRawBitmap& srcBitmap);    // NOLINT(google-explicit-constructor)
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
     //! @param desiredOrigin the origin that the created bitmap should use (if the src bitmap differs it is converted)
-    Bitmap(const RawBitmap& srcBitmap, const BitmapOrigin desiredOrigin);
+    Bitmap(const ReadOnlyRawBitmap& srcBitmap, const BitmapOrigin desiredOrigin);
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
-    Bitmap(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat,
+    Bitmap(std::vector<uint8_t>&& content, const PxSize2D sizePx, const PixelFormat pixelFormat,
            const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
-    //         The created bitmap will use StrideRequirement::Any to find its stride.
-    Bitmap(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
+    //!        The created bitmap will use StrideRequirement::Any to find its stride.
+    Bitmap(std::vector<uint8_t>&& content, const PxExtent2D extent, const PixelFormat pixelFormat,
+           const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+
+    //! @brief Create a bitmap from the supplied content (the content will be copied).
+    //!        The created bitmap will use StrideRequirement::Any to find its stride.
+    Bitmap(std::vector<uint8_t>&& content, const PxSize2D sizePx, const PixelFormat pixelFormat, const uint32_t stride,
+           const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+
+    //! @brief Create a bitmap from the supplied content (the content will be copied).
+    //!         The created bitmap will use StrideRequirement::Any to find its stride.
+    Bitmap(std::vector<uint8_t>&& content, const PxExtent2D extent, const PixelFormat pixelFormat, const uint32_t stride,
            const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
     //! Just some ease of use overloads
     Bitmap(const int32_t width, const int32_t height, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft)
-      : Bitmap(PxExtent2D::Create(width, height), pixelFormat, bitmapOrigin)
+      : Bitmap(PxSize2D::Create(width, height), pixelFormat, bitmapOrigin)
     {
     }
 
     ~Bitmap();
 
-    bool IsValid() const
+    bool IsValid() const noexcept
+
     {
       return m_content.data() != nullptr;
     }
 
     //! @brief The width of the bitmap in pixels
-    uint32_t Width() const
+    PxSize1D Width() const noexcept
     {
-      return m_extent.Width.Value;
+      return m_sizePx.Width();
     }
 
     //! @brief The height of the bitmap in pixels
-    uint32_t Height() const
+    PxSize1D Height() const noexcept
     {
-      return m_extent.Height.Value;
+      return m_sizePx.Height();
+    }
+
+    //! @brief The width of the bitmap in pixels
+    PxValueU UnsignedWidth() const noexcept
+    {
+      return m_sizePx.UnsignedWidth();
+    }
+
+    //! @brief The height of the bitmap in pixels
+    PxValueU UnsignedHeight() const noexcept
+    {
+      return m_sizePx.UnsignedHeight();
+    }
+
+    //! @brief The width of the bitmap in pixels
+    int32_t RawWidth() const noexcept
+    {
+      return m_sizePx.RawWidth();
+    }
+
+    //! @brief The height of the bitmap in pixels
+    int32_t RawHeight() const noexcept
+    {
+      return m_sizePx.RawHeight();
+    }
+
+    //! @brief The width of the bitmap in pixels
+    uint32_t RawUnsignedWidth() const noexcept
+    {
+      return m_sizePx.RawUnsignedWidth();
+    }
+
+    //! @brief The height of the bitmap in pixels
+    uint32_t RawUnsignedHeight() const noexcept
+    {
+      return m_sizePx.RawUnsignedHeight();
     }
 
     //! @brief The size of the bitmap in pixels
-    PxSize2D Size() const
+    [[deprecated("Prefer GetSize as it follows the convention used by the other bitmap related classes")]] PxSize2D Size() const noexcept
     {
-      return TypeConverter::UncheckedTo<PxSize2D>(m_extent);
+      return GetSize();
     }
 
-    //! @brief The stride of the bitmap in bytes
-    uint32_t Stride() const
+    //! @brief The size of the bitmap in pixels
+    PxSize2D GetSize() const noexcept
+    {
+      return m_sizePx;
+    }
+
+
+    //! @brief The stride of the bitmap in bytes.
+    //! @warning This will be greater or equal to Width * BytesPerPixel as there might be padding bytes!
+    uint32_t Stride() const noexcept
     {
       return m_stride;
     }
 
     //! @brief The size of the bitmap in pixels
-    PxExtent2D GetExtent() const
+    PxExtent2D GetExtent() const noexcept
     {
-      return m_extent;
+      return {m_sizePx.UnsignedWidth(), m_sizePx.UnsignedHeight()};
     }
 
     //! @brief Get the origin of the bitmap
-    BitmapOrigin GetOrigin() const
+    BitmapOrigin GetOrigin() const noexcept
     {
       return m_origin;
     }
 
     //! @brief Get the bitmap stride preference.
-    StrideRequirement GetStrideRequirement() const
+    StrideRequirement GetStrideRequirement() const noexcept
     {
       return m_strideRequirement;
     }
 
     //! @brief Get the pixel format of the raw bitmap
-    PixelFormat GetPixelFormat() const
+    PixelFormat GetPixelFormat() const noexcept
     {
       return m_pixelFormat;
     }
 
     //! @brief Get the pixel format layout of the raw bitmap
-    PixelFormatLayout GetPixelFormatLayout() const;
+    PixelFormatLayout GetPixelFormatLayout() const noexcept;
 
     //! @brief Get the stride that this bitmap would prefer given it had to be stored in the given pixel format.
     //! @note  This takes into account the current StrideRequirement of the bitmap.
     uint32_t GetPreferredStride(const PixelFormat pixelFormat) const;
 
     //! @brief Release the internal content array into the supplied vector, then reset this class
-    void ReleaseInto(std::vector<uint8_t>& rContentTarget);
+    [[deprecated("used Release instead")]] void ReleaseInto(std::vector<uint8_t>& rContentTarget);
 
-    void Reset();
+    //! @brief Release the internal vector and information into a BitmapMemory object and 'reset' the class
+    [[nodiscard]] BitmapMemory Release();
+
+    uint8_t GetBytesPerPixel() const noexcept;
 
     //! @brief Get the byte size of the image
-    std::size_t GetByteSize() const
+    std::size_t GetByteSize() const noexcept
     {
       const std::size_t stride = m_stride;
-      return m_extent.Height.Value * stride;
+      return m_sizePx.RawUnsignedHeight() * stride;
     }
+
+    void Reset();
 
     //! @brief Reset the image to the given dimensions.
     //! @param clearMethod defines what to do with the existing content
     //! @note This resets the stride preference to StrideRequirement::Any
-    void Reset(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft,
+    void Reset(const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft,
                const BitmapClearMethod clearMethod = BitmapClearMethod::Clear);
 
     //! @brief Reset the image to the given dimensions.
     //! @param clearMethod defines what to do with the existing content
     //! @note This resets the stride preference to StrideRequirement::Any
-    void Reset(const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
+    void Reset(const PxExtent2D extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft,
+               const BitmapClearMethod clearMethod = BitmapClearMethod::Clear);
+
+    //! @brief Reset the image to the given dimensions.
+    //! @param clearMethod defines what to do with the existing content
+    //! @note This resets the stride preference to StrideRequirement::Any
+    void Reset(const PxSize2D sizePx, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft,
+               const BitmapClearMethod clearMethod = BitmapClearMethod::Clear);
+
+    //! @brief Reset the image to the given dimensions.
+    //! @param clearMethod defines what to do with the existing content
+    //! @note This resets the stride preference to StrideRequirement::Any
+    void Reset(const PxExtent2D extent, const PixelFormat pixelFormat, const uint32_t stride,
                const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft, const BitmapClearMethod clearMethod = BitmapClearMethod::Clear);
+
+    //! @brief Create a bitmap from the supplied content (the content will be copied).
+    //! @note This resets the stride preference to StrideRequirement::Any
+    void Reset(BitmapMemory&& bitmapMemory);
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The input bitmap is assumed to use the minimum stride and the created bitmap will use StrideRequirement::Any to find its stride.
     //! @note This resets the stride preference to StrideRequirement::Any
-    void Reset(const void* const pContent, const std::size_t cbContent, const PxExtent2D& extent, const PixelFormat pixelFormat,
+    void Reset(const ReadOnlySpan<uint8_t> contentSpan, const PxSize2D sizePx, const PixelFormat pixelFormat,
+               const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+
+    //! @brief Create a bitmap from the supplied content (the content will be copied).
+    //         The input bitmap is assumed to use the minimum stride and the created bitmap will use StrideRequirement::Any to find its stride.
+    //! @note This resets the stride preference to StrideRequirement::Any
+    void Reset(const ReadOnlySpan<uint8_t> contentSpan, const PxExtent2D extent, const PixelFormat pixelFormat,
                const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
     //! @note This resets the stride preference to StrideRequirement::Any
-    void Reset(const void* const pContent, const std::size_t cbContent, const PxExtent2D& extent, const PixelFormat pixelFormat,
-               const uint32_t stride, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+    void Reset(const ReadOnlySpan<uint8_t> contentSpan, const PxSize2D sizePx, const PixelFormat pixelFormat, const uint32_t stride,
+               const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
     //! @note This resets the stride preference to StrideRequirement::Any
-    void Reset(const RawBitmap& srcBitmap);
+    void Reset(const ReadOnlySpan<uint8_t> contentSpan, const PxExtent2D extent, const PixelFormat pixelFormat, const uint32_t stride,
+               const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+
+    //! @brief Create a bitmap from the supplied content (the content will be copied).
+    //         The input bitmap is assumed to use the minimum stride and the created bitmap will use StrideRequirement::Any to find its stride.
+    //! @note This resets the stride preference to StrideRequirement::Any
+    [[deprecated("use the span version instead")]] void Reset(const void* const pContent, const std::size_t cbContent, const PxExtent2D extent,
+                                                              const PixelFormat pixelFormat,
+                                                              const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+
+    //! @brief Create a bitmap from the supplied content (the content will be copied).
+    //         The created bitmap will use StrideRequirement::Any to find its stride.
+    //! @note This resets the stride preference to StrideRequirement::Any
+    [[deprecated("use the span version instead")]] void Reset(const void* const pContent, const std::size_t cbContent, const PxExtent2D extent,
+                                                              const PixelFormat pixelFormat, const uint32_t stride,
+                                                              const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+
+    //! @brief Create a bitmap from the supplied content (the content will be copied).
+    //         The created bitmap will use StrideRequirement::Any to find its stride.
+    //! @note This resets the stride preference to StrideRequirement::Any
+    void Reset(const ReadOnlyRawBitmap& srcBitmap);
 
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
     //! @note This resets the stride preference to StrideRequirement::Any
-    void Reset(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat,
+    void Reset(std::vector<uint8_t>&& content, const PxSize2D sizePx, const PixelFormat pixelFormat,
+               const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+
+    //! @brief Create a bitmap from the supplied content (the content will be copied).
+    //         The created bitmap will use StrideRequirement::Any to find its stride.
+    //! @note This resets the stride preference to StrideRequirement::Any
+    void Reset(std::vector<uint8_t>&& content, const PxExtent2D extent, const PixelFormat pixelFormat,
                const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
     //! @note This resets the stride preference to StrideRequirement::Any
-    void Reset(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
+    void Reset(std::vector<uint8_t>&& content, const PxSize2D sizePx, const PixelFormat pixelFormat, const uint32_t stride,
+               const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+
+    //! @brief Create a bitmap from the supplied content (the content will be copied).
+    //         The created bitmap will use StrideRequirement::Any to find its stride.
+    //! @note This resets the stride preference to StrideRequirement::Any
+    void Reset(std::vector<uint8_t>&& content, const PxExtent2D extent, const PixelFormat pixelFormat, const uint32_t stride,
                const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
 
     void Reset(const int32_t width, const int32_t height, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft,
                const BitmapClearMethod clearMethod = BitmapClearMethod::Clear)
     {
-      Reset(PxExtent2D::Create(width, height), pixelFormat, bitmapOrigin, clearMethod);
+      Reset(PxSize2D::Create(width, height), pixelFormat, bitmapOrigin, clearMethod);
     }
 
     void Reset(const int32_t width, const int32_t height, const PixelFormat pixelFormat, const uint32_t stride,
                const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft, const BitmapClearMethod clearMethod = BitmapClearMethod::Clear)
     {
-      Reset(PxExtent2D::Create(width, height), pixelFormat, stride, bitmapOrigin, clearMethod);
+      Reset(PxSize2D::Create(width, height), pixelFormat, stride, bitmapOrigin, clearMethod);
     }
 
-    //! @bried clear the content to zero
+    //! @brief clear the content to zero
     void Clear();
 
     //! @brief set the pixel at the given coordinate (if the coordinate is outside the bitmap nothing happens)
@@ -299,7 +448,7 @@ namespace Fsl
       ScopedDirectAccess& operator=(const ScopedDirectAccess&) = delete;
 
       // Read only lock
-      ScopedDirectAccess(const Bitmap& bitmap, RawBitmap& rRawBitmap)
+      [[deprecated("Please utilize the ScopedDirectReadAccess instead")]] ScopedDirectAccess(const Bitmap& bitmap, ReadOnlyRawBitmap& rRawBitmap)
         : m_pBitmap1(&bitmap)
         , m_pBitmap2(nullptr)
         , m_pRawBitmapEx(nullptr)
@@ -307,8 +456,7 @@ namespace Fsl
         rRawBitmap = bitmap.Lock();
       }
 
-      // Read/write lock
-      ScopedDirectAccess(Bitmap& bitmap, RawBitmapEx& rRawBitmap)
+      [[deprecated("Please utilize the ScopedDirectReadWriteAccess instead")]] ScopedDirectAccess(Bitmap& bitmap, RawBitmapEx& rRawBitmap)
         : m_pBitmap1(nullptr)
         , m_pBitmap2(&bitmap)
         , m_pRawBitmapEx(&rRawBitmap)
@@ -316,7 +464,7 @@ namespace Fsl
         rRawBitmap = bitmap.LockEx();
       }
 
-      ~ScopedDirectAccess()
+      ~ScopedDirectAccess() noexcept
       {
         try
         {
@@ -337,12 +485,92 @@ namespace Fsl
       }
     };
 
+    class ScopedDirectReadAccess final
+    {
+      const Bitmap& m_rBitmap;
+      ReadOnlyRawBitmap m_rawBitmap;
+
+    public:
+      ScopedDirectReadAccess(const ScopedDirectReadAccess&) = delete;
+      ScopedDirectReadAccess& operator=(const ScopedDirectReadAccess&) = delete;
+
+      // Read only lock
+      explicit ScopedDirectReadAccess(const Bitmap& bitmap)
+        : m_rBitmap(bitmap)
+        , m_rawBitmap(bitmap.Lock())
+      {
+      }
+
+      ~ScopedDirectReadAccess() noexcept
+      {
+        try
+        {
+          m_rBitmap.Unlock();
+        }
+        catch (const std::exception&)
+        {
+          FSLLOG3_ERROR("ScopedDirectReadAccess unlock failed and destructor can not throw so aborting.");
+          std::abort();
+        }
+      }
+
+      const ReadOnlyRawBitmap& AsRawBitmap() const noexcept
+      {
+        return m_rawBitmap;
+      }
+
+      ReadOnlyRawBitmap& AsRawBitmap() noexcept
+      {
+        return m_rawBitmap;
+      }
+    };
+
+    class ScopedDirectReadWriteAccess final
+    {
+      Bitmap& m_rBitmap;
+      RawBitmapEx m_rawBitmap;
+
+    public:
+      ScopedDirectReadWriteAccess(const ScopedDirectReadAccess&) = delete;
+      ScopedDirectReadWriteAccess& operator=(const ScopedDirectReadAccess&) = delete;
+
+      // Read only lock
+      explicit ScopedDirectReadWriteAccess(Bitmap& rBitmap)
+        : m_rBitmap(rBitmap)
+        , m_rawBitmap(rBitmap.LockEx())
+      {
+      }
+
+      ~ScopedDirectReadWriteAccess() noexcept
+      {
+        try
+        {
+          m_rBitmap.UnlockEx(m_rawBitmap);
+        }
+        catch (const std::exception&)
+        {
+          FSLLOG3_ERROR("ScopedDirectReadWriteAccess unlock failed and destructor can not throw so aborting.");
+          std::abort();
+        }
+      }
+
+      const RawBitmapEx& AsRawBitmap() const noexcept
+      {
+        return m_rawBitmap;
+      }
+
+      RawBitmapEx& AsRawBitmap() noexcept
+      {
+        return m_rawBitmap;
+      }
+    };
+
   private:
-    RawBitmap Lock() const;
+    ReadOnlyRawBitmap Lock() const;
     RawBitmapEx LockEx();
-    void UnlockEx(const RawBitmapEx& bitmap);
-    void Unlock() const;
-    void ResizeToFit(const PxExtent2D& extent, const PixelFormat pixelFormat, const StrideRequirement strideRequirement, const uint32_t stride = 0);
+    void UnlockEx(const RawBitmapEx& bitmap) noexcept;
+    void Unlock() const noexcept;
+    void ResizeToFit(const PxSize2D sizePx, const PixelFormat pixelFormat, const StrideRequirement strideRequirement, const uint32_t stride = 0);
     void Clear(const BitmapClearMethod clearMethod);
     void ResetNoThrow() noexcept;
   };

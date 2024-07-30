@@ -35,7 +35,7 @@
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 #include <FslBase/Math/SpanRange.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <map>
 #include <vector>
@@ -195,7 +195,7 @@ namespace Fsl
     {
       const uint32_t hashId = (chunkX << 16) | chunkY;
       const auto itrFind = m_entries.find(hashId);
-      return itrFind != m_entries.end() ? ReadOnlySpanUtil::AsSpan(itrFind->second.Bucket) : ReadOnlySpan<uint32_t>();
+      return itrFind != m_entries.end() ? SpanUtil::AsReadOnlySpan(itrFind->second.Bucket) : ReadOnlySpan<uint32_t>();
     }
 
 
@@ -206,7 +206,7 @@ namespace Fsl
       const uint32_t hashId = (chunkX << 16) | chunkY;
       const auto itrFind = m_entries.find(hashId);
       assert(itrFind != m_entries.end());
-      return ReadOnlySpanUtil::AsSpan(itrFind->second.Bucket);
+      return SpanUtil::AsReadOnlySpan(itrFind->second.Bucket);
     }
   };
 }

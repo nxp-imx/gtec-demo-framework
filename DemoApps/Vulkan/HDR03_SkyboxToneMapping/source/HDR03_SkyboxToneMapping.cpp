@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,12 +52,12 @@ namespace Fsl
 {
   namespace
   {
-    const Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 0.0f);
-    const Vector3 DEFAULT_CAMERA_TARGET(-4.0f, 0.0f, 0.0f);
+    constexpr Vector3 DefaultCameraPosition(0.0f, 0.0f, 0.0f);
+    constexpr Vector3 DefaultCameraTarget(-4.0f, 0.0f, 0.0f);
 
-    const uint32_t VERTEX_BUFFER_BIND_ID = 0;
-    const uint32_t SUBPASS_RENDER = 0;
-    const uint32_t SUBPASS_TONEMAP = 1;
+    constexpr uint32_t VertexBufferBindId = 0;
+    constexpr uint32_t SubpassRender = 0;
+    constexpr uint32_t SubpassTonemap = 1;
 
     VulkanBasic::DemoAppVulkanSetup CreateSetup()
     {
@@ -65,7 +65,7 @@ namespace Fsl
 
       DemoAppVulkanSetup setup;
       setup.DepthBuffer = DepthBufferMode::Enabled;
-      setup.SubpassSystemUI = SUBPASS_TONEMAP;
+      setup.SubpassSystemUI = SubpassTonemap;
       return setup;
     }
 
@@ -405,7 +405,7 @@ namespace Fsl
 
     const auto options = config.GetOptions<OptionParser>();
 
-    m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+    m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
 
     const auto contentManager = GetContentManager();
 
@@ -466,7 +466,7 @@ namespace Fsl
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
-        m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+        m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
         event.Handled();
       }
       break;
@@ -564,13 +564,13 @@ namespace Fsl
     const auto& scene = m_resources.MainScene;
     m_dependentResources.ScenePipeline =
       CommonMethods::CreatePipeline(scene.ScenePipelineLayout, context.SwapchainImageExtent, scene.VertShaderModule.Get(),
-                                    scene.FragShaderModule.Get(), scene.Mesh, m_dependentResources.MainRenderPass.Get(), SUBPASS_RENDER);
+                                    scene.FragShaderModule.Get(), scene.Mesh, m_dependentResources.MainRenderPass.Get(), SubpassRender);
 
     for (std::size_t i = 0; i < m_dependentResources.PipelineTonemapper.size(); ++i)
     {
       m_dependentResources.PipelineTonemapper[i] =
         CreateTonemapPipeline(m_resources.TonemapPipelineLayout, context.SwapchainImageExtent, m_resources.TonemapperVertShaderModule.Get(),
-                              m_resources.ProgramTonemap[i].Get(), m_resources.MeshQuad, m_dependentResources.MainRenderPass.Get(), SUBPASS_TONEMAP);
+                              m_resources.ProgramTonemap[i].Get(), m_resources.MeshQuad, m_dependentResources.MainRenderPass.Get(), SubpassTonemap);
     }
 
     return m_dependentResources.MainRenderPass.Get();
@@ -692,7 +692,7 @@ namespace Fsl
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.ScenePipeline.Get());
 
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, scene.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(commandBuffer, VertexBufferBindId, 1, scene.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(commandBuffer, scene.Mesh.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 
@@ -700,7 +700,7 @@ namespace Fsl
   void HDR03_SkyboxToneMapping::DrawTonemappedScene(const FrameResources& /*frame*/, const VkCommandBuffer commandBuffer)
   {
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MeshQuad.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(commandBuffer, VertexBufferBindId, 1, m_resources.MeshQuad.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(commandBuffer, m_resources.MeshQuad.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 

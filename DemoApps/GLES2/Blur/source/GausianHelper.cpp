@@ -44,7 +44,7 @@ namespace Fsl
 {
   namespace
   {
-    constexpr const int32_t MAX_KERNEL_SLICE_LENGTH = 128;
+    constexpr const int32_t MaxKernelSliceLength = 128;
 
     void Normalize(std::vector<double>& rKernel, const int32_t entries, const double sum)
     {
@@ -259,13 +259,13 @@ namespace Fsl
     }
 
     const int halfLength = static_cast<int32_t>(kernelSlice.size()) / 2;
-    if (halfLength > MAX_KERNEL_SLICE_LENGTH)
+    if (halfLength > MaxKernelSliceLength)
     {
       throw std::invalid_argument("Kernel size is too large");
     }
 
-    std::array<LinearData, MAX_KERNEL_SLICE_LENGTH> linearData{};
-    CalcLinearWeightsAndOffset(linearData.data(), MAX_KERNEL_SLICE_LENGTH, kernelSlice, texStep);
+    std::array<LinearData, MaxKernelSliceLength> linearData{};
+    CalcLinearWeightsAndOffset(linearData.data(), MaxKernelSliceLength, kernelSlice, texStep);
 
     std::stringstream strX;
     std::stringstream strY;
@@ -379,13 +379,13 @@ namespace Fsl
     Vector2 texStep(1.0f / static_cast<float>(texSize.RawWidth()), 1.0f / static_cast<float>(texSize.RawHeight()));
 
     int halfLength = static_cast<int32_t>(kernelSlice.size()) / 2;
-    if (halfLength > MAX_KERNEL_SLICE_LENGTH)
+    if (halfLength > MaxKernelSliceLength)
     {
       throw std::invalid_argument("Kernel size is too large");
     }
 
-    std::array<LinearData, MAX_KERNEL_SLICE_LENGTH> linearData;
-    CalcLinearWeightsAndOffset(linearData.data(), MAX_KERNEL_SLICE_LENGTH, kernelSlice, texStep);
+    std::array<LinearData, MaxKernelSliceLength> linearData;
+    CalcLinearWeightsAndOffset(linearData.data(), MaxKernelSliceLength, kernelSlice, texStep);
 
     {
       std::stringstream str2;

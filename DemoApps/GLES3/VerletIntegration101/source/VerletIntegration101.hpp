@@ -33,20 +33,28 @@
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES3/NativeBatch2D.hpp>
-#include <FslSimpleUI/App/UIDemoAppLegacyExtension.hpp>
+#include <FslGraphics/Render/AtlasTexture2D.hpp>
+#include <FslGraphics/Sprite/ImageSprite.hpp>
+#include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <deque>
 
 namespace Fsl
 {
-  class VerletIntegration101
+  class IBasicRenderSystem;
+  class IGraphicsService;
+
+  class VerletIntegration101 final
     : public DemoAppGLES3
     , public UI::EventListener
   {
     UI::CallbackEventListenerScope m_uiEventListener;
-    std::shared_ptr<UIDemoAppLegacyExtension> m_uiExtension;
+    std::shared_ptr<UIDemoAppExtension> m_uiExtension;
+    std::shared_ptr<IGraphicsService> m_graphicsService;
     std::shared_ptr<GLES3::NativeBatch2D> m_batch;
+    std::shared_ptr<IBasicRenderSystem> m_renderSystem;
+
     AtlasTexture2D m_texFill;
     AtlasTexture2D m_texBall;
     AtlasTexture2D m_texTest;
@@ -86,14 +94,15 @@ namespace Fsl
     std::deque<Stick> m_sticks;
     float m_rotation;
 
+
   public:
     explicit VerletIntegration101(const DemoAppConfig& config);
-    ~VerletIntegration101() override;
+    ~VerletIntegration101() final;
 
   protected:
-    void FixedUpdate(const DemoTime& demoTime) override;
-    void Update(const DemoTime& demoTime) override;
-    void Draw(const FrameInfo& frameInfo) override;
+    void FixedUpdate(const DemoTime& demoTime) final;
+    void Update(const DemoTime& demoTime) final;
+    void Draw(const FrameInfo& frameInfo) final;
 
   private:
     void UpdateParticles(std::deque<Particle>& particles, const float friction);

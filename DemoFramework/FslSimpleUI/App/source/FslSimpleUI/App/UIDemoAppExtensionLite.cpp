@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Shared/Log/Host/FmtDemoWindowMetrics.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslGraphics/Log/Render/Basic/FmtBasicPrimitiveTopology.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
@@ -89,7 +90,8 @@ namespace Fsl
     m_resources = PrepareResources(*m_resourceManager, atlasName, createInfo.RenderCreateInfo.MaterialCreateInfo, m_config.UseSdfFont);
 
     // Prepare the window context
-    m_context = std::make_shared<UI::WindowContext>(GetUIContext(), m_resources.DefaultFont, createInfo.WindowMetrics.DensityDpi);
+    m_context = std::make_shared<UI::WindowContext>(GetUIContext(), m_resources.DefaultFont, createInfo.WindowMetrics.DensityDpi,
+                                                    createInfo.RenderCreateInfo.ColorSpace);
 
     if (testPatternMode == UITestPatternMode::EnabledAllowSwitching)
     {
@@ -153,9 +155,18 @@ namespace Fsl
   }
 
 
-  SpriteMaterialId UIDemoAppExtensionLite::GetDefaultMaterialId(const bool opaque) const
+  SpriteMaterialId UIDemoAppExtensionLite::GetDefaultMaterialId(const BasicPrimitiveTopology primitiveTopology, const bool opaque) const
   {
-    return !opaque ? UIAppConfig::MaterialId::DefaultUI_AlphaBlend : UIAppConfig::MaterialId::DefaultUI_Opaque;
+    switch (primitiveTopology)
+    {
+    case BasicPrimitiveTopology::LineList:
+      return !opaque ? UIAppConfig::MaterialId::DefaultUI_LineListAlphaBlend : UIAppConfig::MaterialId::DefaultUI_LineListOpaque;
+    case BasicPrimitiveTopology::LineStrip:
+      break;    // Not supported
+    case BasicPrimitiveTopology::TriangleList:
+      return !opaque ? UIAppConfig::MaterialId::DefaultUI_AlphaBlend : UIAppConfig::MaterialId::DefaultUI_Opaque;
+    }
+    throw NotSupportedException(fmt::format("Unsupported primitive topology: {}", primitiveTopology));
   }
 
   bool UIDemoAppExtensionLite::SetTestPattern(const bool enabled)
@@ -189,6 +200,18 @@ namespace Fsl
       throw UsageErrorException("resource manager is not valid");
     }
     const auto flags = isUITexture ? UIAppResourceFlag::UIGroup | UIAppResourceFlag::Atlas : UIAppResourceFlag::Atlas;
+    auto res = m_resourceManager->CreateTexture(atlasPath, textureCreationInfo, flags);
+    return res.Handle;
+  }
+
+  UIAppTextureHandle UIDemoAppExtensionLite::CreateLegacyAtlasTexture(const IO::PathView& atlasPath,
+                                                                      const UIAppTextureResourceCreationInfo& textureCreationInfo)
+  {
+    if (!m_resourceManager)
+    {
+      throw UsageErrorException("resource manager is not valid");
+    }
+    const auto flags = UIAppResourceFlag::Atlas | UIAppResourceFlag::NotDpAware;
     auto res = m_resourceManager->CreateTexture(atlasPath, textureCreationInfo, flags);
     return res.Handle;
   }
@@ -310,6 +333,10 @@ namespace Fsl
     rResourceManager.AddSpriteMaterial(UIAppConfig::MaterialId::DefaultUI_Opaque, textureResult.Handle, blendStateOpaque);
     rResourceManager.AddSpriteMaterial(UIAppConfig::MaterialId::DefaultUI_AlphaBlend, textureResult.Handle, BlendState::AlphaBlend);
     rResourceManager.AddSpriteMaterial(UIAppConfig::MaterialId::DefaultUI_SdfFont, textureResult.Handle, BlendState::Sdf);
+    rResourceManager.AddSpriteMaterial(UIAppConfig::MaterialId::DefaultUI_LineListOpaque, textureResult.Handle, blendStateOpaque,
+                                       BasicPrimitiveTopology::LineList);
+    rResourceManager.AddSpriteMaterial(UIAppConfig::MaterialId::DefaultUI_LineListAlphaBlend, textureResult.Handle, BlendState::AlphaBlend,
+                                       BasicPrimitiveTopology::LineList);
 
     IO::PathView headerFontNbf(rResourceManager.FontExists(textureResult.Handle, LocalConfig::HeaderFontNbf) ? LocalConfig::HeaderFontNbf
                                                                                                              : LocalConfig::FontNbf);
@@ -319,7 +346,7 @@ namespace Fsl
 
     auto defaultFont = PrepareFont(rResourceManager, paths.FontNbf, paths.SdfFontNbf, useSdfFont);
     auto defaultHeaderFont = PrepareFont(rResourceManager, paths.HeaderFontNbf, paths.SdfHeaderFontNbf, useSdfFont);
-    return {std::move(defaultFont), std::move(defaultHeaderFont), paths};
+    return {textureResult.Handle, std::move(defaultFont), std::move(defaultHeaderFont), paths};
   }
 
   std::shared_ptr<SpriteFont> UIDemoAppExtensionLite::PrepareFont(UIAppResourceManager& rResourceManager, const IO::PathView normalFont,

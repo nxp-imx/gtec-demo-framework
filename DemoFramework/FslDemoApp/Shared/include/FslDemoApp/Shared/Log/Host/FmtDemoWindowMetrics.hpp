@@ -1,7 +1,7 @@
 #ifndef FSLDEMOAPP_SHARED_LOG_HOST_FMTDEMOWINDOWMETRICS_HPP
 #define FSLDEMOAPP_SHARED_LOG_HOST_FMTDEMOWINDOWMETRICS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,24 +36,23 @@
 #include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <fmt/format.h>
 
-namespace fmt
+template <>
+struct fmt::formatter<Fsl::DemoWindowMetrics>
 {
-  template <>
-  struct formatter<Fsl::DemoWindowMetrics>
+  template <typename ParseContext>
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  constexpr auto parse(ParseContext& ctx)
   {
-    template <typename ParseContext>
-    constexpr auto parse(ParseContext& ctx)
-    {
-      return ctx.begin();
-    }
+    return ctx.begin();
+  }
 
-    template <typename FormatContext>
-    auto format(const Fsl::DemoWindowMetrics& value, FormatContext& ctx)
-    {
-      return format_to(ctx.out(), "{{PxExtent={} SizeDp={} ExactDpi={} DensityDpi={} DensityScaleFactor={}}}", value.ExtentPx, value.SizeDp,
-                       value.ExactDpi, value.DensityDpi, value.DensityScaleFactor);
-    }
-  };
-}
+  template <typename FormatContext>
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  auto format(const Fsl::DemoWindowMetrics& value, FormatContext& ctx)
+  {
+    return fmt::format_to(ctx.out(), "{{PxExtent={} SizeDp={} ExactDpi={} DensityDpi={} DensityScaleFactor={}}}", value.ExtentPx, value.SizeDp,
+                          value.ExactDpi, value.DensityDpi, value.DensityScaleFactor);
+  }
+};
 
 #endif

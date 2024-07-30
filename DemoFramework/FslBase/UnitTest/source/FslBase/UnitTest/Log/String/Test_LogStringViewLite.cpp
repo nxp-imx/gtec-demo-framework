@@ -30,7 +30,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/String/LogStringViewLite.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <sstream>
 

@@ -44,6 +44,7 @@ namespace Fsl
 #endif
 
   // Alternative path for platforms that dont use "main"
+  // NOLINTNEXTLINE(readability-identifier-naming)
   void FslDemoPlatform_Link(CustomPlatformData* pCustomPlatformData, const char* const pszCustom);
 }
 

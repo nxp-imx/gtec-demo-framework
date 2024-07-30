@@ -32,6 +32,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/NumericCast.hpp>
+#include <FslBase/Span/SpanUtil_Create.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/ScreenshotUtil.hpp>
@@ -105,7 +106,7 @@ namespace Fsl::Vulkan::ScreenshotUtil
 
     void TransitionImagesToTransferLayout(const VkCommandBuffer commandBuffer, const VkImage dstImage, const VkImage srcImage)
     {
-      constexpr VkImageSubresourceRange imageSubresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+      constexpr VkImageSubresourceRange ImageSubresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
       {
         VkImageMemoryBarrier imageMemoryBarrier{};
         imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -114,7 +115,7 @@ namespace Fsl::Vulkan::ScreenshotUtil
         imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         imageMemoryBarrier.image = dstImage;
-        imageMemoryBarrier.subresourceRange = imageSubresourceRange;
+        imageMemoryBarrier.subresourceRange = ImageSubresourceRange;
 
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1,
                              &imageMemoryBarrier);
@@ -129,7 +130,7 @@ namespace Fsl::Vulkan::ScreenshotUtil
         imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
         imageMemoryBarrier.image = srcImage;
-        imageMemoryBarrier.subresourceRange = imageSubresourceRange;
+        imageMemoryBarrier.subresourceRange = ImageSubresourceRange;
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1,
                              &imageMemoryBarrier);
       }
@@ -137,7 +138,7 @@ namespace Fsl::Vulkan::ScreenshotUtil
 
     void TransitionFromTransferLayout(const VkCommandBuffer commandBuffer, const VkImage dstImage, const VkImage srcImage)
     {
-      constexpr VkImageSubresourceRange imageSubresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+      constexpr VkImageSubresourceRange ImageSubresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
       // Transition source image back to source format
       {
         VkImageMemoryBarrier imageMemoryBarrier{};
@@ -147,7 +148,7 @@ namespace Fsl::Vulkan::ScreenshotUtil
         imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
         imageMemoryBarrier.image = srcImage;
-        imageMemoryBarrier.subresourceRange = imageSubresourceRange;
+        imageMemoryBarrier.subresourceRange = ImageSubresourceRange;
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1,
                              &imageMemoryBarrier);
       }
@@ -161,7 +162,7 @@ namespace Fsl::Vulkan::ScreenshotUtil
         imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
         imageMemoryBarrier.image = dstImage;
-        imageMemoryBarrier.subresourceRange = imageSubresourceRange;
+        imageMemoryBarrier.subresourceRange = ImageSubresourceRange;
 
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1,
                              &imageMemoryBarrier);
@@ -195,12 +196,13 @@ namespace Fsl::Vulkan::ScreenshotUtil
       assert(subResourceLayout.offset <= image.AllocationSize);
 
       const uint8_t* pImageMemory = static_cast<const uint8_t*>(pImage) + subResourceLayout.offset;
-      const auto extent = PxExtent2D::Create(image.Extent.width, image.Extent.height);
+      const auto sizePx = PxSize2D::Create(NumericCast<int32_t>(image.Extent.width), NumericCast<int32_t>(image.Extent.height));
       assert(subResourceLayout.rowPitch <= std::numeric_limits<uint32_t>::max());
       const auto stride = static_cast<uint32_t>(subResourceLayout.rowPitch);
 
       // Extract the bitmap data
-      return {pImageMemory, NumericCast<std::size_t>(subResourceLayout.size), extent, imagePixelFormat, stride, BitmapOrigin::UpperLeft};
+      return {SpanUtil::CreateReadOnly(pImageMemory, NumericCast<std::size_t>(subResourceLayout.size)), sizePx, imagePixelFormat, stride,
+              BitmapOrigin::UpperLeft};
     }
   }
 

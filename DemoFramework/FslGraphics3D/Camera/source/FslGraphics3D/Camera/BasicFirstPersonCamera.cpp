@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,135 +41,136 @@
 #include <cmath>
 #include <limits>
 
-namespace Fsl
+
+// Camera class inspired by the tutorial: https://learnopengl.com/#!Getting-started/Camera
+namespace Fsl::Graphics3D
 {
-  // Camera class inspired by the tutorial: https://learnopengl.com/#!Getting-started/Camera
-  namespace Graphics3D
+  namespace
   {
-    namespace
+    namespace LocalConfig
     {
-      const float MAX_PITCH = MathHelper::ToRadians(89.0f);
+      constexpr float MaxPitch = MathHelper::ToRadians(89.0f);
+    }
 
-      float Clamp(const float value)
+    float Clamp(const float value)
+    {
+      // Basic clamping that works ok at low speeds
+      if (value >= MathHelper::ToRadians(360))
       {
-        // Basic clamping that works ok at low speeds
-        if (value >= MathHelper::ToRadians(360))
-        {
-          return value - MathHelper::ToRadians(360);
-        }
-        if (value <= -MathHelper::ToRadians(360))
-        {
-          return value + MathHelper::ToRadians(360);
-        }
-        return value;
+        return value - MathHelper::ToRadians(360);
       }
-    }
-
-    BasicFirstPersonCamera::BasicFirstPersonCamera()
-      : m_worldUp(0.0f, 0.0f, 1.0f)
-      , m_yaw(-90.0f)
-      , m_pitch(0.0f)
-    {
-      RecalcCameraVectors();
-    }
-
-
-    Matrix BasicFirstPersonCamera::GetViewMatrix() const
-    {
-      return Matrix::CreateLookAt(m_position, m_position + m_forward, m_up);
-    }
-
-
-    Vector3 BasicFirstPersonCamera::GetPosition() const
-    {
-      return m_position;
-    }
-
-
-    void BasicFirstPersonCamera::SetPosition(const Vector3& position)
-    {
-      m_position = position;
-    }
-
-
-    void BasicFirstPersonCamera::SetPosition(const Vector3& position, const Vector3& target, const Vector3& up)
-    {
-      m_position = position;
-      m_worldUp = up;
-
-      auto forward = target - position;
-      forward.Normalize();
-
-      m_yaw = std::atan2(forward.X, forward.Z);
-      m_pitch = std::asin(forward.Y);
-
-      RecalcCameraVectors();
-    }
-
-
-    void BasicFirstPersonCamera::MoveForward(const float amount)
-    {
-      m_position += m_forward * amount;
-    }
-
-
-    void BasicFirstPersonCamera::MoveBackwards(const float amount)
-    {
-      m_position -= m_forward * amount;
-    }
-
-
-    void BasicFirstPersonCamera::MoveLeft(const float amount)
-    {
-      m_position -= m_right * amount;
-    }
-
-
-    void BasicFirstPersonCamera::MoveRight(const float amount)
-    {
-      m_position += m_right * amount;
-    }
-
-    void BasicFirstPersonCamera::Rotate(const Vector2& amount)
-    {
-      RotateByRadians(Vector2(MathHelper::ToRadians(amount.X), MathHelper::ToRadians(amount.Y)));
-    }
-
-    void BasicFirstPersonCamera::RotateByRadians(const Vector2& amount)
-    {
-      m_yaw -= amount.X;
-      m_pitch += amount.Y;
-      m_yaw = Clamp(m_yaw);
-      m_pitch = Clamp(m_pitch);
-
-      // Make sure that when pitch is out of bounds, screen doesn't get flipped
-      if (m_pitch > MAX_PITCH)
+      if (value <= -MathHelper::ToRadians(360))
       {
-        m_pitch = MAX_PITCH;
+        return value + MathHelper::ToRadians(360);
       }
-      if (m_pitch < -MAX_PITCH)
-      {
-        m_pitch = -MAX_PITCH;
-      }
-
-      RecalcCameraVectors();
+      return value;
     }
+  }
 
-    void BasicFirstPersonCamera::RecalcCameraVectors()
+  BasicFirstPersonCamera::BasicFirstPersonCamera()
+    : m_worldUp(0.0f, 0.0f, 1.0f)
+    , m_yaw(-90.0f)
+    , m_pitch(0.0f)
+  {
+    RecalcCameraVectors();
+  }
+
+
+  Matrix BasicFirstPersonCamera::GetViewMatrix() const
+  {
+    return Matrix::CreateLookAt(m_position, m_position + m_forward, m_up);
+  }
+
+
+  Vector3 BasicFirstPersonCamera::GetPosition() const
+  {
+    return m_position;
+  }
+
+
+  void BasicFirstPersonCamera::SetPosition(const Vector3& position)
+  {
+    m_position = position;
+  }
+
+
+  void BasicFirstPersonCamera::SetPosition(const Vector3& position, const Vector3& target, const Vector3& up)
+  {
+    m_position = position;
+    m_worldUp = up;
+
+    auto forward = target - position;
+    forward.Normalize();
+
+    m_yaw = std::atan2(forward.X, forward.Z);
+    m_pitch = std::asin(forward.Y);
+
+    RecalcCameraVectors();
+  }
+
+
+  void BasicFirstPersonCamera::MoveForward(const float amount)
+  {
+    m_position += m_forward * amount;
+  }
+
+
+  void BasicFirstPersonCamera::MoveBackwards(const float amount)
+  {
+    m_position -= m_forward * amount;
+  }
+
+
+  void BasicFirstPersonCamera::MoveLeft(const float amount)
+  {
+    m_position -= m_right * amount;
+  }
+
+
+  void BasicFirstPersonCamera::MoveRight(const float amount)
+  {
+    m_position += m_right * amount;
+  }
+
+  void BasicFirstPersonCamera::Rotate(const Vector2& amount)
+  {
+    RotateByRadians(Vector2(MathHelper::ToRadians(amount.X), MathHelper::ToRadians(amount.Y)));
+  }
+
+  void BasicFirstPersonCamera::RotateByRadians(const Vector2& amount)
+  {
+    m_yaw -= amount.X;
+    m_pitch += amount.Y;
+    m_yaw = Clamp(m_yaw);
+    m_pitch = Clamp(m_pitch);
+
+    // Make sure that when pitch is out of bounds, screen doesn't get flipped
+    if (m_pitch > LocalConfig::MaxPitch)
     {
-      const float cosYaw = std::cos(m_yaw);
-      const float sinYaw = std::sin(m_yaw);
-      const float cosPitch = std::cos(m_pitch);
-      const float sinPitch = std::sin(m_pitch);
-
-      // Fist we calc the new front vector and use it to calc the right and up vectors
-      m_forward.X = cosPitch * sinYaw;
-      m_forward.Y = sinPitch;
-      m_forward.Z = cosPitch * cosYaw;
-      m_forward.Normalize();
-
-      m_right = Vector3::Normalize(Vector3::Cross(m_forward, m_worldUp));
-      m_up = Vector3::Normalize(Vector3::Cross(m_right, m_forward));
+      m_pitch = LocalConfig::MaxPitch;
     }
+    if (m_pitch < -LocalConfig::MaxPitch)
+    {
+      m_pitch = -LocalConfig::MaxPitch;
+    }
+
+    RecalcCameraVectors();
+  }
+
+  void BasicFirstPersonCamera::RecalcCameraVectors()
+  {
+    const float cosYaw = std::cos(m_yaw);
+    const float sinYaw = std::sin(m_yaw);
+    const float cosPitch = std::cos(m_pitch);
+    const float sinPitch = std::sin(m_pitch);
+
+    // Fist we calc the new front vector and use it to calc the right and up vectors
+    m_forward.X = cosPitch * sinYaw;
+    m_forward.Y = sinPitch;
+    m_forward.Z = cosPitch * cosYaw;
+    m_forward.Normalize();
+
+    m_right = Vector3::Normalize(Vector3::Cross(m_forward, m_worldUp));
+    m_up = Vector3::Normalize(Vector3::Cross(m_right, m_forward));
   }
 }

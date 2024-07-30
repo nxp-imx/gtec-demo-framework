@@ -35,7 +35,6 @@
 
 namespace Fsl::UI
 {
-  struct RoutedEventArgs;
   class WindowContentChangedEvent;
   class WindowInputClickEvent;
   class WindowMouseOverEvent;
@@ -46,12 +45,12 @@ namespace Fsl::UI
   public:
     virtual ~IEventListener() = default;
 
-    virtual void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) = 0;
-    virtual void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) = 0;
-    virtual void OnMouseOverPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) = 0;
-    virtual void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) = 0;
-    virtual void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) = 0;
-    virtual void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) = 0;
+    virtual void OnClickInputPreview(const std::shared_ptr<WindowInputClickEvent>& theEvent) = 0;
+    virtual void OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent) = 0;
+    virtual void OnMouseOverPreview(const std::shared_ptr<WindowMouseOverEvent>& theEvent) = 0;
+    virtual void OnMouseOver(const std::shared_ptr<WindowMouseOverEvent>& theEvent) = 0;
+    virtual void OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent) = 0;
+    virtual void OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent) = 0;
   };
 }
 

@@ -41,7 +41,7 @@ namespace Fsl
 {
   namespace
   {
-    const auto ENV_PREFERRED_WINDOW_RESOLUTION = "FSLDEMOAPP_PREFERRED_WINDOW_RESOLUTION";
+    const auto g_envPreferredWindowResolution = "FSLDEMOAPP_PREFERRED_WINDOW_RESOLUTION";
 
     struct CommandId
     {
@@ -133,14 +133,14 @@ namespace Fsl
       // Disable the warning about unsafe method under windows (unfortunately visual studio does not remove this warning for C++11)
 #pragma warning(disable : 4996)
 #endif
-      auto* psz = std::getenv(ENV_PREFERRED_WINDOW_RESOLUTION);
+      auto* psz = std::getenv(g_envPreferredWindowResolution);
 #ifdef _WIN32
 #pragma warning(pop)
 #endif
 
       if (psz != nullptr)
       {
-        FSLLOG3_INFO("Using environment variable '{}' = '{}' to set window resolution.", ENV_PREFERRED_WINDOW_RESOLUTION, psz);
+        FSLLOG3_INFO("Using environment variable '{}' = '{}' to set window resolution.", g_envPreferredWindowResolution, psz);
         Rectangle rectValue;
         StringParseUtil::Parse(rectValue, psz);
         m_nativeWindowConfig.SetWindowMode(WindowMode::Window);

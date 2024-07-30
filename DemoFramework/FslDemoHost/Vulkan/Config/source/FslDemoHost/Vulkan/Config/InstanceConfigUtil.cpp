@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,16 +47,19 @@ namespace Fsl::InstanceConfigUtil
 {
   namespace
   {
+    namespace LocalConfig
+    {
 #ifdef NDEBUG
-    constexpr bool LOCAL_VALIDATION_LAYER_ENABLED = false;
+      constexpr bool LocalValidationLayerEnabled = false;
 #else
-    constexpr bool LOCAL_VALIDATION_LAYER_ENABLED = true;
+      constexpr bool LocalValidationLayerEnabled = true;
 #endif
 
 
-    const auto CONFIG_VALIDATION_LAYER_OLD_NAME = "VK_LAYER_LUNARG_standard_validation";
-    const auto CONFIG_VALIDATION_LAYER_NAME = "VK_LAYER_KHRONOS_validation";
-    const auto CONFIG_API_DUMP_LAYER_NAME = "VK_LAYER_LUNARG_api_dump";
+      constexpr auto ValidationLayerOldName = "VK_LAYER_LUNARG_standard_validation";
+      constexpr auto ValidationLayerName = "VK_LAYER_KHRONOS_validation";
+      constexpr auto ApiDumpLayerName = "VK_LAYER_LUNARG_api_dump";
+    }
 
     struct InstanceConfigRequest
     {
@@ -88,7 +91,7 @@ namespace Fsl::InstanceConfigUtil
       if (debugLayerRequirement != Vulkan::FeatureRequirement::Invalid)
       {
         auto alternativeNames = std::make_shared<std::vector<std::string>>();
-        alternativeNames->push_back(pszAlternativeLayerName);
+        alternativeNames->emplace_back(pszAlternativeLayerName);
         rLayerRequests.emplace_back(pszLayerName, debugLayerRequirement, alternativeNames);
       }
     }
@@ -100,9 +103,9 @@ namespace Fsl::InstanceConfigUtil
     {
       InstanceConfigRequest instanceConfig;
 
-      AppendUserChoice(instanceConfig.LayerRequests, instanceUserChoice.UserChoiceApiDump, false, CONFIG_API_DUMP_LAYER_NAME);
-      AppendUserChoice(instanceConfig.LayerRequests, instanceUserChoice.ValidationLayer, LOCAL_VALIDATION_LAYER_ENABLED, CONFIG_VALIDATION_LAYER_NAME,
-                       CONFIG_VALIDATION_LAYER_OLD_NAME);
+      AppendUserChoice(instanceConfig.LayerRequests, instanceUserChoice.UserChoiceApiDump, false, LocalConfig::ApiDumpLayerName);
+      AppendUserChoice(instanceConfig.LayerRequests, instanceUserChoice.ValidationLayer, LocalConfig::LocalValidationLayerEnabled,
+                       LocalConfig::ValidationLayerName, LocalConfig::ValidationLayerOldName);
 
       // Always add the SURFACE extensions the extension ConfigControl does not modify this
       instanceConfig.ExtensionRequests.emplace_back(VK_KHR_SURFACE_EXTENSION_NAME, Vulkan::FeatureRequirement::Mandatory);
@@ -154,11 +157,11 @@ namespace Fsl::InstanceConfigUtil
 
     if (instanceUserChoice.ValidationLayer == OptionUserChoice::Off)
     {
-      ConfigUtil::FilterFeatureByName(instanceConfig.LayerRequests, CONFIG_VALIDATION_LAYER_NAME);
+      ConfigUtil::FilterFeatureByName(instanceConfig.LayerRequests, LocalConfig::ValidationLayerName);
     }
     if (instanceUserChoice.UserChoiceApiDump == OptionUserChoice::Off)
     {
-      ConfigUtil::FilterFeatureByName(instanceConfig.LayerRequests, CONFIG_API_DUMP_LAYER_NAME);
+      ConfigUtil::FilterFeatureByName(instanceConfig.LayerRequests, LocalConfig::ApiDumpLayerName);
     }
     return PrepareConfig(instanceConfig);
   }

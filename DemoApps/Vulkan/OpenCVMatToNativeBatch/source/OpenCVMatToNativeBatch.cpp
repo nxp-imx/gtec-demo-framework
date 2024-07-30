@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018, 2023 NXP
+ * Copyright 2018, 2023-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 // Normal includes that dont conflict
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Vector2.hpp>
-#include <FslGraphics/Color.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
@@ -49,10 +49,10 @@ namespace Fsl
 {
   namespace
   {
-    const auto TEST_IMAGE1 = "Image1.png";
-    const auto TEST_IMAGE_R = "TestRed.png";
-    const auto TEST_IMAGE_G = "TestGreen.png";
-    const auto TEST_IMAGE_B = "TestBlue.png";
+    constexpr auto TestImagE1 = "Image1.png";
+    constexpr auto TestImageR = "TestRed.png";
+    constexpr auto TestImageG = "TestGreen.png";
+    constexpr auto TestImageB = "TestBlue.png";
 
     cv::Mat SafeImread(const IO::Path& path)
     {
@@ -193,10 +193,10 @@ namespace Fsl
     dstPosG.Y += static_cast<float>((yAdjust + sizeTextCaption.Height() + sizeTexR.Height()).Value);
     dstPosB.Y += static_cast<float>((yAdjust + sizeTextCaption.Height() + sizeTexR.Height() + sizeTexG.Height()).Value);
 
-    m_nativeBatch->Draw(tex1, dstPos1, Color::White());
-    m_nativeBatch->Draw(texR, dstPosR, Color::White());
-    m_nativeBatch->Draw(texG, dstPosG, Color::White());
-    m_nativeBatch->Draw(texB, dstPosB, Color::White());
+    m_nativeBatch->Draw(tex1, dstPos1, Colors::White());
+    m_nativeBatch->Draw(texR, dstPosR, Colors::White());
+    m_nativeBatch->Draw(texG, dstPosG, Colors::White());
+    m_nativeBatch->Draw(texB, dstPosB, Colors::White());
 
     Vector2 dstPosText1(sizeTex1.RawWidth(), dstPosition.Y + static_cast<float>(yAdjust.Value));
     Vector2 dstPosTextR = dstPosR;
@@ -212,10 +212,10 @@ namespace Fsl
 
     m_nativeBatch->ChangeTo(BlendState::NonPremultiplied);
 
-    m_nativeBatch->DrawString(m_texFont, m_font, pszCaption, dstPosText1, Color::White());
-    m_nativeBatch->DrawString(m_texFont, m_font, "Red", dstPosTextR, Color::White());
-    m_nativeBatch->DrawString(m_texFont, m_font, "Green", dstPosTextG, Color::White());
-    m_nativeBatch->DrawString(m_texFont, m_font, "Blue", dstPosTextB, Color::White());
+    m_nativeBatch->DrawString(m_texFont, m_font, pszCaption, dstPosText1, Colors::White());
+    m_nativeBatch->DrawString(m_texFont, m_font, "Red", dstPosTextR, Colors::White());
+    m_nativeBatch->DrawString(m_texFont, m_font, "Green", dstPosTextG, Colors::White());
+    m_nativeBatch->DrawString(m_texFont, m_font, "Blue", dstPosTextB, Colors::White());
 
     m_nativeBatch->ChangeTo(BlendState::Opaque);
   }
@@ -241,10 +241,10 @@ namespace Fsl
 
   void OpenCVMatToNativeBatch::CreateReferenceTextures(const std::shared_ptr<IContentManager>& contentManager)
   {
-    auto bitmapTest = contentManager->ReadBitmap(TEST_IMAGE1, PixelFormat::R8G8B8A8_UNORM);
-    auto bitmapTestR = contentManager->ReadBitmap(TEST_IMAGE_R, PixelFormat::R8G8B8A8_UNORM);
-    auto bitmapTestG = contentManager->ReadBitmap(TEST_IMAGE_G, PixelFormat::R8G8B8A8_UNORM);
-    auto bitmapTestB = contentManager->ReadBitmap(TEST_IMAGE_B, PixelFormat::R8G8B8A8_UNORM);
+    auto bitmapTest = contentManager->ReadBitmap(TestImagE1, PixelFormat::R8G8B8A8_UNORM);
+    auto bitmapTestR = contentManager->ReadBitmap(TestImageR, PixelFormat::R8G8B8A8_UNORM);
+    auto bitmapTestG = contentManager->ReadBitmap(TestImageG, PixelFormat::R8G8B8A8_UNORM);
+    auto bitmapTestB = contentManager->ReadBitmap(TestImageB, PixelFormat::R8G8B8A8_UNORM);
 
     const auto nativeGraphics = m_graphics->GetNativeGraphics();
 
@@ -260,10 +260,10 @@ namespace Fsl
   {
     const IO::Path contentPath = contentManager->GetContentPath();
 
-    IO::Path pathImg1 = IO::Path::Combine(contentPath, TEST_IMAGE1);
-    IO::Path pathImgR = IO::Path::Combine(contentPath, TEST_IMAGE_R);
-    IO::Path pathImgG = IO::Path::Combine(contentPath, TEST_IMAGE_G);
-    IO::Path pathImgB = IO::Path::Combine(contentPath, TEST_IMAGE_B);
+    IO::Path pathImg1 = IO::Path::Combine(contentPath, TestImagE1);
+    IO::Path pathImgR = IO::Path::Combine(contentPath, TestImageR);
+    IO::Path pathImgG = IO::Path::Combine(contentPath, TestImageG);
+    IO::Path pathImgB = IO::Path::Combine(contentPath, TestImageB);
 
     // Read a image using OpenCV (we use imread since we want to demonstrate how to convert a OpenCV image to a texture for use by INativeBatch2D)
     const cv::Mat mat1 = SafeImread(pathImg1);

@@ -6,10 +6,10 @@
     <Platform Name="Yocto">
       <FlavorExtension Name="WindowSystem.Impl">
         <Option Name="FB" />
-        <Option Name="Wayland_XDG" >
+        <Option Name="Wayland" >
           <Define Name="VK_USE_PLATFORM_WAYLAND_KHR" Access="Public"/>
         </Option>
-        <Option Name="Wayland_XDG_IVI" >
+        <Option Name="Wayland_IVI" >
           <Define Name="VK_USE_PLATFORM_WAYLAND_KHR" Access="Public"/>
         </Option>
         <Option Name="X11" Supported="false"/>

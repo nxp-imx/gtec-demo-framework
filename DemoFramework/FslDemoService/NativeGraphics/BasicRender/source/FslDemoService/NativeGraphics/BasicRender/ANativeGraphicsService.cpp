@@ -58,7 +58,7 @@ namespace Fsl
     }
   }
 
-  std::shared_ptr<INativeTexture2D> ANativeGraphicsService::CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+  std::shared_ptr<INativeTexture2D> ANativeGraphicsService::CreateTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                                             const TextureFlags textureFlags)
   {
     if (m_state < State::DeviceReady)
@@ -70,8 +70,9 @@ namespace Fsl
   }
 
 
-  std::shared_ptr<IDynamicNativeTexture2D>
-    ANativeGraphicsService::CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+  std::shared_ptr<IDynamicNativeTexture2D> ANativeGraphicsService::CreateDynamicTexture2D(const ReadOnlyRawTexture& texture,
+                                                                                          const Texture2DFilterHint filterHint,
+                                                                                          const TextureFlags textureFlags)
   {
     if (m_state < State::DeviceReady)
     {

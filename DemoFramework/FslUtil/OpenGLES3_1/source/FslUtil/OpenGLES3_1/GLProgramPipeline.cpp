@@ -42,13 +42,13 @@
 namespace Fsl::GLES3
 {
   GLProgramPipeline::GLProgramPipeline()
-    : m_handle(GLValues::INVALID_HANDLE)
+    : m_handle(GLValues::InvalidHandle)
   {
   }
 
 
   GLProgramPipeline::GLProgramPipeline(bool notUsed)
-    : m_handle(GLValues::INVALID_HANDLE)
+    : m_handle(GLValues::InvalidHandle)
   {
     Reset(notUsed);
   }
@@ -70,7 +70,7 @@ namespace Fsl::GLES3
     if (m_handle != 0)
     {
       glDeleteProgramPipelines(1, &m_handle);
-      m_handle = GLValues::INVALID_HANDLE;
+      m_handle = GLValues::InvalidHandle;
     }
   }
 
@@ -103,9 +103,9 @@ namespace Fsl::GLES3
 
   void GLProgramPipeline::UseProgramStages(GLShaderProgram& program, const GLbitfield stages, const bool enabled)
   {
-    assert(m_handle != GLValues::INVALID_HANDLE);
+    assert(m_handle != GLValues::InvalidHandle);
     assert(program.IsValid());
 
-    glUseProgramStages(m_handle, stages, enabled ? program.Get() : GLValues::INVALID_HANDLE);
+    glUseProgramStages(m_handle, stages, enabled ? program.Get() : GLValues::InvalidHandle);
   }
 }

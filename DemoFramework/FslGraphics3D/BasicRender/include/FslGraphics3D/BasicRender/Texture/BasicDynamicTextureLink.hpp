@@ -44,7 +44,7 @@
 
 namespace Fsl
 {
-  class RawTexture;
+  class ReadOnlyRawTexture;
   class IBasicNativeTexture;
 
   namespace Graphics3D
@@ -77,7 +77,7 @@ namespace Fsl
       bool m_isDestroyed{false};
 
     public:
-      BasicDynamicTextureLink(const uint32_t maxFramesInFlight, std::shared_ptr<INativeTextureFactory> factory, const RawTexture& texture,
+      BasicDynamicTextureLink(const uint32_t maxFramesInFlight, std::shared_ptr<INativeTextureFactory> factory, const ReadOnlyRawTexture& texture,
                               const Texture2DFilterHint filterHint, const TextureFlags textureFlags, const bool setDataSupported);
       ~BasicDynamicTextureLink() noexcept;
 
@@ -88,7 +88,7 @@ namespace Fsl
       void CollectGarbage() noexcept;
 
 
-      void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags);
+      void SetData(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags);
 
       //! @brief Try to get the native texture
       BasicNativeTextureHandle TryGetNativeHandle() const noexcept
@@ -97,8 +97,8 @@ namespace Fsl
       }
 
     private:
-      static void SetData(Record& rRecord, INativeTextureFactory& textureFactory, const RawTexture& texture, const Texture2DFilterHint filterHint,
-                          const TextureFlags textureFlags, const bool setDataSupported);
+      static void SetData(Record& rRecord, INativeTextureFactory& textureFactory, const ReadOnlyRawTexture& texture,
+                          const Texture2DFilterHint filterHint, const TextureFlags textureFlags, const bool setDataSupported);
     };
   }
 }

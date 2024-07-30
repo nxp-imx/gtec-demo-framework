@@ -52,6 +52,7 @@ namespace Fsl::UI
     uint32_t ArrangeOverride{};
     uint32_t MeasureOverride{};
     uint32_t OnPropertiesUpdated{};
+    uint32_t OnShutdown{};
   };
 }
 

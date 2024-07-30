@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,20 +29,20 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Time/LogTimeSpan.hpp>
+#include <FslBase/Log/Time/LogTickCount.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 using namespace Fsl;
 
 namespace
 {
-  using TestLog_Time_LogTimeSpan = TestFixtureFslBase;
+  using TestLog_Time_LogTickCount = TestFixtureFslBase;
 }
 
 
-TEST(TestLog_Time_LogTimeSpan, Log)
+TEST(TestLog_Time_LogTickCount, Log)
 {
-  TimeSpan value(2000);
+  TickCount value(2000);
   std::stringstream stream;
   stream << value;
   EXPECT_EQ(std::string("20000ns"), stream.str());

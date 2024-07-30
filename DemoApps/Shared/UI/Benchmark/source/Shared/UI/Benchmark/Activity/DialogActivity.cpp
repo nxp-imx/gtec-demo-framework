@@ -71,7 +71,7 @@ namespace Fsl::UI
   }
 
 
-  void DialogActivity::SetBackgroundColor(const Color color)
+  void DialogActivity::SetBackgroundColor(const UI::UIColor color)
   {
     std::shared_ptr<BaseWindow> content = DoGetContent();
     if (content)

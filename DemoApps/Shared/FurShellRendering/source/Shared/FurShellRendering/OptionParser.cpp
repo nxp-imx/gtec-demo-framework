@@ -157,7 +157,7 @@ namespace Fsl
       {
         throw std::invalid_argument("Texture resolution out of range");
       }
-      m_config.SetFurTextureDimensions(intValue);
+      m_config.SetFurTextureSize(intValue);
       m_modified.Flag(ModifiedFlags::FurTextureDimension);
       return OptionParseResult::Parsed;
     case CommandId::TorusMajorSegments:
@@ -279,11 +279,11 @@ namespace Fsl
       {
         if (m_config.GetDemoId() != 0 && m_config.GetDemoId() != 3)
         {
-          m_config.SetFurTextureDimensions(Point2(512, 512));
+          m_config.SetFurTextureSize(PxSize2D::Create(512, 512));
         }
         else
         {
-          m_config.SetFurTextureDimensions(Point2(1024, 512));
+          m_config.SetFurTextureSize(PxSize2D::Create(1024, 512));
         }
       }
       if (!m_modified.IsFlagged(ModifiedFlags::TextureRepeatX))
@@ -320,11 +320,11 @@ namespace Fsl
       {
         if (m_config.GetDemoId() != 0 && m_config.GetDemoId() != 3)
         {
-          m_config.SetFurTextureDimensions(Point2(1024, 1024));
+          m_config.SetFurTextureSize(PxSize2D::Create(1024, 1024));
         }
         else
         {
-          m_config.SetFurTextureDimensions(Point2(1024, 512));
+          m_config.SetFurTextureSize(PxSize2D::Create(1024, 512));
         }
       }
       if (!m_modified.IsFlagged(ModifiedFlags::TextureRepeatX))
@@ -361,11 +361,11 @@ namespace Fsl
       {
         if (m_config.GetDemoId() != 0 && m_config.GetDemoId() != 3)
         {
-          m_config.SetFurTextureDimensions(Point2(1024, 1024));
+          m_config.SetFurTextureSize(PxSize2D::Create(1024, 1024));
         }
         else
         {
-          m_config.SetFurTextureDimensions(Point2(1024, 512));
+          m_config.SetFurTextureSize(PxSize2D::Create(1024, 512));
         }
       }
       if (!m_modified.IsFlagged(ModifiedFlags::TextureRepeatX))

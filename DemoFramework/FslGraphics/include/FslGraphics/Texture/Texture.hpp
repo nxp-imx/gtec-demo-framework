@@ -34,10 +34,11 @@
 #include <FslBase/BlobRecord.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Math/Pixel/PxExtent3D.hpp>
+#include <FslGraphics/Bitmap/BitmapMemory.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
 #include <FslGraphics/PixelFormat.hpp>
-#include <FslGraphics/Texture/RawTexture.hpp>
 #include <FslGraphics/Texture/RawTextureEx.hpp>
+#include <FslGraphics/Texture/ReadOnlyRawTexture.hpp>
 #include <FslGraphics/Texture/TextureInfo.hpp>
 #include <FslGraphics/Texture/TextureType.hpp>
 #include <cstdlib>
@@ -97,6 +98,10 @@ namespace Fsl
     //! @brief Create a empty 2D texture of the given extent, pixelFormat and bitmap origin.
     //! @note  This is a easy way to populate this with a empty 2D texture
     Texture(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
+
+    //! @brief Create a empty 2D texture of the given extent, pixelFormat and bitmap origin.
+    //! @note  This is a easy way to populate this with a 2D texture
+    explicit Texture(BitmapMemory bitmapMemory);
 
     //! @brief Create a empty 2D texture of the given extent, pixelFormat and bitmap origin.
     //! @note  This is a easy way to populate this with a 2D texture
@@ -228,8 +233,8 @@ namespace Fsl
     //! @brief This does not change the texture content it just changes the origin reported by this object.
     void OverrideOrigin(const BitmapOrigin bitmapOrigin);
 
-    //! Provides direct access to the texture during its lifetime.
-    class ScopedDirectAccess
+    //! Provides direct access to the texture during its lifetime (deprecated).
+    class ScopedDirectAccess final
     {
       const Texture* m_pTexture1;
       Texture* m_pTexture2;
@@ -240,7 +245,7 @@ namespace Fsl
       ScopedDirectAccess& operator=(const ScopedDirectAccess&) = delete;
 
       // Read only lock
-      ScopedDirectAccess(const Texture& texture, RawTexture& rRawTexture)
+      [[deprecated("Please utilize the ScopedDirectReadAccess instead")]] ScopedDirectAccess(const Texture& texture, ReadOnlyRawTexture& rRawTexture)
         : m_pTexture1(&texture)
         , m_pTexture2(nullptr)
         , m_pRawTextureEx(nullptr)
@@ -249,7 +254,7 @@ namespace Fsl
       }
 
       // Read/write lock
-      ScopedDirectAccess(Texture& texture, RawTextureEx& rRawTexture)
+      [[deprecated("Please utilize the ScopedDirectReadWriteAccess instead")]] ScopedDirectAccess(Texture& texture, RawTextureEx& rRawTexture)
         : m_pTexture1(nullptr)
         , m_pTexture2(&texture)
         , m_pRawTextureEx(&rRawTexture)
@@ -278,13 +283,95 @@ namespace Fsl
       }
     };
 
+    //! Provides direct access to the texture during its lifetime.
+    class ScopedDirectReadAccess final
+    {
+      const Texture& m_rTexture;
+      ReadOnlyRawTexture m_rawTexture;
+
+    public:
+      ScopedDirectReadAccess(const ScopedDirectReadAccess&) = delete;
+      ScopedDirectReadAccess& operator=(const ScopedDirectReadAccess&) = delete;
+
+      // Read only lock
+      explicit ScopedDirectReadAccess(const Texture& texture)
+        : m_rTexture(texture)
+        , m_rawTexture(texture.Lock())
+      {
+      }
+
+      ~ScopedDirectReadAccess() noexcept
+      {
+        try
+        {
+          m_rTexture.Unlock();
+        }
+        catch (const std::exception&)
+        {
+          FSLLOG3_ERROR("ScopedDirectReadAccess unlock failed and destructor can not throw so aborting.");
+          std::abort();
+        }
+      }
+
+      const ReadOnlyRawTexture& AsRawTexture() const noexcept
+      {
+        return m_rawTexture;
+      }
+
+      ReadOnlyRawTexture& AsRawTexture() noexcept
+      {
+        return m_rawTexture;
+      }
+    };
+
+    //! Provides direct access to the texture during its lifetime.
+    class ScopedDirectReadWriteAccess final
+    {
+      Texture& m_rTexture;
+      RawTextureEx m_rawTexture;
+
+    public:
+      ScopedDirectReadWriteAccess(const ScopedDirectReadAccess&) = delete;
+      ScopedDirectReadWriteAccess& operator=(const ScopedDirectReadAccess&) = delete;
+
+      // Read only lock
+      explicit ScopedDirectReadWriteAccess(Texture& rTexture)
+        : m_rTexture(rTexture)
+        , m_rawTexture(rTexture.LockEx())
+      {
+      }
+
+      ~ScopedDirectReadWriteAccess() noexcept
+      {
+        try
+        {
+          m_rTexture.UnlockEx(m_rawTexture);
+        }
+        catch (const std::exception&)
+        {
+          FSLLOG3_ERROR("ScopedDirectReadWriteAccess unlock failed and destructor can not throw so aborting.");
+          std::abort();
+        }
+      }
+
+      const RawTextureEx& AsRawTexture() const noexcept
+      {
+        return m_rawTexture;
+      }
+
+      RawTextureEx& AsRawTexture() noexcept
+      {
+        return m_rawTexture;
+      }
+    };
+
   private:
     void DoReset(const void* const pContent, const std::size_t contentByteSize, const TextureBlobBuilder& builder);
     void DoReset(std::vector<uint8_t>&& content, TextureBlobBuilder&& builder);
     void DoReset(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
     void DoReset(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
 
-    RawTexture Lock() const;
+    ReadOnlyRawTexture Lock() const;
     RawTextureEx LockEx();
     void UnlockEx(const RawTextureEx& texture);
     void Unlock() const;

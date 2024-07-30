@@ -44,11 +44,14 @@ namespace Fsl::Graphics3D
 {
   namespace
   {
-    const float DEFAULT_SENSITIVITY = 0.1f;
+    namespace LocalConfig
+    {
+      constexpr float DefaultSensitivity = 0.1f;
+    }
   }
 
   FirstPersonCamera::FirstPersonCamera()
-    : m_sensitivity(DEFAULT_SENSITIVITY)
+    : m_sensitivity(LocalConfig::DefaultSensitivity)
     , m_hasOldPosition(false)
   {
   }

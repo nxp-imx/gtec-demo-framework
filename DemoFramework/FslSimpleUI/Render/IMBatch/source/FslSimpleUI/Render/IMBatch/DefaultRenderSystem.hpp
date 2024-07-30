@@ -33,6 +33,8 @@
 
 #include <FslGraphics2D/Procedural/Batcher/FlexibleImmediateModeBatcher.hpp>
 #include <FslSimpleUI/Render/Base/RenderSystemCreateInfo.hpp>
+#include <FslSimpleUI/Render/Builder/UIRawBasicMeshBuilder2D.hpp>
+#include <FslSimpleUI/Render/Builder/UIRawMeshBuilder2D.hpp>
 #include "Preprocess/Linear/LinearPreprocessor.hpp"
 #include "RenderSystemBase.hpp"
 
@@ -40,7 +42,7 @@ namespace Fsl::UI::RenderIMBatch
 {
   class DefaultRenderSystem final : public RenderSystemBase
   {
-    FlexibleImmediateModeBatcher m_batcher;
+    FlexibleImmediateModeBatcher<UIRawBasicMeshBuilder2D, UIRawMeshBuilder2D> m_batcher;
     LinearPreprocessor m_preprocessor;
     uint32_t m_maxDrawCalls{0xFFFFFFFF};
 

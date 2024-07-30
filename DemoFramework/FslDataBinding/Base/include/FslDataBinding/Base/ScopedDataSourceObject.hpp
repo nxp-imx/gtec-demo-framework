@@ -33,6 +33,7 @@
 
 #include <FslDataBinding/Base/DataBindingInstanceHandle.hpp>
 #include <FslDataBinding/Base/DataSourceFlags.hpp>
+#include <FslDataBinding/Base/PropertyChangeReason.hpp>
 #include <memory>
 
 namespace Fsl::DataBinding
@@ -65,6 +66,12 @@ namespace Fsl::DataBinding
 
     DataBindingInstanceHandle GetInstanceHandleOnDemand();
     bool Changed();
+
+    DataBindingInstanceHandle CreateReadOnlyProperty(const DependencyPropertyDefinition& propertyDefinition,
+                                                     std::unique_ptr<Internal::IDependencyPropertyMethods> methods);
+    bool PropertyChanged(const DataBindingInstanceHandle hInstance, const PropertyChangeReason changeReason);
+    bool IsPropertyReadOnly(const DataBindingInstanceHandle hInstance) const noexcept;
+    bool DestroyProperty(const DataBindingInstanceHandle hInstance) noexcept;
   };
 
 }

@@ -39,10 +39,10 @@ namespace Fsl::Stub
   class DynamicNativeTexture2D : public IDynamicNativeTexture2D
   {
   public:
-    DynamicNativeTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint);
+    DynamicNativeTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint);
     ~DynamicNativeTexture2D() override;
 
-    void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) override;
+    void SetData(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) override;
   };
 }
 

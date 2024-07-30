@@ -95,13 +95,13 @@ namespace Fsl::UI
     struct GridRowColumnDefinitionEx : public GridRowColumnDefinitionBase
     {
       InternalGridUnitType MeasureUnitType{InternalGridUnitType::Fixed};
-      PxAvailableSize1D MeasureSizePx{};
+      PxAvailableSize1D MeasureSizePx;
       //! The minimum size of the final cell
-      PxSize1D MinimumSizePx{};
+      PxSize1D MinimumSizePx;
       //! The minimum arrange size of the final cell
-      PxSize1D ArrangeMinimumSizePx{};
+      PxSize1D ArrangeMinimumSizePx;
       //! Used for temporary storing the MinimumSize during measure and also as a cell offset during arrange
-      PxValue TempValue{};
+      PxValue TempValue;
 
       explicit constexpr GridRowColumnDefinitionEx(const GridColumnDefinition& ex)
         : GridRowColumnDefinitionBase(ex)

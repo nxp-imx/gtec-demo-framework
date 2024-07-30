@@ -30,7 +30,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/AChartData.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/ChartDataView.hpp>
 #include <limits>
@@ -50,11 +49,11 @@ namespace Fsl::UI
   void ChartDataView::ChannelMetaDataRecord::SetLabel(const StringViewLite label)
   {
     IsSetLabel = true;
-    StringViewLiteUtil::Set(MetaData.Label, label);
+    MetaData.Label = label;
   }
 
 
-  void ChartDataView::ChannelMetaDataRecord::SetPrimaryColor(const Color color)
+  void ChartDataView::ChannelMetaDataRecord::SetPrimaryColor(const UIColor color)
   {
     IsSetColor = true;
     MetaData.PrimaryColor = color;
@@ -169,11 +168,11 @@ namespace Fsl::UI
 
     if (localEntry.IsSetLabel && localEntry.IsSetColor)
     {
-      return {StringViewLiteUtil::AsStringViewLite(localEntry.MetaData.Label), localEntry.MetaData.PrimaryColor};
+      return {StringViewLite(localEntry.MetaData.Label), localEntry.MetaData.PrimaryColor};
     }
     auto remoteEntry = m_chartData->GetChannelMetaDataInfo(channelIndex);
 
-    return {localEntry.IsSetLabel ? StringViewLiteUtil::AsStringViewLite(localEntry.MetaData.Label) : remoteEntry.Label,
+    return {localEntry.IsSetLabel ? StringViewLite(localEntry.MetaData.Label) : remoteEntry.Label,
             localEntry.IsSetColor ? localEntry.MetaData.PrimaryColor : remoteEntry.PrimaryColor};
   }
 
@@ -196,7 +195,7 @@ namespace Fsl::UI
     m_customChannelMetaData[channelIndex].SetLabel(label);
   }
 
-  void ChartDataView::SetChannelMetaData(const uint32_t channelIndex, const Color primaryColor)
+  void ChartDataView::SetChannelMetaData(const uint32_t channelIndex, const UIColor primaryColor)
   {
     if (channelIndex >= m_channelCount)
     {

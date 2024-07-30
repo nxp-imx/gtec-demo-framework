@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <DeclarativeUITest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="DeclarativeUI.xsd">
   <FillLayout>
-    <BackgroundWindow AlignmentX="Near" theme:Type="DialogNormal">
+    <BackgroundWindow AlignmentX="Near" theme_Type="DialogNormal">
       <StackLayout Orientation="Horizontal" Spacing="20">
         <Label Content="Hey"/>
-        <SliderUInt32 theme:Orientation="Vertical" Value="255" theme:Constraint="0,1000" AlignmentX="Center" AlignmentY="Stretch" MinHeight="200" />
+        <SliderUInt32 theme_Orientation="Vertical" Value="255" theme_Constraint="0,1000" AlignmentX="Center" AlignmentY="Stretch" MinHeight="200" />
         <StackLayout>
           <Label Content="One way binding with conversion"/>
           <GridLayout AlignmentX="Stretch">
@@ -25,17 +25,17 @@
             <Label Content="G:" AlignmentY="Center" GridLayout.Column="0" GridLayout.Row="1"/>
             <Label Content="B:" AlignmentY="Center" GridLayout.Column="0" GridLayout.Row="2"/>
             <Label Content="A:" AlignmentY="Center" GridLayout.Column="0" GridLayout.Row="3"/>
-            <SliderUInt8 Orientation="Horizontal" Value="255" theme:Constraint="0,255" Name="ColorSliderR" GridLayout.Column="2" GridLayout.Row="0"/>
-            <SliderUInt8 Orientation="Horizontal" Value="255" theme:Constraint="0,255" Name="ColorSliderG" GridLayout.Column="2" GridLayout.Row="1"/>
-            <SliderUInt8 Orientation="Horizontal" Value="255" theme:Constraint="0,255" Name="ColorSliderB" GridLayout.Column="2" GridLayout.Row="2"/>
-            <SliderUInt8 Orientation="Horizontal" Value="255" theme:Constraint="0,255" Name="ColorSliderA" GridLayout.Column="2" GridLayout.Row="3"/>
+            <SliderUInt8 Orientation="Horizontal" Value="255" theme_Constraint="0,255" Name="ColorSliderR" GridLayout.Column="2" GridLayout.Row="0"/>
+            <SliderUInt8 Orientation="Horizontal" Value="255" theme_Constraint="0,255" Name="ColorSliderG" GridLayout.Column="2" GridLayout.Row="1"/>
+            <SliderUInt8 Orientation="Horizontal" Value="255" theme_Constraint="0,255" Name="ColorSliderB" GridLayout.Column="2" GridLayout.Row="2"/>
+            <SliderUInt8 Orientation="Horizontal" Value="255" theme_Constraint="0,255" Name="ColorSliderA" GridLayout.Column="2" GridLayout.Row="3"/>
 
             <FmtValueLabelUInt8 ContentAlignmentX="Far" AlignmentY="Center" GridLayout.Column="4" GridLayout.Row="0" Content="{Binding ElementName=ColorSliderR,Path=Value}"/>
             <FmtValueLabelUInt8 ContentAlignmentX="Far" AlignmentY="Center" GridLayout.Column="4" GridLayout.Row="1" Content="{Binding ElementName=ColorSliderG,Path=Value}"/>
             <FmtValueLabelUInt8 ContentAlignmentX="Far" AlignmentY="Center" GridLayout.Column="4" GridLayout.Row="2" Content="{Binding ElementName=ColorSliderB,Path=Value}"/>
             <FmtValueLabelUInt8 ContentAlignmentX="Far" AlignmentY="Center" GridLayout.Column="4" GridLayout.Row="3" Content="{Binding ElementName=ColorSliderA,Path=Value}"/>
           </GridLayout>
-          <Label Content="R:" AlignmentX="Center" AlignmentY="Center"/>
+          <Label Content="G:" AlignmentX="Center" AlignmentY="Center"/>
           <FmtValueLabelUInt8 AlignmentX="Center" AlignmentY="Center" Name="Hey" Content="{Binding ElementName=ColorSliderG,Path=Value}"/>
           <FmtValueLabelUInt8 AlignmentX="Far" AlignmentY="Center" Content="{Binding ElementName=Hey,Path=Content}"/>
           <FmtValueLabelUInt8 AlignmentX="Near" AlignmentY="Center" Content="{Binding ElementName=Hey,Path=Content}"/>
@@ -43,7 +43,7 @@
         </StackLayout>
       </StackLayout>
     </BackgroundWindow>
-    <BackgroundWindow AlignmentX="Far"  theme:Type="DialogTransparent">
+    <BackgroundWindow AlignmentX="Far"  theme_Type="DialogTransparent">
       <StackLayout Orientation="Vertical">
         <UniformStackLayout Orientation="Horizontal">
           <TextButton Content="Five" AlignmentX="Stretch"/>
@@ -72,9 +72,94 @@
           <Switch Text="Wizard" AlignmentX="Stretch"/>
         </UniformStackLayout>
         <Divider/>
-        <FloatingButton theme:Type="Back"/>
+        <FloatingButton theme_Type="Back"/>
       </StackLayout>
     </BackgroundWindow>
+
+    <ScrollViewer AlignmentX="Center" AlignmentY="Stretch" ScrollMode="TranslateY">
+      <StackLayout Orientation="Vertical">
+        <Label Content="1" AlignmentX="Center"/>
+        <Label Content="2" AlignmentX="Center"/>
+        <Label Content="3" AlignmentX="Center"/>
+        <Label Content="4" AlignmentX="Center"/>
+        <Label Content="5" AlignmentX="Center"/>
+        <Label Content="6" AlignmentX="Center"/>
+        <Label Content="7" AlignmentX="Center"/>
+        <Label Content="8" AlignmentX="Center"/>
+        <Label Content="9" AlignmentX="Center"/>
+        <Label Content="*** Drag this to scroll ***"/>
+        <Label Content="1" AlignmentX="Center"/>
+        <Label Content="2" AlignmentX="Center"/>
+        <Label Content="3" AlignmentX="Center"/>
+        <Label Content="4" AlignmentX="Center"/>
+        <Label Content="5" AlignmentX="Center"/>
+        <Label Content="6" AlignmentX="Center"/>
+        <Label Content="7" AlignmentX="Center"/>
+        <Label Content="8" AlignmentX="Center"/>
+        <Label Content="9" AlignmentX="Center"/>
+        <Label Content="*** Drag this to scroll ***"/>
+        <Label Content="1" AlignmentX="Center"/>
+        <Label Content="2" AlignmentX="Center"/>
+        <Label Content="3" AlignmentX="Center"/>
+        <Label Content="4" AlignmentX="Center"/>
+        <Label Content="5" AlignmentX="Center"/>
+        <Label Content="6" AlignmentX="Center"/>
+        <Label Content="7" AlignmentX="Center"/>
+        <Label Content="8" AlignmentX="Center"/>
+        <Label Content="9" AlignmentX="Center"/>
+        <Label Content="*** Drag this to scroll ***"/>
+        <Label Content="1" AlignmentX="Center"/>
+        <Label Content="2" AlignmentX="Center"/>
+        <Label Content="3" AlignmentX="Center"/>
+        <Label Content="4" AlignmentX="Center"/>
+        <Label Content="5" AlignmentX="Center"/>
+        <Label Content="6" AlignmentX="Center"/>
+        <Label Content="7" AlignmentX="Center"/>
+        <Label Content="8" AlignmentX="Center"/>
+        <Label Content="9" AlignmentX="Center"/>
+        <Label Content="*** Drag this to scroll ***"/>
+        <Label Content="1" AlignmentX="Center"/>
+        <Label Content="2" AlignmentX="Center"/>
+        <Label Content="3" AlignmentX="Center"/>
+        <Label Content="4" AlignmentX="Center"/>
+        <Label Content="5" AlignmentX="Center"/>
+        <Label Content="6" AlignmentX="Center"/>
+        <Label Content="7" AlignmentX="Center"/>
+        <Label Content="8" AlignmentX="Center"/>
+        <Label Content="9" AlignmentX="Center"/>
+        <Label Content="*** Drag this to scroll ***"/>
+        <Label Content="1" AlignmentX="Center"/>
+        <Label Content="2" AlignmentX="Center"/>
+        <Label Content="3" AlignmentX="Center"/>
+        <Label Content="4" AlignmentX="Center"/>
+        <Label Content="5" AlignmentX="Center"/>
+        <Label Content="6" AlignmentX="Center"/>
+        <Label Content="7" AlignmentX="Center"/>
+        <Label Content="8" AlignmentX="Center"/>
+        <Label Content="9" AlignmentX="Center"/>
+        <Label Content="*** Drag this to scroll ***"/>
+        <Label Content="1" AlignmentX="Center"/>
+        <Label Content="2" AlignmentX="Center"/>
+        <Label Content="3" AlignmentX="Center"/>
+        <Label Content="4" AlignmentX="Center"/>
+        <Label Content="5" AlignmentX="Center"/>
+        <Label Content="6" AlignmentX="Center"/>
+        <Label Content="7" AlignmentX="Center"/>
+        <Label Content="8" AlignmentX="Center"/>
+        <Label Content="9" AlignmentX="Center"/>
+        <Label Content="*** Drag this to scroll ***"/>
+        <Label Content="1" AlignmentX="Center"/>
+        <Label Content="2" AlignmentX="Center"/>
+        <Label Content="3" AlignmentX="Center"/>
+        <Label Content="4" AlignmentX="Center"/>
+        <Label Content="5" AlignmentX="Center"/>
+        <Label Content="6" AlignmentX="Center"/>
+        <Label Content="7" AlignmentX="Center"/>
+        <Label Content="8" AlignmentX="Center"/>
+        <Label Content="9" AlignmentX="Center"/>
+        <Label Content="*** Drag this to scroll ***"/>
+      </StackLayout>
+    </ScrollViewer>
 
 
     <StackLayout AlignmentX="Stretch" AlignmentY="Far" Spacing="4">
@@ -106,12 +191,51 @@
       </WrapLayout>
     </StackLayout>
 
-    <BottomBar theme:Type="Transparent">
-      <UniformStackLayout Orientation="Horizontal" AlignmentX="Center">
-        <TextButton Content="Five" AlignmentX="Stretch"/>
-        <OutlinedTextButton Content="Jumping" AlignmentX="Stretch"/>
-        <ContainedTextButton Content="Wizard" AlignmentX="Stretch"/>
-      </UniformStackLayout>
+    <BottomBar theme_Type="Transparent">
+      <StackLayout Orientation="Vertical">
+        <UniformStackLayout Orientation="Horizontal" AlignmentX="Center">
+          <TextButton Content="Five" AlignmentX="Stretch"/>
+          <OutlinedTextButton Content="Jumping" AlignmentX="Stretch"/>
+          <ContainedTextButton Content="Wizard" AlignmentX="Stretch"/>
+        </UniformStackLayout>
+        <ScrollViewer AlignmentX="Stretch" AlignmentY="Center" ScrollMode="TranslateX">
+          <StackLayout Orientation="Horizontal">
+            <Label Content="*** Drag this to scroll ***"/>
+            <Label Content="0. The quick brown fox jumps over the lazy dog"/>
+            <Label Content="1. A long string."/>
+            <Label Content="2. A longer string."/>
+            <Label Content="3. A even longer string."/>
+            <Label Content="4. A even longer string."/>
+            <Label Content="5. A even longer string."/>
+            <Label Content="6. A even longer string."/>
+            <Label Content="7. A even longer string."/>
+            <Label Content="8. The five boxing wizards jump quickly."/>
+            <Label Content="9. The five boxing wizards jump quickly."/>
+            <Label Content="*** Drag this to scroll ***"/>
+            <Label Content="0. The quick brown fox jumps over the lazy dog"/>
+            <Label Content="1. A long string."/>
+            <Label Content="2. A longer string."/>
+            <Label Content="3. A even longer string."/>
+            <Label Content="4. A even longer string."/>
+            <Label Content="5. A even longer string."/>
+            <Label Content="6. A even longer string."/>
+            <Label Content="7. A even longer string."/>
+            <Label Content="8. The five boxing wizards jump quickly."/>
+            <Label Content="9. The five boxing wizards jump quickly."/>
+            <Label Content="*** Drag this to scroll ***"/>
+            <Label Content="0. The quick brown fox jumps over the lazy dog"/>
+            <Label Content="1. A long string."/>
+            <Label Content="2. A longer string."/>
+            <Label Content="3. A even longer string."/>
+            <Label Content="4. A even longer string."/>
+            <Label Content="5. A even longer string."/>
+            <Label Content="6. A even longer string."/>
+            <Label Content="7. A even longer string."/>
+            <Label Content="8. The five boxing wizards jump quickly."/>
+            <Label Content="9. The five boxing wizards jump quickly."/>
+          </StackLayout>
+        </ScrollViewer>
+      </StackLayout>
     </BottomBar>
   </FillLayout>
 </DeclarativeUITest>

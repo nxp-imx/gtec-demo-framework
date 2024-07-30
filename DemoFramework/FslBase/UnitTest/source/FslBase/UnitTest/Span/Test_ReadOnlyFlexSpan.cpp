@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,13 +61,13 @@ TEST(TestReadOnlyFlexSpan, Construct)
 
 TEST(TestReadOnlyFlexSpan, Construct_constexpr)
 {
-  constexpr ReadOnlyFlexSpan span;
+  constexpr ReadOnlyFlexSpan Span;
 
-  EXPECT_TRUE(span.empty());
-  EXPECT_EQ(span.data(), nullptr);
-  EXPECT_EQ(span.size(), 0u);
-  EXPECT_EQ(span.length(), 0u);
-  EXPECT_EQ(span.stride(), 0u);
+  EXPECT_TRUE(Span.empty());
+  EXPECT_EQ(Span.data(), nullptr);
+  EXPECT_EQ(Span.size(), 0u);
+  EXPECT_EQ(Span.length(), 0u);
+  EXPECT_EQ(Span.stride(), 0u);
 }
 
 
@@ -87,15 +87,15 @@ TEST(TestReadOnlyFlexSpan, Construct_FromZeroTerminated)
 TEST(TestReadOnlyFlexSpan, Construct_FromZeroTerminated_constexpr)
 {
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  constexpr static char data[11] = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
-  constexpr static ReadOnlyFlexSpan span(data, 11, sizeof(char));
+  constexpr static char Data[11] = {'h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+  constexpr static ReadOnlyFlexSpan Span(Data, 11, sizeof(char));
 
-  EXPECT_FALSE(span.empty());
-  EXPECT_NE(span.data(), nullptr);
-  EXPECT_EQ(span.data(), data);
-  EXPECT_EQ(span.size(), 11u);
-  EXPECT_EQ(span.length(), 11u);
-  EXPECT_EQ(span.stride(), sizeof(char));
+  EXPECT_FALSE(Span.empty());
+  EXPECT_NE(Span.data(), nullptr);
+  EXPECT_EQ(Span.data(), Data);
+  EXPECT_EQ(Span.size(), 11u);
+  EXPECT_EQ(Span.length(), 11u);
+  EXPECT_EQ(Span.stride(), sizeof(char));
 }
 
 

@@ -67,6 +67,7 @@ namespace Fsl
     static BackgroundRecord CreateBackgroundResources(IBasicRenderSystem& render, IContentManager& contentManager);
     static void Draw(IBasicRenderSystem& render, const BackgroundRecord& background);
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void SYS_SetRenderSystemViewport(const PxViewport& viewportPx);
   };
 }

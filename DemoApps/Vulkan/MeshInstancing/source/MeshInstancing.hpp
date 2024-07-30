@@ -36,10 +36,10 @@ namespace Fsl
     // Per-instance data block
     struct InstanceData
     {
-      glm::vec3 pos;
-      glm::vec3 rot;
-      float scale = 0.0f;
-      uint32_t texIndex = 0;
+      glm::vec3 Pos;
+      glm::vec3 Rot;
+      float Scale = 0.0f;
+      uint32_t TexIndex = 0;
     };
 
     // Contains the instanced data

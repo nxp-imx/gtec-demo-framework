@@ -31,12 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
-#include <FslGraphics/Transition/TransitionColor.hpp>
 #include <FslSimpleUI/Base/Control/ButtonBase.hpp>
 #include <FslSimpleUI/Base/ItemScalePolicy.hpp>
 #include <FslSimpleUI/Base/Mesh/SizedSpriteMesh.hpp>
+#include <FslSimpleUI/Base/Property/DependencyPropertyUIColor.hpp>
+#include <FslSimpleUI/Base/Transition/TransitionUIRenderColor.hpp>
+#include <FslSimpleUI/Base/UIColor.hpp>
 
 namespace Fsl
 {
@@ -53,22 +54,27 @@ namespace Fsl
       using base_type = ButtonBase;
 
     protected:
+      // NOLINTNEXTLINE(readability-identifier-naming)
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
       SizedSpriteMesh m_content;
 
       DataBinding::TypedDependencyProperty<ItemScalePolicy> m_propertyScalePolicy{ItemScalePolicy::FitKeepAR};
-      DataBinding::TypedDependencyProperty<Color> m_propertyColorUp{DefaultColor::Button::Up};
-      DataBinding::TypedDependencyProperty<Color> m_propertyColorDown{DefaultColor::Button::Down};
-      DataBinding::TypedDependencyProperty<Color> m_propertyColorDisabled{DefaultColor::Button::BackgroundDisabled};
+      DependencyPropertyUIColor m_propertyColorUp;
+      DependencyPropertyUIColor m_propertyColorDown;
+      DependencyPropertyUIColor m_propertyColorDisabled;
 
-      TransitionColor m_currentColor;
+      TransitionUIRenderColor m_currentColor;
 
     public:
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyScalePolicy;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyColorUp;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyColorDown;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyColorDisabled;
 
 
@@ -88,27 +94,27 @@ namespace Fsl
       bool SetScalePolicy(const ItemScalePolicy value);
 
 
-      Color GetColorUp() const noexcept
+      UIColor GetColorUp() const noexcept
       {
         return m_propertyColorUp.Get();
       }
 
-      bool SetColorUp(const Color value);
+      bool SetColorUp(const UIColor value);
 
 
-      Color GetColorDown() const noexcept
+      UIColor GetColorDown() const noexcept
       {
         return m_propertyColorDown.Get();
       }
 
-      bool SetColorDown(const Color value);
+      bool SetColorDown(const UIColor value);
 
 
-      Color GetColorDisabled() const noexcept
+      UIColor GetColorDisabled() const noexcept
       {
         return m_propertyColorDisabled.Get();
       }
-      bool SetColorDisabled(const Color value);
+      bool SetColorDisabled(const UIColor value);
 
 
       void WinDraw(const UIDrawContext& context) final;

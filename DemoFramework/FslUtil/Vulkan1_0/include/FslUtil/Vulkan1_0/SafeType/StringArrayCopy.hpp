@@ -54,11 +54,13 @@ namespace Fsl::Vulkan
     StringArrayCopy();
     StringArrayCopy(const char* const* ppStrings, const uint32_t entries);
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const char* const* data() const
     {
       return m_stringPointers.data();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     std::size_t size() const
     {
       return m_stringPointers.size();

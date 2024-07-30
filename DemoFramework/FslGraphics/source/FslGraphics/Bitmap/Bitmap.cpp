@@ -30,6 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslBase/Span/SpanUtil_Create.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
@@ -48,9 +51,6 @@ namespace Fsl
     {
       return origin != BitmapOrigin::Undefined ? origin : BitmapOrigin::UpperLeft;
     }
-
-    // Dummy area we use to get a content pointer for zero sized bitmaps size the vector data methods returns a nullptr
-    uint32_t g_dummyAreaForZeroSizedBitmaps = 0;
   }
 
 
@@ -64,7 +64,7 @@ namespace Fsl
 
       // Claim ownership here
       m_content = std::move(other.m_content);
-      m_extent = other.m_extent;
+      m_sizePx = other.m_sizePx;
       m_stride = other.m_stride;
       m_bytesPerPixel = other.m_bytesPerPixel;
       m_pixelFormat = other.m_pixelFormat;
@@ -73,7 +73,7 @@ namespace Fsl
       m_isLocked = other.m_isLocked;
 
       // Remove the data from other
-      other.m_extent = PxExtent2D();
+      other.m_sizePx = {};
       other.m_stride = 0;
       other.m_bytesPerPixel = 0;
       other.m_pixelFormat = PixelFormat::Undefined;
@@ -88,7 +88,7 @@ namespace Fsl
   // Transfer ownership from other to this
   Bitmap::Bitmap(Bitmap&& other) noexcept
     : m_content(std::move(other.m_content))
-    , m_extent(other.m_extent)
+    , m_sizePx(other.m_sizePx)
     , m_stride(other.m_stride)
     , m_bytesPerPixel(other.m_bytesPerPixel)
     , m_pixelFormat(other.m_pixelFormat)
@@ -97,7 +97,7 @@ namespace Fsl
     , m_isLocked(other.m_isLocked)
   {
     // Remove the data from other
-    other.m_extent = PxExtent2D();
+    other.m_sizePx = {};
     other.m_stride = 0;
     other.m_bytesPerPixel = 0;
     other.m_pixelFormat = PixelFormat::Undefined;
@@ -109,57 +109,106 @@ namespace Fsl
 
   Bitmap::Bitmap() = default;
 
-
-  Bitmap::Bitmap(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin)
+  Bitmap::Bitmap(const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin)
     : m_pixelFormat(pixelFormat)
     , m_origin(CheckBitmapOrigin(bitmapOrigin))
   {
-    ResizeToFit(extent, pixelFormat, m_strideRequirement);
+    ResizeToFit(sizePx, pixelFormat, m_strideRequirement);
+  }
+
+  Bitmap::Bitmap(const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin, const StrideRequirement strideRequirement)
+    : m_pixelFormat(pixelFormat)
+    , m_strideRequirement(strideRequirement)
+    , m_origin(CheckBitmapOrigin(bitmapOrigin))
+  {
+    ResizeToFit(sizePx, pixelFormat, m_strideRequirement);
   }
 
 
-  Bitmap::Bitmap(const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin bitmapOrigin)
+  Bitmap::Bitmap(const PxSize2D sizePx, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin bitmapOrigin)
     : m_pixelFormat(pixelFormat)
     , m_origin(CheckBitmapOrigin(bitmapOrigin))
   {
-    ResizeToFit(extent, pixelFormat, m_strideRequirement, stride);
+    ResizeToFit(sizePx, pixelFormat, m_strideRequirement, stride);
   }
 
 
-  Bitmap::Bitmap(const void* const pContent, const std::size_t cbContent, const PxExtent2D& extent, const PixelFormat pixelFormat,
+  Bitmap::Bitmap(const PxExtent2D extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin)
+    : Bitmap(TypeConverter::To<PxSize2D>(extent), pixelFormat, bitmapOrigin)
+  {
+  }
+
+
+  Bitmap::Bitmap(const PxExtent2D extent, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin bitmapOrigin)
+    : Bitmap(TypeConverter::To<PxSize2D>(extent), pixelFormat, stride, bitmapOrigin)
+  {
+  }
+
+
+  Bitmap::Bitmap(BitmapMemory&& bitmapMemory)
+  {
+    Reset(std::move(bitmapMemory));
+  }
+
+
+  Bitmap::Bitmap(const ReadOnlySpan<uint8_t> contentSpan, const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin)
+    : Bitmap(contentSpan, sizePx, pixelFormat, PixelFormatUtil::CalcMinimumStride(sizePx.Width(), pixelFormat), bitmapOrigin)
+  {
+  }
+
+
+  Bitmap::Bitmap(const ReadOnlySpan<uint8_t> contentSpan, const PxSize2D sizePx, const PixelFormat pixelFormat, const uint32_t stride,
                  const BitmapOrigin bitmapOrigin)
-    : Bitmap(pContent, cbContent, extent, pixelFormat, PixelFormatUtil::CalcMinimumStride(extent.Width.Value, pixelFormat), bitmapOrigin)
-  {
-  }
-
-
-  Bitmap::Bitmap(const void* const pContent, const std::size_t cbContent, const PxExtent2D& extent, const PixelFormat pixelFormat,
-                 const uint32_t stride, const BitmapOrigin bitmapOrigin)
     : m_pixelFormat(pixelFormat)
     , m_origin(CheckBitmapOrigin(bitmapOrigin))
   {
-    if (pContent == nullptr)
-    {
-      throw std::invalid_argument("pContent can not be null");
-    }
-    if (stride < PixelFormatUtil::CalcMinimumStride(m_extent.Width.Value, pixelFormat))
+    if (stride < PixelFormatUtil::CalcMinimumStride(m_sizePx.Width(), pixelFormat))
     {
       throw std::invalid_argument("stride is smaller than the width allows");
     }
-    const std::size_t extentHeight = extent.Height.Value;
-    if (cbContent != (stride * extentHeight))
+    const std::size_t extentHeight = sizePx.RawUnsignedHeight();
+    if (contentSpan.size() != (stride * extentHeight))
     {
       throw std::invalid_argument("The image buffer is not of the expected size for a image of that pixel format with the given stride");
     }
 
-    ResizeToFit(extent, pixelFormat, m_strideRequirement);
-    RawBitmap srcBitmap(pContent, extent, pixelFormat, stride, m_origin);
-    RawBitmapEx dstBitmap(m_content.data(), m_extent, m_pixelFormat, m_stride, m_origin);
+    ResizeToFit(sizePx, pixelFormat, m_strideRequirement);
+    ReadOnlyRawBitmap srcBitmap(ReadOnlyRawBitmap::UncheckedCreate(contentSpan, sizePx, pixelFormat, stride, m_origin));
+    RawBitmapEx dstBitmap(RawBitmapEx::UncheckedCreate(SpanUtil::AsSpan(m_content), m_sizePx, m_pixelFormat, m_stride, m_origin));
     RawBitmapUtil::MemoryCopy(dstBitmap, srcBitmap);
   }
 
 
-  Bitmap::Bitmap(const RawBitmap& srcBitmap)
+  Bitmap::Bitmap(const ReadOnlySpan<uint8_t> contentSpan, const PxExtent2D extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin)
+    : Bitmap(contentSpan, TypeConverter::To<PxSize2D>(extent), pixelFormat, bitmapOrigin)
+  {
+  }
+
+
+  Bitmap::Bitmap(const ReadOnlySpan<uint8_t> contentSpan, const PxExtent2D extent, const PixelFormat pixelFormat, const uint32_t stride,
+                 const BitmapOrigin bitmapOrigin)
+    : Bitmap(contentSpan, TypeConverter::To<PxSize2D>(extent), pixelFormat, stride, bitmapOrigin)
+  {
+  }
+
+
+  Bitmap::Bitmap(const void* const pContent, const std::size_t cbContent, const PxExtent2D extent, const PixelFormat pixelFormat,
+                 const BitmapOrigin bitmapOrigin)
+    : Bitmap(SpanUtil::CreateReadOnly(static_cast<const uint8_t*>(pContent), cbContent), TypeConverter::To<PxSize2D>(extent), pixelFormat,
+             PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat), bitmapOrigin)
+  {
+  }
+
+
+  Bitmap::Bitmap(const void* const pContent, const std::size_t cbContent, const PxExtent2D extent, const PixelFormat pixelFormat,
+                 const uint32_t stride, const BitmapOrigin bitmapOrigin)
+    : Bitmap(SpanUtil::CreateReadOnly(static_cast<const uint8_t*>(pContent), cbContent), TypeConverter::To<PxSize2D>(extent), pixelFormat, stride,
+             bitmapOrigin)
+  {
+  }
+
+
+  Bitmap::Bitmap(const ReadOnlyRawBitmap& srcBitmap)
     : m_pixelFormat(srcBitmap.GetPixelFormat())
     , m_origin(srcBitmap.GetOrigin())
   {
@@ -168,28 +217,41 @@ namespace Fsl
       throw std::invalid_argument("Content can not be null");
     }
 
-    ResizeToFit(srcBitmap.GetExtent(), srcBitmap.GetPixelFormat(), m_strideRequirement);
-    RawBitmapEx dstBitmap(m_content.data(), m_extent, m_pixelFormat, m_stride, m_origin);
+    ResizeToFit(srcBitmap.GetSize(), srcBitmap.GetPixelFormat(), m_strideRequirement);
+    RawBitmapEx dstBitmap(RawBitmapEx::UncheckedCreate(SpanUtil::AsSpan(m_content), m_sizePx, m_pixelFormat, m_stride, m_origin));
     RawBitmapUtil::MemoryCopy(dstBitmap, srcBitmap);
   }
 
 
-  Bitmap::Bitmap(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin)
+  Bitmap::Bitmap(std::vector<uint8_t>&& content, const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin)
     : Bitmap()
   {
-    Reset(std::move(content), extent, pixelFormat, bitmapOrigin);
+    Reset(std::move(content), sizePx, pixelFormat, bitmapOrigin);
   }
 
 
-  Bitmap::Bitmap(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
+  Bitmap::Bitmap(std::vector<uint8_t>&& content, const PxExtent2D extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin)
+    : Bitmap(std::move(content), TypeConverter::To<PxSize2D>(extent), pixelFormat, bitmapOrigin)
+  {
+  }
+
+
+  Bitmap::Bitmap(std::vector<uint8_t>&& content, const PxSize2D sizePx, const PixelFormat pixelFormat, const uint32_t stride,
                  const BitmapOrigin bitmapOrigin)
     : Bitmap()
   {
-    Reset(std::move(content), extent, pixelFormat, stride, bitmapOrigin);
+    Reset(std::move(content), sizePx, pixelFormat, stride, bitmapOrigin);
   }
 
 
-  Bitmap::Bitmap(const RawBitmap& srcBitmap, const BitmapOrigin desiredOrigin)
+  Bitmap::Bitmap(std::vector<uint8_t>&& content, const PxExtent2D extent, const PixelFormat pixelFormat, const uint32_t stride,
+                 const BitmapOrigin bitmapOrigin)
+    : Bitmap(std::move(content), TypeConverter::To<PxSize2D>(extent), pixelFormat, stride, bitmapOrigin)
+  {
+  }
+
+
+  Bitmap::Bitmap(const ReadOnlyRawBitmap& srcBitmap, const BitmapOrigin desiredOrigin)
     : m_pixelFormat(srcBitmap.GetPixelFormat())
     , m_origin(srcBitmap.GetOrigin())
   {
@@ -198,8 +260,8 @@ namespace Fsl
       throw std::invalid_argument("Content can not be null");
     }
 
-    ResizeToFit(srcBitmap.GetExtent(), srcBitmap.GetPixelFormat(), m_strideRequirement);
-    RawBitmapEx dstBitmap(m_content.data(), m_extent, m_pixelFormat, m_stride, m_origin);
+    ResizeToFit(srcBitmap.GetSize(), srcBitmap.GetPixelFormat(), m_strideRequirement);
+    RawBitmapEx dstBitmap(RawBitmapEx::UncheckedCreate(SpanUtil::AsSpan(m_content), m_sizePx, m_pixelFormat, m_stride, m_origin));
     RawBitmapUtil::MemoryCopy(dstBitmap, srcBitmap);
 
     if (srcBitmap.GetOrigin() != desiredOrigin)
@@ -216,7 +278,7 @@ namespace Fsl
   }
 
 
-  PixelFormatLayout Bitmap::GetPixelFormatLayout() const
+  PixelFormatLayout Bitmap::GetPixelFormatLayout() const noexcept
   {
     return PixelFormatUtil::GetPixelFormatLayout(m_pixelFormat);
   }
@@ -224,13 +286,13 @@ namespace Fsl
 
   uint32_t Bitmap::GetPreferredStride(const PixelFormat pixelFormat) const
   {
-    return (pixelFormat == m_pixelFormat ? m_stride : PixelFormatUtil::CalcMinimumStride(m_extent.Width.Value, pixelFormat, m_strideRequirement));
+    return (pixelFormat == m_pixelFormat ? m_stride : PixelFormatUtil::CalcMinimumStride(m_sizePx.Width(), pixelFormat, m_strideRequirement));
   }
 
 
   void Bitmap::ReleaseInto(std::vector<uint8_t>& rContentTarget)
   {
-    // Reset() should not throw, but this warrants a program stop since its a critical error
+    // 'Release' does not normally throw, but this warrants a program stop since its a critical error
     if (m_isLocked)
     {
       throw UsageErrorException("Can not Release a locked bitmap, that would invalidate the content being accessed");
@@ -239,6 +301,27 @@ namespace Fsl
     // Get the current content array, then reset this object
     rContentTarget = std::move(m_content);
     ResetNoThrow();
+  }
+
+
+  BitmapMemory Bitmap::Release()
+  {
+    // 'Release' does not normally throw, but this warrants a program stop since its a critical error
+    if (m_isLocked)
+    {
+      throw UsageErrorException("Can not Release a locked bitmap, that would invalidate the content being accessed");
+    }
+
+    // Get the current content array, then reset this object
+    BitmapMemory mem = BitmapMemory::UncheckedCreate(std::move(m_content), m_sizePx, m_pixelFormat, m_origin, m_stride);
+    ResetNoThrow();
+    return mem;
+  }
+
+
+  uint8_t Bitmap::GetBytesPerPixel() const noexcept
+  {
+    return PixelFormatUtil::GetBytesPerPixel(m_pixelFormat);
   }
 
 
@@ -253,17 +336,16 @@ namespace Fsl
     ResetNoThrow();
   }
 
-
-  void Bitmap::Reset(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin, const BitmapClearMethod clearMethod)
+  void Bitmap::Reset(const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin, const BitmapClearMethod clearMethod)
   {
     if (m_isLocked)
     {
       throw UsageErrorException("The bitmap is locked");
     }
 
-    if (extent != m_extent || pixelFormat != m_pixelFormat)
+    if (sizePx != m_sizePx || pixelFormat != m_pixelFormat)
     {
-      ResizeToFit(extent, pixelFormat, StrideRequirement::Any);
+      ResizeToFit(sizePx, pixelFormat, StrideRequirement::Any);
     }
     if (clearMethod != BitmapClearMethod::DontModify)
     {
@@ -274,16 +356,22 @@ namespace Fsl
   }
 
 
-  void Bitmap::Reset(const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin bitmapOrigin,
+  void Bitmap::Reset(const PxExtent2D extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin, const BitmapClearMethod clearMethod)
+  {
+    Reset(TypeConverter::To<PxSize2D>(extent), pixelFormat, bitmapOrigin, clearMethod);
+  }
+
+
+  void Bitmap::Reset(const PxSize2D sizePx, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin bitmapOrigin,
                      const BitmapClearMethod clearMethod)
   {
     if (m_isLocked)
     {
       throw UsageErrorException("The bitmap is locked");
     }
-    if (extent != m_extent || pixelFormat != m_pixelFormat || stride != m_stride)
+    if (sizePx != m_sizePx || pixelFormat != m_pixelFormat || stride != m_stride)
     {
-      ResizeToFit(extent, pixelFormat, StrideRequirement::Any, stride);
+      ResizeToFit(sizePx, pixelFormat, StrideRequirement::Any, stride);
     }
     if (clearMethod != BitmapClearMethod::DontModify)
     {
@@ -294,43 +382,84 @@ namespace Fsl
   }
 
 
-  void Bitmap::Reset(const void* const pContent, const std::size_t cbContent, const PxExtent2D& extent, const PixelFormat pixelFormat,
-                     const BitmapOrigin bitmapOrigin)
+  void Bitmap::Reset(const PxExtent2D extent, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin bitmapOrigin,
+                     const BitmapClearMethod clearMethod)
   {
-    Reset(pContent, cbContent, extent, pixelFormat, PixelFormatUtil::CalcMinimumStride(extent.Width.Value, pixelFormat), bitmapOrigin);
+    Reset(TypeConverter::To<PxSize2D>(extent), pixelFormat, stride, bitmapOrigin, clearMethod);
   }
 
 
-  void Bitmap::Reset(const void* const pContent, const std::size_t cbContent, const PxExtent2D& extent, const PixelFormat pixelFormat,
-                     const uint32_t stride, const BitmapOrigin bitmapOrigin)
+  void Bitmap::Reset(BitmapMemory&& bitmapMemory)
+  {
+    const PxSize2D sizePx = bitmapMemory.GetSize();
+    const PixelFormat pixelFormat = bitmapMemory.GetPixelFormat();
+    const BitmapOrigin origin = bitmapMemory.GetOrigin();
+    const uint32_t stride = bitmapMemory.Stride();
+    Reset(bitmapMemory.Release(), sizePx, pixelFormat, stride, origin);
+  }
+
+
+  void Bitmap::Reset(const ReadOnlySpan<uint8_t> contentSpan, const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin)
+  {
+    Reset(contentSpan, sizePx, pixelFormat, PixelFormatUtil::CalcMinimumStride(sizePx.Width(), pixelFormat), bitmapOrigin);
+  }
+
+
+  void Bitmap::Reset(const ReadOnlySpan<uint8_t> contentSpan, const PxExtent2D extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin)
+  {
+    Reset(contentSpan, TypeConverter::To<PxSize2D>(extent), pixelFormat, bitmapOrigin);
+  }
+
+
+  void Bitmap::Reset(const ReadOnlySpan<uint8_t> contentSpan, const PxSize2D sizePx, const PixelFormat pixelFormat, const uint32_t stride,
+                     const BitmapOrigin bitmapOrigin)
   {
     if (m_isLocked)
     {
       throw UsageErrorException("The bitmap is locked");
     }
-    if (pContent == nullptr)
-    {
-      throw std::invalid_argument("pContent can not be null");
-    }
-    if (stride < PixelFormatUtil::CalcMinimumStride(extent.Width.Value, pixelFormat))
+    if (stride < PixelFormatUtil::CalcMinimumStride(sizePx.Width(), pixelFormat))
     {
       throw std::invalid_argument("stride is smaller than the width allows");
     }
-    const std::size_t extentHeight = extent.Height.Value;
-    if (cbContent != (stride * extentHeight))
+    const std::size_t extentHeight = sizePx.RawUnsignedHeight();
+    if (contentSpan.size() != (stride * extentHeight))
     {
       throw std::invalid_argument("The image buffer is not of the expected size for a image of that pixel format with the given stride");
     }
 
-    ResizeToFit(extent, pixelFormat, StrideRequirement::Any);
-    RawBitmap srcBitmap(pContent, extent, pixelFormat, stride, bitmapOrigin);
-    RawBitmapEx dstBitmap(m_content.data(), m_extent, m_pixelFormat, m_stride, bitmapOrigin);
+    ResizeToFit(sizePx, pixelFormat, StrideRequirement::Any);
+    ReadOnlyRawBitmap srcBitmap(ReadOnlyRawBitmap::UncheckedCreate(contentSpan, sizePx, pixelFormat, stride, bitmapOrigin));
+    RawBitmapEx dstBitmap(RawBitmapEx::UncheckedCreate(SpanUtil::AsSpan(m_content), m_sizePx, m_pixelFormat, m_stride, bitmapOrigin));
     RawBitmapUtil::MemoryCopy(dstBitmap, srcBitmap);
     m_origin = dstBitmap.GetOrigin();
   }
 
 
-  void Bitmap::Reset(const RawBitmap& srcBitmap)
+  void Bitmap::Reset(const ReadOnlySpan<uint8_t> contentSpan, const PxExtent2D extent, const PixelFormat pixelFormat, const uint32_t stride,
+                     const BitmapOrigin bitmapOrigin)
+  {
+    Reset(contentSpan, TypeConverter::To<PxSize2D>(extent), pixelFormat, stride, bitmapOrigin);
+  }
+
+
+  void Bitmap::Reset(const void* const pContent, const std::size_t cbContent, const PxExtent2D extent, const PixelFormat pixelFormat,
+                     const BitmapOrigin bitmapOrigin)
+  {
+    Reset(SpanUtil::CreateReadOnly(static_cast<const uint8_t*>(pContent), cbContent), TypeConverter::To<PxSize2D>(extent), pixelFormat,
+          PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat), bitmapOrigin);
+  }
+
+
+  void Bitmap::Reset(const void* const pContent, const std::size_t cbContent, const PxExtent2D extent, const PixelFormat pixelFormat,
+                     const uint32_t stride, const BitmapOrigin bitmapOrigin)
+  {
+    Reset(SpanUtil::CreateReadOnly(static_cast<const uint8_t*>(pContent), cbContent), TypeConverter::To<PxSize2D>(extent), pixelFormat, stride,
+          bitmapOrigin);
+  }
+
+
+  void Bitmap::Reset(const ReadOnlyRawBitmap& srcBitmap)
   {
     if (m_isLocked)
     {
@@ -341,42 +470,41 @@ namespace Fsl
       throw std::invalid_argument("invalid srcBitmap");
     }
 
-    Reset(srcBitmap.GetExtent(), srcBitmap.GetPixelFormat());
-    RawBitmapEx dstBitmap(m_content.data(), m_extent, m_pixelFormat, m_stride, srcBitmap.GetOrigin());
+    Reset(srcBitmap.GetSize(), srcBitmap.GetPixelFormat());
+    RawBitmapEx dstBitmap(RawBitmapEx::UncheckedCreate(SpanUtil::AsSpan(m_content), m_sizePx, m_pixelFormat, m_stride, srcBitmap.GetOrigin()));
     RawBitmapUtil::MemoryCopy(dstBitmap, srcBitmap);
     m_origin = dstBitmap.GetOrigin();
   }
 
 
-  void Bitmap::Reset(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin)
+  void Bitmap::Reset(std::vector<uint8_t>&& content, const PxSize2D sizePx, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin)
   {
-    const uint32_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width.Value, pixelFormat);
-    Reset(std::move(content), extent, pixelFormat, minStride, bitmapOrigin);
+    const uint32_t minStride = PixelFormatUtil::CalcMinimumStride(sizePx.Width(), pixelFormat);
+    Reset(std::move(content), sizePx, pixelFormat, minStride, bitmapOrigin);
+  }
+
+  void Bitmap::Reset(std::vector<uint8_t>&& content, const PxExtent2D extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin)
+  {
+    Reset(std::move(content), TypeConverter::To<PxSize2D>(extent), pixelFormat, bitmapOrigin);
   }
 
 
-  void Bitmap::Reset(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
+  void Bitmap::Reset(std::vector<uint8_t>&& content, const PxSize2D sizePx, const PixelFormat pixelFormat, const uint32_t stride,
                      const BitmapOrigin bitmapOrigin)
   {
     if (m_isLocked)
     {
       throw UsageErrorException("The bitmap is locked");
     }
-    if (m_extent.Width.Value > static_cast<uint32_t>(std::numeric_limits<int32_t>::max()) ||
-        m_extent.Height.Value > static_cast<uint32_t>(std::numeric_limits<int32_t>::max()))
-    {
-      throw std::invalid_argument("Width or height exceeded limit");
-    }
-
 
     const uint32_t bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(pixelFormat);
-    const uint32_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width.Value, bytesPerPixel);
+    const uint32_t minStride = PixelFormatUtil::CalcMinimumStride(sizePx.Width(), bytesPerPixel);
     if (stride < minStride)
     {
       throw std::invalid_argument("stride is smaller than the width allows");
     }
 
-    const std::size_t extentHeight = extent.Height.Value;
+    const std::size_t extentHeight = sizePx.RawUnsignedHeight();
     const std::size_t totalByteSize = (extentHeight * stride);
     if (content.size() != totalByteSize)
     {
@@ -384,12 +512,19 @@ namespace Fsl
     }
 
     m_content = std::move(content);
-    m_extent = extent;
+    m_sizePx = sizePx;
     m_stride = stride;
     m_bytesPerPixel = bytesPerPixel;
     m_pixelFormat = pixelFormat;
     m_strideRequirement = StrideRequirement::Any;
     m_origin = CheckBitmapOrigin(bitmapOrigin);
+  }
+
+
+  void Bitmap::Reset(std::vector<uint8_t>&& content, const PxExtent2D extent, const PixelFormat pixelFormat, const uint32_t stride,
+                     const BitmapOrigin bitmapOrigin)
+  {
+    Reset(std::move(content), TypeConverter::To<PxSize2D>(extent), pixelFormat, stride, bitmapOrigin);
   }
 
 
@@ -401,14 +536,12 @@ namespace Fsl
 
   void Bitmap::SetNativePixel(const int32_t x, const int32_t y, const uint32_t color)
   {
-    if (x < 0 || y < 0 || static_cast<uint32_t>(x) >= m_extent.Width.Value || static_cast<uint32_t>(y) >= m_extent.Height.Value)
+    if (x < 0 || y < 0 || x >= m_sizePx.RawWidth() || y >= m_sizePx.RawHeight())
     {
       return;
     }
 
-    assert(m_extent.Width.Value <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-    assert(m_extent.Height.Value <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-    const int32_t actualY = (m_origin == BitmapOrigin::UpperLeft ? y : static_cast<int32_t>(m_extent.Height.Value) - 1 - y);
+    const int32_t actualY = (m_origin == BitmapOrigin::UpperLeft ? y : m_sizePx.RawHeight() - 1 - y);
 
     auto* pDst = reinterpret_cast<uint8_t*>(m_content.data());
     switch (PixelFormatUtil::GetPixelFormatLayout(m_pixelFormat))
@@ -445,14 +578,12 @@ namespace Fsl
 
   uint32_t Bitmap::GetNativePixel(const int32_t x, const int32_t y) const
   {
-    if (x < 0 || y < 0 || static_cast<uint32_t>(x) >= m_extent.Width.Value || static_cast<uint32_t>(y) >= m_extent.Height.Value)
+    if (x < 0 || y < 0 || x >= m_sizePx.RawWidth() || y >= m_sizePx.RawHeight())
     {
       return 0;
     }
 
-    assert(m_extent.Width.Value <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-    assert(m_extent.Height.Value <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-    const int32_t actualY = (m_origin == BitmapOrigin::UpperLeft ? y : static_cast<int32_t>(m_extent.Height.Value) - 1 - y);
+    const int32_t actualY = (m_origin == BitmapOrigin::UpperLeft ? y : m_sizePx.RawHeight() - 1 - y);
 
     const auto* pSrc = reinterpret_cast<const uint8_t*>(m_content.data());
     switch (PixelFormatUtil::GetPixelFormatLayout(m_pixelFormat))
@@ -482,30 +613,28 @@ namespace Fsl
 
   void Bitmap::SetUInt8(const uint32_t x, const uint32_t y, const uint8_t value, const bool ignoreOrigin)
   {
-    const auto byteWidth = m_bytesPerPixel * m_extent.Width.Value;
-    if (x >= byteWidth || y >= m_extent.Height.Value)
+    const auto byteWidth = m_bytesPerPixel * m_sizePx.RawUnsignedWidth();
+    if (x >= byteWidth || y >= m_sizePx.RawUnsignedHeight())
     {
       FSLLOG3_DEBUG_WARNING("SetUInt8 out of bounds x: {} y: {}", x, y);
       return;
     }
 
-    const std::size_t actualY = ignoreOrigin ? y : (m_origin == BitmapOrigin::UpperLeft ? y : m_extent.Height.Value - 1 - y);
+    const std::size_t actualY = ignoreOrigin ? y : (m_origin == BitmapOrigin::UpperLeft ? y : m_sizePx.RawUnsignedHeight() - 1 - y);
     m_content[x + (actualY * m_stride)] = value;
   }
 
 
   uint8_t Bitmap::GetUInt8(const uint32_t x, const uint32_t y, const bool ignoreOrigin) const
   {
-    const auto byteWidth = m_bytesPerPixel * m_extent.Width.Value;
-    if (x >= byteWidth || y >= m_extent.Height.Value)
+    const auto byteWidth = m_bytesPerPixel * m_sizePx.RawUnsignedWidth();
+    if (x >= byteWidth || y >= m_sizePx.RawUnsignedHeight())
     {
       FSLLOG3_DEBUG_WARNING("GetUInt8 out of bounds x: {}, y: {}", x, y);
       return 0;
     }
 
-    assert(m_extent.Width.Value <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-    assert(m_extent.Height.Value <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-    const std::size_t actualY = ignoreOrigin ? y : (m_origin == BitmapOrigin::UpperLeft ? y : static_cast<int32_t>(m_extent.Height.Value) - 1 - y);
+    const std::size_t actualY = ignoreOrigin ? y : (m_origin == BitmapOrigin::UpperLeft ? y : m_sizePx.RawUnsignedHeight() - 1 - y);
     return m_content[x + (actualY * m_stride)];
   }
 
@@ -543,7 +672,7 @@ namespace Fsl
   }
 
 
-  RawBitmap Bitmap::Lock() const
+  ReadOnlyRawBitmap Bitmap::Lock() const
   {
     try
     {
@@ -552,14 +681,7 @@ namespace Fsl
         throw UsageErrorException("The bitmap is already locked");
       }
       m_isLocked = true;
-      const auto* const pData = m_content.data();
-      if (pData != nullptr)
-      {
-        return {pData, m_extent, m_pixelFormat, m_stride, m_origin};
-      }
-      assert(m_extent.Width.Value == 0u);
-      assert(m_extent.Height.Value == 0u);
-      return {&g_dummyAreaForZeroSizedBitmaps, m_extent, m_pixelFormat, 0u, m_origin};
+      return ReadOnlyRawBitmap::UncheckedCreate(SpanUtil::AsReadOnlySpan(m_content), m_sizePx, m_pixelFormat, m_stride, m_origin);
     }
     catch (const std::exception&)
     {
@@ -578,14 +700,7 @@ namespace Fsl
         throw UsageErrorException("The bitmap is already locked");
       }
       m_isLocked = true;
-      auto* pData = m_content.data();
-      if (pData != nullptr)
-      {
-        return {pData, m_extent, m_pixelFormat, m_stride, m_origin};
-      }
-      assert(m_extent.Width.Value == 0u);
-      assert(m_extent.Height.Value == 0u);
-      return {&g_dummyAreaForZeroSizedBitmaps, PxExtent2D(), m_pixelFormat, 0u, m_origin};
+      return RawBitmapEx::UncheckedCreate(SpanUtil::AsSpan(m_content), m_sizePx, m_pixelFormat, m_stride, m_origin);
     }
     catch (const std::exception&)
     {
@@ -595,11 +710,12 @@ namespace Fsl
   }
 
 
-  void Bitmap::UnlockEx(const RawBitmapEx& bitmap)
+  void Bitmap::UnlockEx(const RawBitmapEx& bitmap) noexcept
   {
     if (!m_isLocked)
     {
-      throw UsageErrorException("The bitmap is not locked");
+      FSLLOG3_WARNING("The bitmap is not locked");
+      return;
     }
 
     BitmapOrigin currentOrigin = bitmap.GetOrigin();
@@ -612,20 +728,21 @@ namespace Fsl
   }
 
 
-  void Bitmap::Unlock() const
+  void Bitmap::Unlock() const noexcept
   {
     if (!m_isLocked)
     {
-      throw UsageErrorException("The bitmap is not locked");
+      FSLLOG3_WARNING("The bitmap is not locked");
+      return;
     }
     m_isLocked = false;
   }
 
 
-  void Bitmap::ResizeToFit(const PxExtent2D& extent, const PixelFormat pixelFormat, const StrideRequirement strideRequirement, const uint32_t stride)
+  void Bitmap::ResizeToFit(const PxSize2D sizePx, const PixelFormat pixelFormat, const StrideRequirement strideRequirement, const uint32_t stride)
   {
     const uint32_t bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(pixelFormat);
-    const uint32_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width.Value, bytesPerPixel, strideRequirement);
+    const uint32_t minStride = PixelFormatUtil::CalcMinimumStride(sizePx.Width(), bytesPerPixel, strideRequirement);
     uint32_t chosenStride = 0;
 
     if (stride == 0)
@@ -634,7 +751,7 @@ namespace Fsl
     }
     else
     {
-      if (!PixelFormatUtil::IsValidStride(extent.Width.Value, bytesPerPixel, strideRequirement, stride))
+      if (!PixelFormatUtil::IsValidStride(sizePx.Width(), bytesPerPixel, strideRequirement, stride))
       {
         throw std::invalid_argument("Supplied stride does not obey the StrideRequirement");
       }
@@ -643,14 +760,14 @@ namespace Fsl
     }
 
     const std::size_t cbChosenStride = chosenStride;
-    const std::size_t totalByteSize = extent.Height.Value * cbChosenStride;
+    const std::size_t totalByteSize = sizePx.RawUnsignedHeight() * cbChosenStride;
     if (m_content.size() != totalByteSize)
     {
       m_content.resize(totalByteSize);
     }
 
     // Update the members
-    m_extent = extent;
+    m_sizePx = sizePx;
     m_stride = chosenStride;
     m_bytesPerPixel = bytesPerPixel;
     m_pixelFormat = pixelFormat;
@@ -666,9 +783,9 @@ namespace Fsl
       std::fill(m_content.begin(), m_content.end(), static_cast<uint8_t>(0));
       break;
     case BitmapClearMethod::DontClear:
-      if (PixelFormatUtil::CalcMinimumStride(m_extent.Width.Value, m_pixelFormat) != m_stride)
+      if (PixelFormatUtil::CalcMinimumStride(m_sizePx.Width(), m_pixelFormat) != m_stride)
       {
-        RawBitmapEx dstBitmap(m_content.data(), m_extent, m_pixelFormat, m_stride, m_origin);
+        RawBitmapEx dstBitmap(RawBitmapEx::UncheckedCreate(SpanUtil::AsSpan(m_content), m_sizePx, m_pixelFormat, m_stride, m_origin));
         RawBitmapUtil::ClearPadding(dstBitmap);
       }
       break;
@@ -684,7 +801,7 @@ namespace Fsl
   {
     FSLLOG3_WARNING_IF(m_isLocked, "Destroying a locked bitmap, the content being accessed will no longer be available");
     m_content.clear();
-    m_extent = PxExtent2D();
+    m_sizePx = {};
     m_stride = 0;
     m_bytesPerPixel = 0;
     m_pixelFormat = PixelFormat::Undefined;

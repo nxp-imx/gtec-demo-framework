@@ -32,16 +32,16 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/String/StringViewLite.hpp>
-#include <FslGraphics/Color.hpp>
+#include <FslSimpleUI/Base/UIColor.hpp>
 
 namespace Fsl::UI
 {
   struct ChartChannelMetaDataInfo
   {
     StringViewLite Label;
-    Color PrimaryColor;
+    UIColor PrimaryColor;
 
-    constexpr ChartChannelMetaDataInfo(const StringViewLite label, const Color primaryColor) noexcept
+    constexpr ChartChannelMetaDataInfo(const StringViewLite label, const UIColor primaryColor) noexcept
       : Label(label)
       , PrimaryColor(primaryColor)
     {

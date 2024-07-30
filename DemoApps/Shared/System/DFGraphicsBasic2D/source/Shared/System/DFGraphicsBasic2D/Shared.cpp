@@ -32,6 +32,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <Shared/System/DFGraphicsBasic2D/Shared.hpp>
 #include <cassert>
 #include <cmath>
@@ -48,7 +49,7 @@ namespace Fsl
     , m_x2Ang(0.0f)
     , m_y1Ang(0.0f)
     , m_y2Ang(0.0f)
-    , m_hCounter1(m_profilerService, m_profilerService->CreateCustomCounter("c1", 0, 100, Color::Blue()))
+    , m_hCounter1(m_profilerService, m_profilerService->CreateCustomCounter("c1", 0, 100, Colors::Blue()))
     , m_hCounter2(m_profilerService, m_profilerService->CreateCustomCounter("c2", 0, 1000, Color(0xFF, 0x00, 0xFF, 0xFF)))
   {
   }
@@ -130,10 +131,10 @@ namespace Fsl
     m_basic2D->Begin();
 
     const auto size4 = static_cast<int32_t>(m_points.size() / 4);
-    m_basic2D->DrawPoints(m_points.data(), size4, Color::White());
-    m_basic2D->DrawPoints(m_points.data() + size4, size4, Color::Red());
-    m_basic2D->DrawPoints(m_points.data() + size4 * 2, size4, Color::Green());
-    m_basic2D->DrawPoints(m_points.data() + size4 * 3, size4, Color::Blue());
+    m_basic2D->DrawPoints(m_points.data(), size4, Colors::White());
+    m_basic2D->DrawPoints(m_points.data() + size4, size4, Colors::Red());
+    m_basic2D->DrawPoints(m_points.data() + size4 * 2, size4, Colors::Green());
+    m_basic2D->DrawPoints(m_points.data() + size4 * 3, size4, Colors::Blue());
 
 
     m_basic2D->DrawString("Hello world!", Vector2(0, 1));
@@ -152,9 +153,9 @@ namespace Fsl
     m_basic2D->DrawString(tmpLast.str(), Vector2(0, 1 + (fontHeight * 3)));
     m_basic2D->DrawString(tmpAverage.str(), Vector2(0, 1 + (fontHeight * 4)));
 
-    m_basic2D->DrawPoints(m_controlPoints.data(), 4, Color::Red());
-    m_basic2D->DrawPoints(m_controlPoints.data() + 4, 4, Color::Green());
-    m_basic2D->DrawPoints(m_controlPoints.data() + 8, 4, Color::Blue());
+    m_basic2D->DrawPoints(m_controlPoints.data(), 4, Colors::Red());
+    m_basic2D->DrawPoints(m_controlPoints.data() + 4, 4, Colors::Green());
+    m_basic2D->DrawPoints(m_controlPoints.data() + 8, 4, Colors::Blue());
     m_basic2D->End();
   }
 }

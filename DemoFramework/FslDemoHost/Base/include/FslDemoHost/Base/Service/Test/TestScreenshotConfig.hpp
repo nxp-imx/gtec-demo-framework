@@ -34,6 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslDemoHost/Base/Service/Test/TestScreenshotNameScheme.hpp>
 #include <FslGraphics/ImageFormat.hpp>
+#include <FslGraphics/ToneMapping/BasicToneMapper.hpp>
 #include <string>
 #include <utility>
 
@@ -46,14 +47,17 @@ namespace Fsl
     //! If zero screenshot is disabled
     uint32_t Frequency{0};
     std::string FilenamePrefix;
+    BasicToneMapper ToneMapper{BasicToneMapper::Clamp};
 
     TestScreenshotConfig() = default;
 
-    TestScreenshotConfig(const TestScreenshotNameScheme namingScheme, const ImageFormat& format, const uint32_t frequency, std::string filenamePrefix)
+    TestScreenshotConfig(const TestScreenshotNameScheme namingScheme, const ImageFormat& format, const uint32_t frequency, std::string filenamePrefix,
+                         const BasicToneMapper toneMapper)
       : NamingScheme(namingScheme)
       , Format(format)
       , Frequency(frequency)
       , FilenamePrefix(std::move(filenamePrefix))
+      , ToneMapper(toneMapper)
     {
     }
   };

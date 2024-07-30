@@ -45,7 +45,8 @@ namespace Fsl::GLES3
     }
   }
 
-  NativeGraphicsTexture::NativeGraphicsTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+  NativeGraphicsTexture::NativeGraphicsTexture(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
+                                               const TextureFlags textureFlags)
     : m_extentPx(texture.GetExtent())
     , m_texture(texture, Convert(filterHint), textureFlags)
   {
@@ -61,7 +62,7 @@ namespace Fsl::GLES3
     m_texture.Reset();
   }
 
-  void NativeGraphicsTexture::SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+  void NativeGraphicsTexture::SetData(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
   {
     auto params = Convert(filterHint);
     m_texture.SetData(texture, params, textureFlags);

@@ -104,6 +104,14 @@ Run the WinScreenshot bat script (only works on windows)
 FslBuild.py --ForAllExe "WinScreenshot.bat (EXE) (PACKAGE_PATH)"
 ```
 
+Run the WinScreenshot bat script on all exe's that use the WindowHost in all dirs from the CWD and below (only works on windows)
+
+```bash
+FslBuild.py --RequireFeature [WindowHost] --ForAllExe "WinScreenshot.bat (EXE) (PACKAGE_PATH)" -r
+```
+
+
+
 Run the all unit tests
 
 ```bash

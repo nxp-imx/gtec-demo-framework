@@ -32,7 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxExtent3D.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
+#include <FslGraphics/Bitmap/SupportedConversion.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 
 namespace Fsl
@@ -45,6 +47,8 @@ namespace Fsl
   class TextureUtil
   {
   public:
+    static ReadOnlySpan<SupportedConversion> GetSupportedConversions() noexcept;
+
     //! @brief Convert the texture to the desired pixel format and origin else return false.
     static bool TryConvert(Texture& rTexture, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined);
 

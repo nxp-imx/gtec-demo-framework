@@ -42,7 +42,7 @@ namespace Fsl::UI::Declarative
   {
   public:
     BarTypeThemeProperty()
-      : BarTypeThemeProperty(PropertyName("theme:Type"))
+      : BarTypeThemeProperty(PropertyName("theme_Type"))
     {
     }
 

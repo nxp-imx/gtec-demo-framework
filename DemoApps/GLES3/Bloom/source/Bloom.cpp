@@ -33,7 +33,7 @@
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
@@ -63,15 +63,15 @@ namespace Fsl
       constexpr const GLTextureParameters DefaultTextureParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
     }
 
-    constexpr PxSize1D SIZE_MOD = PxSize1D::Create(2);
-    constexpr PxSize1D SIZE_16 = PxSize1D::Create(16) * SIZE_MOD;
-    constexpr PxSize1D SIZE_32 = PxSize1D::Create(32) * SIZE_MOD;
-    constexpr PxSize1D SIZE_64 = PxSize1D::Create(64) * SIZE_MOD;
-    constexpr PxSize1D SIZE_128 = PxSize1D::Create(128) * SIZE_MOD;
-    constexpr PxSize1D SIZE_256 = PxSize1D::Create(256) * SIZE_MOD;
+    constexpr PxSize1D SizeMod = PxSize1D::Create(2);
+    constexpr PxSize1D Size16 = PxSize1D::Create(16) * SizeMod;
+    constexpr PxSize1D Size32 = PxSize1D::Create(32) * SizeMod;
+    constexpr PxSize1D Size64 = PxSize1D::Create(64) * SizeMod;
+    constexpr PxSize1D Size128 = PxSize1D::Create(128) * SizeMod;
+    constexpr PxSize1D Size256 = PxSize1D::Create(256) * SizeMod;
 
-    constexpr std::array<GLBindAttribLocation, 2> g_shaderAttributeArray = {GLBindAttribLocation(0, "VertexPosition"),
-                                                                            GLBindAttribLocation(1, "VertexTexCoord")};
+    constexpr std::array<GLBindAttribLocation, 2> ShaderAttributeArray = {GLBindAttribLocation(0, "VertexPosition"),
+                                                                          GLBindAttribLocation(1, "VertexTexCoord")};
     const GLTextureImageParameters g_defaultFBImageParams(GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
   }
 
@@ -86,25 +86,25 @@ namespace Fsl
     , m_batch(std::dynamic_pointer_cast<NativeBatch2D>(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D()))
     , m_camera(config.WindowMetrics.GetSizePx())
     , m_rotationSpeed(0, -0.6f, 0)
-    , m_fbBlur16A(PxSize2D(SIZE_16, SIZE_16), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
-    , m_fbBlur16B(PxSize2D(SIZE_16, SIZE_16), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
-    , m_fbBlur32A(PxSize2D(SIZE_32, SIZE_32), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
-    , m_fbBlur32B(PxSize2D(SIZE_32, SIZE_32), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
-    , m_fbBlur64A(PxSize2D(SIZE_64, SIZE_64), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
-    , m_fbBlur64B(PxSize2D(SIZE_64, SIZE_64), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
-    , m_fbBlur128A(PxSize2D(SIZE_128, SIZE_128), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
-    , m_fbBlur128B(PxSize2D(SIZE_128, SIZE_128), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
-    , m_fbBlur256A(PxSize2D(SIZE_256, SIZE_256), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
-    , m_fbBlur256B(PxSize2D(SIZE_256, SIZE_256), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
-    , m_fbRender256(PxSize2D(SIZE_256, SIZE_256), LocalConfig::DefaultTextureParams, g_defaultFBImageParams, GL_DEPTH_COMPONENT16)
-    , m_locBlurHTexSize(GLValues::INVALID_LOCATION)
-    , m_locBlurVTexSize(GLValues::INVALID_LOCATION)
-    , m_locBloomTexture256(GLValues::INVALID_LOCATION)
-    , m_locBloomTexture128(GLValues::INVALID_LOCATION)
-    , m_locBloomTexture64(GLValues::INVALID_LOCATION)
-    , m_locBloomTexture32(GLValues::INVALID_LOCATION)
-    , m_locBloomTexture16(GLValues::INVALID_LOCATION)
-    , m_locBloomTextureLevel(GLValues::INVALID_LOCATION)
+    , m_fbBlur16A(PxSize2D(Size16, Size16), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur16B(PxSize2D(Size16, Size16), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur32A(PxSize2D(Size32, Size32), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur32B(PxSize2D(Size32, Size32), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur64A(PxSize2D(Size64, Size64), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur64B(PxSize2D(Size64, Size64), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur128A(PxSize2D(Size128, Size128), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur128B(PxSize2D(Size128, Size128), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur256A(PxSize2D(Size256, Size256), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur256B(PxSize2D(Size256, Size256), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbRender256(PxSize2D(Size256, Size256), LocalConfig::DefaultTextureParams, g_defaultFBImageParams, GL_DEPTH_COMPONENT16)
+    , m_locBlurHTexSize(GLValues::InvalidLocation)
+    , m_locBlurVTexSize(GLValues::InvalidLocation)
+    , m_locBloomTexture256(GLValues::InvalidLocation)
+    , m_locBloomTexture128(GLValues::InvalidLocation)
+    , m_locBloomTexture64(GLValues::InvalidLocation)
+    , m_locBloomTexture32(GLValues::InvalidLocation)
+    , m_locBloomTexture16(GLValues::InvalidLocation)
+    , m_locBloomTextureLevel(GLValues::InvalidLocation)
     , m_renderUI(true)
     , m_gaussianBlurKernelWeight(m_menuUI.GetKernelWeightMod())
     , m_activeBlueShaderType(BlurShaderType::Gaussian5X5)
@@ -127,10 +127,10 @@ namespace Fsl
 
     m_strShaderVertPass = contentManager->ReadAllText("Shaders/Pass.vert");
 
-    constexpr auto shaderAttributeSpan = ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray);
-    m_programBrightPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BrightPass.frag"), shaderAttributeSpan);
-    m_programCopy.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/CopyPass.frag"), shaderAttributeSpan);
-    m_programBloomPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BloomPass.frag"), shaderAttributeSpan);
+    constexpr auto ShaderAttributeSpan = SpanUtil::AsReadOnlySpan(ShaderAttributeArray);
+    m_programBrightPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BrightPass.frag"), ShaderAttributeSpan);
+    m_programCopy.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/CopyPass.frag"), ShaderAttributeSpan);
+    m_programBloomPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BloomPass.frag"), ShaderAttributeSpan);
 
     // Prepare the blur shader
     SetBlurShader(BlurShaderType::Gaussian5X5);
@@ -426,17 +426,17 @@ namespace Fsl
     {
       int32_t dstX = 0;
       m_batch->Begin(BlendState::Opaque);
-      m_batch->Draw(m_fbRender256, Vector2(dstX, 0), Color::White());
+      m_batch->Draw(m_fbRender256, Vector2(dstX, 0), Colors::White());
       dstX += m_fbRender256.GetSize().RawWidth();
-      m_batch->Draw(m_fbBlur256A, Vector2(dstX, 0), Color::White());
+      m_batch->Draw(m_fbBlur256A, Vector2(dstX, 0), Colors::White());
       dstX += m_fbBlur256A.GetSize().RawWidth();
-      m_batch->Draw(m_fbBlur128A, Vector2(dstX, 0), Color::White());
+      m_batch->Draw(m_fbBlur128A, Vector2(dstX, 0), Colors::White());
       dstX += m_fbBlur128A.GetSize().RawWidth();
-      m_batch->Draw(m_fbBlur64A, Vector2(dstX, 0), Color::White());
+      m_batch->Draw(m_fbBlur64A, Vector2(dstX, 0), Colors::White());
       dstX += m_fbBlur64A.GetSize().RawWidth();
-      m_batch->Draw(m_fbBlur32A, Vector2(dstX, 0), Color::White());
+      m_batch->Draw(m_fbBlur32A, Vector2(dstX, 0), Colors::White());
       dstX += m_fbBlur32A.GetSize().RawWidth();
-      m_batch->Draw(m_fbBlur16A, Vector2(dstX, 0), Color::White());
+      m_batch->Draw(m_fbBlur16A, Vector2(dstX, 0), Colors::White());
       // dstX += m_fbBlur16A.GetSize().X;
       m_batch->End();
     }
@@ -502,35 +502,35 @@ namespace Fsl
   void Bloom::SetBlurShader(const BlurShaderType shaderType)
   {
     const float gaussianBlurKernelWeightMod = m_menuUI.GetKernelWeightMod();
-    constexpr auto shaderAttributeSpan = ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray);
+    constexpr auto ShaderAttributeSpan = SpanUtil::AsReadOnlySpan(ShaderAttributeArray);
 
     auto contentManager = GetContentManager();
     switch (shaderType)
     {
     case BlurShaderType::Custom:
-      m_programBlurHPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurHPass.frag"), shaderAttributeSpan);
-      m_programBlurVPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurVPass.frag"), shaderAttributeSpan);
+      m_programBlurHPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurHPass.frag"), ShaderAttributeSpan);
+      m_programBlurVPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurVPass.frag"), ShaderAttributeSpan);
       break;
     case BlurShaderType::Gaussian9X9:
       m_programBlurHPass.Reset(
         m_strShaderVertPass,
         GaussianShaderBuilder::Build9x9(contentManager->ReadAllText("Shaders/GaussianTemplate9HPass.frag"), gaussianBlurKernelWeightMod),
-        shaderAttributeSpan);
+        ShaderAttributeSpan);
       m_programBlurVPass.Reset(
         m_strShaderVertPass,
         GaussianShaderBuilder::Build9x9(contentManager->ReadAllText("Shaders/GaussianTemplate9VPass.frag"), gaussianBlurKernelWeightMod),
-        shaderAttributeSpan);
+        ShaderAttributeSpan);
       break;
     case BlurShaderType::Gaussian5X5:
     default:
       m_programBlurHPass.Reset(
         m_strShaderVertPass,
         GaussianShaderBuilder::Build5x5(contentManager->ReadAllText("Shaders/GaussianTemplate5HPass.frag"), gaussianBlurKernelWeightMod),
-        shaderAttributeSpan);
+        ShaderAttributeSpan);
       m_programBlurVPass.Reset(
         m_strShaderVertPass,
         GaussianShaderBuilder::Build5x5(contentManager->ReadAllText("Shaders/GaussianTemplate5VPass.frag"), gaussianBlurKernelWeightMod),
-        shaderAttributeSpan);
+        ShaderAttributeSpan);
       break;
     }
 

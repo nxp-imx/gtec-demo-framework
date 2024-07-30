@@ -43,10 +43,10 @@ namespace
   using SimpleMeshBuilder = MeshBuilder<VertexPosition, uint16_t>;
   using SimpleMesh = GenericMesh<VertexPosition, uint16_t>;
 
-  const constexpr std::array<VertexPosition, 4> g_vertices = {VertexPosition(-1.0f, -1.0f, 0.0f), VertexPosition(-1.0f, 1.0f, 0.0f),
-                                                              VertexPosition(1.0f, 1.0f, 0.0f), VertexPosition(1.0f, 1.0f, 0.0f)};
+  const constexpr std::array<VertexPosition, 4> Vertices = {VertexPosition(-1.0f, -1.0f, 0.0f), VertexPosition(-1.0f, 1.0f, 0.0f),
+                                                            VertexPosition(1.0f, 1.0f, 0.0f), VertexPosition(1.0f, 1.0f, 0.0f)};
 
-  const constexpr std::array<uint16_t, 6> g_indices = {0, 1, 2, 2, 1, 3};
+  const constexpr std::array<uint16_t, 6> Indices = {0, 1, 2, 2, 1, 3};
 
   const PrimitiveType g_primitiveType = PrimitiveType::TriangleList;
   const PrimitiveType g_otherPrimitiveType = PrimitiveType::TriangleStrip;
@@ -57,7 +57,7 @@ namespace
 
 TEST(MeshBuilder, AppendListToIncompatible)
 {
-  SimpleMesh mesh(g_vertices.data(), g_vertices.size(), g_indices.data(), g_indices.size(), g_primitiveType);
+  SimpleMesh mesh(Vertices.data(), Vertices.size(), Indices.data(), Indices.size(), g_primitiveType);
 
   EXPECT_EQ(2u, mesh.GetPrimitiveCount());
 
@@ -68,7 +68,7 @@ TEST(MeshBuilder, AppendListToIncompatible)
 
 TEST(MeshBuilder, AppendTriangleList)
 {
-  SimpleMesh mesh(g_vertices.data(), g_vertices.size(), g_indices.data(), g_indices.size(), g_primitiveType);
+  SimpleMesh mesh(Vertices.data(), Vertices.size(), Indices.data(), Indices.size(), g_primitiveType);
 
   EXPECT_EQ(2u, mesh.GetPrimitiveCount());
 
@@ -88,7 +88,7 @@ namespace
 {
   void AppendInstances(const int instances, const bool shareInstanceVertices)
   {
-    SimpleMesh mesh(g_vertices.data(), g_vertices.size(), g_indices.data(), g_indices.size(), g_primitiveType);
+    SimpleMesh mesh(Vertices.data(), Vertices.size(), Indices.data(), Indices.size(), g_primitiveType);
 
     EXPECT_EQ(2u, mesh.GetPrimitiveCount());
 

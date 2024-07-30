@@ -71,6 +71,7 @@ namespace Fsl::UI
     }
 
     //! @brief Should be called during WinInit of the 'owner' class
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void SYS_WinInit(BaseWindow* const pOwner, const std::shared_ptr<IWindowManager>& windowManager)
     {
       DoInit(pOwner, windowManager);
@@ -163,31 +164,37 @@ namespace Fsl::UI
       return m_entries[index].Window;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline bool empty() const noexcept
     {
       return m_entries.empty();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline typename queue_type::size_type size() const noexcept
     {
       return m_entries.size();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline typename queue_type::const_iterator begin() const noexcept
     {
       return m_entries.begin();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline typename queue_type::iterator begin() noexcept
     {
       return m_entries.begin();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline typename queue_type::const_iterator end() const noexcept
     {
       return m_entries.end();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     inline typename queue_type::iterator end() noexcept
     {
       return m_entries.end();

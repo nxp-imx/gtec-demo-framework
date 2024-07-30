@@ -32,14 +32,15 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Time/TickCount.hpp>
 #include <FslBase/Time/TimeSpan.hpp>
 
 namespace Fsl
 {
   struct DemoTime
   {
-    //! Total time since the start of the game (can wrap to zero if we reach the limits, but since its a lot of years its unlikely to occur)
-    TimeSpan TotalTime;
+    //! Total time since the start of the app (can wrap to zero if we reach the limits, but since its a lot of years its unlikely to occur)
+    TickCount CurrentTickCount;
 
     //! Time since the last 'update' call
     TimeSpan ElapsedTime;
@@ -49,10 +50,10 @@ namespace Fsl
 
     constexpr DemoTime() noexcept = default;
 
-    constexpr DemoTime(const TimeSpan totalTime, const TimeSpan elapsedTime) noexcept
-      : TotalTime(totalTime)
+    constexpr DemoTime(const TickCount currentTickCount, const TimeSpan elapsedTime) noexcept
+      : CurrentTickCount(currentTickCount)
       , ElapsedTime(elapsedTime)
-      , DeltaTime(static_cast<float>(static_cast<double>(elapsedTime.Ticks()) / static_cast<double>(TimeInfo::TicksPerSecond)))
+      , DeltaTime(static_cast<float>(static_cast<double>(elapsedTime.Ticks()) / static_cast<double>(TimeSpan::TicksPerSecond)))
     {
     }
   };

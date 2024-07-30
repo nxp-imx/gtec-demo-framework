@@ -42,12 +42,12 @@ namespace Fsl::UI::Declarative
     using value_type = T;
 
     explicit TypedThemeProperty(PropertyName name)
-      : ThemeProperty(std::move(name))
+      : ThemeProperty(std::move(name), typeid(value_type))
     {
     }
 
     TypedThemeProperty(PropertyName name, std::vector<ThemePropertyValueRecord> validValues)
-      : ThemeProperty(std::move(name), std::move(validValues))
+      : ThemeProperty(std::move(name), typeid(value_type), std::move(validValues))
     {
     }
 

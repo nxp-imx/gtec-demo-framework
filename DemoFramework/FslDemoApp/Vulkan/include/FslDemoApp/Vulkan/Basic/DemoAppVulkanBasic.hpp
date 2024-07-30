@@ -194,7 +194,11 @@ namespace Fsl
       struct Resources
       {
         RapidVulkan::CommandPool MainCommandPool;
+
+      private:
         std::vector<RapidVulkan::Semaphore> m_recycledSemaphores;
+
+      public:
         std::vector<FrameDrawRecord> Frames;
 
         Resources() noexcept = default;
@@ -277,7 +281,7 @@ namespace Fsl
       std::shared_ptr<DemoAppHostConfigVulkan> m_demoHostConfig;
       Vulkan::SurfaceFormatInfo m_surfaceFormatInfo;
 
-      const DemoAppVulkanSetup m_appSetup;
+      const DemoAppVulkanSetup AppSetup;
       Resources m_resources;
       Vulkan::VUSwapchainKHR m_swapchain;
       DependentResources m_dependentResources;

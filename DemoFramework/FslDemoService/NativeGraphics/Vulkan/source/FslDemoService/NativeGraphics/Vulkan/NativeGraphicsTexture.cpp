@@ -54,7 +54,8 @@ namespace Fsl::Vulkan
     m_texture.Reset();
   }
 
-  void NativeGraphicsTexture::SetData(const RawTexture& /*texture*/, const Texture2DFilterHint /*filterHint*/, const TextureFlags /*textureFlags*/)
+  void NativeGraphicsTexture::SetData(const ReadOnlyRawTexture& /*texture*/, const Texture2DFilterHint /*filterHint*/,
+                                      const TextureFlags /*textureFlags*/)
   {
     throw NotSupportedException("SetData not supported");
   }

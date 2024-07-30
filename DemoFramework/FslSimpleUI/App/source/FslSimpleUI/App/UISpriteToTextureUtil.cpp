@@ -36,6 +36,7 @@
 #include <FslGraphics/Sprite/BasicImageSprite.hpp>
 #include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslGraphics/Sprite/Material/Basic/BasicSpriteMaterial.hpp>
+#include <FslGraphics/Sprite/Material/Basic/BasicSpriteMaterialUtil.hpp>
 #include <FslSimpleUI/App/UISpriteToTextureUtil.hpp>
 
 namespace Fsl::UISpriteToTextureUtil
@@ -51,7 +52,7 @@ namespace Fsl::UISpriteToTextureUtil
 
     const PxRectangleU32 fillRect(info.ImageInfo.RectanglePx.GetCenter().X, info.ImageInfo.RectanglePx.GetCenter().Y, PxValueU(1), PxValueU(1));
 
-    const auto* pMaterial = dynamic_cast<const BasicSpriteMaterial*>(info.MaterialInfo.Material.get());
+    const auto* pMaterial = BasicSpriteMaterialUtil::TryUpcast(info.MaterialInfo.Material.get());
     if (pMaterial == nullptr)
     {
       throw NotSupportedException("Material not of the expected type");
@@ -73,7 +74,7 @@ namespace Fsl::UISpriteToTextureUtil
     const PxRectangleU32 fillRect(info.ImageInfo.TrimmedRectanglePx.GetCenter().X, info.ImageInfo.TrimmedRectanglePx.GetCenter().Y, PxValueU(1),
                                   PxValueU(1));
 
-    const auto* pMaterial = dynamic_cast<const BasicSpriteMaterial*>(info.MaterialInfo.Material.get());
+    const auto* pMaterial = BasicSpriteMaterialUtil::TryUpcast(info.MaterialInfo.Material.get());
     if (pMaterial == nullptr)
     {
       throw NotSupportedException("Material not of the expected type");

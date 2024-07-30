@@ -43,9 +43,21 @@
 
 namespace Fsl
 {
+  namespace
+  {
+    PixelFormat DetermineSaveFormat(const ImageFormat imageFormat, const ColorSpaceType colorSpaceType)
+    {
+      if (imageFormat != ImageFormat::Hdr)
+      {
+        return colorSpaceType == ColorSpaceType::Gamma ? PixelFormat::B8G8R8A8_UINT : PixelFormat::B8G8R8A8_SRGB;
+      }
+      return PixelFormat::R32G32B32A32_SFLOAT;
+    }
+  }
+
   TestService::TestService(const ServiceProvider& serviceProvider)
     : ThreadLocalService(serviceProvider)
-    , m_config(TestScreenshotNameScheme::FrameNumber, ImageFormat::Png, 0, "Screenshot")
+    , m_config(TestScreenshotNameScheme::FrameNumber, ImageFormat::Png, 0, "Screenshot", BasicToneMapper::Clamp)
     , m_frameCounter(0)
     , m_screenshotNameCounter(0)
     , m_userScreenshotCount(0)
@@ -108,8 +120,11 @@ namespace Fsl
       // We do this to allow a perfect timed capture of the frames
       m_demoAppControlService->RequestUpdateTimerReset();
 
-      // Capture a screenshot and save it as a bmp
-      m_graphicsService->Capture(m_screenshot, PixelFormat::B8G8R8A8_UINT);
+      const auto colorSpaceType = m_graphicsService->GetColorSpaceType();
+      const auto capturePixelFormat = DetermineSaveFormat(m_config.Format, colorSpaceType);
+
+      // Capture a screenshot and save it in the request format
+      m_graphicsService->Capture(m_screenshot, capturePixelFormat, m_config.ToneMapper);
 
       if (m_screenshot.IsValid())
       {

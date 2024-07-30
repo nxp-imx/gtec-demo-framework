@@ -45,6 +45,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class HDR01_BasicToneMapping
     : public DemoAppGLES3
     , public UI::EventListener
@@ -60,7 +61,7 @@ namespace Fsl
     {
       GLint Exposure;
       ProgramLocations()
-        : Exposure(GLES3::GLValues::INVALID_LOCATION)
+        : Exposure(GLES3::GLValues::InvalidLocation)
       {
       }
     };

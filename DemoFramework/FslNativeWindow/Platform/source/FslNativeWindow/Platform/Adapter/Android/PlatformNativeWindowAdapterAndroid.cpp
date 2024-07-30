@@ -82,8 +82,9 @@ namespace Fsl
     bool g_isActivated = false;
     bool g_isTouchDown = false;
 
-    void PostActivated(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, bool activate)
+    void PostActivated(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp, const bool activate)
     {
+      FSL_PARAM_NOT_USED(timestamp);
       if (activate != g_isActivated)
       {
         g_isActivated = activate;
@@ -92,26 +93,27 @@ namespace Fsl
     }
 
 
-    void PostSuspend(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, bool suspend)
+    void PostSuspend(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp, const bool suspend)
     {
+      FSL_PARAM_NOT_USED(timestamp);
       if (suspend != g_isSuspended)
       {
         g_isSuspended = suspend;
         if (suspend && g_isActivated)
-          PostActivated(eventQueue, false);
+          PostActivated(eventQueue, timestamp, false);
 
         eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowSuspendEvent(suspend));
       }
     }
 
 
-    void CmdInitWindow(android_app* pAppState, const std::shared_ptr<INativeWindowEventQueue>& eventQueue)
+    void CmdInitWindow(android_app* pAppState, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp)
     {
       // The window is being shown, get it ready.
       if (pAppState->window != nullptr)
       {
         FSLLOG3_VERBOSE("NativeWindow init");
-        PostSuspend(eventQueue, false);
+        PostSuspend(eventQueue, timestamp, false);
         g_hWindow = pAppState->window;
       }
       else
@@ -122,22 +124,25 @@ namespace Fsl
     }
 
 
-    void CmdShutdownWindow(const std::shared_ptr<INativeWindowEventQueue>& eventQueue)
+    void CmdShutdownWindow(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp)
     {
+      FSL_PARAM_NOT_USED(timestamp);
       // The window is being hidden or closed, clean it up.
-      PostSuspend(eventQueue, true);
+      PostSuspend(eventQueue, timestamp, true);
       g_hWindow = nullptr;
     }
 
-    void CmdResizedWindow(const std::shared_ptr<INativeWindowEventQueue>& eventQueue)
+    void CmdResizedWindow(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp)
     {
+      FSL_PARAM_NOT_USED(timestamp);
       eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowResizedEvent());
     }
 
 
-    void CmdSetFocus(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const bool bEnabled)
+    void CmdSetFocus(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const MillisecondTickCount32 timestamp, const bool bEnabled)
     {
-      PostActivated(eventQueue, bEnabled);
+      FSL_PARAM_NOT_USED(timestamp);
+      PostActivated(eventQueue, timestamp, bEnabled);
     }
 
 
@@ -166,6 +171,8 @@ namespace Fsl
 
       FSLLOG3_VERBOSE4("HandleCmd");
 
+      constexpr auto unknownTimestamp = NativeWindowEventHelper::UnknownTimestamp();
+
       std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
       if (!eventQueue)
         return;
@@ -174,15 +181,15 @@ namespace Fsl
       {
       case APP_CMD_INIT_WINDOW:
         FSLLOG3_VERBOSE3("APP_CMD_INIT_WINDOW");
-        CmdInitWindow(pAppState, eventQueue);
+        CmdInitWindow(pAppState, eventQueue, unknownTimestamp);
         break;
       case APP_CMD_TERM_WINDOW:
         FSLLOG3_VERBOSE3("APP_CMD_TERM_WINDOW");
-        CmdShutdownWindow(eventQueue);
+        CmdShutdownWindow(eventQueue, unknownTimestamp);
         break;
       case APP_CMD_WINDOW_RESIZED:
         FSLLOG3_VERBOSE3("APP_CMD_WINDOW_RESIZED");
-        CmdResizedWindow(eventQueue);
+        CmdResizedWindow(eventQueue, unknownTimestamp);
         break;
       case APP_CMD_WINDOW_REDRAW_NEEDED:
         FSLLOG3_VERBOSE3("APP_CMD_WINDOW_REDRAW_NEEDED");
@@ -193,11 +200,11 @@ namespace Fsl
 
       case APP_CMD_GAINED_FOCUS:
         FSLLOG3_VERBOSE3("APP_CMD_GAINED_FOCUS");
-        CmdSetFocus(eventQueue, true);
+        CmdSetFocus(eventQueue, unknownTimestamp, true);
         break;
       case APP_CMD_LOST_FOCUS:
         FSLLOG3_VERBOSE3("APP_CMD_LOST_FOCUS");
-        CmdSetFocus(eventQueue, false);
+        CmdSetFocus(eventQueue, unknownTimestamp, false);
         break;
 
       case APP_CMD_CONFIG_CHANGED:
@@ -579,10 +586,11 @@ namespace Fsl
       {
         if (!g_isTouchDown)
         {
+          const auto timestamp = MillisecondTickCount32::FromNanoseconds(static_cast<int32_t>(motionEvent.eventTime));
           const auto position = PxPoint2::Create(
             static_cast<int32_t>(GameActivityPointerAxes_getAxisValue(&motionEvent.pointers[motionPointerIndex], AMOTION_EVENT_AXIS_X)),
             static_cast<int32_t>(GameActivityPointerAxes_getAxisValue(&motionEvent.pointers[motionPointerIndex], AMOTION_EVENT_AXIS_Y)));
-          eventQueue.PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(VirtualMouseButton::Left, true, position, true));
+          eventQueue.PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(timestamp, VirtualMouseButton::Left, true, position, true));
           g_isTouchDown = true;
           LOCAL_INPUT_PRINT("MousePointerDown at {},{}", position.X.Value, position.Y.Value);
         }
@@ -599,10 +607,11 @@ namespace Fsl
       {
         if (g_isTouchDown)
         {
+          const auto timestamp = MillisecondTickCount32::FromNanoseconds(static_cast<int32_t>(motionEvent.eventTime));
           const auto position = PxPoint2::Create(
             static_cast<int32_t>(GameActivityPointerAxes_getAxisValue(&motionEvent.pointers[motionPointerIndex], AMOTION_EVENT_AXIS_X)),
             static_cast<int32_t>(GameActivityPointerAxes_getAxisValue(&motionEvent.pointers[motionPointerIndex], AMOTION_EVENT_AXIS_Y)));
-          eventQueue.PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(VirtualMouseButton::Left, false, position, true));
+          eventQueue.PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(timestamp, VirtualMouseButton::Left, false, position, true));
           g_isTouchDown = false;
           LOCAL_INPUT_PRINT("MousePointerUp at {},{}", position.X.Value, position.Y.Value);
         }
@@ -617,11 +626,12 @@ namespace Fsl
     {
       if (motionPointerIndex == 0 && g_isTouchDown)
       {
+        const auto timestamp = MillisecondTickCount32::FromNanoseconds(static_cast<int32_t>(motionEvent.eventTime));
         const auto position = PxPoint2::Create(
           static_cast<int32_t>(GameActivityPointerAxes_getAxisValue(&motionEvent.pointers[motionPointerIndex], AMOTION_EVENT_AXIS_X)),
           static_cast<int32_t>(GameActivityPointerAxes_getAxisValue(&motionEvent.pointers[motionPointerIndex], AMOTION_EVENT_AXIS_Y)));
         eventQueue.PostEvent(
-          NativeWindowEventHelper::EncodeInputMouseMoveEvent(position, VirtualMouseButtonFlags(VirtualMouseButton::Undefined), true));
+          NativeWindowEventHelper::EncodeInputMouseMoveEvent(timestamp, position, VirtualMouseButtonFlags(VirtualMouseButton::Undefined), true));
         LOCAL_INPUT_PRINT("MousePointerMovement at {},{}", position.X.Value, position.Y.Value);
       }
       else

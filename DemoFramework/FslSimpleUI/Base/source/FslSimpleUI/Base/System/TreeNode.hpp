@@ -51,6 +51,7 @@ namespace Fsl::UI
     TreeNodeFlags m_flags;
 
   public:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     std::deque<std::shared_ptr<TreeNode>> m_children;
 
     explicit TreeNode(const std::shared_ptr<BaseWindow>& window)

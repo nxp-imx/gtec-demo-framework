@@ -3,10 +3,10 @@
   <ExternalLibrary Name="Recipe.RapidOpenCL_1_2" CreationYear="2017">
     <Dependency Name="OpenCL"/>
     <!--Define Name="FSL_DEMOFRAMEWORK" Access="Public"/-->
-    <ExperimentalRecipe Name="RapidOpenCL" Version="1.2" Find="true">
+    <ExperimentalRecipe Name="RapidOpenCL" Version="1.2.0.1" Find="true">
       <Pipeline>
-        <Download URL="https://github.com/Unarmed1000/RapidOpenCL/archive/1.2.0.0.tar.gz" To="RapidOpenCL-1.2.0.0.tar.gz" Hash="2466e6732cec0906a1db9792191fba601e4a26a5f0b28e099c8dd4782f70b4b1"/>
-        <Unpack File="RapidOpenCL-1.2.0.0.tar.gz" OutputPath="RapidOpenCL-1.2.0.0"/>
+        <Download URL="https://github.com/Unarmed1000/RapidOpenCL/archive/1.2.0.1.tar.gz" To="RapidOpenCL-1.2.0.1.tar.gz" Hash="c94634d28112ec1e68592db65010a7a3550f9f0ce247d6b33800e898d9682e49"/>
+        <Unpack File="RapidOpenCL-1.2.0.1.tar.gz" OutputPath="RapidOpenCL-1.2.0.1"/>
         <CMakeBuild Project="RapidOpenCL" Target="install" Configuration="release" OutputPath="_Install"/>
       </Pipeline>
       <Installation>

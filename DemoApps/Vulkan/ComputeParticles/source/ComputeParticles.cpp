@@ -27,7 +27,7 @@ namespace Fsl
 {
   namespace
   {
-    const uint32_t VERTEX_BUFFER_BIND_ID = 0;
+    constexpr uint32_t VertexBufferBindId = 0;
   }
 
 
@@ -231,7 +231,7 @@ namespace Fsl
           vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphics.PipelineLayout.Get(), 0, 1,
                                   &m_graphics.DescriptorSet, 0, nullptr);
 
-          vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_compute.StorageBuffer.GetBufferPointer(), &offsets);
+          vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VertexBufferBindId, 1, m_compute.StorageBuffer.GetBufferPointer(), &offsets);
           vkCmdDraw(m_drawCmdBuffers[i], m_optionParser->GetParticleCount(), 1, 0, 0);
 
           DrawUI(m_drawCmdBuffers[i]);
@@ -290,7 +290,7 @@ namespace Fsl
 
     // Binding description
     m_vertices.BindingDescriptions.resize(1);
-    m_vertices.BindingDescriptions[0].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.BindingDescriptions[0].binding = VertexBufferBindId;
     m_vertices.BindingDescriptions[0].stride = sizeof(Particle);
     m_vertices.BindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
@@ -299,13 +299,13 @@ namespace Fsl
     m_vertices.AttributeDescriptions.resize(2);
     // Location 0 : Position
     m_vertices.AttributeDescriptions[0].location = 0;
-    m_vertices.AttributeDescriptions[0].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[0].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
     m_vertices.AttributeDescriptions[0].offset = offsetof(Particle, Pos);
 
     // Location 1 : Gradient position
     m_vertices.AttributeDescriptions[1].location = 1;
-    m_vertices.AttributeDescriptions[1].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[1].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
     m_vertices.AttributeDescriptions[1].offset = offsetof(Particle, GradientPos);
 
@@ -668,7 +668,7 @@ namespace Fsl
       bufferBarrier.srcQueueFamilyIndex =
         m_vulkanDevice.GetQueueFamilyIndices().Graphics;    // Required as compute and graphics queue may have different families
       bufferBarrier.dstQueueFamilyIndex =
-        m_vulkanDevice.GetQueueFamilyIndices().Compute;     // Required as compute and graphics queue may have different families
+        m_vulkanDevice.GetQueueFamilyIndices().Compute;    // Required as compute and graphics queue may have different families
 
       vkCmdPipelineBarrier(m_compute.CommandBuffer.Get(), VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                            Willems::Config::FLAGS_NONE, 0, nullptr, 1, &bufferBarrier, 0, nullptr);
@@ -689,7 +689,7 @@ namespace Fsl
       // Compute and graphics queue may have different queue families (see VulkanDevice::createLogicalDevice)
       // For the barrier to work across different queues, we need to set their family indices
       bufferBarrier.srcQueueFamilyIndex =
-        m_vulkanDevice.GetQueueFamilyIndices().Compute;     // Required as compute and graphics queue may have different families
+        m_vulkanDevice.GetQueueFamilyIndices().Compute;    // Required as compute and graphics queue may have different families
       bufferBarrier.dstQueueFamilyIndex =
         m_vulkanDevice.GetQueueFamilyIndices().Graphics;    // Required as compute and graphics queue may have different families
 

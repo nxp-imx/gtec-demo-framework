@@ -41,7 +41,7 @@ using namespace Fsl;
 
 namespace
 {
-  const auto MAGIC_FORMATTED_EXCEPTION = "Custom Exception Message";
+  const auto g_magicFormattedException = "Custom Exception Message";
 
   using Test_ExceptionMessageFormatter = TestFixtureFslBase;
 
@@ -52,7 +52,7 @@ namespace
     {
       return false;
     }
-    rMessage = MAGIC_FORMATTED_EXCEPTION;
+    rMessage = g_magicFormattedException;
     return true;
   }
 }
@@ -77,7 +77,7 @@ TEST(Test_ExceptionMessageFormatter, TryFormatException)
   IndexOutOfRangeException ex;
   std::string message("foo");
   EXPECT_TRUE(formatter.TryFormatException(ex, message));
-  EXPECT_EQ(MAGIC_FORMATTED_EXCEPTION, message);
+  EXPECT_EQ(g_magicFormattedException, message);
 }
 
 

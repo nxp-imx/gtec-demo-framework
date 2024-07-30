@@ -37,7 +37,7 @@
 
 namespace Fsl
 {
-  inline std::ostream& operator<<(std::ostream& o, const StringViewLite& value)
+  inline std::ostream& operator<<(std::ostream& o, const StringViewLite value)
   {
     if (value.data() != nullptr)
     {

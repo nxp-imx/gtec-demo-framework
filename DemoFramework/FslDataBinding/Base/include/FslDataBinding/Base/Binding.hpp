@@ -32,7 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Create.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslDataBinding/Base/Bind/IComplexBinding.hpp>
 #include <FslDataBinding/Base/Bind/IMultiBinding.hpp>
 #include <FslDataBinding/Base/Bind/ISingleBinding.hpp>
@@ -124,8 +125,7 @@ namespace Fsl::DataBinding
 
     inline ReadOnlySpan<DataBindingInstanceHandle> SourceHandlesAsSpan() const noexcept
     {
-      return m_multiSource.empty() ? ReadOnlySpan<DataBindingInstanceHandle>(&m_hPrimarySource, 1u, OptimizationCheckFlag::NoCheck)
-                                   : ReadOnlySpanUtil::AsSpan(m_multiSource);
+      return m_multiSource.empty() ? SpanUtil::UncheckedCreateReadOnly(&m_hPrimarySource, 1u) : SpanUtil::AsReadOnlySpan(m_multiSource);
     }
 
     BindingMode Mode() const noexcept

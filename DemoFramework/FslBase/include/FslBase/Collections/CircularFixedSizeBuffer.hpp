@@ -1,7 +1,7 @@
 #ifndef FSLBASE_COLLECTIONS_CIRCULARFIXEDSIZEBUFFER_HPP
 #define FSLBASE_COLLECTIONS_CIRCULARFIXEDSIZEBUFFER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <cassert>
 #include <cstddef>
 #include <stdexcept>
@@ -70,6 +71,7 @@ namespace Fsl
       }
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const_reference front() const
     {
       // There must be at least one entry for the front call to be valid
@@ -80,6 +82,7 @@ namespace Fsl
       return m_data[m_frontIndex];
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     reference front()
     {
       // There must be at least one entry for the front call to be valid
@@ -90,6 +93,7 @@ namespace Fsl
       return m_data[m_frontIndex];
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const_reference back() const
     {
       // There must be at least one entry for the back call to be valid
@@ -100,6 +104,7 @@ namespace Fsl
       return m_data[(m_frontIndex + m_entries - 1u) % m_data.size()];
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     reference back()
     {
       // There must be at least one entry for the back call to be valid
@@ -134,6 +139,7 @@ namespace Fsl
       return m_data[(m_frontIndex + pos) % m_data.size()];
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     reference at(size_type pos)
     {
       if (pos >= size())
@@ -146,6 +152,7 @@ namespace Fsl
       return m_data.at((m_frontIndex + pos) % m_data.size());
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const_reference at(size_type pos) const
     {
       if (pos >= size())
@@ -158,21 +165,25 @@ namespace Fsl
       return m_data.at((m_frontIndex + pos) % m_data.size());
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     bool empty() const noexcept
     {
       return m_entries <= 0u;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     size_type size() const noexcept
     {
       return m_entries;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     size_type capacity() const noexcept
     {
       return m_data.size();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void clear() noexcept
     {
       while (m_entries > 0u)
@@ -183,6 +194,7 @@ namespace Fsl
       m_frontIndex = 0u;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void push_back(const T& value)
     {
       if (m_entries >= m_data.size())
@@ -196,6 +208,7 @@ namespace Fsl
       assert(m_entries <= m_data.size());
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void push_back(T&& value)
     {
       if (m_entries >= m_data.size())
@@ -209,6 +222,7 @@ namespace Fsl
       assert(m_entries <= m_data.size());
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void push_front(const T& value)
     {
       if (m_entries >= m_data.size())
@@ -223,6 +237,7 @@ namespace Fsl
       assert(m_entries <= m_data.size());
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void push_front(T&& value)
     {
       if (m_entries >= m_data.size())
@@ -237,6 +252,7 @@ namespace Fsl
       assert(m_entries <= m_data.size());
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void pop_back()
     {
       assert(!empty());
@@ -245,6 +261,7 @@ namespace Fsl
       assert(m_entries <= m_data.size());
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void pop_front()
     {
       assert(!empty());
@@ -255,6 +272,7 @@ namespace Fsl
       assert(m_entries <= m_data.size());
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void grow(const size_type growCapacityBy)
     {
       if (growCapacityBy <= 0)
@@ -290,6 +308,7 @@ namespace Fsl
       }
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void resize_pop_front(const size_type newSize)
     {
       if (newSize < m_data.size())
@@ -323,6 +342,7 @@ namespace Fsl
       }
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr uint32_t segment_count() const noexcept
     {
       return m_entries <= (m_data.size() - m_frontIndex) ? (m_entries > 0 ? 1u : 0u) : 2u;
@@ -333,9 +353,8 @@ namespace Fsl
       assert(segmentIndex < segment_count());
       const auto maxEntriesFirstSegment = (m_data.size() - m_frontIndex);
       return segmentIndex == 0
-               ? ReadOnlySpan<T>(m_data.data() + m_frontIndex, (m_entries >= maxEntriesFirstSegment ? maxEntriesFirstSegment : m_entries),
-                                 OptimizationCheckFlag::NoCheck)
-               : ReadOnlySpan<T>(m_data.data(), m_entries - maxEntriesFirstSegment, OptimizationCheckFlag::NoCheck);
+               ? SpanUtil::UncheckedAsReadOnlySpan(m_data, m_frontIndex, (m_entries >= maxEntriesFirstSegment ? maxEntriesFirstSegment : m_entries))
+               : SpanUtil::UncheckedFirstReadOnlySpan(m_data, m_entries - maxEntriesFirstSegment);
     }
   };
 }

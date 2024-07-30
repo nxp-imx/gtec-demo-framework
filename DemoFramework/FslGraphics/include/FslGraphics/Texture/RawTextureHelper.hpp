@@ -32,19 +32,20 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslGraphics/Bitmap/RawBitmap.hpp>
+#include <FslGraphics/Bitmap/ReadOnlyRawBitmap.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
-#include <FslGraphics/Texture/RawTexture.hpp>
+#include <FslGraphics/Texture/ReadOnlyRawTexture.hpp>
 
 namespace Fsl::RawTextureHelper
 {
-  inline RawTexture ToRawTexture(const RawBitmap& rawBitmap)
+  inline ReadOnlyRawTexture ToRawTexture(const ReadOnlyRawBitmap& rawBitmap)
   {
     if (rawBitmap.Stride() != PixelFormatUtil::CalcMinimumStride(rawBitmap.Width(), rawBitmap.GetPixelFormat()))
     {
       throw NotSupportedException("Can only convert a bitmap using the minimum stride to a raw texture");
     }
-    return {rawBitmap.Content(), rawBitmap.GetByteSize(), rawBitmap.GetExtent(), rawBitmap.GetPixelFormat(), rawBitmap.GetOrigin()};
+    return ReadOnlyRawTexture::Create(ReadOnlySpan<uint8_t>(reinterpret_cast<const uint8_t*>(rawBitmap.Content()), rawBitmap.GetByteSize()),
+                                      rawBitmap.GetExtent(), rawBitmap.GetPixelFormat(), rawBitmap.GetOrigin());
   }
 }
 

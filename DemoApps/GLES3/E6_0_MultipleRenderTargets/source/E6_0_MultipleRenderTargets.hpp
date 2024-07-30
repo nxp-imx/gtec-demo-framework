@@ -13,26 +13,27 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class E6_0_MultipleRenderTargets : public DemoAppGLES3
   {
     struct UserData
     {
-      GLuint fbo;
+      GLuint Fbo;
 
       // Texture handle
-      std::array<GLuint, 4> colorTexId{};
+      std::array<GLuint, 4> ColorTexId{};
 
       // Texture size
-      GLsizei textureWidth{0};
-      GLsizei textureHeight{0};
+      GLsizei TextureWidth{0};
+      GLsizei TextureHeight{0};
 
       UserData()
-        : fbo(GLES3::GLValues::INVALID_HANDLE)
+        : Fbo(GLES3::GLValues::InvalidHandle)
       {
-        colorTexId[0] = GLES3::GLValues::INVALID_HANDLE;
-        colorTexId[1] = GLES3::GLValues::INVALID_HANDLE;
-        colorTexId[2] = GLES3::GLValues::INVALID_HANDLE;
-        colorTexId[3] = GLES3::GLValues::INVALID_HANDLE;
+        ColorTexId[0] = GLES3::GLValues::InvalidHandle;
+        ColorTexId[1] = GLES3::GLValues::InvalidHandle;
+        ColorTexId[2] = GLES3::GLValues::InvalidHandle;
+        ColorTexId[3] = GLES3::GLValues::InvalidHandle;
       }
     };
 

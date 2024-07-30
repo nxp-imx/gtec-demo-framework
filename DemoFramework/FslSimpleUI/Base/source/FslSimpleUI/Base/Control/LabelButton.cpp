@@ -32,7 +32,6 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
 #include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
 #include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
@@ -52,8 +51,8 @@ namespace Fsl::UI
   using TDef = DataBinding::DependencyPropertyDefinition;
   using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
 
-  TDef TClass::PropertyColorUp = TFactory::Create<Color, TClass, &TClass::GetColorUp, &TClass::SetColorUp>("ColorUp");
-  TDef TClass::PropertyColorDown = TFactory::Create<Color, TClass, &TClass::GetColorDown, &TClass::SetColorDown>("ColorDown");
+  TDef TClass::PropertyColorUp = TFactory::Create<UIColor, TClass, &TClass::GetColorUp, &TClass::SetColorUp>("ColorUp");
+  TDef TClass::PropertyColorDown = TFactory::Create<UIColor, TClass, &TClass::GetColorDown, &TClass::SetColorDown>("ColorDown");
   TDef TClass::PropertyContent = TFactory::Create<StringViewLite, TClass, &TClass::GetContent, &TClass::SetContent>("Content");
 }
 
@@ -63,6 +62,8 @@ namespace Fsl::UI
     : ButtonBase(context)
     , m_windowContext(context)
     , m_fontMesh(context->TheUIContext.Get()->MeshManager, context->DefaultFont)
+    , m_propertyColorUp(context->ColorConverter, DefaultColor::Button::Up)
+    , m_propertyColorDown(context->ColorConverter, DefaultColor::Button::Down)
   {
     Enable(WindowFlags(WindowFlags::DrawEnabled));
   }
@@ -85,7 +86,7 @@ namespace Fsl::UI
     const bool changed = m_propertyContent.Set(ThisDependencyObject(), value);
     if (changed)
     {
-      m_fontMesh.SetText(StringViewLiteUtil::AsStringViewLite(value));
+      m_fontMesh.SetText(StringViewLite(value));
       PropertyUpdated(PropertyType::Content);
     }
     return changed;
@@ -101,9 +102,9 @@ namespace Fsl::UI
   }
 
 
-  bool LabelButton::SetColorUp(const Color value)
+  bool LabelButton::SetColorUp(const UIColor value)
   {
-    const bool changed = m_propertyColorUp.Set(ThisDependencyObject(), value);
+    const bool changed = m_propertyColorUp.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -112,9 +113,9 @@ namespace Fsl::UI
   }
 
 
-  bool LabelButton::SetColorDown(const Color value)
+  bool LabelButton::SetColorDown(const UIColor value)
   {
-    const bool changed = m_propertyColorDown.Set(ThisDependencyObject(), value);
+    const bool changed = m_propertyColorDown.Set(GetContext()->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Other);
@@ -129,7 +130,7 @@ namespace Fsl::UI
 
     if (m_fontMesh.IsValid())
     {
-      const auto color = !IsDown() ? m_propertyColorUp.Get() : m_propertyColorDown.Get();
+      const auto color = !IsDown() ? m_propertyColorUp.InternalColor : m_propertyColorDown.InternalColor;
       context.CommandBuffer.Draw(m_fontMesh.Get(), context.TargetRect.TopLeft(), m_cachedMeasureMinimalFontSizePx, GetFinalBaseColor() * color);
     }
   }
@@ -153,8 +154,8 @@ namespace Fsl::UI
   DataBinding::DataBindingInstanceHandle LabelButton::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
   {
     auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(
-      this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyColorUp, m_propertyColorUp),
-      DataBinding::PropLinkRefs(PropertyColorDown, m_propertyColorDown), DataBinding::PropLinkRefs(PropertyContent, m_propertyContent));
+      this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyColorUp, m_propertyColorUp.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyColorDown, m_propertyColorDown.ExternalColor), DataBinding::PropLinkRefs(PropertyContent, m_propertyContent));
     return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
   }
 
@@ -163,8 +164,8 @@ namespace Fsl::UI
                                                                       const DataBinding::Binding& binding)
   {
     auto res = DataBinding::DependencyObjectHelper::TrySetBinding(
-      this, ThisDependencyObject(), targetDef, binding, DataBinding::PropLinkRefs(PropertyColorUp, m_propertyColorUp),
-      DataBinding::PropLinkRefs(PropertyColorDown, m_propertyColorDown), DataBinding::PropLinkRefs(PropertyContent, m_propertyContent));
+      this, ThisDependencyObject(), targetDef, binding, DataBinding::PropLinkRefs(PropertyColorUp, m_propertyColorUp.ExternalColor),
+      DataBinding::PropLinkRefs(PropertyColorDown, m_propertyColorDown.ExternalColor), DataBinding::PropLinkRefs(PropertyContent, m_propertyContent));
     return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
   }
 

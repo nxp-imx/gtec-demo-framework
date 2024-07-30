@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXSIZE1D_HPP
 #define FSLBASE_MATH_PIXEL_PXSIZE1D_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,10 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxValue.hpp>
+#include <FslBase/Math/Pixel/PxValueU.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <cassert>
+#include <compare>
 #include <limits>
 
 namespace Fsl
@@ -43,10 +45,12 @@ namespace Fsl
   struct PxSize1D
   {
     using value_type = PxValue;
+    using unsigned_value_type = PxValueU;
     using raw_value_type = value_type::raw_value_type;
+    using raw_unsigned_value_type = unsigned_value_type::raw_value_type;
 
   private:
-    value_type m_value{};
+    value_type m_value;
 
     explicit constexpr PxSize1D(const raw_value_type value) noexcept
       : m_value(value >= 0 ? value : 0)
@@ -86,9 +90,19 @@ namespace Fsl
       return m_value;
     }
 
+    constexpr inline unsigned_value_type UnsignedValue() const noexcept
+    {
+      return PxValueU(static_cast<raw_unsigned_value_type>(m_value.Value));
+    }
+
     constexpr inline raw_value_type RawValue() const noexcept
     {
       return m_value.Value;
+    }
+
+    constexpr inline raw_unsigned_value_type RawUnsignedValue() const noexcept
+    {
+      return static_cast<raw_unsigned_value_type>(m_value.Value);
     }
 
     inline constexpr const PxSize1D& operator++() noexcept
@@ -353,112 +367,33 @@ namespace Fsl
     {
       return PxSize1D(value, OptimizationCheckFlag::NoCheck);
     }
+
+    // op<==>
+    constexpr auto operator<=>(const PxSize1D& other) const noexcept = default;
+    // op==
+    constexpr bool operator==(const PxSize1D& other) const noexcept = default;
   };
 
-  // op==
 
-  constexpr bool operator==(const PxSize1D lhs, const PxSize1D rhs) noexcept
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
+  // PxSize1D::value_type
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
+
+  inline constexpr auto operator<=>(const PxSize1D lhs, const PxSize1D::value_type rhs) noexcept
   {
-    return lhs.Value() == rhs.Value();
+    return lhs.Value() <=> rhs;
   }
 
-  constexpr bool operator==(const PxSize1D::value_type lhs, const PxSize1D rhs) noexcept
-  {
-    return lhs == rhs.Value();
-  }
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-  constexpr bool operator==(const PxSize1D lhs, const PxSize1D::value_type rhs) noexcept
+  inline constexpr bool operator==(const PxSize1D lhs, const PxSize1D::value_type rhs) noexcept
   {
     return lhs.Value() == rhs;
   }
 
-  // op!=
-
-  constexpr bool operator!=(const PxSize1D lhs, const PxSize1D rhs) noexcept
-  {
-    return lhs.Value() != rhs.Value();
-  }
-
-  constexpr bool operator!=(const PxSize1D::value_type lhs, const PxSize1D rhs) noexcept
-  {
-    return lhs != rhs.Value();
-  }
-
-  constexpr bool operator!=(const PxSize1D lhs, const PxSize1D::value_type rhs) noexcept
-  {
-    return lhs.Value() != rhs;
-  }
-
-  // op<
-
-  inline constexpr bool operator<(const PxSize1D lhs, const PxSize1D rhs) noexcept
-  {
-    return lhs.Value() < rhs.Value();
-  }
-
-  inline constexpr bool operator<(const PxSize1D::value_type lhs, const PxSize1D rhs) noexcept
-  {
-    return lhs < rhs.Value();
-  }
-
-  inline constexpr bool operator<(const PxSize1D lhs, const PxSize1D::value_type rhs) noexcept
-  {
-    return lhs.Value() < rhs;
-  }
-
-  // op<=
-
-  inline constexpr bool operator<=(const PxSize1D lhs, const PxSize1D rhs) noexcept
-  {
-    return lhs.Value() <= rhs.Value();
-  }
-
-  inline constexpr bool operator<=(const PxSize1D::value_type lhs, const PxSize1D rhs) noexcept
-  {
-    return lhs <= rhs.Value();
-  }
-
-  inline constexpr bool operator<=(const PxSize1D lhs, const PxSize1D::value_type rhs) noexcept
-  {
-    return lhs.Value() <= rhs;
-  }
-
-  // op>
-
-  inline constexpr bool operator>(const PxSize1D lhs, const PxSize1D rhs) noexcept
-  {
-    return lhs.Value() > rhs.Value();
-  }
-
-  inline constexpr bool operator>(const PxSize1D::value_type lhs, const PxSize1D rhs) noexcept
-  {
-    return lhs > rhs.Value();
-  }
-
-  inline constexpr bool operator>(const PxSize1D lhs, const PxSize1D::value_type rhs) noexcept
-  {
-    return lhs.Value() > rhs;
-  }
-
-  // op>=
-
-  inline constexpr bool operator>=(const PxSize1D lhs, const PxSize1D rhs) noexcept
-  {
-    return lhs.Value() >= rhs.Value();
-  }
-
-  inline constexpr bool operator>=(const PxSize1D::value_type lhs, const PxSize1D rhs) noexcept
-  {
-    return lhs >= rhs.Value();
-  }
-
-  inline constexpr bool operator>=(const PxSize1D lhs, const PxSize1D::value_type rhs) noexcept
-  {
-    return lhs.Value() >= rhs;
-  }
-
-
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
   // op add
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
   inline constexpr PxSize1D operator+(const PxSize1D lhs, const PxSize1D rhs) noexcept
   {
@@ -475,7 +410,9 @@ namespace Fsl
     return PxSize1D::Add(lhs, rhs);
   }
 
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
   // op sub
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
   inline constexpr PxSize1D::value_type operator-(const PxSize1D lhs, const PxSize1D rhs) noexcept
   {
@@ -492,7 +429,9 @@ namespace Fsl
     return PxSize1D::Subtract(lhs, rhs);
   }
 
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
   // op multiply
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
   inline constexpr PxSize1D operator*(const PxSize1D lhs, const PxSize1D rhs) noexcept
   {
@@ -509,7 +448,9 @@ namespace Fsl
     return PxSize1D::Multiply(lhs, rhs);
   }
 
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
   // op divide
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
   inline constexpr PxSize1D operator/(const PxSize1D lhs, const PxSize1D rhs)
   {
@@ -527,14 +468,18 @@ namespace Fsl
   }
 
 
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
   // op modulo
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
   inline constexpr PxSize1D operator%(const PxSize1D lhs, const PxSize1D rhs)
   {
     return PxSize1D::Modulo(lhs, rhs);
   }
 
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
   // op +=
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
   inline constexpr PxValue operator+=(PxValue& rLhs, const PxSize1D rhs) noexcept
   {
@@ -542,7 +487,9 @@ namespace Fsl
     return rLhs;
   }
 
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
   // op -=
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
   inline constexpr PxValue operator-=(PxValue& rLhs, const PxSize1D rhs) noexcept
   {
@@ -550,7 +497,9 @@ namespace Fsl
     return rLhs;
   }
 
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
   // op *=
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
   inline constexpr PxValue operator*=(PxValue& rLhs, const PxSize1D rhs) noexcept
   {

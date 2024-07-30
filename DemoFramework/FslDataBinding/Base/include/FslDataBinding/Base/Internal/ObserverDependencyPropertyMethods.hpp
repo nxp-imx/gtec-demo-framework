@@ -43,6 +43,12 @@ namespace Fsl::DataBinding::Internal
   public:
     explicit ObserverDependencyPropertyMethods(IObjectObserver* const pObserver);
 
+
+    bool IsReadOnly() const noexcept final
+    {
+      return true;
+    }
+
     std::type_index GetType() const final;
 
     PropertyMethodsImplType GetImplType() const noexcept final

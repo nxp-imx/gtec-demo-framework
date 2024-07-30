@@ -48,7 +48,7 @@ namespace Fsl
     using raw_value_type = value_type::raw_value_type;
 
   private:
-    value_type m_value{};
+    value_type m_value;
 
     explicit constexpr PxSize1DF(const value_type::value_type value) noexcept
       : m_value(value >= 0.0f ? value : 0.0f)

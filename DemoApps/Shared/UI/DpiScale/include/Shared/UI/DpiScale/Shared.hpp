@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxRectangle2D.hpp>
-#include <FslBase/Transition/TransitionCache.hpp>
 #include <FslBase/Transition/TransitionValue.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
@@ -136,7 +135,6 @@ namespace Fsl
     std::shared_ptr<ImageSprite> m_fillSprite;
     AtlasTexture2D m_texFill;
 
-    TransitionCache m_transitionCache;
     TransitionValue m_exampleYPosition;
 
   public:
@@ -149,8 +147,8 @@ namespace Fsl
     }
 
     // From EventListener
-    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
-    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
+    void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
+    void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
 
 
     void OnKeyEvent(const KeyEvent& event);

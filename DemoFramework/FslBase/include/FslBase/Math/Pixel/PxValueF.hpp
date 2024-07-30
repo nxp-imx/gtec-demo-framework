@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXVALUEF_HPP
 #define FSLBASE_MATH_PIXEL_PXVALUEF_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ namespace Fsl
     {
     }
 
-    PxValueF operator-() noexcept
+    inline constexpr PxValueF operator-() const noexcept
     {
       return PxValueF(-Value);
     }
@@ -193,6 +193,16 @@ namespace Fsl
   inline constexpr PxValueF operator*(const PxValueF lhs, const PxValueF rhs) noexcept
   {
     return PxValueF(lhs.Value * rhs.Value);
+  }
+
+  inline constexpr PxValueF operator*(const float lhs, const PxValueF rhs) noexcept
+  {
+    return PxValueF(lhs * rhs.Value);
+  }
+
+  inline constexpr PxValueF operator*(const PxValueF lhs, const float rhs) noexcept
+  {
+    return PxValueF(lhs.Value * rhs);
   }
 
   // op divide

@@ -4,7 +4,7 @@
     <Default.Platform.Supported Value="false"/>
     <Requirement Name="GoogleBenchmark" Type="feature"/>
     <Platform Name="Ubuntu;Windows" Supported="true">
-      <Dependency Name="Recipe.benchmark_1_6"/>
+      <Dependency Name="Recipe.benchmark_1_8"/>
     </Platform>    
     
   </ExternalLibrary>

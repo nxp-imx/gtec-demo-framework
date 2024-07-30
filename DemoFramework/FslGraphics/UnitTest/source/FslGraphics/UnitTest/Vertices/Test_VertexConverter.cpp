@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,14 +52,14 @@ namespace
 
 TEST(TestVertices_VertexConverter, Convert_VertexPositionColorToVertexPositionColor)
 {
-  constexpr Vector3 pos1(1.0f, 2.0f, 3.0f);
-  constexpr Vector4 col1(4.0f, 5.0f, 6.0f, 7.0f);
-  constexpr Vector3 pos2(8.0f, 9.0f, 10.0f);
-  constexpr Vector4 col2(11.0f, 12.0f, 13.0f, 14.0f);
-  constexpr Vector3 pos3(15.0f, 16.0f, 17.0f);
-  constexpr Vector4 col3(18.0f, 19.0f, 20.0f, 21.0f);
-  const std::array<VertexPositionColorF, 3> src = {VertexPositionColorF(pos1, col1), VertexPositionColorF(pos2, col2),
-                                                   VertexPositionColorF(pos3, col3)};
+  constexpr Vector3 Pos1(1.0f, 2.0f, 3.0f);
+  constexpr Vector4 Col1(4.0f, 5.0f, 6.0f, 7.0f);
+  constexpr Vector3 Pos2(8.0f, 9.0f, 10.0f);
+  constexpr Vector4 Col2(11.0f, 12.0f, 13.0f, 14.0f);
+  constexpr Vector3 Pos3(15.0f, 16.0f, 17.0f);
+  constexpr Vector4 Col3(18.0f, 19.0f, 20.0f, 21.0f);
+  const std::array<VertexPositionColorF, 3> src = {VertexPositionColorF(Pos1, Col1), VertexPositionColorF(Pos2, Col2),
+                                                   VertexPositionColorF(Pos3, Col3)};
   std::array<VertexPositionColorF, 3> dst;
 
   VertexConverter::Convert(dst.data(), dst.size(), src.data(), src.size());
@@ -72,14 +72,14 @@ TEST(TestVertices_VertexConverter, Convert_VertexPositionColorToVertexPositionCo
 
 TEST(TestVertices_VertexConverter, Convert_VertexPositionColorToVertexPosition)
 {
-  constexpr Vector3 pos1(1.0f, 2.0f, 3.0f);
-  constexpr Vector4 col1(4.0f, 5.0f, 6.0f, 7.0f);
-  constexpr Vector3 pos2(8.0f, 9.0f, 10.0f);
-  constexpr Vector4 col2(11.0f, 12.0f, 13.0f, 14.0f);
-  constexpr Vector3 pos3(15.0f, 16.0f, 17.0f);
-  constexpr Vector4 col3(18.0f, 19.0f, 20.0f, 21.0f);
-  const std::array<VertexPositionColorF, 3> src = {VertexPositionColorF(pos1, col1), VertexPositionColorF(pos2, col2),
-                                                   VertexPositionColorF(pos3, col3)};
+  constexpr Vector3 Pos1(1.0f, 2.0f, 3.0f);
+  constexpr Vector4 Col1(4.0f, 5.0f, 6.0f, 7.0f);
+  constexpr Vector3 Pos2(8.0f, 9.0f, 10.0f);
+  constexpr Vector4 Col2(11.0f, 12.0f, 13.0f, 14.0f);
+  constexpr Vector3 Pos3(15.0f, 16.0f, 17.0f);
+  constexpr Vector4 Col3(18.0f, 19.0f, 20.0f, 21.0f);
+  const std::array<VertexPositionColorF, 3> src = {VertexPositionColorF(Pos1, Col1), VertexPositionColorF(Pos2, Col2),
+                                                   VertexPositionColorF(Pos3, Col3)};
   std::array<VertexPosition, 3> dst;
 
   VertexConverter::Convert(dst.data(), dst.size(), src.data(), src.size());

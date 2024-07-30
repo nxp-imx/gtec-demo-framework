@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017, 2022-2023 NXP
+ * Copyright 2017, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@
 #include <FslBase/Math/Ray.hpp>
 #include <FslBase/Math/ViewportUtil.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorF.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
@@ -61,7 +62,7 @@ namespace Fsl
 
   namespace
   {
-    const float DEFAULT_ZOOM = 10;
+    constexpr float DefaultZoom = 10;
   }
 
 
@@ -82,7 +83,7 @@ namespace Fsl
 
     RegisterExtension(m_menuUI.GetUIDemoAppExtension());
 
-    m_camera.SetPosition(Vector3(0, 0, DEFAULT_ZOOM), Vector3(), Vector3::Up());
+    m_camera.SetPosition(Vector3(0, 0, DefaultZoom), Vector3(), Vector3::Up());
 
     m_lightFragUboData.LightDirection.Normalize();
 
@@ -146,7 +147,7 @@ namespace Fsl
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
-        m_camera.SetPosition(Vector3(0, 0, DEFAULT_ZOOM), Vector3(), Vector3::Up());
+        m_camera.SetPosition(Vector3(0, 0, DefaultZoom), Vector3(), Vector3::Up());
         event.Handled();
       }
       break;
@@ -363,7 +364,7 @@ namespace Fsl
       for (auto& rEntry : m_resources.Objects)
       {
         // Load the matrices
-        if (m_resources.ProgDirectionalLight.LocWorldView != GLValues::INVALID_LOCATION)
+        if (m_resources.ProgDirectionalLight.LocWorldView != GLValues::InvalidLocation)
         {
           glUniformMatrix4fv(m_resources.ProgDirectionalLight.LocWorldView, 1, 0, rEntry.WorldViewMatrix.DirectAccess());
         }
@@ -438,7 +439,7 @@ namespace Fsl
     {
       for (auto& rEntry : m_resources.Objects)
       {
-        m_resources.LineBuild.Add(m_resources.Meshes[rEntry.MeshIndex].TheBoundingBox, Color::Red(), rEntry.WorldMatrix);
+        m_resources.LineBuild.Add(m_resources.Meshes[rEntry.MeshIndex].TheBoundingBox, Colors::Red(), rEntry.WorldMatrix);
       }
     }
 
@@ -448,35 +449,35 @@ namespace Fsl
       {
         if (i != m_selectedIndex || !m_hasSelectedObject)
         {
-          m_resources.LineBuild.Add(m_resources.Objects[i].MeshAABB, Color::Blue());
+          m_resources.LineBuild.Add(m_resources.Objects[i].MeshAABB, Colors::Blue());
         }
       }
     }
     if (m_hasSelectedObject)
     {
-      m_resources.LineBuild.Add(m_resources.Objects[m_selectedIndex].MeshAABB, Color::White());
+      m_resources.LineBuild.Add(m_resources.Objects[m_selectedIndex].MeshAABB, Colors::White());
     }
 
     // Draw bounding boxes
 
     {
-      // DrawLine(m_mousePositionNear, m_mousePositionFar, Color::Pink());
+      // DrawLine(m_mousePositionNear, m_mousePositionFar, Colors::Pink());
 
       if (m_menuUI.IsDrawNearPlaneMouseEnabled())
       {
         const float magic = 0.001f;
         m_resources.LineBuild.Add(m_mousePositionNear + Vector3(-magic, -magic, 0.0f), m_mousePositionNear + Vector3(Vector3(magic, magic, 0.0f)),
-                                  Color::Pink());
+                                  Colors::Pink());
         m_resources.LineBuild.Add(m_mousePositionNear + Vector3(magic, -magic, 0.0f), m_mousePositionNear + Vector3(Vector3(-magic, magic, 0.0f)),
-                                  Color::Pink());
+                                  Colors::Pink());
       }
       if (m_menuUI.IsDrawFarPlaneMouseEnabled())
       {
         const float magic = 5.0f;
         m_resources.LineBuild.Add(m_mousePositionFar + Vector3(-magic, -magic, 1.0f), m_mousePositionFar + Vector3(Vector3(magic, magic, 1.0f)),
-                                  Color::Cyan());
+                                  Colors::Cyan());
         m_resources.LineBuild.Add(m_mousePositionFar + Vector3(magic, -magic, 1.0f), m_mousePositionFar + Vector3(Vector3(-magic, magic, 1.0f)),
-                                  Color::Cyan());
+                                  Colors::Cyan());
       }
     }
 

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2023 NXP
+ * Copyright 2021-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 #include <FslBase/Math/MathHelper_Clamp.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslBase/Time/TimeSpan.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
@@ -41,9 +41,6 @@
 #include <FslGraphics/Sprite/Info/Core/RenderBasicImageInfo.hpp>
 #include <FslGraphics/Sprite/Info/Core/RenderNineSliceInfo.hpp>
 #include <FslGraphics/Sprite/NineSliceSprite.hpp>
-#include <FslGraphics2D/Procedural/Builder/ScopedCustomUITextMeshBuilder2D.hpp>
-#include <FslGraphics2D/Procedural/Builder/UIRawBasicMeshBuilder2D.hpp>
-#include <FslGraphics2D/Procedural/Builder/UIRawMeshBuilder2D.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
@@ -51,6 +48,10 @@
 #include <FslSimpleUI/Controls/Charts/Data/ChartDataView.hpp>
 #include <FslSimpleUI/Controls/Charts/Grid/IChartGridLines.hpp>
 #include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
+#include <FslSimpleUI/Render/Base/UIRenderColor.hpp>
+#include <FslSimpleUI/Render/Builder/ScopedCustomUITextMeshBuilder2D.hpp>
+#include <FslSimpleUI/Render/Builder/UIRawBasicMeshBuilder2D.hpp>
+#include <FslSimpleUI/Render/Builder/UIRawMeshBuilder2D.hpp>
 #include <cmath>
 #include "Render/ChartDataWindowDrawData.hpp"
 
@@ -92,15 +93,15 @@ namespace Fsl::UI
 
     namespace LocalDefaultColors
     {
-      constexpr Color GridLine(0x80505050);
-      constexpr Color ToolTipBackground = Color(0xB0000000);
-      constexpr Color ToolTipLabel = Color::White();
+      constexpr UIColor GridLine(PackedColor32(0x80505050));
+      constexpr UIColor ToolTipBackground(PackedColor32(0xB0000000));
+      constexpr UIColor ToolTipLabel = UIColors::White();
     }
 
 
     void DrawCustomGridLinesNow(UIRawMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx,
                                 const RenderBasicImageInfo& renderInfo, const ReadOnlySpan<Render::ChartDataWindowDrawData::GridLineRecord> gridLines,
-                                const Color mainColor)
+                                const UIRenderColor mainColor)
     {
       const float dstX1Pxf = dstPositionPxf.X.Value + static_cast<float>(dstSizePx.RawWidth());
       // const int32_t heightPx = dstSizePx.Height();
@@ -111,7 +112,7 @@ namespace Fsl::UI
       {
         const Render::ChartDataWindowDrawData::GridLineRecord& record = gridLines[i];
 
-        rBuilder.SetColor(Color::Premultiply(Color::ApplyAlpha(mainColor, record.Alpha)));
+        rBuilder.SetColor(UIRenderColor::Premultiply(UIRenderColor::MultiplyA(mainColor, record.Alpha)));
 
         const int32_t offsetYPx = record.LinePositionPx.Value;
         rBuilder.AddRect(dstPositionPxf.X.Value, dstPositionPxf.Y.Value + static_cast<float>(offsetYPx), dstX1Pxf,
@@ -121,7 +122,7 @@ namespace Fsl::UI
 
     void DrawCustomGridLabelsBGNow(UIRawMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx,
                                    const RenderNineSliceInfo& renderInfo,
-                                   const ReadOnlySpan<Render::ChartDataWindowDrawData::GridLineRecord> gridLines, const Color mainColor)
+                                   const ReadOnlySpan<Render::ChartDataWindowDrawData::GridLineRecord> gridLines, const UIRenderColor mainColor)
     {
       const PxAreaRectangleF clipRectanglePx(dstPositionPxf.X, dstPositionPxf.Y, PxSize1DF(dstSizePx.Width()), PxSize1DF(dstSizePx.Height()));
 
@@ -141,7 +142,7 @@ namespace Fsl::UI
           static_cast<float>(gridLineEntry.LabelBackgroundRectanglePx.RawHeight()) - renderInfo.ScaledTrimMarginPxf.RawRight();
         if (renderWidthPxf > 0 && renderHeightPxf > 0)
         {
-          rBuilder.SetColor(Color::Premultiply(Color::ApplyAlpha(mainColor, gridLineEntry.Alpha)));
+          rBuilder.SetColor(UIRenderColor::Premultiply(UIRenderColor::MultiplyA(mainColor, gridLineEntry.Alpha)));
 
           const auto xOffsetPxf = static_cast<float>(gridLineEntry.LabelBackgroundRectanglePx.RawLeft());
           const auto yOffsetPxf = static_cast<float>(gridLineEntry.LabelBackgroundRectanglePx.RawTop());
@@ -165,7 +166,7 @@ namespace Fsl::UI
     }
 
     void DrawCustomGridLabelsNow(ScopedCustomUITextMeshBuilder2D& rTextBuilder, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx,
-                                 const ReadOnlySpan<Render::ChartDataWindowDrawData::GridLineRecord> gridLines, const Color mainColor)
+                                 const ReadOnlySpan<Render::ChartDataWindowDrawData::GridLineRecord> gridLines, const UIRenderColor mainColor)
     {
       const PxAreaRectangleF clipRectanglePx(dstPositionPxf.X, dstPositionPxf.Y, PxSize1DF(dstSizePx.Width()), PxSize1DF(dstSizePx.Height()));
 
@@ -176,11 +177,11 @@ namespace Fsl::UI
       for (uint32_t i = 0; i < gridLineCount; ++i)
       {
         const Render::ChartDataWindowDrawData::GridLineRecord& record = gridLines[i];
-        const auto strView = StringViewLiteUtil::AsStringViewLite(record.Label);
+        const StringViewLite strView(record.Label);
         const PxValue xPositionPx = record.LabelOffsetPx.X;
         const PxValue yPositionPx = record.LabelOffsetPx.Y;
 
-        rTextBuilder.SetColor(Color::Premultiply(Color::ApplyAlpha(mainColor, record.Alpha)));
+        rTextBuilder.SetColor(UIRenderColor::Premultiply(UIRenderColor::MultiplyA(mainColor, record.Alpha)));
 
         if (yPositionPx.Value >= 0 && (yPositionPx + record.LabelSizePx.Height()) <= dstSizePx.Height())
         {
@@ -195,7 +196,7 @@ namespace Fsl::UI
 
     void DrawGraphSegmentNow(UIRawBasicMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const PxValue dstXPosCurrent, const PxValue maxYPx,
                              const uint32_t channelCount, const ChartDataEntry& entry, const float dataRenderScalePxf, const PxSize1D entryPixelWidth,
-                             std::array<Color, UI::Render::ChartDataWindowDrawDataConfig::MaxStackedEntries> premultipliedColors,
+                             std::array<UIRenderColor, UI::Render::ChartDataWindowDrawDataConfig::MaxStackedEntries> premultipliedColors,
                              const NativeTextureArea& textureArea)
     {
       PxValue lastPx = maxYPx + PxValue(1);
@@ -299,17 +300,15 @@ namespace Fsl::UI
       const auto* pChartWindow = dynamic_cast<const Render::ChartDataWindowDrawData*>(pCustomDrawData);
       if (pChartWindow != nullptr)
       {
-        const Color mainColor = rBuilder.GetColor();
+        const UIRenderColor mainColor(rBuilder.GetColor());
 
         // Draw entries that are fading out to ensure they are behind everything
-        DrawCustomGridLinesNow(
-          rBuilder, dstPositionPxf, dstSizePx, renderInfo,
-          ReadOnlySpanUtil::AsSpan(pChartWindow->FadingGridLines, 0, pChartWindow->FadingGridLineCount, OptimizationCheckFlag::NoCheck), mainColor);
+        DrawCustomGridLinesNow(rBuilder, dstPositionPxf, dstSizePx, renderInfo,
+                               SpanUtil::UncheckedAsReadOnlySpan(pChartWindow->FadingGridLines, 0, pChartWindow->FadingGridLineCount), mainColor);
 
         // Draw all fading-in or fully visible entries
         DrawCustomGridLinesNow(rBuilder, dstPositionPxf, dstSizePx, renderInfo,
-                               ReadOnlySpanUtil::AsSpan(pChartWindow->GridLines, 0, pChartWindow->GridLineCount, OptimizationCheckFlag::NoCheck),
-                               mainColor);
+                               SpanUtil::UncheckedAsReadOnlySpan(pChartWindow->GridLines, 0, pChartWindow->GridLineCount), mainColor);
       }
     }
 
@@ -320,17 +319,15 @@ namespace Fsl::UI
       const auto* pChartWindow = dynamic_cast<const Render::ChartDataWindowDrawData*>(pCustomDrawData);
       if (pChartWindow != nullptr)
       {
-        const Color mainColor = rBuilder.GetColor();
+        const UIRenderColor mainColor(rBuilder.GetColor());
 
         // Draw entries that are fading out to ensure they are behind everything
-        DrawCustomGridLabelsBGNow(
-          rBuilder, dstPositionPxf, dstSizePx, renderInfo,
-          ReadOnlySpanUtil::AsSpan(pChartWindow->FadingGridLines, 0, pChartWindow->FadingGridLineCount, OptimizationCheckFlag::NoCheck), mainColor);
+        DrawCustomGridLabelsBGNow(rBuilder, dstPositionPxf, dstSizePx, renderInfo,
+                                  SpanUtil::UncheckedAsReadOnlySpan(pChartWindow->FadingGridLines, 0, pChartWindow->FadingGridLineCount), mainColor);
 
         // Draw all fading-in or fully visible entries
         DrawCustomGridLabelsBGNow(rBuilder, dstPositionPxf, dstSizePx, renderInfo,
-                                  ReadOnlySpanUtil::AsSpan(pChartWindow->GridLines, 0, pChartWindow->GridLineCount, OptimizationCheckFlag::NoCheck),
-                                  mainColor);
+                                  SpanUtil::UncheckedAsReadOnlySpan(pChartWindow->GridLines, 0, pChartWindow->GridLineCount), mainColor);
       }
     }
 
@@ -340,25 +337,22 @@ namespace Fsl::UI
       const auto* pChartWindow = dynamic_cast<const Render::ChartDataWindowDrawData*>(pCustomDrawData);
       if (pChartWindow != nullptr)
       {
-        const Color mainColor = rTextBuilder.GetColor();
+        const UIRenderColor mainColor(rTextBuilder.GetColor());
 
         // Draw entries that are fading out to ensure they are behind everything
-        DrawCustomGridLabelsNow(
-          rTextBuilder, dstPositionPxf, dstSizePx,
-          ReadOnlySpanUtil::AsSpan(pChartWindow->FadingGridLines, 0, pChartWindow->FadingGridLineCount, OptimizationCheckFlag::NoCheck), mainColor);
+        DrawCustomGridLabelsNow(rTextBuilder, dstPositionPxf, dstSizePx,
+                                SpanUtil::UncheckedAsReadOnlySpan(pChartWindow->FadingGridLines, 0, pChartWindow->FadingGridLineCount), mainColor);
 
         // Draw all fading-in or fully visible entries
         DrawCustomGridLabelsNow(rTextBuilder, dstPositionPxf, dstSizePx,
-                                ReadOnlySpanUtil::AsSpan(pChartWindow->GridLines, 0, pChartWindow->GridLineCount, OptimizationCheckFlag::NoCheck),
-                                mainColor);
+                                SpanUtil::UncheckedAsReadOnlySpan(pChartWindow->GridLines, 0, pChartWindow->GridLineCount), mainColor);
       }
     }
   }
 
   AreaChart::AreaChart(const std::shared_ptr<BaseWindowContext>& context)
     : BaseWindow(context)
-    , m_gridLineManager(context->UITransitionCache, LocalConfig::ViewChangeTime, LocalConfig::LabelFadeTime,
-                        context->UnitConverter.DpToPxSize1D(LocalConfig::ChartBarWidthDp),
+    , m_gridLineManager(LocalConfig::ViewChangeTime, LocalConfig::LabelFadeTime, context->UnitConverter.DpToPxSize1D(LocalConfig::ChartBarWidthDp),
                         context->UnitConverter.DpToPxSize1D(LocalConfig::ChartLabelSpacingDp))
     , m_chartWindowDrawData(std::make_shared<Render::ChartDataWindowDrawData>(context->UnitConverter))
     , m_graphMesh(context->TheUIContext.Get()->MeshManager, 6)
@@ -366,9 +360,9 @@ namespace Fsl::UI
     , m_gridLabelsBackground(context->TheUIContext.Get()->MeshManager, LocalConfig::MaxGridLineLabelsBGVertices,
                              LocalConfig::MaxGridLineLabelsBGIndices)
     , m_gridLabelsMesh(context->TheUIContext.Get()->MeshManager, LocalConfig::MaxGridLineLabelsVertices, LocalConfig::MaxGridLineLabelsIndices)
-    , m_lineColor(LocalDefaultColors::GridLine)
-    , m_backgroundColor(LocalDefaultColors::ToolTipBackground)
-    , m_labelColor(LocalDefaultColors::ToolTipLabel)
+    , m_lineColor(context->ColorConverter, LocalDefaultColors::GridLine)
+    , m_backgroundColor(context->ColorConverter, LocalDefaultColors::ToolTipBackground)
+    , m_labelColor(context->ColorConverter, LocalDefaultColors::ToolTipLabel)
     , m_renderPolicy(ChartRenderPolicy::Measure)
     , m_propertyMatchDataViewEntries(true)
   {
@@ -377,10 +371,10 @@ namespace Fsl::UI
     {
       auto& rColorArray = m_chartWindowDrawData->ChartColors;
       static_assert(4 <= std::tuple_size<std::remove_reference_t<decltype(rColorArray)>>(), "assumption failed");
-      rColorArray[0] = Color::Red();
-      rColorArray[1] = Color::Green();
-      rColorArray[2] = Color::Blue();
-      rColorArray[3] = Color::Cyan();
+      rColorArray[0] = context->ColorConverter.Convert(UIColors::Red());
+      rColorArray[1] = context->ColorConverter.Convert(UIColors::Green());
+      rColorArray[2] = context->ColorConverter.Convert(UIColors::Blue());
+      rColorArray[3] = context->ColorConverter.Convert(UIColors::Cyan());
     }
   }
 
@@ -495,31 +489,28 @@ namespace Fsl::UI
     return SetDataView(std::make_shared<ChartDataView>(data));
   }
 
-  void AreaChart::SetLineColor(const Color color)
+  void AreaChart::SetLineColor(const UIColor color)
   {
-    if (color != m_lineColor)
+    if (m_lineColor.Set(GetContext()->ColorConverter, color))
     {
-      m_lineColor = color;
       PropertyUpdated(PropertyType::Other);
     }
   }
 
 
-  void AreaChart::SetBackgroundColor(const Color color)
+  void AreaChart::SetBackgroundColor(const UIColor color)
   {
-    if (color != m_backgroundColor)
+    if (m_backgroundColor.Set(GetContext()->ColorConverter, color))
     {
-      m_backgroundColor = color;
       PropertyUpdated(PropertyType::Other);
     }
   }
 
 
-  void AreaChart::SetLabelColor(const Color color)
+  void AreaChart::SetLabelColor(const UIColor color)
   {
-    if (color != m_labelColor)
+    if (m_labelColor.Set(GetContext()->ColorConverter, color))
     {
-      m_labelColor = color;
       PropertyUpdated(PropertyType::Other);
     }
   }
@@ -569,7 +560,7 @@ namespace Fsl::UI
     m_gridLineManager.ExtractDrawData(*m_chartWindowDrawData, RenderSizePx(), GetLabelBackground().get(), GetFont().get(),
                                       m_propertyMatchDataViewEntries.Get());
 
-    const Color finalBaseColor(GetFinalBaseColor());
+    const UIRenderColor finalBaseColor(GetFinalBaseColor());
 
     if (m_graphMesh.IsValid())
     {
@@ -579,18 +570,18 @@ namespace Fsl::UI
     }
     if (m_gridLinesMesh.IsValid())
     {
-      context.CommandBuffer.DrawCustom(m_gridLinesMesh.Get(), context.TargetRect.Location(), RenderSizePx(), finalBaseColor * m_lineColor,
-                                       DrawCustomGridLines, m_chartWindowDrawData);
+      context.CommandBuffer.DrawCustom(m_gridLinesMesh.Get(), context.TargetRect.Location(), RenderSizePx(),
+                                       finalBaseColor * m_lineColor.GetInternalColor(), DrawCustomGridLines, m_chartWindowDrawData);
     }
     if (m_gridLabelsBackground.IsValid())
     {
       context.CommandBuffer.DrawCustom(m_gridLabelsBackground.Get(), context.TargetRect.Location(), RenderSizePx(),
-                                       finalBaseColor * m_backgroundColor, DrawCustomGridLabelsBG, m_chartWindowDrawData);
+                                       finalBaseColor * m_backgroundColor.GetInternalColor(), DrawCustomGridLabelsBG, m_chartWindowDrawData);
     }
     if (m_gridLabelsMesh.IsValid())
     {
-      context.CommandBuffer.DrawCustom(m_gridLabelsMesh.Get(), context.TargetRect.Location(), RenderSizePx(), finalBaseColor * m_labelColor,
-                                       DrawCustomGridLabels, m_chartWindowDrawData);
+      context.CommandBuffer.DrawCustom(m_gridLabelsMesh.Get(), context.TargetRect.Location(), RenderSizePx(),
+                                       finalBaseColor * m_labelColor.GetInternalColor(), DrawCustomGridLabels, m_chartWindowDrawData);
     }
 
     if (m_gridLineManager.IsAnimating())
@@ -678,12 +669,14 @@ namespace Fsl::UI
 
     if (pDataViewElement != nullptr)
     {
+      const auto colorConverter = GetContext()->ColorConverter;
+
       {    // Extract colors
         const auto channelCount = pDataViewElement->ChannelCount();
         for (uint32_t i = 0; i < channelCount; ++i)
         {
           auto metaData = pDataViewElement->GetChannelMetaDataInfo(i);
-          rDrawData.SetEntryColor(i, metaData.PrimaryColor);
+          rDrawData.SetEntryColor(i, colorConverter.Convert(metaData.PrimaryColor));
         }
       }
 

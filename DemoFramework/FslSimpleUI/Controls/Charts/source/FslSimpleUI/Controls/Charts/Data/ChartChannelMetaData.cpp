@@ -34,7 +34,7 @@
 
 namespace Fsl::UI
 {
-  ChartChannelMetaData::ChartChannelMetaData(std::string label, Color primaryColor)
+  ChartChannelMetaData::ChartChannelMetaData(std::string label, UIColor primaryColor)
     : Label(std::move(label))
     , PrimaryColor(primaryColor)
   {

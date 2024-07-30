@@ -42,7 +42,7 @@ namespace Fsl
 
   protected:
     //! @brief Overload this
-    void Run() override{};
+    void Run() override {};
   };
 }
 

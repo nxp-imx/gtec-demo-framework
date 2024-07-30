@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,14 +43,15 @@
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/String/ToString.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <Shared/LineBuilder101/LineBuilderExample.hpp>
 
 namespace Fsl
 {
   namespace
   {
-    const Vector3 DEFAULT_CAMERA_POSITION(2.0f, 2.0f, 4.0f);
-    const Vector3 DEFAULT_CAMERA_TARGET(0.0f, 0.0f, 0.0f);
+    constexpr Vector3 DefaultCameraPosition(2.0f, 2.0f, 4.0f);
+    constexpr Vector3 DefaultCameraTarget(0.0f, 0.0f, 0.0f);
   }
 
   LineBuilderExample::LineBuilderExample(const ServiceProvider& serviceProvider)
@@ -59,7 +60,7 @@ namespace Fsl
     , m_mouse(serviceProvider.Get<IMouse>())
     , m_demoAppControl(serviceProvider.Get<IDemoAppControl>())
   {
-    m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+    m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
   }
 
   void LineBuilderExample::OnMouseButtonEvent(const MouseButtonEvent& event)
@@ -88,7 +89,7 @@ namespace Fsl
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
-        m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+        m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
         event.Handled();
       }
       break;
@@ -179,16 +180,16 @@ namespace Fsl
 
   void LineBuilderExample::BuildLineScene1()
   {
-    constexpr auto testScale = 0.25f;
-    const auto matTest = Matrix::CreatePerspective(3.2f * testScale, 2.4f * testScale, 1 * testScale, 3 * testScale);
+    constexpr auto TestScale = 0.25f;
+    const auto matTest = Matrix::CreatePerspective(3.2f * TestScale, 2.4f * TestScale, 1 * TestScale, 3 * TestScale);
 
     m_lineBuilder.AddGridXZ(Rect(-40.0f, -40.0f, 80.0f, 80.0f), 0.0f, 79 + 1, Color(0.5f, 0.5f, 0.5f, 1.0f));
 
     // Default axis coordinates at 0,0,0
     m_lineBuilder.AddAxis(Vector3(0, 0, 0), 2.5f);
 
-    m_lineBuilder.Add(Ray(Vector3(1.5f, 0.5f, 0.5f), Vector3::Forward()), Color::Brown());
-    m_lineBuilder.Add(BoundingBox(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.25f, 0.25f, 0.25f)), Color::Orange());
+    m_lineBuilder.Add(Ray(Vector3(1.5f, 0.5f, 0.5f), Vector3::Forward()), Colors::Brown());
+    m_lineBuilder.Add(BoundingBox(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.25f, 0.25f, 0.25f)), Colors::Orange());
 
     m_lineBuilder.Add(BoxF(1.25f, 1.25f, 1.75f, 1.75f), Color(150u, 150u, 0u, 255u));
     m_lineBuilder.Add(Rect(1.25f, 0.25f, 0.5f, 0.5f), Color(0u, 200u, 0u, 255u));
@@ -201,8 +202,8 @@ namespace Fsl
 
     m_lineBuilder.AddAxisSphere(Vector3(0.5f, 0.5f, 0.5f), 0.25f, 64);
 
-    m_lineBuilder.Add(Vector3(1.25f, 0.0f, 1.0f), Vector3(1.25f, 0.0f, 0.0f), Color::Red(), Color::Blue());
-    m_lineBuilder.Add(Vector3(1.75f, 0.0f, 1.0f), Vector3(1.75f, 0.0f, 0.0f), Color::Green());
+    m_lineBuilder.Add(Vector3(1.25f, 0.0f, 1.0f), Vector3(1.25f, 0.0f, 0.0f), Colors::Red(), Colors::Blue());
+    m_lineBuilder.Add(Vector3(1.75f, 0.0f, 1.0f), Vector3(1.75f, 0.0f, 0.0f), Colors::Green());
 
     {    // Render three rotating axis
       auto matAxis1 = Matrix::CreateRotationX(m_radians1) * Matrix::CreateTranslation(0.0f, 0.0f, 1.5f);
@@ -213,10 +214,10 @@ namespace Fsl
 
       // Add a few bounding boxes for flavor
       const BoundingBox boundingBox(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.05f, 0.05f, 0.05f));
-      m_lineBuilder.Add(boundingBox, Color::Orange(), matAxis1);
-      m_lineBuilder.Add(boundingBox, Color::Orange(), matAxis2);
-      m_lineBuilder.Add(boundingBox, Color::Orange(), matAxis3);
-      m_lineBuilder.Add(boundingBox, Color::Orange(), matAxis4);
+      m_lineBuilder.Add(boundingBox, Colors::Orange(), matAxis1);
+      m_lineBuilder.Add(boundingBox, Colors::Orange(), matAxis2);
+      m_lineBuilder.Add(boundingBox, Colors::Orange(), matAxis3);
+      m_lineBuilder.Add(boundingBox, Colors::Orange(), matAxis4);
 
       // Add the axis
       m_lineBuilder.AddAxis(Vector3(0, 0, 0), 0.25f, matAxis1);
@@ -235,16 +236,16 @@ namespace Fsl
 
   void LineBuilderExample::BuildLineScene2()
   {
-    constexpr auto testScale = 0.25f;
-    const auto matTest = Matrix::CreatePerspective(3.2f * testScale, 2.4f * testScale, 1 * testScale, 3 * testScale);
+    constexpr auto TestScale = 0.25f;
+    const auto matTest = Matrix::CreatePerspective(3.2f * TestScale, 2.4f * TestScale, 1 * TestScale, 3 * TestScale);
 
     auto matRot = Matrix::CreateTranslation(-2.0f, 0.0f, 0.0f) * Matrix::CreateRotationX(m_radians1) * Matrix::CreateRotationY(m_radians2) *
                   Matrix::CreateRotationZ(m_radians3) * Matrix::CreateScale(0.25f) * Matrix::CreateTranslation(-1.0f, 0.0f, 0.0f);
 
     m_lineBuilder.AddGridXZ(Rect(-2.0f, -2.0f, 4.0f, 4.0f), 0.0f, 3 + 1, Color(0.5f, 0.5f, 0.5f, 1.0f), matRot);
 
-    m_lineBuilder.Add(Ray(Vector3(1.5f, 0.5f, 0.5f), Vector3::Forward()), Color::Brown(), matRot);
-    m_lineBuilder.Add(BoundingBox(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.25f, 0.25f, 0.25f)), Color::Orange(), matRot);
+    m_lineBuilder.Add(Ray(Vector3(1.5f, 0.5f, 0.5f), Vector3::Forward()), Colors::Brown(), matRot);
+    m_lineBuilder.Add(BoundingBox(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.25f, 0.25f, 0.25f)), Colors::Orange(), matRot);
     m_lineBuilder.Add(BoxF(1.25f, 1.25f, 1.75f, 1.75f), Color(150u, 150u, 0u, 255u), matRot);
     m_lineBuilder.Add(Rect(1.25f, 0.25f, 0.5f, 0.5f), Color(0u, 200u, 0u, 255u), matRot);
     m_lineBuilder.Add(Rectangle(1, 0, 1, 1), Color(200u, 0u, 0u, 255u), matRot);
@@ -254,8 +255,8 @@ namespace Fsl
     m_lineBuilder.Add(BoundingSphere(Vector3(0.5f, 0.5f, 0.5f), 0.5f), Color(0u, 200u, 200u, 255u), matRot, 128);
     m_lineBuilder.AddAxisSphere(Vector3(0.5f, 0.5f, 0.5f), 0.25f, matRot, 64);
 
-    m_lineBuilder.Add(Vector3(1.25f, 0.0f, 1.0f), Vector3(1.25f, 0.0f, 0.0f), Color::Red(), Color::Blue(), matRot);
-    m_lineBuilder.Add(Vector3(1.75f, 0.0f, 1.0f), Vector3(1.75f, 0.0f, 0.0f), Color::Green(), matRot);
+    m_lineBuilder.Add(Vector3(1.25f, 0.0f, 1.0f), Vector3(1.25f, 0.0f, 0.0f), Colors::Red(), Colors::Blue(), matRot);
+    m_lineBuilder.Add(Vector3(1.75f, 0.0f, 1.0f), Vector3(1.75f, 0.0f, 0.0f), Colors::Green(), matRot);
 
     {    // Render three rotating axis
       auto matAxis1 = Matrix::CreateRotationX(m_radians1) * Matrix::CreateTranslation(0.0f, 0.0f, 1.5f) * matRot;
@@ -266,10 +267,10 @@ namespace Fsl
 
       // Add a few bounding boxes for flavor
       const BoundingBox boundingBox(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.05f, 0.05f, 0.05f));
-      m_lineBuilder.Add(boundingBox, Color::Orange(), matAxis1);
-      m_lineBuilder.Add(boundingBox, Color::Orange(), matAxis2);
-      m_lineBuilder.Add(boundingBox, Color::Orange(), matAxis3);
-      m_lineBuilder.Add(boundingBox, Color::Orange(), matAxis4);
+      m_lineBuilder.Add(boundingBox, Colors::Orange(), matAxis1);
+      m_lineBuilder.Add(boundingBox, Colors::Orange(), matAxis2);
+      m_lineBuilder.Add(boundingBox, Colors::Orange(), matAxis3);
+      m_lineBuilder.Add(boundingBox, Colors::Orange(), matAxis4);
 
       // Add the axis
       m_lineBuilder.AddAxis(Vector3(0, 0, 0), 0.25f, matAxis1);

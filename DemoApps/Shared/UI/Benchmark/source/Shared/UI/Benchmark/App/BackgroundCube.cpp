@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
-#include <FslGraphics/Color.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/Render/Basic/BasicCameraInfo.hpp>
 #include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
 #include <FslGraphics/Render/Basic/IBasicStaticBuffer.hpp>
@@ -62,76 +62,76 @@ namespace Fsl
     // |\|
     // A C
     // A = 1.0
-    constexpr const float CUBE_DIMENSIONS = 100.0f;
+    constexpr const float CubeDimensions = 100.0f;
 
-    constexpr const float CUBE_CEILING = CUBE_DIMENSIONS;
-    constexpr const float CUBE_FLOOR = -CUBE_DIMENSIONS;
+    constexpr const float CubeCeiling = CubeDimensions;
+    constexpr const float CubeFloor = -CubeDimensions;
 
-    constexpr const float CUBE_LEFT = -CUBE_DIMENSIONS;
-    constexpr const float CUBE_RIGHT = CUBE_DIMENSIONS;
-    constexpr const float CUBE_BACK = CUBE_DIMENSIONS;      // zBack
-    constexpr const float CUBE_FRONT = -CUBE_DIMENSIONS;    // zFront
-    constexpr const float CUBE_U0 = 0.0f;
-    constexpr const float CUBE_U1 = 1.0f;
-    constexpr const float CUBE_V0 = 1.0f;
-    constexpr const float CUBE_V1 = 0.0f;
-    constexpr const Color CUBE_COLOR = Color::White();
+    constexpr const float CubeLeft = -CubeDimensions;
+    constexpr const float CubeRight = CubeDimensions;
+    constexpr const float CubeBack = CubeDimensions;      // zBack
+    constexpr const float CubeFront = -CubeDimensions;    // zFront
+    constexpr const float CubeU0 = 0.0f;
+    constexpr const float CubeU1 = 1.0f;
+    constexpr const float CubeV0 = 1.0f;
+    constexpr const float CubeV1 = 0.0f;
+    constexpr const Color CubeColor = Colors::White();
 
 
     const std::array<VertexPositionColorTexture, 6 * 6> g_vertices = {
       // Floor
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V1)),      // LB
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V1)),     // LF
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V0)),    // RF
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeFloor, CubeBack), CubeColor, Vector2(CubeU1, CubeV1)),      // LB
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeFloor, CubeFront), CubeColor, Vector2(CubeU0, CubeV1)),     // LF
+      VertexPositionColorTexture(Vector3(CubeRight, CubeFloor, CubeFront), CubeColor, Vector2(CubeU0, CubeV0)),    // RF
 
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V1)),      // LB
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V0)),    // RF
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V0)),     // RB
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeFloor, CubeBack), CubeColor, Vector2(CubeU1, CubeV1)),      // LB
+      VertexPositionColorTexture(Vector3(CubeRight, CubeFloor, CubeFront), CubeColor, Vector2(CubeU0, CubeV0)),    // RF
+      VertexPositionColorTexture(Vector3(CubeRight, CubeFloor, CubeBack), CubeColor, Vector2(CubeU1, CubeV0)),     // RB
 
       // Ceiling
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V1)),     // LF
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V1)),      // LB
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V0)),    // RF
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), CubeColor, Vector2(CubeU1, CubeV1)),     // LF
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), CubeColor, Vector2(CubeU0, CubeV1)),      // LB
+      VertexPositionColorTexture(Vector3(CubeRight, CubeCeiling, CubeFront), CubeColor, Vector2(CubeU1, CubeV0)),    // RF
 
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V0)),    // RF
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V1)),      // LB
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V0)),     // RB
+      VertexPositionColorTexture(Vector3(CubeRight, CubeCeiling, CubeFront), CubeColor, Vector2(CubeU1, CubeV0)),    // RF
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), CubeColor, Vector2(CubeU0, CubeV1)),      // LB
+      VertexPositionColorTexture(Vector3(CubeRight, CubeCeiling, CubeBack), CubeColor, Vector2(CubeU0, CubeV0)),     // RB
 
       // Back wall
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V0)),
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V1)),
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V1)),
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), CubeColor, Vector2(CubeU1, CubeV0)),
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeFloor, CubeBack), CubeColor, Vector2(CubeU1, CubeV1)),
+      VertexPositionColorTexture(Vector3(CubeRight, CubeFloor, CubeBack), CubeColor, Vector2(CubeU0, CubeV1)),
 
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V0)),
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V1)),
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V0)),
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), CubeColor, Vector2(CubeU1, CubeV0)),
+      VertexPositionColorTexture(Vector3(CubeRight, CubeFloor, CubeBack), CubeColor, Vector2(CubeU0, CubeV1)),
+      VertexPositionColorTexture(Vector3(CubeRight, CubeCeiling, CubeBack), CubeColor, Vector2(CubeU0, CubeV0)),
 
       // Front wall
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V0)),
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V1)),
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V1)),
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), CubeColor, Vector2(CubeU0, CubeV0)),
+      VertexPositionColorTexture(Vector3(CubeRight, CubeFloor, CubeFront), CubeColor, Vector2(CubeU1, CubeV1)),
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeFloor, CubeFront), CubeColor, Vector2(CubeU0, CubeV1)),
 
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V0)),
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V0)),
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V1)),
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), CubeColor, Vector2(CubeU0, CubeV0)),
+      VertexPositionColorTexture(Vector3(CubeRight, CubeCeiling, CubeFront), CubeColor, Vector2(CubeU1, CubeV0)),
+      VertexPositionColorTexture(Vector3(CubeRight, CubeFloor, CubeFront), CubeColor, Vector2(CubeU1, CubeV1)),
 
       //// Right wall
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V1)),       // FB
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V1)),      // FF
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V0)),    // CF
+      VertexPositionColorTexture(Vector3(CubeRight, CubeFloor, CubeBack), CubeColor, Vector2(CubeU1, CubeV1)),       // FB
+      VertexPositionColorTexture(Vector3(CubeRight, CubeFloor, CubeFront), CubeColor, Vector2(CubeU0, CubeV1)),      // FF
+      VertexPositionColorTexture(Vector3(CubeRight, CubeCeiling, CubeFront), CubeColor, Vector2(CubeU0, CubeV0)),    // CF
 
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V1)),       // FB
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V0)),    // CF
-      VertexPositionColorTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V0)),     // CB
+      VertexPositionColorTexture(Vector3(CubeRight, CubeFloor, CubeBack), CubeColor, Vector2(CubeU1, CubeV1)),       // FB
+      VertexPositionColorTexture(Vector3(CubeRight, CubeCeiling, CubeFront), CubeColor, Vector2(CubeU0, CubeV0)),    // CF
+      VertexPositionColorTexture(Vector3(CubeRight, CubeCeiling, CubeBack), CubeColor, Vector2(CubeU1, CubeV0)),     // CB
 
       // Left wall
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V1)),      // FF
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V1)),       // FB
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V0)),    // CF
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeFloor, CubeFront), CubeColor, Vector2(CubeU1, CubeV1)),      // FF
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeFloor, CubeBack), CubeColor, Vector2(CubeU0, CubeV1)),       // FB
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), CubeColor, Vector2(CubeU1, CubeV0)),    // CF
 
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), CUBE_COLOR, Vector2(CUBE_U1, CUBE_V0)),    // CF
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V1)),       // FB
-      VertexPositionColorTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), CUBE_COLOR, Vector2(CUBE_U0, CUBE_V0)),     // CB
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), CubeColor, Vector2(CubeU1, CubeV0)),    // CF
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeFloor, CubeBack), CubeColor, Vector2(CubeU0, CubeV1)),       // FB
+      VertexPositionColorTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), CubeColor, Vector2(CubeU0, CubeV0)),     // CB
     };
   }
 
@@ -158,9 +158,9 @@ namespace Fsl
 
   BackgroundCube::BackgroundRecord BackgroundCube::CreateBackgroundResources(IBasicRenderSystem& render, IContentManager& contentManager)
   {
-    constexpr BitmapOrigin bitmapOrigin = BitmapOrigin::LowerLeft;
+    constexpr BitmapOrigin BitmapOrigin = BitmapOrigin::LowerLeft;
     Texture texture =
-      contentManager.ReadTexture(LocalConfig::BackgroundTexture, PixelFormat::R8G8B8A8_UNORM, bitmapOrigin, PixelChannelOrder::Undefined, true);
+      contentManager.ReadTexture(LocalConfig::BackgroundTexture, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin, PixelChannelOrder::Undefined, true);
     auto textureLogo = render.CreateTexture2D(texture, Texture2DFilterHint::Smooth);
 
     auto vertexSpan = ReadOnlyFlexVertexSpanUtil::AsSpan(g_vertices);

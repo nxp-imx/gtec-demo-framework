@@ -76,10 +76,10 @@ namespace Fsl::GLES2
 
   void GLBuffer::Reset() noexcept
   {
-    if (m_handle != GLValues::INVALID_HANDLE)
+    if (m_handle != GLValues::InvalidHandle)
     {
       glDeleteBuffers(1, &m_handle);
-      m_handle = GLValues::INVALID_HANDLE;
+      m_handle = GLValues::InvalidHandle;
       m_target = 0;
       m_capacity = 0;
       m_elementStride = 0;
@@ -152,7 +152,7 @@ namespace Fsl::GLES2
     }
 
     // If we don't have a handle -> allocate one
-    if (m_handle == GLValues::INVALID_HANDLE)
+    if (m_handle == GLValues::InvalidHandle)
     {
       GL_CHECK(glGenBuffers(1, &m_handle));
     }
@@ -186,7 +186,7 @@ namespace Fsl::GLES2
     }
 
     // If we don't have a handle -> allocate one
-    if (m_handle == GLValues::INVALID_HANDLE)
+    if (m_handle == GLValues::InvalidHandle)
     {
       GL_CHECK(glGenBuffers(1, &m_handle));
     }

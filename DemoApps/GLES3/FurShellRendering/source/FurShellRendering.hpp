@@ -116,7 +116,7 @@ namespace Fsl
     Matrix m_rotate;
     Matrix m_view;
     Matrix m_perspective;
-    Matrix m_MVP;
+    Matrix m_mvp;
     Matrix m_world;
 
     Vector3 m_gravity;

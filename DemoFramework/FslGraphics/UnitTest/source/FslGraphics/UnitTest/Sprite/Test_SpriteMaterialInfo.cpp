@@ -48,16 +48,16 @@ TEST(TestSprite_SpriteMaterialInfo, Constuct)
 
 TEST(TestSprite_SpriteMaterialInfo, Constuct_Values)
 {
-  constexpr SpriteMaterialId id(12);
-  constexpr auto extent = PxExtent2D::Create(42, 1337);
-  auto spriteMaterial = std::make_shared<SpriteMaterialImpl>(id, extent);
+  constexpr SpriteMaterialId Id(12);
+  constexpr auto Extent = PxExtent2D::Create(42, 1337);
+  auto spriteMaterial = std::make_shared<SpriteMaterialImpl>(Id, Extent);
 
-  constexpr bool isOpaque = true;
-  SpriteMaterialInfo info(id, extent, isOpaque, spriteMaterial);
+  constexpr bool IsOpaque = true;
+  SpriteMaterialInfo info(Id, Extent, IsOpaque, BasicPrimitiveTopology::TriangleList, spriteMaterial);
 
   EXPECT_TRUE(info.IsValid());
-  EXPECT_EQ(id, info.Id);
-  EXPECT_EQ(extent, info.ExtentPx);
-  EXPECT_EQ(isOpaque, info.IsOpaque);
+  EXPECT_EQ(Id, info.Id);
+  EXPECT_EQ(Extent, info.ExtentPx);
+  EXPECT_EQ(IsOpaque, info.IsOpaque);
   EXPECT_EQ(spriteMaterial, info.Material);
 }

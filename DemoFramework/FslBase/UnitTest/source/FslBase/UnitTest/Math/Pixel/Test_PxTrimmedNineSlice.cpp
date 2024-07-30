@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2023 NXP
+ * Copyright 2020, 2023-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,87 +53,87 @@ TEST(TestMathPixel_PxTrimmedNineSlice, Construct_Default)
 
 TEST(TestMathPixel_PxTrimmedNineSlice, Construct)
 {
-  constexpr auto sizePx = PxSize2D::Create(1, 2);
-  constexpr auto trimMarginPxf = PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f);
-  constexpr auto trimmedNineSlicePxf = PxThicknessF::Create(7.0f, 8.0f, 9.0f, 10.0f);
-  constexpr auto contentMarginPx = PxThickness::Create(11, 12, 13, 14);
+  constexpr auto SizePx = PxSize2D::Create(1, 2);
+  constexpr auto TrimMarginPxf = PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f);
+  constexpr auto TrimmedNineSlicePxf = PxThicknessF::Create(7.0f, 8.0f, 9.0f, 10.0f);
+  constexpr auto ContentMarginPx = PxThickness::Create(11, 12, 13, 14);
 
-  PxTrimmedNineSlice value(sizePx, trimMarginPxf, trimmedNineSlicePxf, contentMarginPx);
+  PxTrimmedNineSlice value(SizePx, TrimMarginPxf, TrimmedNineSlicePxf, ContentMarginPx);
 
-  EXPECT_EQ(sizePx, value.SizePx);
-  EXPECT_EQ(trimMarginPxf, value.TrimMarginPxf);
-  EXPECT_EQ(trimmedNineSlicePxf, value.TrimmedNineSlicePxf);
-  EXPECT_EQ(contentMarginPx, value.ContentMarginPx);
+  EXPECT_EQ(SizePx, value.SizePx);
+  EXPECT_EQ(TrimMarginPxf, value.TrimMarginPxf);
+  EXPECT_EQ(TrimmedNineSlicePxf, value.TrimmedNineSlicePxf);
+  EXPECT_EQ(ContentMarginPx, value.ContentMarginPx);
 }
 
 TEST(TestMathPixel_PxTrimmedNineSlice, OpEqual)
 {
-  constexpr auto sizePx = PxSize2D::Create(1, 2);
-  constexpr auto trimMarginPxf = PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f);
-  constexpr auto trimmedNineSlicePxf = PxThicknessF::Create(7.0f, 8.0f, 9.0f, 10.0f);
-  constexpr auto contentMarginPx = PxThickness::Create(11, 12, 13, 14);
+  constexpr auto SizePx = PxSize2D::Create(1, 2);
+  constexpr auto TrimMarginPxf = PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f);
+  constexpr auto TrimmedNineSlicePxf = PxThicknessF::Create(7.0f, 8.0f, 9.0f, 10.0f);
+  constexpr auto ContentMarginPx = PxThickness::Create(11, 12, 13, 14);
 
-  PxTrimmedNineSlice value0(sizePx, trimMarginPxf, trimmedNineSlicePxf, contentMarginPx);
-  PxTrimmedNineSlice value1(sizePx, trimMarginPxf, trimmedNineSlicePxf, contentMarginPx);
+  PxTrimmedNineSlice value0(SizePx, TrimMarginPxf, TrimmedNineSlicePxf, ContentMarginPx);
+  PxTrimmedNineSlice value1(SizePx, TrimMarginPxf, TrimmedNineSlicePxf, ContentMarginPx);
 
   EXPECT_EQ(value0, value1);
 }
 
 TEST(TestMathPixel_PxTrimmedNineSlice, NotOpEqual)
 {
-  constexpr auto sizePx = PxSize2D::Create(1, 2);
-  constexpr auto trimMarginPxf = PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f);
-  constexpr auto trimmedNineSlicePxf = PxThicknessF::Create(7.0f, 8.0f, 9.0f, 10.0f);
-  constexpr auto contentMarginPx = PxThickness::Create(11, 12, 13, 14);
+  constexpr auto SizePx = PxSize2D::Create(1, 2);
+  constexpr auto TrimMarginPxf = PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f);
+  constexpr auto TrimmedNineSlicePxf = PxThicknessF::Create(7.0f, 8.0f, 9.0f, 10.0f);
+  constexpr auto ContentMarginPx = PxThickness::Create(11, 12, 13, 14);
 
-  PxTrimmedNineSlice value(sizePx, trimMarginPxf, trimmedNineSlicePxf, contentMarginPx);
+  PxTrimmedNineSlice value(SizePx, TrimMarginPxf, TrimmedNineSlicePxf, ContentMarginPx);
 
-  constexpr auto size42Px = PxSize1D::Create(42);
-  constexpr auto size42Pxf = PxSize1DF::Create(42);
+  constexpr auto Size42Px = PxSize1D::Create(42);
+  constexpr auto Size42Pxf = PxSize1DF::Create(42);
 
-  EXPECT_NE(PxTrimmedNineSlice(PxSize2D(size42Px, sizePx.Height()), trimMarginPxf, trimmedNineSlicePxf, contentMarginPx), value);
-  EXPECT_NE(PxTrimmedNineSlice(PxSize2D(sizePx.Width(), size42Px), trimMarginPxf, trimmedNineSlicePxf, contentMarginPx), value);
+  EXPECT_NE(PxTrimmedNineSlice(PxSize2D(Size42Px, SizePx.Height()), TrimMarginPxf, TrimmedNineSlicePxf, ContentMarginPx), value);
+  EXPECT_NE(PxTrimmedNineSlice(PxSize2D(SizePx.Width(), Size42Px), TrimMarginPxf, TrimmedNineSlicePxf, ContentMarginPx), value);
 
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, PxThicknessF(size42Pxf, trimMarginPxf.Top(), trimMarginPxf.Right(), trimMarginPxf.Bottom()),
-                               trimmedNineSlicePxf, contentMarginPx),
+  EXPECT_NE(PxTrimmedNineSlice(SizePx, PxThicknessF(Size42Pxf, TrimMarginPxf.Top(), TrimMarginPxf.Right(), TrimMarginPxf.Bottom()),
+                               TrimmedNineSlicePxf, ContentMarginPx),
             value);
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, PxThicknessF(trimMarginPxf.Left(), size42Pxf, trimMarginPxf.Right(), trimMarginPxf.Bottom()),
-                               trimmedNineSlicePxf, contentMarginPx),
+  EXPECT_NE(PxTrimmedNineSlice(SizePx, PxThicknessF(TrimMarginPxf.Left(), Size42Pxf, TrimMarginPxf.Right(), TrimMarginPxf.Bottom()),
+                               TrimmedNineSlicePxf, ContentMarginPx),
             value);
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, PxThicknessF(trimMarginPxf.Left(), trimMarginPxf.Top(), size42Pxf, trimMarginPxf.Bottom()),
-                               trimmedNineSlicePxf, contentMarginPx),
+  EXPECT_NE(PxTrimmedNineSlice(SizePx, PxThicknessF(TrimMarginPxf.Left(), TrimMarginPxf.Top(), Size42Pxf, TrimMarginPxf.Bottom()),
+                               TrimmedNineSlicePxf, ContentMarginPx),
             value);
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, PxThicknessF(trimMarginPxf.Left(), trimMarginPxf.Top(), trimMarginPxf.Right(), size42Pxf), trimmedNineSlicePxf,
-                               contentMarginPx),
-            value);
-
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf,
-                               PxThicknessF(size42Pxf, trimmedNineSlicePxf.Top(), trimmedNineSlicePxf.Right(), trimmedNineSlicePxf.Bottom()),
-                               contentMarginPx),
-            value);
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf,
-                               PxThicknessF(trimmedNineSlicePxf.Left(), size42Pxf, trimmedNineSlicePxf.Right(), trimmedNineSlicePxf.Bottom()),
-                               contentMarginPx),
-            value);
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf,
-                               PxThicknessF(trimmedNineSlicePxf.Left(), trimmedNineSlicePxf.Top(), size42Pxf, trimmedNineSlicePxf.Bottom()),
-                               contentMarginPx),
-            value);
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf,
-                               PxThicknessF(trimmedNineSlicePxf.Left(), trimmedNineSlicePxf.Top(), trimmedNineSlicePxf.Right(), size42Pxf),
-                               contentMarginPx),
+  EXPECT_NE(PxTrimmedNineSlice(SizePx, PxThicknessF(TrimMarginPxf.Left(), TrimMarginPxf.Top(), TrimMarginPxf.Right(), Size42Pxf), TrimmedNineSlicePxf,
+                               ContentMarginPx),
             value);
 
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf, trimmedNineSlicePxf,
-                               PxThickness(size42Px, contentMarginPx.Top(), contentMarginPx.Right(), contentMarginPx.Bottom())),
+  EXPECT_NE(PxTrimmedNineSlice(SizePx, TrimMarginPxf,
+                               PxThicknessF(Size42Pxf, TrimmedNineSlicePxf.Top(), TrimmedNineSlicePxf.Right(), TrimmedNineSlicePxf.Bottom()),
+                               ContentMarginPx),
             value);
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf, trimmedNineSlicePxf,
-                               PxThickness(contentMarginPx.Left(), size42Px, contentMarginPx.Right(), contentMarginPx.Bottom())),
+  EXPECT_NE(PxTrimmedNineSlice(SizePx, TrimMarginPxf,
+                               PxThicknessF(TrimmedNineSlicePxf.Left(), Size42Pxf, TrimmedNineSlicePxf.Right(), TrimmedNineSlicePxf.Bottom()),
+                               ContentMarginPx),
             value);
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf, trimmedNineSlicePxf,
-                               PxThickness(contentMarginPx.Left(), contentMarginPx.Top(), size42Px, contentMarginPx.Bottom())),
+  EXPECT_NE(PxTrimmedNineSlice(SizePx, TrimMarginPxf,
+                               PxThicknessF(TrimmedNineSlicePxf.Left(), TrimmedNineSlicePxf.Top(), Size42Pxf, TrimmedNineSlicePxf.Bottom()),
+                               ContentMarginPx),
             value);
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf, trimmedNineSlicePxf,
-                               PxThickness(contentMarginPx.Left(), contentMarginPx.Top(), contentMarginPx.Right(), size42Px)),
+  EXPECT_NE(PxTrimmedNineSlice(SizePx, TrimMarginPxf,
+                               PxThicknessF(TrimmedNineSlicePxf.Left(), TrimmedNineSlicePxf.Top(), TrimmedNineSlicePxf.Right(), Size42Pxf),
+                               ContentMarginPx),
+            value);
+
+  EXPECT_NE(PxTrimmedNineSlice(SizePx, TrimMarginPxf, TrimmedNineSlicePxf,
+                               PxThickness(Size42Px, ContentMarginPx.Top(), ContentMarginPx.Right(), ContentMarginPx.Bottom())),
+            value);
+  EXPECT_NE(PxTrimmedNineSlice(SizePx, TrimMarginPxf, TrimmedNineSlicePxf,
+                               PxThickness(ContentMarginPx.Left(), Size42Px, ContentMarginPx.Right(), ContentMarginPx.Bottom())),
+            value);
+  EXPECT_NE(PxTrimmedNineSlice(SizePx, TrimMarginPxf, TrimmedNineSlicePxf,
+                               PxThickness(ContentMarginPx.Left(), ContentMarginPx.Top(), Size42Px, ContentMarginPx.Bottom())),
+            value);
+  EXPECT_NE(PxTrimmedNineSlice(SizePx, TrimMarginPxf, TrimmedNineSlicePxf,
+                               PxThickness(ContentMarginPx.Left(), ContentMarginPx.Top(), ContentMarginPx.Right(), Size42Px)),
             value);
 }

@@ -35,6 +35,7 @@
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/System/Platform/PlatformPathTransform.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Util/Graphics/Service/ImageLibrary/ImageLibraryServiceDevIL.hpp>
@@ -294,17 +295,17 @@ namespace Fsl
     };
 
 
-    void ResetObject(Bitmap& rBitmap, std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat,
+    void ResetObject(Bitmap& rBitmap, std::vector<uint8_t>&& content, const PxSize2D sizePx, const PixelFormat pixelFormat,
                      const BitmapOrigin bitmapOrigin)
     {
-      rBitmap.Reset(std::move(content), extent, pixelFormat, bitmapOrigin);
+      rBitmap.Reset(std::move(content), sizePx, pixelFormat, bitmapOrigin);
     }
 
 
-    void ResetObject(Texture& rTexture, std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat,
+    void ResetObject(Texture& rTexture, std::vector<uint8_t>&& content, const PxSize2D sizePx, const PixelFormat pixelFormat,
                      const BitmapOrigin bitmapOrigin)
     {
-      rTexture.Reset(std::move(content), extent, pixelFormat, bitmapOrigin);
+      rTexture.Reset(std::move(content), TypeConverter::To<PxExtent2D>(sizePx), pixelFormat, bitmapOrigin);
     }
 
 
@@ -393,14 +394,13 @@ namespace Fsl
         std::vector<uint8_t> content(widthEx * heightEx * bytesPerPixel);
         ilCopyPixels(0, 0, 0, width, height, 1, activeImageFormat.Format, activeImageFormat.Type, content.data());
 
-        ResetObject(rImageContainer, std::move(content), PxExtent2D::Create(width, height), activePixelFormat, bitmapOrigin);
+        ResetObject(rImageContainer, std::move(content), PxSize2D::Create(width, height), activePixelFormat, bitmapOrigin);
       }
 
       devilError = ilGetError();
 
       // Log any error that occurs
-      FSLLOG3_WARNING_IF(devilError != IL_NO_ERROR, "devIL image conversion not successfull: {} ({}).\n", GetDevILErrorString(devilError),
-                         devilError);
+      FSLLOG3_WARNING_IF(devilError != IL_NO_ERROR, "devIL image conversion not successful: {} ({}).\n", GetDevILErrorString(devilError), devilError);
       return (devilError == IL_NO_ERROR);
     }
 
@@ -424,7 +424,7 @@ namespace Fsl
       }
       catch (std::exception& ex)
       {
-        FSLLOG3_DEBUG_WARNING("devIL image conversion not successfull ({}).\n", ex.what());
+        FSLLOG3_DEBUG_WARNING("devIL image conversion not successful ({}).\n", ex.what());
         FSL_PARAM_NOT_USED(ex);
         return false;
       }

@@ -38,6 +38,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class S03_Transform : public DemoAppGLES3
   {
     GLES3::GLProgram m_program;

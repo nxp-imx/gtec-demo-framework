@@ -145,14 +145,14 @@ TEST(TestMath_Vector4_MonoGame, Normalize)
 
 TEST(TestMath_Vector4_MonoGame, Construct)
 {
-  constexpr float x = std::numeric_limits<float>::min();
-  constexpr float y = std::numeric_limits<float>::max();
-  constexpr float z = 0.5f;
-  constexpr float w = -0.75f;
-  Vector4 value(x, y, z, w);
+  constexpr float X = std::numeric_limits<float>::min();
+  constexpr float Y = std::numeric_limits<float>::max();
+  constexpr float Z = 0.5f;
+  constexpr float W = -0.75f;
+  Vector4 value(X, Y, Z, W);
 
-  EXPECT_EQ(value.X, x);
-  EXPECT_EQ(value.Y, y);
-  EXPECT_EQ(value.Z, z);
-  EXPECT_EQ(value.W, w);
+  EXPECT_EQ(value.X, X);
+  EXPECT_EQ(value.Y, Y);
+  EXPECT_EQ(value.Z, Z);
+  EXPECT_EQ(value.W, W);
 }

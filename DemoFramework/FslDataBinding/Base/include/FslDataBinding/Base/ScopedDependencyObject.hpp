@@ -67,6 +67,8 @@ namespace Fsl::DataBinding
 
     DataBindingInstanceHandle CreateProperty(const DependencyPropertyDefinition& propertyDefinition,
                                              std::unique_ptr<Internal::IDependencyPropertyMethods> methods);
+    DataBindingInstanceHandle CreateReadOnlyProperty(const DependencyPropertyDefinition& propertyDefinition,
+                                                     std::unique_ptr<Internal::IDependencyPropertyMethods> methods);
     DataBindingInstanceHandle CreateObserverProperty(const DataBindingInstanceHandle hOwner, const DependencyPropertyDefinition& propertyDefinition,
                                                      std::unique_ptr<Internal::ObserverDependencyPropertyMethods> methods);
 

@@ -1,5 +1,5 @@
 <!-- #AG_PROJECT_CAPTION_BEGIN# -->
-# DemoFramework 6.3.1
+# DemoFramework 6.4.0
 <!-- #AG_PROJECT_CAPTION_END# -->
 
 A multi-platform framework for fast and easy demo development.
@@ -575,6 +575,8 @@ A example of how to register custom app specific services.
 
 ## FslResearch
 
+### [PixelFormatConversion](DemoFramework/FslResearch/PixelFormatConversion)
+
 ### [SpatialGrid2D](DemoFramework/FslResearch/SpatialGrid2D)
 
 
@@ -941,6 +943,13 @@ It also showcases various ways to render scaled strings and the errors that are 
 <a href="DemoApps/GLES2/UI/PixelPerfect/Example.jpg"><img src="DemoApps/GLES2/UI/PixelPerfect/Example.jpg" height="108px" title="GLES2.UI.PixelPerfect"></a>
 
 This sample showcases some of the common scaling traps that can occur when trying to achieve pixel perfect rendering.
+
+
+### [RenderTest](DemoApps/GLES2/UI/RenderTest)
+
+<a href="DemoApps/GLES2/UI/RenderTest/Example.jpg"><img src="DemoApps/GLES2/UI/RenderTest/Example.jpg" height="108px" title="GLES2.UI.RenderTest"></a>
+
+This sample test the various internal UI rendering primitives.
 
 
 ### [SimpleUI100](DemoApps/GLES2/UI/SimpleUI100)
@@ -1588,6 +1597,13 @@ The native batch is very useful for quickly getting something on the screen whic
 It is however not a optimized way of rendering things.
 
 
+### [Gestures](DemoApps/GLES3/System/Gestures)
+
+<a href="DemoApps/GLES3/System/Gestures/Example.jpg"><img src="DemoApps/GLES3/System/Gestures/Example.jpg" height="108px" title="GLES3.System.Gestures"></a>
+
+Application used to debug the gesture handling code.
+
+
 ### [OnDemandRendering](DemoApps/GLES3/System/OnDemandRendering)
 
 <a href="DemoApps/GLES3/System/OnDemandRendering/Example.jpg"><img src="DemoApps/GLES3/System/OnDemandRendering/Example.jpg" height="108px" title="GLES3.System.OnDemandRendering"></a>
@@ -1640,11 +1656,25 @@ This sample showcases a UI that is DPI aware vs one rendered using the standard 
 It also showcases various ways to render scaled strings and the errors that are easy to introduce.
 
 
+### [Gestures](DemoApps/GLES3/UI/Gestures)
+
+<a href="DemoApps/GLES3/UI/Gestures/Example.jpg"><img src="DemoApps/GLES3/UI/Gestures/Example.jpg" height="108px" title="GLES3.UI.Gestures"></a>
+
+Application used to debug the UI gesture handling code.
+
+
 ### [PixelPerfect](DemoApps/GLES3/UI/PixelPerfect)
 
 <a href="DemoApps/GLES3/UI/PixelPerfect/Example.jpg"><img src="DemoApps/GLES3/UI/PixelPerfect/Example.jpg" height="108px" title="GLES3.UI.PixelPerfect"></a>
 
 This sample showcases some of the common scaling traps that can occur when trying to achieve pixel perfect rendering.
+
+
+### [RenderTest](DemoApps/GLES3/UI/RenderTest)
+
+<a href="DemoApps/GLES3/UI/RenderTest/Example.jpg"><img src="DemoApps/GLES3/UI/RenderTest/Example.jpg" height="108px" title="GLES3.UI.RenderTest"></a>
+
+This sample test the various internal UI rendering primitives.
 
 
 ### [SimpleUI100](DemoApps/GLES3/UI/SimpleUI100)
@@ -1684,6 +1714,15 @@ Showcase all controls that is part of the Basic UI theme.
 
 ## OpenCL
 
+### [Colorseg](DemoApps/OpenCL/Colorseg)
+OpenCL Kernel and code to execute a Colorseg
+--Options
+
+"InputBmpFile" Input BMP file.
+"OutputHsvBmpFile" Output Hsv BMP file.
+"OutputRgbBmpFile" Output Rgb BMP file.
+
+
 ### [FastFourierTransform](DemoApps/OpenCL/FastFourierTransform)
 OpenCL Kernel and code to execute a Fast Fourier Transform
 --Options
@@ -1691,9 +1730,93 @@ OpenCL Kernel and code to execute a Fast Fourier Transform
 "Length" FFT length.
 
 
+### [GaussianFilter](DemoApps/OpenCL/GaussianFilter)
+OpenCL Kernel and code to execute a GaussianFilter
+--Options
+
+"InputBmpFile" Input BMP file.
+"OutputBmpFile" Output BMP file.
+"type" Select type: Gray, Rgb.
+
+
+### [Gray2Rgb](DemoApps/OpenCL/Gray2Rgb)
+OpenCL Kernel and code to execute a Gray2Rgb
+--Options
+
+"InputBmpFile" Input BMP file.
+"OutputBmpFile" Output BMP file.
+
+
 ### [Info](DemoApps/OpenCL/Info)
 Simple OpenCL Application that allows you to obtain your system's complete OpenCL information:
 Information related to CL kernel compilers, number of buffers supported, extensions available and more.
+
+
+### [MedianFilter](DemoApps/OpenCL/MedianFilter)
+OpenCL Kernel and code to execute a MedianFilter
+--Options
+
+"InputBmpFile" Input BMP file.
+"OutputBmpFile" Output BMP file.
+
+
+### [MorphoDilate](DemoApps/OpenCL/MorphoDilate)
+OpenCL Kernel and code to execute a MorphoDilate
+--Options
+
+"InputBmpFile" Input BMP file.
+"OutputBmpFile" Output BMP file.
+
+
+### [MorphoErode](DemoApps/OpenCL/MorphoErode)
+
+### [Rgb2Gray](DemoApps/OpenCL/Rgb2Gray)
+OpenCL Kernel and code to execute a Rgb2Gray
+--Options
+
+"InputBmpFile" Input BMP file.
+"OutputBmpFile" Output BMP file.
+
+
+### [Rgb2Hsv](DemoApps/OpenCL/Rgb2Hsv)
+OpenCL Kernel and code to execute a Rgb2Hsv
+--Options
+
+"InputBmpFile" Input BMP file.
+
+
+### [Rgb888toRgb565](DemoApps/OpenCL/Rgb888toRgb565)
+OpenCL Kernel and code to execute a Rgb888toRgb565
+--Options
+
+"InputBmpFile" Input BMP file.
+"OutputBmpFile" Output BMP file.
+
+
+### [Rgb888toUYVY](DemoApps/OpenCL/Rgb888toUYVY)
+OpenCL Kernel and code to execute a Rgb888toUYVY
+--Options
+
+"InputBmpFile" Input BMP file.
+"OutputRawFile" Output RAW file.
+
+
+### [SobelHFilter](DemoApps/OpenCL/SobelHFilter)
+OpenCL Kernel and code to execute a SobelHFilter
+--Options
+
+"InputBmpFile" Input BMP file.
+"OutputBmpFile" Output BMP file.
+
+
+### [SobelVFilter](DemoApps/OpenCL/SobelVFilter)
+
+### [SobelVHFilter](DemoApps/OpenCL/SobelVHFilter)
+OpenCL Kernel and code to execute a SobelVHFilter
+--Options
+
+"InputBmpFile" Input BMP file.
+"OutputBmpFile" Output BMP file.
 
 
 ### [SoftISP](DemoApps/OpenCL/SoftISP)
@@ -2358,6 +2481,20 @@ The native batch is very useful for quickly getting something on the screen whic
 It is however not a optimized way of rendering things.
 
 
+### [EasingFunctions](DemoApps/Vulkan/System/EasingFunctions)
+
+<a href="DemoApps/Vulkan/System/EasingFunctions/Example.jpg"><img src="DemoApps/Vulkan/System/EasingFunctions/Example.jpg" height="108px" title="Vulkan.System.EasingFunctions"></a>
+
+Visualize the supported easing functions.
+
+
+### [Gestures](DemoApps/Vulkan/System/Gestures)
+
+<a href="DemoApps/Vulkan/System/Gestures/Example.jpg"><img src="DemoApps/Vulkan/System/Gestures/Example.jpg" height="108px" title="Vulkan.System.Gestures"></a>
+
+Application used to debug the gesture handling code.
+
+
 ### [InputEvents](DemoApps/Vulkan/System/InputEvents)
 
 <a href="DemoApps/Vulkan/System/InputEvents/Example.jpg"><img src="DemoApps/Vulkan/System/InputEvents/Example.jpg" height="108px" title="Vulkan.System.InputEvents"></a>
@@ -2419,11 +2556,25 @@ This sample showcases a UI that is DPI aware vs one rendered using the standard 
 It also showcases various ways to render scaled strings and the errors that are easy to introduce.
 
 
+### [Gestures](DemoApps/Vulkan/UI/Gestures)
+
+<a href="DemoApps/Vulkan/UI/Gestures/Example.jpg"><img src="DemoApps/Vulkan/UI/Gestures/Example.jpg" height="108px" title="Vulkan.UI.Gestures"></a>
+
+Application used to debug the UI gesture handling code.
+
+
 ### [PixelPerfect](DemoApps/Vulkan/UI/PixelPerfect)
 
 <a href="DemoApps/Vulkan/UI/PixelPerfect/Example.jpg"><img src="DemoApps/Vulkan/UI/PixelPerfect/Example.jpg" height="108px" title="Vulkan.UI.PixelPerfect"></a>
 
 This sample showcases some of the common scaling traps that can occur when trying to achieve pixel perfect rendering.
+
+
+### [RenderTest](DemoApps/Vulkan/UI/RenderTest)
+
+<a href="DemoApps/Vulkan/UI/RenderTest/Example.jpg"><img src="DemoApps/Vulkan/UI/RenderTest/Example.jpg" height="108px" title="Vulkan.UI.RenderTest"></a>
+
+This sample test the various internal UI rendering primitives.
 
 
 ### [SimpleUI100](DemoApps/Vulkan/UI/SimpleUI100)

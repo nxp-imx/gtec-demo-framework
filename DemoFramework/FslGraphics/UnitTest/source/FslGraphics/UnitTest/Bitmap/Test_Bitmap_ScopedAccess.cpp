@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ using namespace Fsl;
 namespace
 {
   template <typename TCurrent>
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class TestFixtureFslGraphics_Bitmap : public TestFixtureFslGraphics
   {
   public:
@@ -81,28 +82,28 @@ TYPED_TEST(TestFixtureFslGraphics_Bitmap, CheckScopedDirectReadAccess)
 
   const auto pixelFormat = imageConfig_t::ActivePixelFormat;
   const auto pixelLayout = imageConfig_t::ActivePixelLayout;
-  const uint32_t width = 4;
-  const uint32_t height = 2;
+  const auto widthPx = PxValueU::Create(4);
+  const auto heightPx = PxValueU::Create(2);
   const auto bitmapOrigin = current_t::Origin;
-  const auto minStride = PixelFormatUtil::CalcMinimumStride(width, pixelFormat);
-  const auto bufferLength = height * minStride;
+  const auto minStride = PixelFormatUtil::CalcMinimumStride(widthPx, pixelFormat);
+  const auto bufferLength = heightPx.Value * minStride;
 
   Bitmap bitmap = template_t::GetBasic4X2(bitmapOrigin);
-  RawBitmap rawBitmap;
-  Bitmap::ScopedDirectAccess directAccess(bitmap, rawBitmap);
+  const Bitmap::ScopedDirectReadAccess directAccess(bitmap);
 
   // The bitmap defaults to UpperLeft if the origin is undefined.
   const auto expectedBitmapOrigin = bitmapOrigin != BitmapOrigin::Undefined ? bitmapOrigin : BitmapOrigin::UpperLeft;
 
 
   // Known value checks just to be sure
+  const ReadOnlyRawBitmap rawBitmap = directAccess.AsRawBitmap();
   EXPECT_TRUE(rawBitmap.IsValid());
   EXPECT_NE(rawBitmap.Content(), nullptr);
-  EXPECT_EQ(rawBitmap.Width(), width);
-  EXPECT_EQ(rawBitmap.Height(), height);
+  EXPECT_EQ(rawBitmap.RawUnsignedWidth(), widthPx.Value);
+  EXPECT_EQ(rawBitmap.RawUnsignedHeight(), heightPx.Value);
   EXPECT_EQ(rawBitmap.Stride(), minStride);
   EXPECT_EQ(rawBitmap.GetByteSize(), bufferLength);
-  EXPECT_EQ(rawBitmap.GetExtent(), PxExtent2D::Create(width, height));
+  EXPECT_EQ(rawBitmap.GetExtent(), PxExtent2D(widthPx, heightPx));
   EXPECT_EQ(rawBitmap.GetOrigin(), expectedBitmapOrigin);
   EXPECT_EQ(rawBitmap.GetPixelFormat(), pixelFormat);
   EXPECT_EQ(rawBitmap.GetPixelFormatLayout(), pixelLayout);
@@ -112,6 +113,8 @@ TYPED_TEST(TestFixtureFslGraphics_Bitmap, CheckScopedDirectReadAccess)
   EXPECT_NE(rawBitmap.Content(), nullptr);
   EXPECT_EQ(rawBitmap.Width(), bitmap.Width());
   EXPECT_EQ(rawBitmap.Height(), bitmap.Height());
+  EXPECT_EQ(rawBitmap.RawUnsignedWidth(), bitmap.RawUnsignedWidth());
+  EXPECT_EQ(rawBitmap.RawUnsignedHeight(), bitmap.RawUnsignedHeight());
   EXPECT_EQ(rawBitmap.Stride(), minStride);
   EXPECT_EQ(rawBitmap.GetByteSize(), bufferLength);
   EXPECT_EQ(rawBitmap.GetExtent(), bitmap.GetExtent());
@@ -132,26 +135,26 @@ TYPED_TEST(TestFixtureFslGraphics_Bitmap, CheckScopedDirectReadWriteAccess)
 
   const auto pixelFormat = imageConfig_t::ActivePixelFormat;
   const auto pixelLayout = imageConfig_t::ActivePixelLayout;
-  const uint32_t width = 4;
-  const uint32_t height = 2;
+  const auto widthPx = PxValueU::Create(4);
+  const auto heightPx = PxValueU::Create(2);
   const auto bitmapOrigin = current_t::Origin;
-  const auto minStride = PixelFormatUtil::CalcMinimumStride(width, pixelFormat);
-  const uint32_t bufferLength = height * minStride;
+  const auto minStride = PixelFormatUtil::CalcMinimumStride(widthPx, pixelFormat);
+  const uint32_t bufferLength = heightPx.Value * minStride;
 
   Bitmap bitmap = template_t::GetBasic4X2(bitmapOrigin);
-  RawBitmapEx rawBitmap;
-  Bitmap::ScopedDirectAccess directAccess(bitmap, rawBitmap);
+  Bitmap::ScopedDirectReadWriteAccess directAccess(bitmap);
+  RawBitmapEx rawBitmap = directAccess.AsRawBitmap();
 
   // The bitmap defaults to UpperLeft if the origin is undefined.
   const auto expectedBitmapOrigin = bitmapOrigin != BitmapOrigin::Undefined ? bitmapOrigin : BitmapOrigin::UpperLeft;
 
-  // Known value checks just ot be sure
+  // Known value checks just to be sure
   EXPECT_TRUE(rawBitmap.IsValid());
-  EXPECT_EQ(rawBitmap.Width(), width);
-  EXPECT_EQ(rawBitmap.Height(), height);
+  EXPECT_EQ(rawBitmap.RawUnsignedWidth(), widthPx.Value);
+  EXPECT_EQ(rawBitmap.RawUnsignedHeight(), heightPx.Value);
   EXPECT_EQ(rawBitmap.Stride(), minStride);
   EXPECT_EQ(rawBitmap.GetByteSize(), bufferLength);
-  EXPECT_EQ(rawBitmap.GetExtent(), PxExtent2D::Create(width, height));
+  EXPECT_EQ(rawBitmap.GetExtent(), PxExtent2D(widthPx, heightPx));
   EXPECT_EQ(rawBitmap.GetOrigin(), expectedBitmapOrigin);
   EXPECT_EQ(rawBitmap.GetPixelFormat(), pixelFormat);
   EXPECT_EQ(rawBitmap.GetPixelFormatLayout(), pixelLayout);
@@ -161,6 +164,8 @@ TYPED_TEST(TestFixtureFslGraphics_Bitmap, CheckScopedDirectReadWriteAccess)
   EXPECT_NE(rawBitmap.Content(), nullptr);
   EXPECT_EQ(rawBitmap.Width(), bitmap.Width());
   EXPECT_EQ(rawBitmap.Height(), bitmap.Height());
+  EXPECT_EQ(rawBitmap.RawUnsignedWidth(), bitmap.RawUnsignedWidth());
+  EXPECT_EQ(rawBitmap.RawUnsignedHeight(), bitmap.RawUnsignedHeight());
   EXPECT_EQ(rawBitmap.Stride(), minStride);
   EXPECT_EQ(rawBitmap.GetByteSize(), bufferLength);
   EXPECT_EQ(rawBitmap.GetExtent(), bitmap.GetExtent());

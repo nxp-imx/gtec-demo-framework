@@ -46,10 +46,10 @@ namespace
 
 TEST(TestLog_MathPixel_FmtPxTrimmedNineSlice, Log)
 {
-  constexpr PxTrimmedNineSlice value(PxSize2D::Create(1, 2), PxThicknessF::Create(3.1f, 4.1f, 5.1f, 6.1f),
+  constexpr PxTrimmedNineSlice Value(PxSize2D::Create(1, 2), PxThicknessF::Create(3.1f, 4.1f, 5.1f, 6.1f),
                                      PxThicknessF::Create(7.1f, 8.1f, 9.1f, 10.1f), PxThickness::Create(11, 12, 13, 14));
 
   EXPECT_EQ(std::string("{SizePx={Width=1 Height=2} TrimMarginPxf={Left=3.1 Top=4.1 Right=5.1 Bottom=6.1} TrimmedNineSlicePxf={Left=7.1 Top=8.1 "
                         "Right=9.1 Bottom=10.1} ContentMarginPx={Left=11 Top=12 Right=13 Bottom=14}}"),
-            fmt::format("{}", value));
+            fmt::format("{}", Value));
 }

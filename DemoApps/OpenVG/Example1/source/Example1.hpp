@@ -38,10 +38,10 @@ namespace Fsl
 {
   class Example1 : public DemoAppVG
   {
-    OpenVG::VGPathBuffer m_vg_triangle_path;
-    OpenVG::VGPathBuffer m_vg_quad_path;
-    OpenVG::VGPathBuffer m_vg_cubic_path;
-    OpenVG::VGPathBuffer m_vg_arc_path;
+    OpenVG::VGPathBuffer m_vgTrianglePath;
+    OpenVG::VGPathBuffer m_vgQuadPath;
+    OpenVG::VGPathBuffer m_vgCubicPath;
+    OpenVG::VGPathBuffer m_vgArcPath;
 
   public:
     explicit Example1(const DemoAppConfig& config);

@@ -10,5 +10,8 @@
         <AddNineSlice NineSlice="40, 31, 46, 31" ContentMargin="25, 0, 26, 0"/>
       </File>
     </AddFolder>
+    <AddBitmapFont Path="Font/Font.fbk"/>
+    <AddBitmapFont Path="Font/Header.fbk"/>
+    <AddBitmapFont Path="SmallFont/SmallFont.fbk"/>
   </CreateAtlas>
 </TexturePacker>

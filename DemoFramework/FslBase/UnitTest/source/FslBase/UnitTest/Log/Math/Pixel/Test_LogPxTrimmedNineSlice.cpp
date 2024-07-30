@@ -47,11 +47,11 @@ namespace
 
 TEST(TestLog_MathPixel_LogPxTrimmedNineSlice, Log)
 {
-  constexpr PxTrimmedNineSlice value(PxSize2D::Create(1, 2), PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f),
+  constexpr PxTrimmedNineSlice Value(PxSize2D::Create(1, 2), PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f),
                                      PxThicknessF::Create(7.0f, 8.0f, 9.0f, 10.0f), PxThickness::Create(11, 12, 13, 14));
 
   std::stringstream stream;
-  stream << value;
+  stream << Value;
   EXPECT_EQ(std::string("{SizePx={Width=1 Height=2} TrimMarginPxf={Left=3 Top=4 Right=5 Bottom=6} TrimmedNineSlicePxf={Left=7 Top=8 Right=9 "
                         "Bottom=10} ContentMarginPx={Left=11 Top=12 Right=13 Bottom=14}}"),
             stream.str());

@@ -31,8 +31,11 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/Pixel/PxRectangle.hpp>
 #include <FslBase/NumericCast.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
+#include <FslDemoService/BitmapConverter/BitmapConverterConfig.hpp>
+#include <FslDemoService/BitmapConverter/IBitmapConverter.hpp>
 #include <FslDemoService/Graphics/Control/GraphicsBeginFrameInfo.hpp>
 #include <FslDemoService/Graphics/Control/GraphicsDependentCreateInfo.hpp>
 #include <FslDemoService/Graphics/Control/GraphicsDeviceCreateInfo.hpp>
@@ -56,8 +59,11 @@
 
 namespace Fsl
 {
-  GraphicsService::GraphicsService(const ServiceProvider& serviceProvider, const std::shared_ptr<GraphicsServiceOptionParser>& optionParser)
+  GraphicsService::GraphicsService(const ServiceProvider& serviceProvider, const std::shared_ptr<GraphicsServiceOptionParser>& optionParser,
+                                   const ColorSpaceType colorSpaceType)
     : ThreadLocalService(serviceProvider)
+    , m_colorSpaceType(colorSpaceType)
+    , m_bitmapConverter(serviceProvider.TryGet<IBitmapConverter>())
   {
     if (optionParser->ProfileEnabled())
     {
@@ -112,27 +118,27 @@ namespace Fsl
   }
 
 
-  void GraphicsService::Capture(Bitmap& rBitmap, const PixelFormat desiredPixelFormat)
+  void GraphicsService::Capture(Bitmap& rBitmap, const PixelFormat desiredPixelFormat, const BasicToneMapper toneMapper)
   {
     if (!m_apiResources.NativeService)
     {
       throw UsageErrorException("Not linked to native service");
     }
 
-    const Rectangle srcRectangle(0, 0, NumericCast<int32_t>(m_windowMetrics.ExtentPx.Width.Value),
-                                 NumericCast<int32_t>(m_windowMetrics.ExtentPx.Height.Value));
-    Capture(rBitmap, desiredPixelFormat, srcRectangle);
+    const PxRectangle srcRectanglePx(PxPoint2(), m_windowMetrics.GetSizePx());
+    Capture(rBitmap, desiredPixelFormat, toneMapper, srcRectanglePx);
   }
 
 
-  void GraphicsService::Capture(Bitmap& rBitmap, const PixelFormat desiredPixelFormat, const Rectangle& srcRectangle)
+  void GraphicsService::Capture(Bitmap& rBitmap, const PixelFormat desiredPixelFormat, const BasicToneMapper toneMapper,
+                                const PxRectangle& srcRectanglePx)
   {
     if (!m_apiResources.NativeService)
     {
       throw UsageErrorException("Not linked to native service");
     }
 
-    m_apiResources.NativeService->Capture(rBitmap, srcRectangle);
+    m_apiResources.NativeService->Capture(rBitmap, srcRectanglePx);
     if (!rBitmap.IsValid())
     {
       FSLLOG3_WARNING("Capture failed");
@@ -144,8 +150,27 @@ namespace Fsl
       return;
     }
 
-    // FIX: use a conversion service instead
-    BitmapUtil::Convert(rBitmap, desiredPixelFormat);
+
+    if (m_bitmapConverter)
+    {
+      if (m_colorSpaceType == ColorSpaceType::Linear)
+      {
+        FSLLOG3_VERBOSE2("Trying to convert the pixel format using the bitmap converter service");
+        const float exposure = 1.0f;
+        const BitmapConverterConfig converterConfig(toneMapper, exposure);
+        m_bitmapConverter->Convert(rBitmap, desiredPixelFormat, BitmapOrigin::UpperLeft, converterConfig);
+      }
+      else
+      {
+        FSLLOG3_VERBOSE2("Trying to convert the pixel format using the bitmap converter service");
+        m_bitmapConverter->Convert(rBitmap, desiredPixelFormat, BitmapOrigin::UpperLeft);
+      }
+    }
+    else
+    {
+      FSLLOG3_VERBOSE2("Trying to convert the pixel format using the fallback solution");
+      BitmapUtil::Convert(rBitmap, desiredPixelFormat);
+    }
   }
 
 
@@ -316,7 +341,7 @@ namespace Fsl
     FSLLOG3_VERBOSE("GraphicsService::DestroyDevice");
     if (m_dependentResources.IsValid)
     {
-      FSLLOG3_ERROR("Dependent resources still allocated, trying to destory them");
+      FSLLOG3_ERROR("Dependent resources still allocated, trying to destroy them");
       DestroyDependentResources();
     }
     assert(m_apiResources.IsValid);

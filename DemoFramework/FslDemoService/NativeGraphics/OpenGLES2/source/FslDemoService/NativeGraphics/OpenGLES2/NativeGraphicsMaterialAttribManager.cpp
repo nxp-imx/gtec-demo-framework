@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES2/NativeGraphicsMaterialAttribManager.hpp>
 #include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 
@@ -45,19 +45,37 @@ namespace Fsl::GLES2
                                                                                 const GLint locVertexTextureCoord,
                                                                                 const VertexDeclarationSpan& vertexDeclaration)
   {
-    std::array<GLVertexAttribLink, 3> attribLink = {
-      GLVertexAttribLink(locVertexPosition, vertexDeclaration.VertexElementGetIndexOf(VertexElementUsage::Position, 0)),
-      GLVertexAttribLink(locVertexColor, vertexDeclaration.VertexElementGetIndexOf(VertexElementUsage::Color, 0)),
-      GLVertexAttribLink(locVertexTextureCoord, vertexDeclaration.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0))};
-
-    const auto attribLinkSpan = ReadOnlySpanUtil::AsSpan(attribLink);
-
-    NativeMaterialAttribHandle handle = TryAcquireExisting(m_records, vertexDeclaration, attribLinkSpan);
-    if (!handle.IsValid())
+    if (locVertexTextureCoord == GLValues::InvalidLocation)
     {
-      handle = NativeMaterialAttribHandle(m_records.Add(AttribConfigRecord(vertexDeclaration, attribLinkSpan)));
+      std::array<GLVertexAttribLink, 2> attribLink = {
+        GLVertexAttribLink(locVertexPosition, vertexDeclaration.VertexElementGetIndexOf(VertexElementUsage::Position, 0)),
+        GLVertexAttribLink(locVertexColor, vertexDeclaration.VertexElementGetIndexOf(VertexElementUsage::Color, 0))};
+
+      const auto attribLinkSpan = SpanUtil::AsReadOnlySpan(attribLink);
+
+      NativeMaterialAttribHandle handle = TryAcquireExisting(m_records, vertexDeclaration, attribLinkSpan);
+      if (!handle.IsValid())
+      {
+        handle = NativeMaterialAttribHandle(m_records.Add(AttribConfigRecord(vertexDeclaration, attribLinkSpan)));
+      }
+      return handle;
     }
-    return handle;
+
+    {
+      std::array<GLVertexAttribLink, 3> attribLink = {
+        GLVertexAttribLink(locVertexPosition, vertexDeclaration.VertexElementGetIndexOf(VertexElementUsage::Position, 0)),
+        GLVertexAttribLink(locVertexColor, vertexDeclaration.VertexElementGetIndexOf(VertexElementUsage::Color, 0)),
+        GLVertexAttribLink(locVertexTextureCoord, vertexDeclaration.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0))};
+
+      const auto attribLinkSpan = SpanUtil::AsReadOnlySpan(attribLink);
+
+      NativeMaterialAttribHandle handle = TryAcquireExisting(m_records, vertexDeclaration, attribLinkSpan);
+      if (!handle.IsValid())
+      {
+        handle = NativeMaterialAttribHandle(m_records.Add(AttribConfigRecord(vertexDeclaration, attribLinkSpan)));
+      }
+      return handle;
+    }
   }
 
 

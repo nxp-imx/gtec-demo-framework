@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_RENDER_STRATEGY_STRATEGYBATCHBYSTATE_HPP
 #define FSLGRAPHICS_RENDER_STRATEGY_STRATEGYBATCHBYSTATE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019, 2023 NXP
+ * Copyright 2019, 2023-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,7 +72,7 @@ namespace Fsl
   class StrategyBatchByState
   {
   public:
-    static constexpr const int32_t VERTICES_PER_QUAD = 4;
+    static constexpr const int32_t VerticesPerQuad = 4;
 
     using texture_info_type = TTextureInfo;
     using segment_type = BatchSegmentInfo<texture_info_type>;
@@ -80,7 +80,7 @@ namespace Fsl
     using vertex_span_type = VertexSpan<vertex_type>;
 
   private:
-    static constexpr const uint32_t EXPAND_QUAD_GROWTH = 1024;
+    static constexpr const uint32_t ExpandQuadGrowth = 1024;
     static constexpr const uint32_t SAFETY = 1;
     static_assert(SAFETY > 0, "Safety must be > 0");
 
@@ -88,7 +88,9 @@ namespace Fsl
     // Pointers for optimal access to tracking areas
     struct AddQuadPointers
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       vertex_type* pNextDstVertex{nullptr};
+      // NOLINTNEXTLINE(readability-identifier-naming)
       segment_type* pCurrentDstSegment{nullptr};
 
       AddQuadPointers() = default;
@@ -117,7 +119,7 @@ namespace Fsl
     StrategyBatchByState& operator=(StrategyBatchByState&& other) = delete;
 
     explicit StrategyBatchByState(const uint32_t quadCapacity = 4096)
-      : m_quadVertices((std::max(quadCapacity, 1u) + SAFETY) * VERTICES_PER_QUAD)
+      : m_quadVertices((std::max(quadCapacity, 1u) + SAFETY) * VerticesPerQuad)
       , m_segments(std::max(quadCapacity, 1u) + SAFETY)
       , m_addQuad(AddQuadPointers(m_quadVertices.data(), m_segments.data()))
     {
@@ -188,8 +190,8 @@ namespace Fsl
     {
       // If these assert fire it means we have a internal error
       assert(IsValid());
-      assert((GetVertexCount() % VERTICES_PER_QUAD) == 0);
-      return GetVertexCount() / VERTICES_PER_QUAD;
+      assert((GetVertexCount() % VerticesPerQuad) == 0);
+      return GetVertexCount() / VerticesPerQuad;
     }
 
 
@@ -246,14 +248,14 @@ namespace Fsl
     inline void AddQuad(const Vector2& vec0, const Vector2& vec1, const Vector2& vec2, const Vector2& vec3, const Vector2& texCoords0,
                         const Vector2& texCoords1, const Color& color)
     {
-      static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
+      static_assert(VerticesPerQuad == 4, "we assume four vertices per quad here");
 
       assert(IsValid());
 
       // We expect the user called ensure capacity before starting to use this
       assert(m_addQuad.pNextDstVertex != nullptr);
       assert(m_addQuad.pNextDstVertex >= m_quadVertices.data());
-      assert((m_addQuad.pNextDstVertex + VERTICES_PER_QUAD) <= (m_quadVertices.data() + m_quadVertices.size()));
+      assert((m_addQuad.pNextDstVertex + VerticesPerQuad) <= (m_quadVertices.data() + m_quadVertices.size()));
 
       m_addQuad.pNextDstVertex->Position.X = vec0.X;
       m_addQuad.pNextDstVertex->Position.Y = vec0.Y;
@@ -280,26 +282,26 @@ namespace Fsl
       (m_addQuad.pNextDstVertex + 3)->Color = color;
 
       // Update our records
-      m_addQuad.pNextDstVertex += VERTICES_PER_QUAD;
+      m_addQuad.pNextDstVertex += VerticesPerQuad;
 
       assert(m_addQuad.pCurrentDstSegment != nullptr);
       assert(m_addQuad.pCurrentDstSegment >= m_segments.data());
       assert(m_addQuad.pCurrentDstSegment < (m_segments.data() + m_segments.size()));
-      m_addQuad.pCurrentDstSegment->VertexCount += VERTICES_PER_QUAD;
+      m_addQuad.pCurrentDstSegment->VertexCount += VerticesPerQuad;
     }
 
 
     inline void AddQuad(const PxVector2& vec0, const PxVector2& vec1, const PxVector2& vec2, const PxVector2& vec3, const Vector2& texCoords0,
                         const Vector2& texCoords1, const Color& color)
     {
-      static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
+      static_assert(VerticesPerQuad == 4, "we assume four vertices per quad here");
 
       assert(IsValid());
 
       // We expect the user called ensure capacity before starting to use this
       assert(m_addQuad.pNextDstVertex != nullptr);
       assert(m_addQuad.pNextDstVertex >= m_quadVertices.data());
-      assert((m_addQuad.pNextDstVertex + VERTICES_PER_QUAD) <= (m_quadVertices.data() + m_quadVertices.size()));
+      assert((m_addQuad.pNextDstVertex + VerticesPerQuad) <= (m_quadVertices.data() + m_quadVertices.size()));
 
       m_addQuad.pNextDstVertex->Position.X = vec0.X.Value;
       m_addQuad.pNextDstVertex->Position.Y = vec0.Y.Value;
@@ -326,25 +328,25 @@ namespace Fsl
       (m_addQuad.pNextDstVertex + 3)->Color = color;
 
       // Update our records
-      m_addQuad.pNextDstVertex += VERTICES_PER_QUAD;
+      m_addQuad.pNextDstVertex += VerticesPerQuad;
 
       assert(m_addQuad.pCurrentDstSegment != nullptr);
       assert(m_addQuad.pCurrentDstSegment >= m_segments.data());
       assert(m_addQuad.pCurrentDstSegment < (m_segments.data() + m_segments.size()));
-      m_addQuad.pCurrentDstSegment->VertexCount += VERTICES_PER_QUAD;
+      m_addQuad.pCurrentDstSegment->VertexCount += VerticesPerQuad;
     }
 
     inline void AddQuad(const Vector2& vec0, const Vector2& vec1, const Vector2& vec2, const Vector2& vec3,
                         const NativeQuadTextureCoords& textureCoords, const Color& color)
     {
-      static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
+      static_assert(VerticesPerQuad == 4, "we assume four vertices per quad here");
 
       assert(IsValid());
 
       // We expect the user called ensure capacity before starting to use this
       assert(m_addQuad.pNextDstVertex != nullptr);
       assert(m_addQuad.pNextDstVertex >= m_quadVertices.data());
-      assert((m_addQuad.pNextDstVertex + VERTICES_PER_QUAD) <= (m_quadVertices.data() + m_quadVertices.size()));
+      assert((m_addQuad.pNextDstVertex + VerticesPerQuad) <= (m_quadVertices.data() + m_quadVertices.size()));
 
       m_addQuad.pNextDstVertex->Position.X = vec0.X;
       m_addQuad.pNextDstVertex->Position.Y = vec0.Y;
@@ -367,24 +369,24 @@ namespace Fsl
       (m_addQuad.pNextDstVertex + 3)->Color = color;
 
       // Update our records
-      m_addQuad.pNextDstVertex += VERTICES_PER_QUAD;
+      m_addQuad.pNextDstVertex += VerticesPerQuad;
 
       assert(m_addQuad.pCurrentDstSegment != nullptr);
       assert(m_addQuad.pCurrentDstSegment >= m_segments.data());
       assert(m_addQuad.pCurrentDstSegment < (m_segments.data() + m_segments.size()));
-      m_addQuad.pCurrentDstSegment->VertexCount += VERTICES_PER_QUAD;
+      m_addQuad.pCurrentDstSegment->VertexCount += VerticesPerQuad;
     }
 
     inline void AddQuad(const PxAreaRectangleF& dstRect, const NativeTextureArea& srcArea, const Color& color)
     {
-      static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
+      static_assert(VerticesPerQuad == 4, "we assume four vertices per quad here");
 
       assert(IsValid());
 
       // We expect the user called ensure capacity before starting to use this
       assert(m_addQuad.pNextDstVertex != nullptr);
       assert(m_addQuad.pNextDstVertex >= m_quadVertices.data());
-      assert((m_addQuad.pNextDstVertex + VERTICES_PER_QUAD) <= (m_quadVertices.data() + m_quadVertices.size()));
+      assert((m_addQuad.pNextDstVertex + VerticesPerQuad) <= (m_quadVertices.data() + m_quadVertices.size()));
 
       m_addQuad.pNextDstVertex->Position.X = dstRect.RawLeft();
       m_addQuad.pNextDstVertex->Position.Y = dstRect.RawTop();
@@ -407,24 +409,24 @@ namespace Fsl
       (m_addQuad.pNextDstVertex + 3)->Color = color;
 
       // Update our records
-      m_addQuad.pNextDstVertex += VERTICES_PER_QUAD;
+      m_addQuad.pNextDstVertex += VerticesPerQuad;
 
       assert(m_addQuad.pCurrentDstSegment != nullptr);
       assert(m_addQuad.pCurrentDstSegment >= m_segments.data());
       assert(m_addQuad.pCurrentDstSegment < (m_segments.data() + m_segments.size()));
-      m_addQuad.pCurrentDstSegment->VertexCount += VERTICES_PER_QUAD;
+      m_addQuad.pCurrentDstSegment->VertexCount += VerticesPerQuad;
     }
 
     inline void AddQuad(const PxAreaRectangleF& dstRect, const NativeQuadTextureCoords& srcArea, const Color& color)
     {
-      static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
+      static_assert(VerticesPerQuad == 4, "we assume four vertices per quad here");
 
       assert(IsValid());
 
       // We expect the user called ensure capacity before starting to use this
       assert(m_addQuad.pNextDstVertex != nullptr);
       assert(m_addQuad.pNextDstVertex >= m_quadVertices.data());
-      assert((m_addQuad.pNextDstVertex + VERTICES_PER_QUAD) <= (m_quadVertices.data() + m_quadVertices.size()));
+      assert((m_addQuad.pNextDstVertex + VerticesPerQuad) <= (m_quadVertices.data() + m_quadVertices.size()));
 
       m_addQuad.pNextDstVertex->Position.X = dstRect.RawLeft();
       m_addQuad.pNextDstVertex->Position.Y = dstRect.RawTop();
@@ -447,12 +449,12 @@ namespace Fsl
       (m_addQuad.pNextDstVertex + 3)->Color = color;
 
       // Update our records
-      m_addQuad.pNextDstVertex += VERTICES_PER_QUAD;
+      m_addQuad.pNextDstVertex += VerticesPerQuad;
 
       assert(m_addQuad.pCurrentDstSegment != nullptr);
       assert(m_addQuad.pCurrentDstSegment >= m_segments.data());
       assert(m_addQuad.pCurrentDstSegment < (m_segments.data() + m_segments.size()));
-      m_addQuad.pCurrentDstSegment->VertexCount += VERTICES_PER_QUAD;
+      m_addQuad.pCurrentDstSegment->VertexCount += VerticesPerQuad;
     }
 
 
@@ -485,7 +487,7 @@ namespace Fsl
       auto diffNextDstVertex = (m_addQuad.pNextDstVertex - m_quadVertices.data());
       auto diffCurrentDstSegment = (m_addQuad.pCurrentDstSegment - m_segments.data());
 
-      m_quadVertices.resize(newMinimumQuadCapacity * VERTICES_PER_QUAD);
+      m_quadVertices.resize(newMinimumQuadCapacity * VerticesPerQuad);
       m_segments.resize(newMinimumQuadCapacity);
 
       // Update the pointers to match the new buffer
@@ -578,17 +580,6 @@ namespace Fsl
     }
   };
 
-  // FIX-LATER: Remove once we move to C++17
-  template <typename TTextureInfo>
-  const int32_t StrategyBatchByState<TTextureInfo>::VERTICES_PER_QUAD;    // NOLINT(readability-redundant-declaration)
-
-  // FIX-LATER: Remove once we move to C++17
-  template <typename TTextureInfo>
-  const uint32_t StrategyBatchByState<TTextureInfo>::EXPAND_QUAD_GROWTH;    // NOLINT(readability-redundant-declaration)
-
-  // FIX-LATER: Remove once we move to C++17
-  template <typename TTextureInfo>
-  const uint32_t StrategyBatchByState<TTextureInfo>::SAFETY;    // NOLINT(readability-redundant-declaration)
 }
 
 #endif

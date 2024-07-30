@@ -34,7 +34,7 @@
 
 namespace Fsl::StringToValue
 {
-  bool TryParse(uint64_t& rResult, const StringViewLite& strView)
+  bool TryParse(uint64_t& rResult, const StringViewLite strView)
   {
     if (strView.data() == nullptr || strView.empty())
     {

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022-2023 NXP
+ * Copyright 2020, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -156,8 +156,8 @@ namespace Fsl::UI::Theme
     //! @note  It will default to stretch in the layout direction.
     template <typename TValue>
     std::shared_ptr<SliderAndFmtValueLabel<TValue>>
-      DoCreateSliderFmtValue(const std::shared_ptr<WindowContext>& context, const BasicThemeResources& resources, const Color fontColor,
-                             const Color fontDisabledColor, const BasicThemeColors::SliderRecord& themeColors, const LayoutOrientation orientation,
+      DoCreateSliderFmtValue(const std::shared_ptr<WindowContext>& context, const BasicThemeResources& resources, const UIColor fontColor,
+                             const UIColor fontDisabledColor, const BasicThemeColors::SliderRecord& themeColors, const LayoutOrientation orientation,
                              const ConstrainedValue<TValue>& value, const SliderConfig& config)
     {
       auto newControl = std::make_shared<SliderAndFmtValueLabel<TValue>>(context);
@@ -205,19 +205,12 @@ namespace Fsl::UI::Theme
       newControl->FinishAnimation();
       return newControl;
     }
-
-
-    BasicThemeColors CreateThemeColors(const bool usePrimaryPalette, const ColorSpace colorSpace)
-    {
-      BasicThemeColors defaultColors(usePrimaryPalette);
-      return BasicThemeColors::ApplyColorSpaceLossy(defaultColors, colorSpace);
-    }
   }
 
   BasicThemeControlFactory::BasicThemeControlFactory(const std::shared_ptr<WindowContext>& context,
                                                      const std::shared_ptr<BasicThemeResources>& themeResources, const bool usePrimaryPalette,
-                                                     const ColorSpace colorSpace)
-    : m_colors(CreateThemeColors(usePrimaryPalette, colorSpace))
+                                                     const UI::UIColorSpace colorSpace)
+    : m_colors(usePrimaryPalette)
     , m_context(context)
     , m_resources(themeResources)
   {
@@ -241,7 +234,7 @@ namespace Fsl::UI::Theme
   }
 
 
-  Color BasicThemeControlFactory::GetThemePrimaryDarkColor() const
+  UIColor BasicThemeControlFactory::GetThemePrimaryDarkColor() const
   {
     return m_colors.Palette.PrimaryDark;
   }
@@ -807,7 +800,7 @@ namespace Fsl::UI::Theme
 
   std::shared_ptr<FmtValueLabel<uint8_t>> BasicThemeControlFactory::CreateFmtValueLabel(const uint8_t value, const std::string& strFormat)
   {
-    return CreateFmtValueLabel(value, StringViewLiteUtil::AsStringViewLite(strFormat));
+    return CreateFmtValueLabel(value, StringViewLite(strFormat));
   }
 
 
@@ -843,7 +836,7 @@ namespace Fsl::UI::Theme
 
   std::shared_ptr<FmtValueLabel<int32_t>> BasicThemeControlFactory::CreateFmtValueLabel(const int32_t value, const std::string& strFormat)
   {
-    return CreateFmtValueLabel(value, StringViewLiteUtil::AsStringViewLite(strFormat));
+    return CreateFmtValueLabel(value, StringViewLite(strFormat));
   }
 
 
@@ -879,7 +872,43 @@ namespace Fsl::UI::Theme
 
   std::shared_ptr<FmtValueLabel<uint32_t>> BasicThemeControlFactory::CreateFmtValueLabel(const uint32_t value, const std::string& strFormat)
   {
-    return CreateFmtValueLabel(value, StringViewLiteUtil::AsStringViewLite(strFormat));
+    return CreateFmtValueLabel(value, StringViewLite(strFormat));
+  }
+
+
+  // ---------------------------------------------------------------------------------------------------------------------------------------------
+  // CreateFmtValueLabel<uint64_t>
+  // ---------------------------------------------------------------------------------------------------------------------------------------------
+
+  std::shared_ptr<FmtValueLabel<uint64_t>> BasicThemeControlFactory::CreateFmtValueLabel(const uint64_t value)
+  {
+    return DoCreateFmtValueLabel(m_context, value, m_colors.DefaultFont);
+  }
+
+  std::shared_ptr<FmtValueLabel<uint64_t>> BasicThemeControlFactory::CreateFmtValueLabel(const uint64_t value, const StringViewLite& strViewFormat)
+  {
+    auto label = CreateFmtValueLabel(value);
+    label->SetFormatString(strViewFormat);
+    label->FinishAnimation();
+    return label;
+  }
+
+  std::shared_ptr<FmtValueLabel<uint64_t>> BasicThemeControlFactory::CreateFmtValueLabel(const uint64_t value, std::string&& strFormat)
+  {
+    auto label = CreateFmtValueLabel(value);
+    label->SetFormatString(strFormat);
+    label->FinishAnimation();
+    return label;
+  }
+
+  std::shared_ptr<FmtValueLabel<uint64_t>> BasicThemeControlFactory::CreateFmtValueLabel(const uint64_t value, const char* const pszFormat)
+  {
+    return CreateFmtValueLabel(value, StringViewLite(pszFormat));
+  }
+
+  std::shared_ptr<FmtValueLabel<uint64_t>> BasicThemeControlFactory::CreateFmtValueLabel(const uint64_t value, const std::string& strFormat)
+  {
+    return CreateFmtValueLabel(value, StringViewLite(strFormat));
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -914,7 +943,7 @@ namespace Fsl::UI::Theme
 
   std::shared_ptr<FmtValueLabel<float>> BasicThemeControlFactory::CreateFmtValueLabel(const float value, const std::string& strFormat)
   {
-    return CreateFmtValueLabel(value, StringViewLiteUtil::AsStringViewLite(strFormat));
+    return CreateFmtValueLabel(value, StringViewLite(strFormat));
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -966,8 +995,8 @@ namespace Fsl::UI::Theme
                                                                                                   const ConstrainedValue<uint8_t>& value,
                                                                                                   const SliderConfig& config)
   {
-    const Color fontColor = m_colors.DefaultFont.Primary;
-    const Color fontDisabledColor = m_colors.DefaultFont.PrimaryDisabled;
+    const UIColor fontColor = m_colors.DefaultFont.Primary;
+    const UIColor fontDisabledColor = m_colors.DefaultFont.PrimaryDisabled;
     return DoCreateSliderFmtValue(m_context, *m_resources, fontColor, fontDisabledColor, m_colors.Slider, orientation, value, config);
   }
 
@@ -1009,7 +1038,7 @@ namespace Fsl::UI::Theme
                                                                                                   const std::string& strFormat,
                                                                                                   const SliderConfig& config)
   {
-    return CreateSliderFmtValue(orientation, value, StringViewLiteUtil::AsStringViewLite(strFormat), config);
+    return CreateSliderFmtValue(orientation, value, StringViewLite(strFormat), config);
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -1020,8 +1049,8 @@ namespace Fsl::UI::Theme
                                                                                                   const ConstrainedValue<int32_t>& value,
                                                                                                   const SliderConfig& config)
   {
-    const Color fontColor = m_colors.DefaultFont.Primary;
-    const Color fontDisabledColor = m_colors.DefaultFont.PrimaryDisabled;
+    const UIColor fontColor = m_colors.DefaultFont.Primary;
+    const UIColor fontDisabledColor = m_colors.DefaultFont.PrimaryDisabled;
     return DoCreateSliderFmtValue(m_context, *m_resources, fontColor, fontDisabledColor, m_colors.Slider, orientation, value, config);
   }
 
@@ -1063,7 +1092,7 @@ namespace Fsl::UI::Theme
                                                                                                   const std::string& strFormat,
                                                                                                   const SliderConfig& config)
   {
-    return CreateSliderFmtValue(orientation, value, StringViewLiteUtil::AsStringViewLite(strFormat), config);
+    return CreateSliderFmtValue(orientation, value, StringViewLite(strFormat), config);
   }
 
 
@@ -1075,8 +1104,8 @@ namespace Fsl::UI::Theme
                                                                                                    const ConstrainedValue<uint32_t>& value,
                                                                                                    const SliderConfig& config)
   {
-    const Color fontColor = m_colors.DefaultFont.Primary;
-    const Color fontDisabledColor = m_colors.DefaultFont.PrimaryDisabled;
+    const UIColor fontColor = m_colors.DefaultFont.Primary;
+    const UIColor fontDisabledColor = m_colors.DefaultFont.PrimaryDisabled;
     return DoCreateSliderFmtValue(m_context, *m_resources, fontColor, fontDisabledColor, m_colors.Slider, orientation, value, config);
   }
 
@@ -1119,7 +1148,7 @@ namespace Fsl::UI::Theme
                                                                                                    const std::string& strFormat,
                                                                                                    const SliderConfig& config)
   {
-    return CreateSliderFmtValue(orientation, value, StringViewLiteUtil::AsStringViewLite(strFormat), config);
+    return CreateSliderFmtValue(orientation, value, StringViewLite(strFormat), config);
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -1130,8 +1159,8 @@ namespace Fsl::UI::Theme
                                                                                                 const ConstrainedValue<float>& value,
                                                                                                 const SliderConfig& config)
   {
-    const Color fontColor = m_colors.DefaultFont.Primary;
-    const Color fontDisabledColor = m_colors.DefaultFont.PrimaryDisabled;
+    const UIColor fontColor = m_colors.DefaultFont.Primary;
+    const UIColor fontDisabledColor = m_colors.DefaultFont.PrimaryDisabled;
     return DoCreateSliderFmtValue(m_context, *m_resources, fontColor, fontDisabledColor, m_colors.Slider, orientation, value, config);
   }
 
@@ -1173,7 +1202,7 @@ namespace Fsl::UI::Theme
                                                                                                 const std::string& strFormat,
                                                                                                 const SliderConfig& config)
   {
-    return CreateSliderFmtValue(orientation, value, StringViewLiteUtil::AsStringViewLite(strFormat), config);
+    return CreateSliderFmtValue(orientation, value, StringViewLite(strFormat), config);
   }
 
 }

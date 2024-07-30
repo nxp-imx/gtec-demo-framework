@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@
 namespace Fsl::UI
 {
   ColorDialogActivity::ColorDialogActivity(std::weak_ptr<IActivityStack> activityStack,
-                                           const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory, const Color initialColor)
+                                           const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory, const UIColor initialColor)
     : DialogActivity(std::move(activityStack), themeControlFactory, std::make_shared<GridLayout>(themeControlFactory->GetContext()),
                      Theme::WindowType::DialogNormal, ItemAlignment::Far, ItemAlignment::Far)
   {
@@ -73,10 +73,15 @@ namespace Fsl::UI
     layout->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Auto));
     layout->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Auto));
 
-    auto sliderR = themeControlFactory->CreateSlider(UI::LayoutOrientation::Horizontal, ConstrainedValue<uint8_t>(initialColor.R(), 0, 255));
-    auto sliderG = themeControlFactory->CreateSlider(UI::LayoutOrientation::Horizontal, ConstrainedValue<uint8_t>(initialColor.G(), 0, 255));
-    auto sliderB = themeControlFactory->CreateSlider(UI::LayoutOrientation::Horizontal, ConstrainedValue<uint8_t>(initialColor.B(), 0, 255));
-    auto sliderA = themeControlFactory->CreateSlider(UI::LayoutOrientation::Horizontal, ConstrainedValue<uint8_t>(initialColor.A(), 0, 255));
+    const Color initialColorR8G8B8A8(initialColor.AsPackedColor32());
+    auto sliderR =
+      themeControlFactory->CreateSlider(UI::LayoutOrientation::Horizontal, ConstrainedValue<uint8_t>(initialColorR8G8B8A8.RawR(), 0, 255));
+    auto sliderG =
+      themeControlFactory->CreateSlider(UI::LayoutOrientation::Horizontal, ConstrainedValue<uint8_t>(initialColorR8G8B8A8.RawG(), 0, 255));
+    auto sliderB =
+      themeControlFactory->CreateSlider(UI::LayoutOrientation::Horizontal, ConstrainedValue<uint8_t>(initialColorR8G8B8A8.RawB(), 0, 255));
+    auto sliderA =
+      themeControlFactory->CreateSlider(UI::LayoutOrientation::Horizontal, ConstrainedValue<uint8_t>(initialColorR8G8B8A8.RawA(), 0, 255));
     {
       auto labelR = themeControlFactory->CreateLabel("R:");
       auto labelG = themeControlFactory->CreateLabel("G:");
@@ -166,13 +171,13 @@ namespace Fsl::UI
   ColorDialogActivity::~ColorDialogActivity() = default;
 
 
-  Color ColorDialogActivity::GetCurrentColor() const
+  UI::UIColor ColorDialogActivity::GetCurrentColor() const
   {
     return m_image->GetContentColor();
   }
 
 
-  void ColorDialogActivity::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  void ColorDialogActivity::OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent)
   {
     if (m_state == State::Ready && !theEvent->IsHandled())
     {
@@ -182,7 +187,7 @@ namespace Fsl::UI
         DoScheduleClose();
       }
     }
-    DialogActivity::OnSelect(args, theEvent);
+    DialogActivity::OnSelect(theEvent);
   }
 
 

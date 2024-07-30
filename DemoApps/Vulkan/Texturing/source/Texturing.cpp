@@ -35,15 +35,15 @@ namespace Fsl
 {
   namespace
   {
-    const auto VERTEX_BUFFER_BIND_ID = 0;
-    const uint64_t DEFAULT_FENCE_TIMEOUT = 100000000000;
+    constexpr auto VertexBufferBindId = 0;
+    constexpr uint64_t DefaultFenceTimeout = 100000000000;
 
 
     struct Vertex
     {
-      float pos[3];       // NOLINT(modernize-avoid-c-arrays)
-      float uv[2];        // NOLINT(modernize-avoid-c-arrays)
-      float normal[3];    // NOLINT(modernize-avoid-c-arrays)
+      float Pos[3];       // NOLINT(modernize-avoid-c-arrays)
+      float Uv[2];        // NOLINT(modernize-avoid-c-arrays)
+      float Normal[3];    // NOLINT(modernize-avoid-c-arrays)
     };
 
     //! @brief Create a buffer on the device
@@ -81,8 +81,8 @@ namespace Fsl
 
       rBuffer.Alignment = memReqs.alignment;
       rBuffer.Size = memAlloc.allocationSize;
-      rBuffer.usageFlags = usageFlags;
-      rBuffer.memoryPropertyFlags = memoryPropertyFlags;
+      rBuffer.UsageFlags = usageFlags;
+      rBuffer.MemoryPropertyFlags = memoryPropertyFlags;
 
       // If a pointer to the buffer data has been passed, map the buffer and copy over the data
       if (data != nullptr)
@@ -210,7 +210,7 @@ namespace Fsl
           vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline.Get());
 
           VkDeviceSize offsets = 0;
-          vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_vertexBuffer.Buffer.GetPointer(), &offsets);
+          vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VertexBufferBindId, 1, m_vertexBuffer.Buffer.GetPointer(), &offsets);
           vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_indexBuffer.Buffer.Get(), 0, VK_INDEX_TYPE_UINT32);
 
           vkCmdDrawIndexed(m_drawCmdBuffers[i], m_indexCount, 1, 0, 0, 0);
@@ -315,7 +315,7 @@ namespace Fsl
   {
     // Binding description
     m_vertices.BindingDescriptions.resize(1);
-    m_vertices.BindingDescriptions[0].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.BindingDescriptions[0].binding = VertexBufferBindId;
     m_vertices.BindingDescriptions[0].stride = sizeof(Vertex);
     m_vertices.BindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
@@ -325,21 +325,21 @@ namespace Fsl
 
     // Location 0 : Position
     m_vertices.AttributeDescriptions[0].location = 0;
-    m_vertices.AttributeDescriptions[0].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[0].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-    m_vertices.AttributeDescriptions[0].offset = offsetof(Vertex, pos);
+    m_vertices.AttributeDescriptions[0].offset = offsetof(Vertex, Pos);
 
     // Location 1 : Texture coordinates
     m_vertices.AttributeDescriptions[1].location = 1;
-    m_vertices.AttributeDescriptions[1].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[1].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
-    m_vertices.AttributeDescriptions[1].offset = offsetof(Vertex, uv);
+    m_vertices.AttributeDescriptions[1].offset = offsetof(Vertex, Uv);
 
     // Location 2 : Vertex normal
     m_vertices.AttributeDescriptions[2].location = 2;
-    m_vertices.AttributeDescriptions[2].binding = VERTEX_BUFFER_BIND_ID;
+    m_vertices.AttributeDescriptions[2].binding = VertexBufferBindId;
     m_vertices.AttributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
-    m_vertices.AttributeDescriptions[2].offset = offsetof(Vertex, normal);
+    m_vertices.AttributeDescriptions[2].offset = offsetof(Vertex, Normal);
 
 
     m_vertices.InputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -448,10 +448,8 @@ namespace Fsl
       uint8_t* data = nullptr;
       RAPIDVULKAN_CHECK(vkMapMemory(m_device.Get(), stagingMemory.Get(), 0, memReqs.size, 0, reinterpret_cast<void**>(&data)));
       {
-        RawTexture rawTexture;
-        Texture::ScopedDirectAccess directAccess(texture, rawTexture);
-
-        std::memcpy(data, rawTexture.GetContent(), rawTexture.GetByteSize());
+        Texture::ScopedDirectReadAccess directAccess(texture);
+        std::memcpy(data, directAccess.AsRawTexture().GetContent(), directAccess.AsRawTexture().GetByteSize());
       }
       vkUnmapMemory(m_device.Get(), stagingMemory.Get());
 
@@ -566,7 +564,7 @@ namespace Fsl
 
       m_deviceQueue.Submit(1, &submitInfo, fence.Get());
 
-      fence.WaitForFence(DEFAULT_FENCE_TIMEOUT);
+      fence.WaitForFence(DefaultFenceTimeout);
 
       // Clean up staging resources is done automatically due to the use of the RAII containers
     }
@@ -610,8 +608,8 @@ namespace Fsl
       void* data = nullptr;
       RAPIDVULKAN_CHECK(vkMapMemory(m_device.Get(), m_texture.DeviceMemory.Get(), 0, memReqs.size, 0, &data));
       {
-        RawTexture rawTexture;
-        Texture::ScopedDirectAccess directAccess(texture, rawTexture);
+        Texture::ScopedDirectReadAccess directAccess(texture);
+        const ReadOnlyRawTexture rawTexture = directAccess.AsRawTexture();
         // Copy image data into memory
         const auto blob0 = rawTexture.GetBlob(0);
         assert(blob0.Size == memReqs.size);
@@ -674,7 +672,7 @@ namespace Fsl
 
       m_deviceQueue.Submit(1, &submitInfo, fence.Get());
 
-      fence.WaitForFence(DEFAULT_FENCE_TIMEOUT);
+      fence.WaitForFence(DefaultFenceTimeout);
     }
 
     // Create a texture sampler
@@ -815,7 +813,7 @@ namespace Fsl
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     viewportState.viewportCount = 1;    //! FIX: Is this wrong? we are not supplying any pointers
     viewportState.pViewports = nullptr;
-    viewportState.scissorCount = 1;     //! FIX: Is this wrong? we are not supplying any pointers
+    viewportState.scissorCount = 1;    //! FIX: Is this wrong? we are not supplying any pointers
     viewportState.pScissors = nullptr;
 
     VkPipelineMultisampleStateCreateInfo multisampleState{};

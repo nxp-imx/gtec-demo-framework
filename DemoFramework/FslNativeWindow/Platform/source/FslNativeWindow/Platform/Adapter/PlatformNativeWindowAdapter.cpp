@@ -47,7 +47,7 @@ namespace Fsl
   {
     namespace LocalConfig
     {
-      const uint32_t MinDensityDpi = 80;
+      constexpr uint32_t MinDensityDpi = 80;
     }
 
     //! A simple selector that allows slightly too low DPI devices to enter density bucket its technically too small for

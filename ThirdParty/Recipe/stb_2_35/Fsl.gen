@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <ExternalLibrary Name="Recipe.stb_2_35" CreationYear="2017">
-    <ExperimentalRecipe Name="stb" Version="2.35.0.2">
+    <ExperimentalRecipe Name="stb" Version="2.35.0.3">
       <Pipeline>
-        <GitClone URL="https://github.com/nothings/stb" Hash="af1a5bc352164740c1cc1354942b1c6b72eacb8a"/>
+        <GitClone URL="https://github.com/nothings/stb" Hash="ae721c50eaf761660b4f90cc590453cdb0c2acd0"/>
         <Copy>
           <Delete Path=".git"/>
           <Delete Path=".github"/>
@@ -32,7 +32,7 @@
         <AddHeaders Name=""/>
         <Path Name="stb_dxt.h" Method="IsFile"/>
         <Path Name="stb_image.h" Method="IsFile"/>
-        <Path Name="stb_image_resize.h" Method="IsFile"/>
+        <Path Name="stb_image_resize2.h" Method="IsFile"/>
         <Path Name="stb_image_write.h" Method="IsFile"/>
       </Installation>
     </ExperimentalRecipe>

@@ -51,18 +51,18 @@ TEST(TestMathPx_PxValue, Construct_Default)
 
 TEST(TestMathPx_PxValue, Construct)
 {
-  constexpr const int32_t testValue = 3;
-  PxValue value(testValue);
+  constexpr const int32_t TestValue = 3;
+  PxValue value(TestValue);
 
-  EXPECT_EQ(testValue, value.Value);
+  EXPECT_EQ(TestValue, value.Value);
 }
 
 TEST(TestMathPx_PxValue, Construct_NegativeValue)
 {
-  constexpr const int32_t testValue = -1;
-  PxValue value(testValue);
+  constexpr const int32_t TestValue = -1;
+  PxValue value(TestValue);
 
-  EXPECT_EQ(testValue, value.Value);
+  EXPECT_EQ(TestValue, value.Value);
 }
 
 TEST(TestMathPx_PxValue, Op_UnarySub)

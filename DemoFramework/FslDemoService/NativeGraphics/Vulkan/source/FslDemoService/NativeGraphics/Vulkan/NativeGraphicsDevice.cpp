@@ -183,7 +183,7 @@ namespace Fsl::Vulkan
     return m_textureFactory.GetTextureCaps();
   }
 
-  BasicNativeTextureHandle NativeGraphicsDevice::CreateTexture(const RawTexture& texture, const Texture2DFilterHint filterHint,
+  BasicNativeTextureHandle NativeGraphicsDevice::CreateTexture(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                                const TextureFlags textureFlags, const bool isDynamic)
   {
     // The texture factory handles the disposed case
@@ -197,8 +197,8 @@ namespace Fsl::Vulkan
   }
 
 
-  void NativeGraphicsDevice::SetTextureData(const BasicNativeTextureHandle hTexture, const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                            const TextureFlags textureFlags)
+  void NativeGraphicsDevice::SetTextureData(const BasicNativeTextureHandle hTexture, const ReadOnlyRawTexture& texture,
+                                            const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
   {
     // The texture factory handles the disposed case
     return m_textureFactory.SetTextureData(hTexture, texture, filterHint, textureFlags);
@@ -319,8 +319,8 @@ namespace Fsl::Vulkan
 
     m_frame.Commands.BoundIndexBufferHandle = indexBuffer;
 
-    constexpr VkDeviceSize offset = 0u;
-    vkCmdBindIndexBuffer(m_frame.CommandBuffer, buffer.GetBuffer(), offset, VK_INDEX_TYPE_UINT16);
+    constexpr VkDeviceSize Offset = 0u;
+    vkCmdBindIndexBuffer(m_frame.CommandBuffer, buffer.GetBuffer(), Offset, VK_INDEX_TYPE_UINT16);
   }
 
 
@@ -415,7 +415,7 @@ namespace Fsl::Vulkan
     // If this fires the camera was not set
     assert(m_frame.Commands.CameraInfo.IsValid);
 
-    constexpr int32_t vertexOffset = 0;
-    vkCmdDrawIndexed(m_frame.CommandBuffer, indexCount, 1, firstIndex, vertexOffset, 0);
+    constexpr int32_t VertexOffset = 0;
+    vkCmdDrawIndexed(m_frame.CommandBuffer, indexCount, 1, firstIndex, VertexOffset, 0);
   }
 }

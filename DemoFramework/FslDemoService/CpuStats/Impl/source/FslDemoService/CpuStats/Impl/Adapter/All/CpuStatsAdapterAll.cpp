@@ -40,17 +40,17 @@ namespace Fsl
   }
 
 
-  bool CpuStatsAdapterAll::TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex) const
+  bool CpuStatsAdapterAll::TryGetCpuUsage(CpuUsageRecord& rUsageRecord, const uint32_t cpuIndex) const
   {
     FSL_PARAM_NOT_USED(cpuIndex);
-    rUsagePercentage = 0.0f;
+    rUsageRecord = {};
     return false;
   }
 
 
-  bool CpuStatsAdapterAll::TryGetApplicationCpuUsage(float& rUsagePercentage) const
+  bool CpuStatsAdapterAll::TryGetApplicationCpuUsage(CpuUsageRecord& rUsageRecord) const
   {
-    rUsagePercentage = 0.0f;
+    rUsageRecord = {};
     return false;
   }
 

@@ -56,12 +56,12 @@ namespace Fsl
     m_programBgrnd.Reset(vertexShader, content->ReadAllText("ShaderBgrnd.frag"));
 
     {    // Create the sphere vertex & index buffer
-      std::vector<uint16_t> m_indices;
+      std::vector<uint16_t> indices;
       std::vector<VertexPosition> sphereVertices;
-      SphereMeshCreator::Create(sphereVertices, m_indices, 40, 60);
+      SphereMeshCreator::Create(sphereVertices, indices, 40, 60);
 
       m_vertexBuffer.Reset(sphereVertices, GL_STATIC_DRAW);
-      m_indexBuffer.Reset(m_indices.data(), m_indices.size(), GL_STATIC_DRAW);
+      m_indexBuffer.Reset(indices.data(), indices.size(), GL_STATIC_DRAW);
     }
 
     // Get uniform locations

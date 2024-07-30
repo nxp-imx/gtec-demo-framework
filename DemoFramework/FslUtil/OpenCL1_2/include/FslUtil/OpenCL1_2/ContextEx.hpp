@@ -45,7 +45,8 @@ namespace Fsl::OpenCL
   //! This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
   class ContextEx
   {
-    cl_platform_id m_platformId;
+    cl_platform_id m_platformId{nullptr};
+    cl_device_id m_deviceId{nullptr};
     RapidOpenCL1::Context m_context;
 
   public:
@@ -67,10 +68,26 @@ namespace Fsl::OpenCL
     explicit ContextEx(const cl_platform_id platformId, const cl_context context);
 
     //! @brief Create the requested resource
+    //! @param allowFallback if the specified device type can't be found allow using a fallback of CL_DEVICE_TYPE_ALL
+    // NOLINTNEXTLINE(misc-misplaced-const)
+    explicit ContextEx(const cl_device_type deviceType, const bool allowFallback = true);
+
+    //! @brief Create the requested resource
+    //! @param contextPropertiesSpan the context properties to use (supply a empty one to use the default).
+    //!        If this span is not empty and contains a CL_CONTEXT_PLATFORM entry that is 0, then the entry will be patched with the right platformId.
+    //!        If this span is not empty and does not contain a CL_CONTEXT_PLATFORM then a CL_CONTEXT_PLATFORM entry will be added.
+    //! @param allowFallback if the specified device type can't be found allow using a fallback of CL_DEVICE_TYPE_ALL
+    // NOLINTNEXTLINE(misc-misplaced-const)
+    explicit ContextEx(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType,
+                       const bool allowFallback = true);
+
+
+    //! @brief Create the requested resource
     //! @param pDeviceId the chosen device id (if nullptr this is ignored, else it will be assigned the chosen deviceId)
     //! @param allowFallback if the specified device type can't be found allow using a fallback of CL_DEVICE_TYPE_ALL
     // NOLINTNEXTLINE(misc-misplaced-const)
-    explicit ContextEx(const cl_device_type deviceType, cl_device_id* pDeviceId = nullptr, const bool allowFallback = true);
+    [[deprecated("use the method without pDeviceId and retrieve the device id with GetDeviceId instead")]] explicit ContextEx(
+      const cl_device_type deviceType, cl_device_id* pDeviceId, const bool allowFallback = true);
 
     //! @brief Create the requested resource
     //! @param contextPropertiesSpan the context properties to use (supply a empty one to use the default).
@@ -79,8 +96,10 @@ namespace Fsl::OpenCL
     //! @param pDeviceId the chosen device id (if nullptr this is ignored, else it will be assigned the chosen deviceId)
     //! @param allowFallback if the specified device type can't be found allow using a fallback of CL_DEVICE_TYPE_ALL
     // NOLINTNEXTLINE(misc-misplaced-const)
-    explicit ContextEx(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType,
-                       cl_device_id* pDeviceId = nullptr, const bool allowFallback = true);
+    [[deprecated("use the method without pDeviceId and retrieve the device id with GetDeviceId instead")]] explicit ContextEx(
+      const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType, cl_device_id* pDeviceId,
+      const bool allowFallback = true);
+
 
     //! @brief returns the managed handle and releases the ownership.
     [[nodiscard]] cl_context Release() noexcept
@@ -107,10 +126,24 @@ namespace Fsl::OpenCL
     }
 
     //! @brief Destroys any owned resources and then creates the requested one
+    //! @param allowFallback if the specified device type can't be found allow using a fallback of CL_DEVICE_TYPE_ALL
+    // NOLINTNEXTLINE(misc-misplaced-const)
+    void Reset(const cl_device_type deviceType, const bool allowFallback = true);
+
+    //! @brief Destroys any owned resources and then creates the requested one
+    //! @param contextPropertiesSpan the context properties to use (supply a empty one to use the default).
+    //!        If this span is not empty and contains a CL_CONTEXT_PLATFORM entry that is 0, then the entry will be patched with the right platformId.
+    //!        If this span is not empty and does not contain a CL_CONTEXT_PLATFORM then a CL_CONTEXT_PLATFORM entry will be added.
+    //! @param allowFallback if the specified device type can't be found allow using a fallback of CL_DEVICE_TYPE_ALL
+    // NOLINTNEXTLINE(misc-misplaced-const)
+    void Reset(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType, const bool allowFallback = true);
+
+    //! @brief Destroys any owned resources and then creates the requested one
     //! @param pDeviceId the chosen device id (if nullptr this is ignored, else it will be assigned the chosen deviceId)
     //! @param allowFallback if the specified device type can't be found allow using a fallback of CL_DEVICE_TYPE_ALL
     // NOLINTNEXTLINE(misc-misplaced-const)
-    void Reset(const cl_device_type deviceType, cl_device_id* pDeviceId = nullptr, const bool allowFallback = true);
+    [[deprecated("use the method without pDeviceId and retrieve the device id with GetDeviceId instead")]] void
+      Reset(const cl_device_type deviceType, cl_device_id* pDeviceId, const bool allowFallback = true);
 
     //! @brief Destroys any owned resources and then creates the requested one
     //! @param contextPropertiesSpan the context properties to use (supply a empty one to use the default).
@@ -119,14 +152,22 @@ namespace Fsl::OpenCL
     //! @param pDeviceId the chosen device id (if nullptr this is ignored, else it will be assigned the chosen deviceId)
     //! @param allowFallback if the specified device type can't be found allow using a fallback of CL_DEVICE_TYPE_ALL
     // NOLINTNEXTLINE(misc-misplaced-const)
-    void Reset(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType, cl_device_id* pDeviceId = nullptr,
-               const bool allowFallback = true);
+    [[deprecated("use the method without pDeviceId and retrieve the device id with GetDeviceId instead")]] void
+      Reset(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType, cl_device_id* pDeviceId,
+            const bool allowFallback = true);
 
     //! @brief Get the associated resource handle
     cl_platform_id GetPlatformId() const noexcept
     {
       return m_platformId;
     }
+
+    //! @brief Get the associated resource handle
+    cl_device_id GetDeviceId() const noexcept
+    {
+      return m_deviceId;
+    }
+
 
     //! @brief Get the associated resource handle
     cl_context Get() const noexcept
@@ -141,8 +182,10 @@ namespace Fsl::OpenCL
     }
 
   private:
+    void SelectDevice(const ReadOnlySpan<cl_platform_id> platformIds, const ReadOnlySpan<cl_context_properties> contextPropertiesSpan,
+                      const cl_device_type deviceType, const bool allowFallback);
     void SelectDevice(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, cl_platform_id platformId,
-                      const std::vector<cl_device_id>& deviceIds, cl_device_id* pDeviceId);
+                      const std::vector<cl_device_id>& deviceIds);
     std::vector<cl_context_properties> PatchProperties(cl_platform_id platformId, const ReadOnlySpan<cl_context_properties> contextPropertiesSpan);
   };
 }

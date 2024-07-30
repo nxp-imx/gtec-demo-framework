@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BUILD_LINEBUILDER_HPP
 #define FSLGRAPHICS3D_BUILD_LINEBUILDER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslGraphics/Color.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Vertices/VertexPositionColor.hpp>
 #include <FslGraphics/Vertices/VertexSpan.hpp>
@@ -65,8 +66,8 @@ namespace Fsl
     //!        Also works fine for static line vertex generation.
     class LineBuilder
     {
-      static constexpr std::size_t MIN_VERTEX_CAPACITY = 512;
-      static constexpr float RAY_LENGTH = 200000.0f;
+      static constexpr std::size_t MinVertexCapacity = 512;
+      static constexpr float RayLength = 200000.0f;
 
       std::vector<VertexPositionColor> m_vertices;
       //! The number of vertices currently in use
@@ -76,18 +77,18 @@ namespace Fsl
 
     public:
       using vertex_type = VertexPositionColor;
-      static constexpr const uint32_t VERTICES_PER_LINE = 2;
-      static constexpr const uint32_t INITIAL_LINE_CAPACITY = VERTICES_PER_LINE * 8192;
-      static constexpr const uint32_t GROW_BY = VERTICES_PER_LINE * 2048;
-      static constexpr const uint32_t DEFAULT_SPHERE_STEPS = 24;
+      static constexpr const uint32_t VerticesPerLine = 2;
+      static constexpr const uint32_t InitialLineCapacity = VerticesPerLine * 8192;
+      static constexpr const uint32_t GrowBy = VerticesPerLine * 2048;
+      static constexpr const uint32_t DefaultSphereSteps = 24;
 
       LineBuilder()
-        : LineBuilder(INITIAL_LINE_CAPACITY)
+        : LineBuilder(InitialLineCapacity)
       {
       }
 
       explicit LineBuilder(const uint32_t initialLineCapacity)
-        : m_vertices(std::max(static_cast<std::size_t>(initialLineCapacity) * static_cast<std::size_t>(VERTICES_PER_LINE), MIN_VERTEX_CAPACITY))
+        : m_vertices(std::max(static_cast<std::size_t>(initialLineCapacity) * static_cast<std::size_t>(VerticesPerLine), MinVertexCapacity))
       {
       }
 
@@ -120,8 +121,8 @@ namespace Fsl
 
       inline uint32_t LineCount() const
       {
-        assert((m_entries % VERTICES_PER_LINE) == 0u);
-        return m_entries / VERTICES_PER_LINE;
+        assert((m_entries % VerticesPerLine) == 0u);
+        return m_entries / VerticesPerLine;
       }
 
       // Color color
@@ -324,11 +325,11 @@ namespace Fsl
       void Add(const BoundingBox& boundingBox, const Color& color, const Matrix& matrix);
       void Add(const BoundingFrustum& boundingFrustum, const Color& color);
       void Add(const BoundingFrustum& boundingFrustum, const Color& color, const Matrix& matrix);
-      void Add(const BoundingSphere& boundingSphere, const Color& color, const uint32_t steps = DEFAULT_SPHERE_STEPS)
+      void Add(const BoundingSphere& boundingSphere, const Color& color, const uint32_t steps = DefaultSphereSteps)
       {
         AddSphere(boundingSphere.Center, boundingSphere.Radius, color, color, color, steps);
       }
-      void Add(const BoundingSphere& boundingSphere, const Color& color, const Matrix& matrix, const uint32_t steps = DEFAULT_SPHERE_STEPS)
+      void Add(const BoundingSphere& boundingSphere, const Color& color, const Matrix& matrix, const uint32_t steps = DefaultSphereSteps)
       {
         AddSphere(boundingSphere.Center, boundingSphere.Radius, color, color, color, matrix, steps);
       }
@@ -359,15 +360,15 @@ namespace Fsl
       }
 
       //! @note  x will be red, y will be green, z will be blue
-      inline void AddAxisSphere(const Vector3& center, const float radius, const uint32_t steps = DEFAULT_SPHERE_STEPS)
+      inline void AddAxisSphere(const Vector3& center, const float radius, const uint32_t steps = DefaultSphereSteps)
       {
-        AddSphere(center, radius, Color::Red(), Color::Green(), Color::Blue(), steps);
+        AddSphere(center, radius, Colors::Red(), Colors::Green(), Colors::Blue(), steps);
       }
 
       //! @note  x will be red, y will be green, z will be blue
-      inline void AddAxisSphere(const Vector3& center, const float radius, const Matrix& matrix, const uint32_t steps = DEFAULT_SPHERE_STEPS)
+      inline void AddAxisSphere(const Vector3& center, const float radius, const Matrix& matrix, const uint32_t steps = DefaultSphereSteps)
       {
-        AddSphere(center, radius, Color::Red(), Color::Green(), Color::Blue(), matrix, steps);
+        AddSphere(center, radius, Colors::Red(), Colors::Green(), Colors::Blue(), matrix, steps);
       }
 
       //! @brief Add a coordinate system
@@ -442,9 +443,9 @@ namespace Fsl
       }
 
       void AddSphere(const Vector3& center, const float radius, const Color& colYZ, const Color& colXZ, const Color& colXY,
-                     const uint32_t steps = DEFAULT_SPHERE_STEPS);
+                     const uint32_t steps = DefaultSphereSteps);
       void AddSphere(const Vector3& center, const float radius, const Color& colYZ, const Color& colXZ, const Color& colXY, const Matrix& matrix,
-                     const uint32_t steps = DEFAULT_SPHERE_STEPS);
+                     const uint32_t steps = DefaultSphereSteps);
 
     private:
       constexpr Rect ToRect(const Rectangle& rect) noexcept
@@ -459,9 +460,9 @@ namespace Fsl
         if (vertexCount > capacityLeft)
         {
           const auto missingCapacity = (vertexCount - capacityLeft);
-          const auto numBucketsFull = missingCapacity / GROW_BY;
-          const auto numLeft = missingCapacity % GROW_BY;
-          auto newCapacity = m_vertices.size() + ((numBucketsFull + (numLeft > 0 ? 1 : 0)) * GROW_BY);
+          const auto numBucketsFull = missingCapacity / GrowBy;
+          const auto numLeft = missingCapacity % GrowBy;
+          auto newCapacity = m_vertices.size() + ((numBucketsFull + (numLeft > 0 ? 1 : 0)) * GrowBy);
           if (newCapacity > std::numeric_limits<uint32_t>::max())
           {
             // ok we don't want to exceed a uint32_t

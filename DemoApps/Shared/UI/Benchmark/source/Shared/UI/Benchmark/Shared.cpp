@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDemoApp/Base/Service/AppInfo/IAppInfoService.hpp>
 #include <FslDemoApp/Base/Service/DemoAppControl/IDemoAppControl.hpp>
 #include <FslDemoApp/Base/Service/Persistent/IPersistentDataManager.hpp>
@@ -40,6 +39,7 @@
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/UIColors.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
 #include <Shared/UI/Benchmark/IBasicGpuProfiler.hpp>
@@ -85,7 +85,7 @@ namespace Fsl
     SceneAppInfo BuildAppInfo(const ServiceProvider& serviceProvider)
     {
       auto appInfo = serviceProvider.Get<IAppInfoService>();
-      return {StringViewLiteUtil::ToString(appInfo->GetAppName()), VersionInfo(1, 0), appInfo->IsDebugBuild()};
+      return {std::string(appInfo->GetAppName()), VersionInfo(1, 0), appInfo->IsDebugBuild()};
     }
 
     std::shared_ptr<BenchResultManager> CreateBenchResultManager(const DemoAppConfig& config, const bool appDebugMode)
@@ -99,10 +99,10 @@ namespace Fsl
   Shared::Shared(const DemoAppConfig& config, std::shared_ptr<IBasicGpuProfiler> gpuProfiler)
     : m_gpuProfiler(std::move(gpuProfiler))
     , m_uiEventListener(this)
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(
-        config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlasBig_160dpi",
-        UIDemoAppRenderCreateInfo(UIDemoAppMaterialCreateInfo(), UIDemoAppMaterialConfig(LocalConfig::AllowDepthBuffer)),
-        UITestPatternMode::DisabledAllowSwitching))
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlasBig/UIAtlas_160dpi",
+                                                         UIDemoAppRenderCreateInfo(UI::UIColorSpace::SRGBNonLinear, UIDemoAppMaterialCreateInfo(),
+                                                                                   UIDemoAppMaterialConfig(LocalConfig::AllowDepthBuffer)),
+                                                         UITestPatternMode::DisabledAllowSwitching))
     , m_forwarder(std::make_shared<DemoAppExtensionForwarder>(m_uiExtension))
     , m_uiControlFactory(UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension))
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
@@ -113,7 +113,7 @@ namespace Fsl
     , m_mainLayout(std::make_shared<UI::FillLayout>(m_uiControlFactory->GetContext()))
     , m_sceneLayout(std::make_shared<UI::FillLayout>(m_uiControlFactory->GetContext()))
     , m_overlayFillImage(m_uiControlFactory->CreateImage(m_uiControlFactory->GetResources().GetBasicMiniFillSprite(false)))
-    , m_overlayColor(m_uiControlFactory->GetContext()->UITransitionCache, TimeSpan::FromMilliseconds(240), TransitionType::Smooth)
+    , m_overlayColor(TimeSpan::FromMilliseconds(240), TransitionType::Smooth)
     , m_serviceProvider(config.DemoServiceProvider)
     , m_settingsPath(IO::Path::Combine(m_serviceProvider.Get<IPersistentDataManager>()->GetPersistentDataPath(), LocalConfig::SettingsFilename))
     , m_settings(std::make_shared<AppSettings>(LoadSettings(m_settingsPath)))
@@ -138,7 +138,7 @@ namespace Fsl
     m_overlayFillImage->SetScalePolicy(UI::ItemScalePolicy::Fit);
     m_overlayFillImage->SetAlignmentX(UI::ItemAlignment::Stretch);
     m_overlayFillImage->SetAlignmentY(UI::ItemAlignment::Stretch);
-    m_overlayFillImage->SetContentColor(Color::Transparent());
+    m_overlayFillImage->SetContentColor(UI::UIColors::Transparent());
     m_mainLayout->AddChild(m_sceneLayout);
     m_mainLayout->AddChild(m_overlayFillImage);
     m_uiExtension->SetMainWindow(m_mainLayout);
@@ -180,9 +180,8 @@ namespace Fsl
   }
 
 
-  void Shared::OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void Shared::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
     if (theEvent->IsHandled())
     {
       return;
@@ -193,9 +192,8 @@ namespace Fsl
     }
   }
 
-  void Shared::OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void Shared::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
     if (theEvent->IsHandled())
     {
       return;
@@ -239,13 +237,13 @@ namespace Fsl
       auto closeRes = m_sceneRecord.Scene->TryGetNextScene();
       if (!closeRes.has_value())
       {
-        m_overlayColor.SetValue(Color::Transparent());
+        m_overlayColor.SetValue(UI::UIColors::Transparent());
         m_overlayColor.Update(transitionTime);
       }
       else
       {
         assert(closeRes.has_value());
-        m_overlayColor.SetValue(Color::Black());
+        m_overlayColor.SetValue(UI::UIColors::Black());
         m_overlayColor.Update(transitionTime);
         if (m_overlayColor.IsCompleted())
         {

@@ -48,7 +48,9 @@ namespace Fsl::UI
     PxSize2D m_desiredSizePx;
 
   public:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static DataBinding::DependencyPropertyDefinition PropertyDirection;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static DataBinding::DependencyPropertyDefinition PropertyShown;
 
     explicit SlidingPanel(const std::shared_ptr<BaseWindowContext>& context);

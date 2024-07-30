@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,7 @@
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/UniformStackLayout.hpp>
+#include <FslSimpleUI/Base/UIColors.hpp>
 #include <FslSimpleUI/Controls/Charts/AreaChart.hpp>
 #include <FslSimpleUI/Render/Base/IRenderSystemBase.hpp>
 #include <FslSimpleUI/Render/Base/RenderSystemStats.hpp>
@@ -102,12 +103,12 @@ namespace Fsl
 
     namespace IdleColor
     {
-      constexpr Color Idle = Color::Green();
-      constexpr Color SystemBusy = Color::Orange();
-      constexpr Color Busy = Color::Red();
+      constexpr UI::UIColor Idle = UI::UIColors::Green();
+      constexpr UI::UIColor SystemBusy = UI::UIColors::Orange();
+      constexpr UI::UIColor Busy = UI::UIColors::Red();
     }
 
-    Color DetermineIdleColor(const bool appIdle, const bool systemIdle)
+    UI::UIColor DetermineIdleColor(const bool appIdle, const bool systemIdle)
     {
       if (systemIdle)
       {
@@ -128,11 +129,11 @@ namespace Fsl
     , m_windowMetrics(createInfo.WindowMetrics)
     , m_uiExtension(createInfo.UIExtension)
     , m_gpuProfilerSupported(createInfo.GpuProfiler)
-    , m_renderRecords(ReadOnlySpanUtil::ToVector(RenderConfig::Get()))
+    , m_renderRecords(SpanUtil::ToVector(RenderConfig::Get()))
     , m_data(std::make_shared<UI::ChartData>(m_uiExtension->GetDataBinding(), m_windowMetrics.ExtentPx.Width.Value,
                                              CustomControlFactory::MaxCpuProfileDataEntries(), UI::ChartData::Constraints(0, {})))
     , m_dataAverage(LocalConfig::AverageEntries)
-    , m_anim(m_uiControlFactory->GetContext()->UITransitionCache, UI::DefaultAnim::ColorChangeTime)
+    , m_anim(UI::DefaultAnim::ColorChangeTime)
     , m_testAppHost(std::make_shared<TestAppHost>(createInfo.DemoServiceProvider, m_windowMetrics))
     , m_settings(createInfo.Settings)
   {
@@ -421,9 +422,9 @@ namespace Fsl
       CustomControlFactory::SetContent(m_uiProfile.BottomBar.CpuLegendUI.AverageTimeLabel.get(), total);
     }
 
-    const Color overlayColor = (m_settings->UI.ShowStats) ? Color::White() : Color(0x00FFFFFF);
+    const UI::UIColor overlayColor = (m_settings->UI.ShowStats) ? UI::UIColors::White() : UI::UIColor(PackedColor32(0x00FFFFFF));
     m_anim.OverlayColorStatsApp.SetValue(overlayColor);
-    m_anim.OverlayColorStats.SetValue(m_settings->Test.ShowStats ? overlayColor : Color(0x00FFFFFF));
+    m_anim.OverlayColorStats.SetValue(m_settings->Test.ShowStats ? overlayColor : UI::UIColor(PackedColor32(0x00FFFFFF)));
     m_anim.Update(demoTime.ElapsedTime);
 
     m_uiProfile.StatsOverlay.MainLayout->SetBaseColor(m_anim.OverlayColorStatsApp.GetValue());
@@ -436,7 +437,7 @@ namespace Fsl
 
     // If we dont want to show the system UI idle/busy state we force the systemUIIdle to true
     const bool systemUIIdle = m_cachedState.WasAppUIIdle || !m_settings->Test.ShowIdle;
-    const Color idleColor = DetermineIdleColor(m_cachedState.WasTestAppUIIdle, systemUIIdle);
+    const UI::UIColor idleColor = DetermineIdleColor(m_cachedState.WasTestAppUIIdle, systemUIIdle);
     m_uiProfile.OptionsBar.ImageIdle->SetContentColor(idleColor);
 
     m_uiProfile.AppLayout->SetBaseColor(m_uiProfile.ActivityStack->GetDesiredParentColor());
@@ -611,7 +612,7 @@ namespace Fsl
     assert(m_inputState == InputState::Playground);
     m_benchResult = std::make_shared<AppBenchSettings>(m_settings->Bench);
     m_configDialogPromise = m_uiProfile.ActivityStack->Push(std::make_shared<UI::BenchConfigDialogActivity>(
-      m_uiProfile.ActivityStack, m_uiControlFactory, m_gpuProfilerSupported, ReadOnlySpanUtil::AsSpan(m_renderRecords), m_benchResult));
+      m_uiProfile.ActivityStack, m_uiControlFactory, m_gpuProfilerSupported, SpanUtil::AsReadOnlySpan(m_renderRecords), m_benchResult));
     m_inputState = InputState::BenchConfigSubActivity;
   }
 
@@ -643,7 +644,7 @@ namespace Fsl
     m_settingsResult = std::make_shared<AppTestSettings>(m_settings->Test);
     m_uiProfile.ActivityStack->Push(std::make_shared<UI::SettingsDialogActivity>(m_uiProfile.ActivityStack, m_uiControlFactory,
                                                                                  UI::Theme::WindowType::DialogNormal, m_settingsResult,
-                                                                                 ReadOnlySpanUtil::AsSpan(m_renderRecords)));
+                                                                                 SpanUtil::AsReadOnlySpan(m_renderRecords)));
     m_inputState = InputState::SettingsSubActivity;
   }
 

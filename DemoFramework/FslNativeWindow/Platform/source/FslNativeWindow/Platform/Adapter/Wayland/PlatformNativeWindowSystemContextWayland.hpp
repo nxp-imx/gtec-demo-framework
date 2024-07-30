@@ -214,7 +214,7 @@ namespace Fsl
 
     PxPoint2 MousePosition;
     int ZDelta{0};
-    VirtualMouseButton::Enum MouseButton{};
+    VirtualMouseButton MouseButton{};
     bool MouseIsPressed{false};
 
     bool RoundtripNeeded{false};

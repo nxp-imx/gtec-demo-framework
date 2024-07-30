@@ -44,7 +44,7 @@ namespace Fsl
 {
   namespace
   {
-    const uint32_t VERTEX_BUFFER_BIND_ID = 0;
+    constexpr uint32_t VertexBufferBindId = 0;
 
     RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const Vulkan::VUDevice& device)
     {
@@ -255,15 +255,14 @@ namespace Fsl
       //  break;
       case RenderMode::Smooth:
         fragmentShaderFile =
-          (m_config.IterationsM == DefaultValues::JULIA_DEFAULT_ITERATIONS ? "Julia_smooth_default.frag.spv" : "Julia_smooth.frag.spv");
+          (m_config.IterationsM == DefaultValues::JuliaDefaultIterations ? "Julia_smooth_default.frag.spv" : "Julia_smooth.frag.spv");
         break;
       case RenderMode::Col:
-        fragmentShaderFile = (m_config.IterationsM == DefaultValues::JULIA_DEFAULT_ITERATIONS ? "Julia_col_default.frag.spv" : "Julia_col.frag.spv");
+        fragmentShaderFile = (m_config.IterationsM == DefaultValues::JuliaDefaultIterations ? "Julia_col_default.frag.spv" : "Julia_col.frag.spv");
         break;
       case RenderMode::Gray:
       default:
-        fragmentShaderFile =
-          (m_config.IterationsM == DefaultValues::JULIA_DEFAULT_ITERATIONS ? "Julia_gray_default.frag.spv" : "Julia_gray.frag.spv");
+        fragmentShaderFile = (m_config.IterationsM == DefaultValues::JuliaDefaultIterations ? "Julia_gray_default.frag.spv" : "Julia_gray.frag.spv");
         break;
       }
 
@@ -347,7 +346,7 @@ namespace Fsl
     vkCmdSetScissor(hCmdBuffer, 0, 1, &scissor);
 
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(hCmdBuffer, VertexBufferBindId, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(hCmdBuffer, m_resources.Mesh.VertexBuffer.GetVertexCount(), 1, 0, 0);
 
     m_helper.Draw(m_screenResolution);

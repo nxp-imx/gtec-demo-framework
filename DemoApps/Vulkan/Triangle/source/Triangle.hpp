@@ -55,7 +55,7 @@ namespace Fsl
   {
     BufferAndMemory Content;
     VkVertexInputBindingDescription InputBinding{};
-    std::vector<VkVertexInputAttributeDescription> InputAttributes{};
+    std::vector<VkVertexInputAttributeDescription> InputAttributes;
   };
 
   class Triangle final : public VulkanBasic::DemoAppVulkanBasic

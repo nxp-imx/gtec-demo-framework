@@ -42,7 +42,9 @@ namespace Fsl
   // Render the model using basic client side arrays (slow but easy)
   class MeshRenderBasic : public MeshRender
   {
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const uint32_t m_vertexCount;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const uint32_t m_indexCount;
     std::vector<Vector3> m_vertices;
     std::vector<Vector3> m_normals;

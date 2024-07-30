@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.half_2_2" CreationYear="2019">
+    <ExperimentalRecipe Name="half" Version="2.1.0">
+      <Pipeline>
+        <Download URL="https://sourceforge.net/projects/half/files/half/2.2.0/half-2.2.0.zip" To="half-2.2.0.zip" Hash="1d1d9e482fb95fcd7cab0953a4bd35e00b86578f11cb6939a067811a055a563b"/>
+        <Unpack File="half-2.2.0.zip"/>
+      </Pipeline>
+      <Installation>
+        <AddHeaders Name="include"/>
+        <Path Name="include/half.hpp" Method="IsFile"/>
+      </Installation>
+    </ExperimentalRecipe>
+  </ExternalLibrary>
+</FslBuildGen>

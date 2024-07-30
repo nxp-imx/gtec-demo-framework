@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ namespace
 
 TEST(TestReadOnlyFlexVertexSpanUtilReadOnlyFlexSpan, AsSpan)
 {
-  constexpr std::array<VertexPosition, 4> vertices = {
+  constexpr std::array<VertexPosition, 4> Vertices = {
     VertexPosition(Vector3(1.0f, 2.0f, 3.0f)),
     VertexPosition(Vector3(4.0f, 5.0f, 6.0f)),
     VertexPosition(Vector3(7.0f, 8.0f, 9.0f)),
@@ -54,14 +54,14 @@ TEST(TestReadOnlyFlexVertexSpanUtilReadOnlyFlexSpan, AsSpan)
   };
 
   const auto vertexDeclaration = VertexPosition::AsVertexDeclarationSpan();
-  const ReadOnlyFlexSpan srcVertices = ReadOnlyFlexSpanUtil::AsSpan(vertices);
+  const ReadOnlyFlexSpan srcVertices = ReadOnlyFlexSpanUtil::AsSpan(Vertices);
   ReadOnlyFlexVertexSpan span = ReadOnlyFlexVertexSpanUtil::AsSpan(srcVertices, vertexDeclaration);
 
   EXPECT_FALSE(span.empty());
   EXPECT_NE(span.data(), nullptr);
-  EXPECT_EQ(span.data(), vertices.data());
-  EXPECT_EQ(span.size(), vertices.size());
-  EXPECT_EQ(span.length(), vertices.size());
+  EXPECT_EQ(span.data(), Vertices.data());
+  EXPECT_EQ(span.size(), Vertices.size());
+  EXPECT_EQ(span.length(), Vertices.size());
   EXPECT_EQ(span.stride(), vertexDeclaration.VertexStride());
   EXPECT_EQ(span.AsVertexDeclarationSpan(), vertexDeclaration);
 }
@@ -69,13 +69,13 @@ TEST(TestReadOnlyFlexVertexSpanUtilReadOnlyFlexSpan, AsSpan)
 
 TEST(TestReadOnlyFlexVertexSpanUtilReadOnlyFlexSpan, AsSpan_NullVertexDeclaration)
 {
-  constexpr std::array<VertexPosition, 4> vertices = {
+  constexpr std::array<VertexPosition, 4> Vertices = {
     VertexPosition(Vector3(1.0f, 2.0f, 3.0f)),
     VertexPosition(Vector3(4.0f, 5.0f, 6.0f)),
     VertexPosition(Vector3(7.0f, 8.0f, 9.0f)),
     VertexPosition(Vector3(9.1f, 9.2f, 9.3f)),
   };
-  const ReadOnlyFlexSpan srcVertices = ReadOnlyFlexSpanUtil::AsSpan(vertices);
+  const ReadOnlyFlexSpan srcVertices = ReadOnlyFlexSpanUtil::AsSpan(Vertices);
 
   EXPECT_THROW(ReadOnlyFlexVertexSpanUtil::AsSpan(srcVertices, VertexDeclarationSpan()), std::invalid_argument);
 }
@@ -84,7 +84,7 @@ TEST(TestReadOnlyFlexVertexSpanUtilReadOnlyFlexSpan, AsSpan_NullVertexDeclaratio
 
 TEST(TestReadOnlyFlexVertexSpanUtilReadOnlyFlexSpan, AsSpan_NoCheck)
 {
-  constexpr std::array<VertexPosition, 4> vertices = {
+  constexpr std::array<VertexPosition, 4> Vertices = {
     VertexPosition(Vector3(1.0f, 2.0f, 3.0f)),
     VertexPosition(Vector3(4.0f, 5.0f, 6.0f)),
     VertexPosition(Vector3(7.0f, 8.0f, 9.0f)),
@@ -92,14 +92,14 @@ TEST(TestReadOnlyFlexVertexSpanUtilReadOnlyFlexSpan, AsSpan_NoCheck)
   };
 
   const auto vertexDeclaration = VertexPosition::AsVertexDeclarationSpan();
-  const ReadOnlyFlexSpan srcVertices = ReadOnlyFlexSpanUtil::AsSpan(vertices);
+  const ReadOnlyFlexSpan srcVertices = ReadOnlyFlexSpanUtil::AsSpan(Vertices);
   ReadOnlyFlexVertexSpan span = ReadOnlyFlexVertexSpanUtil::AsSpan(srcVertices, vertexDeclaration, OptimizationCheckFlag::NoCheck);
 
   EXPECT_FALSE(span.empty());
   EXPECT_NE(span.data(), nullptr);
-  EXPECT_EQ(span.data(), vertices.data());
-  EXPECT_EQ(span.size(), vertices.size());
-  EXPECT_EQ(span.length(), vertices.size());
+  EXPECT_EQ(span.data(), Vertices.data());
+  EXPECT_EQ(span.size(), Vertices.size());
+  EXPECT_EQ(span.length(), Vertices.size());
   EXPECT_EQ(span.stride(), vertexDeclaration.VertexStride());
   EXPECT_EQ(span.AsVertexDeclarationSpan(), vertexDeclaration);
 }

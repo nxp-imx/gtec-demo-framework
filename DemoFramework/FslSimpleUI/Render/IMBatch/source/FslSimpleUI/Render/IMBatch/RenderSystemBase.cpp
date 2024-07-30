@@ -34,7 +34,7 @@
 #include <FslBase/Math/BasicWindowMetrics.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 // #include <FslBase/System/HighResolutionTimer.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>

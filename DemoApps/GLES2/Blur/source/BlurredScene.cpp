@@ -34,6 +34,7 @@
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
@@ -193,12 +194,12 @@ namespace Fsl
     {
     case CaptionType::Algorithm:
       m_batch2D->Begin();
-      m_batch2D->DrawString(m_texFontAtlas, m_font, m_blurredDraw->GetName(), Vector2(), Color::White());
+      m_batch2D->DrawString(m_texFontAtlas, m_font, m_blurredDraw->GetName(), Vector2(), Colors::White());
       m_batch2D->End();
       break;
     case CaptionType::Description:
       // m_batch2D->Begin();
-      // m_batch2D->Draw(m_texDescription, Vector2(), Color::White());
+      // m_batch2D->Draw(m_texDescription, Vector2(), Colors::White());
       // m_batch2D->End();
 
       // Draw the description using the static vertex buffer

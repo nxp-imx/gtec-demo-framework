@@ -119,9 +119,9 @@ namespace Fsl
     explicit Shared(const DemoAppConfig& config);
     ~Shared() override;
     // From EventListener
-    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) final;
-    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) final;
-    void OnClickInput(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowInputClickEvent>& theEvent) final;
+    void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) final;
+    void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) final;
+    void OnClickInput(const std::shared_ptr<UI::WindowInputClickEvent>& theEvent) final;
 
 
     void OnKeyEvent(const KeyEvent& event);

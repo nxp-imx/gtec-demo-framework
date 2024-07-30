@@ -50,14 +50,14 @@
 namespace Fsl::UI
 {
   UIManager::UIManager(const std::shared_ptr<DataBinding::DataBindingService>& dataBindingService, std::unique_ptr<IRenderSystem> renderSystem,
-                       const bool useYFlipTextureCoordinates, const BasicWindowMetrics& windowMetrics)
-    : UIManager(dataBindingService, std::move(renderSystem), useYFlipTextureCoordinates, windowMetrics, {})
+                       const UIColorSpace colorSpace, const bool useYFlipTextureCoordinates, const BasicWindowMetrics& windowMetrics)
+    : UIManager(dataBindingService, std::move(renderSystem), colorSpace, useYFlipTextureCoordinates, windowMetrics, {})
   {
   }
 
 
   UIManager::UIManager(const std::shared_ptr<DataBinding::DataBindingService>& dataBindingService, std::unique_ptr<IRenderSystem> renderSystem,
-                       const bool useYFlipTextureCoordinates, const BasicWindowMetrics& windowMetrics,
+                       const UIColorSpace colorSpace, const bool useYFlipTextureCoordinates, const BasicWindowMetrics& windowMetrics,
                        ReadOnlySpan<std::shared_ptr<IExternalModuleFactory>> externalModuleFactories)
     : m_renderSystem(std::move(renderSystem), useYFlipTextureCoordinates)
     , m_windowMetrics(windowMetrics)
@@ -67,7 +67,7 @@ namespace Fsl::UI
     , m_tree(std::make_shared<UITree>(m_moduleCallbackRegistry, m_eventPool, m_eventQueue))
     , m_eventSender(std::make_shared<WindowEventSender>(m_eventQueue, m_eventPool, m_tree))
     , m_uiContext(std::make_shared<UIContext>(dataBindingService, m_tree, m_eventSender, m_renderSystem.GetMeshManager()))
-    , m_baseWindowContext(std::make_shared<BaseWindowContext>(m_uiContext, windowMetrics.DensityDpi))
+    , m_baseWindowContext(std::make_shared<BaseWindowContext>(m_uiContext, windowMetrics.DensityDpi, colorSpace))
     , m_rootWindow(std::make_shared<RootWindow>(m_baseWindowContext, windowMetrics.ExtentPx, windowMetrics.DensityDpi))
     , m_leftButtonDown(false)
   {
@@ -178,23 +178,24 @@ namespace Fsl::UI
   //}
 
 
-  bool UIManager::SendMouseButtonEvent(const PxPoint2& positionPx, const bool LeftButtonDown, const bool isTouch)
+  bool UIManager::SendMouseButtonEvent(const MillisecondTickCount32 timestamp, const PxPoint2 positionPx, const bool leftButtonDown,
+                                       const bool isTouch)
   {
     assert(m_inputModule);
 
-    m_leftButtonDown = LeftButtonDown;
+    m_leftButtonDown = leftButtonDown;
     const auto transactionState = m_leftButtonDown ? EventTransactionState::Begin : EventTransactionState::End;
-    return m_inputModule->SendClickEvent(0, 0, transactionState, false, positionPx, isTouch);
+    return m_inputModule->SendClickEvent(timestamp, 0, 0, transactionState, false, positionPx, isTouch);
   }
 
 
-  bool UIManager::SendMouseMoveEvent(const PxPoint2& positionPx, const bool isTouch)
+  bool UIManager::SendMouseMoveEvent(const MillisecondTickCount32 timestamp, const PxPoint2 positionPx, const bool isTouch)
   {
-    bool isHandled = m_inputModule->MouseMove(0, 0, positionPx, isTouch);
+    bool isHandled = m_inputModule->MouseMove(timestamp, 0, 0, positionPx, isTouch);
 
     if (m_leftButtonDown)
     {
-      if (m_inputModule->SendClickEvent(0, 0, EventTransactionState::Begin, true, positionPx, isTouch))
+      if (m_inputModule->SendClickEvent(timestamp, 0, 0, EventTransactionState::Begin, true, positionPx, isTouch))
       {
         isHandled = true;
       }

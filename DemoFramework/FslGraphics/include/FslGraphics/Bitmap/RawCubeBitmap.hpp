@@ -31,24 +31,24 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Bitmap/RawBitmap.hpp>
+#include <FslGraphics/Bitmap/ReadOnlyRawBitmap.hpp>
 #include <FslGraphics/Texture/TextureInfo.hpp>
 
 namespace Fsl
 {
   class RawCubeBitmap
   {
-    RawBitmap m_bitmapPosX;
-    RawBitmap m_bitmapNegX;
-    RawBitmap m_bitmapPosY;
-    RawBitmap m_bitmapNegY;
-    RawBitmap m_bitmapPosZ;
-    RawBitmap m_bitmapNegZ;
+    ReadOnlyRawBitmap m_bitmapPosX;
+    ReadOnlyRawBitmap m_bitmapNegX;
+    ReadOnlyRawBitmap m_bitmapPosY;
+    ReadOnlyRawBitmap m_bitmapNegY;
+    ReadOnlyRawBitmap m_bitmapPosZ;
+    ReadOnlyRawBitmap m_bitmapNegZ;
 
   public:
     constexpr RawCubeBitmap() = default;
-    RawCubeBitmap(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
-                  const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ);
+    RawCubeBitmap(const ReadOnlyRawBitmap& bitmapPosX, const ReadOnlyRawBitmap& bitmapNegX, const ReadOnlyRawBitmap& bitmapPosY,
+                  const ReadOnlyRawBitmap& bitmapNegY, const ReadOnlyRawBitmap& bitmapPosZ, const ReadOnlyRawBitmap& bitmapNegZ);
 
     constexpr bool IsValid() const
     {
@@ -58,13 +58,13 @@ namespace Fsl
     //! The width of the bitmap in pixels
     constexpr uint32_t Width() const
     {
-      return m_bitmapPosX.Width();
+      return m_bitmapPosX.RawUnsignedWidth();
     }
 
     //! The height of the bitmap in pixels
     constexpr uint32_t Height() const
     {
-      return m_bitmapPosX.Height();
+      return m_bitmapPosX.RawUnsignedHeight();
     }
 
     //! @brief Get the extent
@@ -85,27 +85,27 @@ namespace Fsl
       return m_bitmapPosX.GetOrigin();
     }
 
-    constexpr RawBitmap GetPosX() const
+    constexpr ReadOnlyRawBitmap GetPosX() const
     {
       return m_bitmapPosX;
     }
-    constexpr RawBitmap GetNegX() const
+    constexpr ReadOnlyRawBitmap GetNegX() const
     {
       return m_bitmapNegX;
     }
-    constexpr RawBitmap GetPosY() const
+    constexpr ReadOnlyRawBitmap GetPosY() const
     {
       return m_bitmapPosY;
     }
-    constexpr RawBitmap GetNegY() const
+    constexpr ReadOnlyRawBitmap GetNegY() const
     {
       return m_bitmapNegY;
     }
-    constexpr RawBitmap GetPosZ() const
+    constexpr ReadOnlyRawBitmap GetPosZ() const
     {
       return m_bitmapPosZ;
     }
-    constexpr RawBitmap GetNegZ() const
+    constexpr ReadOnlyRawBitmap GetNegZ() const
     {
       return m_bitmapNegZ;
     }

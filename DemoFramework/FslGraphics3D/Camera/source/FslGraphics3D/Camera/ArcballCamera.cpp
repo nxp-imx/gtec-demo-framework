@@ -51,8 +51,11 @@ namespace Fsl::Graphics3D
 {
   namespace
   {
-    const float MIN_ZOOM = 1.0f;
-    const float MAX_ZOOM = std::numeric_limits<float>::max();
+    namespace LocalConfig
+    {
+      constexpr float MinZoom = 1.0f;
+      constexpr float MaxZoom = std::numeric_limits<float>::max();
+    }
 
     inline Vector3 MapToSphere(const Vector2& screenResolutionBounds, const PxPoint2& point)
     {
@@ -107,7 +110,7 @@ namespace Fsl::Graphics3D
 
   ArcballCamera::ArcballCamera(const PxSize2D& screenResolution)
     : m_rotationMatrix(Matrix::GetIdentity())
-    , m_zoom(MIN_ZOOM)
+    , m_zoom(LocalConfig::MinZoom)
     , m_isDragging(false)
     , m_dragRotation(Quaternion::Identity())
   {
@@ -134,13 +137,13 @@ namespace Fsl::Graphics3D
 
   float ArcballCamera::GetMinZoom() const    // NOLINT(readability-convert-member-functions-to-static)
   {
-    return MIN_ZOOM;
+    return LocalConfig::MinZoom;
   }
 
 
   float ArcballCamera::GetMaxZoom() const    // NOLINT(readability-convert-member-functions-to-static)
   {
-    return MAX_ZOOM;
+    return LocalConfig::MaxZoom;
   }
 
 
@@ -152,13 +155,13 @@ namespace Fsl::Graphics3D
 
   void ArcballCamera::SetZoom(const float value)
   {
-    m_zoom = MathHelper::Clamp(value, MIN_ZOOM, MAX_ZOOM);
+    m_zoom = MathHelper::Clamp(value, LocalConfig::MinZoom, LocalConfig::MaxZoom);
   }
 
 
   void ArcballCamera::AddZoom(const float value)
   {
-    m_zoom = MathHelper::Clamp(m_zoom + value, MIN_ZOOM, MAX_ZOOM);
+    m_zoom = MathHelper::Clamp(m_zoom + value, LocalConfig::MinZoom, LocalConfig::MaxZoom);
   }
 
 

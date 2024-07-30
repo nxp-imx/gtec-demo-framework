@@ -34,7 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslBase/Span/Span.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslSimpleUI/Render/Base/Command/EncodedCommand.hpp>
 #include <FslSimpleUI/Render/IMBatch/DrawReorderMethod.hpp>
 #include <vector>
@@ -76,12 +76,12 @@ namespace Fsl::UI::RenderIMBatch
 
     inline Span<ProcessedCommandRecord> GetOpaqueSpan(std::vector<ProcessedCommandRecord>& rProcessedCommandRecords) const
     {
-      return SpanUtil::AsSubSpan(rProcessedCommandRecords, m_result.OpaqueStartIndex, m_result.OpaqueCount);
+      return SpanUtil::AsSpan(rProcessedCommandRecords, m_result.OpaqueStartIndex, m_result.OpaqueCount);
     }
 
     inline Span<ProcessedCommandRecord> GetTransparentSpan(std::vector<ProcessedCommandRecord>& rProcessedCommandRecords) const
     {
-      return SpanUtil::AsSubSpan(rProcessedCommandRecords, m_result.TransparentStartIndex, m_result.TransparentCount);
+      return SpanUtil::AsSpan(rProcessedCommandRecords, m_result.TransparentStartIndex, m_result.TransparentCount);
     }
   };
 }

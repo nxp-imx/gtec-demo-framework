@@ -61,7 +61,7 @@ namespace Fsl::Graphics3D
       }
     };
 
-    std::array<PredefinedShaderRecord, 3> m_predefinedShaders;
+    std::array<PredefinedShaderRecord, 5> m_predefinedShaders;
     std::shared_ptr<INativeShaderFactory> m_factory;
     HandleVector<BasicShaderRecord> m_records;
 

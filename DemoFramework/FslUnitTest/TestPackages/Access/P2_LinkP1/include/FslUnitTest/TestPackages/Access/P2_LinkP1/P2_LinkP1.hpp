@@ -33,6 +33,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   int TestFunc_P2LinkP1();
 }
 

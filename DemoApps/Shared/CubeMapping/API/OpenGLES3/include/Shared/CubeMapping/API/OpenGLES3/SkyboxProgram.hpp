@@ -46,9 +46,9 @@ namespace Fsl
       GLint SkyboxSampler;
 
       Locations()
-        : ViewMatrix(GLES3::GLValues::INVALID_LOCATION)
-        , ProjMatrix(GLES3::GLValues::INVALID_LOCATION)
-        , SkyboxSampler(GLES3::GLValues::INVALID_LOCATION)
+        : ViewMatrix(GLES3::GLValues::InvalidLocation)
+        , ProjMatrix(GLES3::GLValues::InvalidLocation)
+        , SkyboxSampler(GLES3::GLValues::InvalidLocation)
       {
       }
 

@@ -32,7 +32,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES2/NativeGraphicsDevice.hpp>
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeBeginCustomFrameInfo.hpp>
@@ -180,7 +180,7 @@ namespace Fsl::GLES2
     return m_textureFactory.GetTextureCaps();
   }
 
-  BasicNativeTextureHandle NativeGraphicsDevice::CreateTexture(const RawTexture& texture, const Texture2DFilterHint filterHint,
+  BasicNativeTextureHandle NativeGraphicsDevice::CreateTexture(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                                const TextureFlags textureFlags, const bool isDynamic)
   {
     // The texture factory handles the disposed case
@@ -194,8 +194,8 @@ namespace Fsl::GLES2
   }
 
 
-  void NativeGraphicsDevice::SetTextureData(const BasicNativeTextureHandle hTexture, const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                            const TextureFlags textureFlags)
+  void NativeGraphicsDevice::SetTextureData(const BasicNativeTextureHandle hTexture, const ReadOnlyRawTexture& texture,
+                                            const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
   {
     // The texture factory handles the disposed case
     return m_textureFactory.SetTextureData(hTexture, texture, filterHint, textureFlags);
@@ -237,7 +237,7 @@ namespace Fsl::GLES2
 
   void NativeGraphicsDevice::EndFrame() noexcept
   {
-    FSLLOG3_ERROR_IF(!m_frame.IsValid, "Ending a frame that wasnt begun");
+    FSLLOG3_ERROR_IF(!m_frame.IsValid, "Ending a frame that was not begun");
     m_frame = {};
   }
 
@@ -367,6 +367,7 @@ namespace Fsl::GLES2
     assert(textureInfo.IsValid());
     m_frame.Cache.SavedState.BindTexture(textureInfo.Handle);
     m_frame.Commands.MaterialHandle = material;
+    m_frame.Commands.MaterialPrimitiveType = record.CachedPrimitiveType;
 
     switch (record.MaterialInfo.Blend)
     {
@@ -564,7 +565,7 @@ namespace Fsl::GLES2
       }
     }
 
-    glDrawArrays(GL_TRIANGLES, NumericCast<GLint>(firstVertex), NumericCast<GLsizei>(vertexCount));
+    glDrawArrays(m_frame.Commands.MaterialPrimitiveType, UncheckedNumericCast<GLint>(firstVertex), UncheckedNumericCast<GLsizei>(vertexCount));
   }
 
 
@@ -602,7 +603,7 @@ namespace Fsl::GLES2
       }
     }
 
-    glDrawElements(GL_TRIANGLES, UncheckedNumericCast<GLsizei>(indexCount), GL_UNSIGNED_SHORT,
+    glDrawElements(m_frame.Commands.MaterialPrimitiveType, UncheckedNumericCast<GLsizei>(indexCount), GL_UNSIGNED_SHORT,
                    reinterpret_cast<const void*>(sizeof(uint16_t) * firstIndex));
   }
 

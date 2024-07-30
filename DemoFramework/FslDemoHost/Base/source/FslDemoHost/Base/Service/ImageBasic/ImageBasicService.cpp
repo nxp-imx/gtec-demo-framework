@@ -32,9 +32,9 @@
 #include <FslBase/IO/File.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslDemoApp/Base/Service/BitmapConverter/IBitmapConverter.hpp>
 #include <FslDemoApp/Base/Service/ImageLibrary/IImageLibraryService.hpp>
 #include <FslDemoHost/Base/Service/ImageBasic/ImageBasicService.hpp>
+#include <FslDemoService/BitmapConverter/IBitmapConverter.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/ContainerTypeConvert.hpp>

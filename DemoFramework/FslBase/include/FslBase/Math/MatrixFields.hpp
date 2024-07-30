@@ -33,21 +33,37 @@
 
 namespace Fsl::MatrixFields
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr unsigned int _M11 = (4 * 0 + 0);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr unsigned int _M12 = (4 * 0 + 1);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr unsigned int _M13 = (4 * 0 + 2);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr unsigned int _M14 = (4 * 0 + 3);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr unsigned int _M21 = (4 * 1 + 0);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr unsigned int _M22 = (4 * 1 + 1);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr unsigned int _M23 = (4 * 1 + 2);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr unsigned int _M24 = (4 * 1 + 3);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr unsigned int _M31 = (4 * 2 + 0);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr unsigned int _M32 = (4 * 2 + 1);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr unsigned int _M33 = (4 * 2 + 2);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr unsigned int _M34 = (4 * 2 + 3);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr unsigned int _M41 = (4 * 3 + 0);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr unsigned int _M42 = (4 * 3 + 1);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr unsigned int _M43 = (4 * 3 + 2);
+  // NOLINTNEXTLINE(readability-identifier-naming)
   constexpr unsigned int _M44 = (4 * 3 + 3);
 }
 

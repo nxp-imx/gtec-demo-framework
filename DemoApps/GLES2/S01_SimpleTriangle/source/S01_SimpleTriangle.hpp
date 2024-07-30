@@ -17,6 +17,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class S01_SimpleTriangle : public DemoAppGLES2
   {
     GLES2::GLProgram m_program;

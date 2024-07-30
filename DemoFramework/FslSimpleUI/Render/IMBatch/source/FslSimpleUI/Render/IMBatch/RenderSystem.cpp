@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2023 NXP
+ * Copyright 2021-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 
 #include "RenderSystem.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslGraphics/Render/Basic/BasicCameraInfo.hpp>
 #include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
 #include <FslGraphics/Sprite/BasicImageSprite.hpp>
@@ -39,16 +38,17 @@
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslGraphics/Sprite/Material/Basic/BasicSpriteMaterial.hpp>
+#include <FslGraphics/Sprite/Material/Basic/BasicSpriteMaterialUtil.hpp>
 #include <FslGraphics/Sprite/NineSliceSprite.hpp>
 #include <FslGraphics/Sprite/OptimizedNineSliceSprite.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil.hpp>
-#include <FslGraphics2D/Procedural/Builder/ScopedCustomUITextMeshBuilder2D.hpp>
-#include <FslGraphics2D/Procedural/Builder/UITextMeshBuilder.hpp>
 #include <FslSimpleUI/Render/Base/Command/CommandDrawAtOffsetAndSize.hpp>
 #include <FslSimpleUI/Render/Base/Command/CommandDrawCustomBasicImageAtOffsetAndSize.hpp>
 #include <FslSimpleUI/Render/Base/Command/CommandDrawCustomBasicImageAtOffsetAndSizeBasicMesh.hpp>
 #include <FslSimpleUI/Render/Base/Command/Log/FmtDrawCommandType.hpp>
 #include <FslSimpleUI/Render/Base/RenderPerformanceCapture.hpp>
+#include <FslSimpleUI/Render/Builder/ScopedCustomUITextMeshBuilder2D.hpp>
+#include <FslSimpleUI/Render/Builder/UITextMeshBuilder.hpp>
 #include "DefaultRenderSystem.hpp"
 #include "FlexRenderSystem.hpp"
 #include "HandleCoding.hpp"
@@ -103,7 +103,7 @@ namespace Fsl::UI::RenderIMBatch
     {
       auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
                                                     static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
-                                                    Color::Premultiply(processedCmd.FinalColor));
+                                                    UIRenderColor::Premultiply(processedCmd.FinalColor));
       {
         assert(meshRecord.Sprite);
         builder.AddRect(processedCmd.DstAreaRectanglePxf, meshRecord.Sprite->GetRenderInfo().TextureArea);
@@ -167,7 +167,7 @@ namespace Fsl::UI::RenderIMBatch
     {
       auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
                                                     static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
-                                                    Color::Premultiply(processedCmd.FinalColor));
+                                                    UIRenderColor::Premultiply(processedCmd.FinalColor));
       {
         const PxSize2D& dstSizePx = cmd.GetDstSizePx();
         // The zero sized elements should already have been removed
@@ -203,7 +203,7 @@ namespace Fsl::UI::RenderIMBatch
     {
       auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
                                                     static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
-                                                    Color::Premultiply(processedCmd.FinalColor));
+                                                    UIRenderColor::Premultiply(processedCmd.FinalColor));
       {
         assert(meshRecord.Sprite);
         const RenderImageInfo& renderInfo = meshRecord.Sprite->GetRenderInfo();
@@ -258,7 +258,7 @@ namespace Fsl::UI::RenderIMBatch
         const auto& renderInfo = meshRecord.Sprite->GetRenderInfo();
         auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
                                                       static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
-                                                      Color::Premultiply(processedCmd.FinalColor));
+                                                      UIRenderColor::Premultiply(processedCmd.FinalColor));
         {
           builder.AddNineSlice(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
                                processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft(),
@@ -286,7 +286,7 @@ namespace Fsl::UI::RenderIMBatch
         const auto& renderInfo = meshRecord.Sprite->GetRenderInfo();
         auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
                                                       static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
-                                                      Color::Premultiply(processedCmd.FinalColor));
+                                                      UIRenderColor::Premultiply(processedCmd.FinalColor));
         {
           builder.AddNineSliceUVRotated90CW(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
                                             processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop(),
@@ -339,7 +339,7 @@ namespace Fsl::UI::RenderIMBatch
       {
         auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
                                                       static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
-                                                      Color::Premultiply(processedCmd.FinalColor));
+                                                      UIRenderColor::Premultiply(processedCmd.FinalColor));
         {
           assert(meshRecord.Sprite);
           const auto& renderInfo = meshRecord.Sprite->GetRenderInfo();
@@ -383,7 +383,7 @@ namespace Fsl::UI::RenderIMBatch
       {
         auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
                                                       static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
-                                                      Color::Premultiply(processedCmd.FinalColor));
+                                                      UIRenderColor::Premultiply(processedCmd.FinalColor));
         {
           assert(meshRecord.Sprite);
           const auto& renderInfo = meshRecord.Sprite->GetRenderInfo();
@@ -429,7 +429,7 @@ namespace Fsl::UI::RenderIMBatch
     {
       auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
                                                     static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
-                                                    Color::Premultiply(processedCmd.FinalColor));
+                                                    UIRenderColor::Premultiply(processedCmd.FinalColor));
       {
         assert(meshRecord.Sprite);
         textMeshBuilder.AddString(builder, cmd.GetDstPositionPxf(), meshRecord.GetGlyphs());
@@ -671,7 +671,7 @@ namespace Fsl::UI::RenderIMBatch
           const BatchRecord& batchRecord = batcher.GetBatchRecord(batchIndex);
           const SpriteMaterialInfo& materialInfo = materialLookup.FastGetSpriteMaterialInfo(batchRecord.Info.MaterialId);
 
-          const auto* pBasicMaterial = dynamic_cast<const BasicSpriteMaterial*>(materialInfo.Material.get());
+          const auto* pBasicMaterial = BasicSpriteMaterialUtil::TryUpcast(materialInfo.Material.get());
           if (pBasicMaterial != nullptr)
           {
             renderSystem.CmdBindMaterial(pBasicMaterial->Material);
@@ -749,8 +749,8 @@ namespace Fsl::UI::RenderIMBatch
       }
 
       DrawStats drawStats;
-      DrawMeshes(renderSystem, drawStats, batcher, meshManager,
-                 ReadOnlySpanUtil::AsSpan(rBuffers, 0, batcher.GetSegmentCount(), OptimizationCheckFlag::NoCheck), cameraInfo, maxDrawCalls);
+      DrawMeshes(renderSystem, drawStats, batcher, meshManager, SpanUtil::UncheckedAsReadOnlySpan(rBuffers, 0, batcher.GetSegmentCount()), cameraInfo,
+                 maxDrawCalls);
 
 
       if (pPerformanceCapture != nullptr)

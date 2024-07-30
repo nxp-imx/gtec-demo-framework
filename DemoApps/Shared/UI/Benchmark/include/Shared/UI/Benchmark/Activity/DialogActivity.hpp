@@ -55,7 +55,7 @@ namespace Fsl::UI
     BaseWindow& GetWindow() const;
 
   protected:
-    void SetBackgroundColor(const Color color);
+    void SetBackgroundColor(const UI::UIColor color);
 
     std::shared_ptr<Theme::IThemeControlFactory> GetThemeControlFactory() const;
 

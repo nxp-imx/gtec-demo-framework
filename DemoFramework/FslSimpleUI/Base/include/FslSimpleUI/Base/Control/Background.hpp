@@ -31,9 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Color.hpp>
 #include <FslSimpleUI/Base/Control/ContentControl.hpp>
 #include <FslSimpleUI/Base/Mesh/ContentSpriteMesh.hpp>
+#include <FslSimpleUI/Base/Property/DependencyPropertyUIColor.hpp>
+#include <FslSimpleUI/Base/UIColor.hpp>
 
 namespace Fsl::UI
 {
@@ -44,13 +45,15 @@ namespace Fsl::UI
     using base_type = ContentControl;
 
   protected:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const std::shared_ptr<WindowContext> m_windowContext;
 
   private:
     ContentSpriteMesh m_background;
-    DataBinding::TypedDependencyProperty<Color> m_propertyBackgroundColor{DefaultColor::Palette::Primary};
+    DependencyPropertyUIColor m_propertyBackgroundColor;
 
   public:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static DataBinding::DependencyPropertyDefinition PropertyBackgroundColor;
 
     explicit Background(const std::shared_ptr<WindowContext>& context);
@@ -61,12 +64,12 @@ namespace Fsl::UI
     }
     void SetBackground(const std::shared_ptr<IContentSprite>& value);
 
-    Color GetBackgroundColor() const noexcept
+    UIColor GetBackgroundColor() const noexcept
     {
       return m_propertyBackgroundColor.Get();
     }
 
-    bool SetBackgroundColor(const Color value);
+    bool SetBackgroundColor(const UIColor value);
 
     void WinDraw(const UIDrawContext& context) final;
 

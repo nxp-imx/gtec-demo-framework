@@ -34,6 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 namespace cv
 {
   // Forward declare this here as the OpenCV header might include headers that gives problems under X11.

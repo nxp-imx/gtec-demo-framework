@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
@@ -269,7 +269,7 @@ namespace Fsl::GLES2
       throw NotSupportedException("We only support 32bit of elements");
     }
 
-    const ReadOnlySpan<GLVertexElement> vertexElementSpan = ReadOnlySpanUtil::AsSpan(m_vertexElements);
+    const ReadOnlySpan<GLVertexElement> vertexElementSpan = SpanUtil::AsReadOnlySpan(m_vertexElements);
     const auto vertexStride = VertexStride();
     assert(count <= std::numeric_limits<uint32_t>::max());
     for (uint32_t i = 0; i < static_cast<uint32_t>(count); ++i)
@@ -294,7 +294,7 @@ namespace Fsl::GLES2
       throw NotSupportedException("We only support 32bit of elements");
     }
 
-    const ReadOnlySpan<GLVertexElement> vertexElementSpan = ReadOnlySpanUtil::AsSpan(m_vertexElements);
+    const ReadOnlySpan<GLVertexElement> vertexElementSpan = SpanUtil::AsReadOnlySpan(m_vertexElements);
     for (uint32_t i = 0; i < static_cast<uint32_t>(count); ++i)
     {
       if (pLinks[i].AttribIndex >= 0)
@@ -331,7 +331,7 @@ namespace Fsl::GLES2
       throw NotSupportedException("We only support 32bit of elements");
     }
 
-    const ReadOnlySpan<GLVertexElement> vertexElementSpan = ReadOnlySpanUtil::AsSpan(m_vertexElements);
+    const ReadOnlySpan<GLVertexElement> vertexElementSpan = SpanUtil::AsReadOnlySpan(m_vertexElements);
     const auto vertexStride = VertexStride();
     for (uint32_t i = 0; i < static_cast<uint32_t>(count); ++i)
     {
@@ -374,7 +374,7 @@ namespace Fsl::GLES2
     std::vector<GLVertexElementAttribConfig> res(m_vertexElements.size());
     res.clear();
 
-    const ReadOnlySpan<GLVertexElement> vertexElementSpan = ReadOnlySpanUtil::AsSpan(m_vertexElements);
+    const ReadOnlySpan<GLVertexElement> vertexElementSpan = SpanUtil::AsReadOnlySpan(m_vertexElements);
     // const auto vertexStride = VertexStride();
     const auto count = UncheckedNumericCast<uint32_t>(attribLinks.size());
     for (uint32_t i = 0; i < count; ++i)

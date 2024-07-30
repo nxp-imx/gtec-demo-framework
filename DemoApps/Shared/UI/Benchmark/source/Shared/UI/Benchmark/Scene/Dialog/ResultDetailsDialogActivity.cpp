@@ -173,7 +173,7 @@ namespace Fsl::UI
   }
 
 
-  void ResultDetailsDialogActivity::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  void ResultDetailsDialogActivity::OnSelect(const std::shared_ptr<WindowSelectEvent>& theEvent)
   {
     if (m_state == State::Ready && !theEvent->IsHandled())
     {
@@ -183,7 +183,7 @@ namespace Fsl::UI
         DoScheduleClose();
       }
     }
-    DialogActivity::OnSelect(args, theEvent);
+    DialogActivity::OnSelect(theEvent);
   }
 
 

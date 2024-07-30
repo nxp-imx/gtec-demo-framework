@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019, 2022 NXP
+ * Copyright 2019, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,28 +52,28 @@ namespace Fsl
 
   namespace
   {
-    constexpr const float BOTTOM_HALF_SPLIT_PERCENTAGE = 0.25f;
-    const uint32_t SIZE_OFFSCREEN = 512;
+    constexpr const float BottomHalfSplitPercentage = 0.25f;
+    constexpr uint32_t SizeOffscreen = 512;
 
-    const auto VERTEX_BUFFER_BIND_ID = 0;
+    constexpr auto VertexBufferBindId = 0;
 
     // B D
     // |\|
     // A C
     // A = 1.0
-    const float CUBE_DIMENSIONS = 100.0f;
+    constexpr float CubeDimensions = 100.0f;
 
-    const float CUBE_CEILING = CUBE_DIMENSIONS;
-    const float CUBE_FLOOR = -CUBE_DIMENSIONS;
+    constexpr float CubeCeiling = CubeDimensions;
+    constexpr float CubeFloor = -CubeDimensions;
 
-    const float CUBE_LEFT = -CUBE_DIMENSIONS;
-    const float CUBE_RIGHT = CUBE_DIMENSIONS;
-    const float CUBE_BACK = CUBE_DIMENSIONS;      // zBack
-    const float CUBE_FRONT = -CUBE_DIMENSIONS;    // zFront
-    const float CUBE_U0 = 0.0f;
-    const float CUBE_U1 = 1.0f;
-    const float CUBE_V0 = 1.0f;
-    const float CUBE_V1 = 0.0f;
+    constexpr float CubeLeft = -CubeDimensions;
+    constexpr float CubeRight = CubeDimensions;
+    constexpr float CubeBack = CubeDimensions;      // zBack
+    constexpr float CubeFront = -CubeDimensions;    // zFront
+    constexpr float CubeU0 = 0.0f;
+    constexpr float CubeU1 = 1.0f;
+    constexpr float CubeV0 = 1.0f;
+    constexpr float CubeV1 = 0.0f;
 
     VulkanBasic::DemoAppVulkanSetup CreateSetup()
     {
@@ -82,64 +82,64 @@ namespace Fsl
       DemoAppVulkanSetup setup;
       setup.DepthBuffer = DepthBufferMode::Enabled;
       // This allows us to reuse the main depth buffer even when the actual 'screen' is too small for our offscreen buffer
-      setup.DepthBufferMinimumExtent = PxExtent2D::Create(SIZE_OFFSCREEN, SIZE_OFFSCREEN);
+      setup.DepthBufferMinimumExtent = PxExtent2D::Create(SizeOffscreen, SizeOffscreen);
       return setup;
     }
 
     const std::array<VertexPositionTexture, 6 * 6> g_vertices = {
       // Floor
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),      // LB
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V1)),     // LF
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),    // RF
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeBack), Vector2(CubeU1, CubeV1)),      // LB
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeFront), Vector2(CubeU0, CubeV1)),     // LF
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeFront), Vector2(CubeU0, CubeV0)),    // RF
 
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),      // LB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),    // RF
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),     // RB
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeBack), Vector2(CubeU1, CubeV1)),      // LB
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeFront), Vector2(CubeU0, CubeV0)),    // RF
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeBack), Vector2(CubeU1, CubeV0)),     // RB
 
       // Ceiling
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V1)),     // LF
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),      // LB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),    // RF
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV1)),     // LF
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), Vector2(CubeU0, CubeV1)),      // LB
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV0)),    // RF
 
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),    // RF
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),      // LB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V0)),     // RB
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV0)),    // RF
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), Vector2(CubeU0, CubeV1)),      // LB
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeBack), Vector2(CubeU0, CubeV0)),     // RB
 
       // Back wall
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), Vector2(CubeU1, CubeV0)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeBack), Vector2(CubeU1, CubeV1)),
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeBack), Vector2(CubeU0, CubeV1)),
 
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V0)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), Vector2(CubeU1, CubeV0)),
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeBack), Vector2(CubeU0, CubeV1)),
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeBack), Vector2(CubeU0, CubeV0)),
 
       // Front wall
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V1)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V1)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), Vector2(CubeU0, CubeV0)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeFront), Vector2(CubeU0, CubeV1)),
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeFront), Vector2(CubeU1, CubeV1)),
 
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V1)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), Vector2(CubeU0, CubeV0)),
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeFront), Vector2(CubeU1, CubeV1)),
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV0)),
 
       //// Right wall
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),       // FB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V1)),      // FF
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),    // CF
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeBack), Vector2(CubeU1, CubeV1)),       // FB
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeFront), Vector2(CubeU0, CubeV1)),      // FF
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeFront), Vector2(CubeU0, CubeV0)),    // CF
 
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),       // FB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),    // CF
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),     // CB
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeBack), Vector2(CubeU1, CubeV1)),       // FB
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeFront), Vector2(CubeU0, CubeV0)),    // CF
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeBack), Vector2(CubeU1, CubeV0)),     // CB
 
       // Left wall
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V1)),      // FF
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),       // FB
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),    // CF
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeFront), Vector2(CubeU1, CubeV1)),      // FF
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeBack), Vector2(CubeU0, CubeV1)),       // FB
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV0)),    // CF
 
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),    // CF
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),       // FB
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V0)),     // CB
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV0)),    // CF
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeBack), Vector2(CubeU0, CubeV1)),       // FB
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), Vector2(CubeU0, CubeV0)),     // CB
     };
 
     constexpr std::array<VertexPositionTextureTexture, 12> CreateDoubleQuadVertexArray(const float size)
@@ -149,19 +149,19 @@ namespace Fsl
       // A C
       // A = 1.0
 
-      constexpr const float ySplitPercentage = BOTTOM_HALF_SPLIT_PERCENTAGE;
+      constexpr const float YSplitPercentage = BottomHalfSplitPercentage;
 
       const float x0 = -size;
       const float x1 = size;
       const float y0 = -size;
-      const float y1 = size * ySplitPercentage;
+      const float y1 = size * YSplitPercentage;
       const float y2 = size;
       const float zPos = 0.0f;
 
       const float u0 = 0.0f;
       const float u1 = 1.0f;
       const float v0 = 0.0f;
-      const float v1 = std::min(0.5f + (0.5f * ySplitPercentage), 1.0f);
+      const float v1 = std::min(0.5f + (0.5f * YSplitPercentage), 1.0f);
       const float v2 = 0.0f;
 
       const float u0b = 0.0f;
@@ -578,7 +578,7 @@ namespace Fsl
     m_angle.Y = MathHelper::WrapAngle(m_angle.Y);
     m_angle.Z = MathHelper::WrapAngle(m_angle.Z);
 
-    m_effectUboData.Time = TimeSpanUtil::ToSecondsF(demoTime.TotalTime);
+    m_effectUboData.Time = static_cast<float>(demoTime.CurrentTickCount.TotalSeconds());
 
     // Rotate and translate the model view matrix
     m_matModel = Matrix::CreateRotationX(m_angle.X) * Matrix::CreateRotationY(m_angle.Y) * Matrix::CreateRotationZ(m_angle.Z) * m_matTranslate;
@@ -636,7 +636,7 @@ namespace Fsl
   {
     m_dependentResources.MainRenderPass = CreateBasicRenderPass();
 
-    auto offscreenExtent = VkExtent2D{SIZE_OFFSCREEN, SIZE_OFFSCREEN};
+    auto offscreenExtent = VkExtent2D{SizeOffscreen, SizeOffscreen};
     const auto offscreenRenderFormat = context.SwapchainImageFormat;
 
     m_dependentResources.Offscreen.Extent = offscreenExtent;
@@ -746,7 +746,7 @@ namespace Fsl
 
       VkRect2D scissor{};
       scissor.offset = {0, 0};
-      scissor.extent = {extent.width, static_cast<uint32_t>(static_cast<float>(extent.height) * (0.5f + (0.5f * BOTTOM_HALF_SPLIT_PERCENTAGE)))};
+      scissor.extent = {extent.width, static_cast<uint32_t>(static_cast<float>(extent.height) * (0.5f + (0.5f * BottomHalfSplitPercentage)))};
       vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
       DrawSceneToCommandBuffer(frame, commandBuffer);
@@ -758,8 +758,7 @@ namespace Fsl
 
       vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.PipelineEffectBottom.Get());
 
-      vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.DoubleQuadVertexBufferInfo.VertexBuffer.GetBufferPointer(),
-                             &offsets);
+      vkCmdBindVertexBuffers(commandBuffer, VertexBufferBindId, 1, m_resources.DoubleQuadVertexBufferInfo.VertexBuffer.GetBufferPointer(), &offsets);
       vkCmdDraw(commandBuffer, vertexCount, 1, vertexCount, 0);
     }
   }
@@ -773,7 +772,7 @@ namespace Fsl
     FSL_PARAM_NOT_USED(matModel);
 
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.CubeVertexBufferInfo.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(commandBuffer, VertexBufferBindId, 1, m_resources.CubeVertexBufferInfo.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(commandBuffer, m_resources.CubeVertexBufferInfo.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 

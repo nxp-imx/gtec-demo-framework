@@ -54,7 +54,7 @@ namespace Fsl::GLES3
     {
       throw std::invalid_argument("pVertices can not be null");
     }
-    if ((vertexCount % VERTICES_PER_LINE) != 0u)
+    if ((vertexCount % VerticesPerLine) != 0u)
     {
       throw std::invalid_argument("vertexCount did not match a exact number of lines");
     }

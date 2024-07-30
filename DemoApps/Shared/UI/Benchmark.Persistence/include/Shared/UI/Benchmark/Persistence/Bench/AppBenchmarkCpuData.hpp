@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkCpuRecord.hpp>
 #include <vector>
 
@@ -44,7 +44,7 @@ namespace Fsl
 
     AppBenchmarkCpuData() = default;
     explicit AppBenchmarkCpuData(const ReadOnlySpan<AppBenchmarkCpuRecord> span)
-      : Entries(ReadOnlySpanUtil::ToVector(span))
+      : Entries(SpanUtil::ToVector(span))
     {
     }
   };

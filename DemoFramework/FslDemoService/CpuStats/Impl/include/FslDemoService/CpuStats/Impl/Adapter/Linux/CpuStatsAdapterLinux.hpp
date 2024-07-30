@@ -2,7 +2,7 @@
 #define FSLDEMOSERVICE_CPUSTATS_IMPL_ADAPTER_LINUX_CPUSTATSADAPTERLINUX_HPP
 #ifdef __linux__
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/System/HighResolutionTimer.hpp>
-#include <FslBase/Time/TimeSpan.hpp>
+#include <FslBase/Time/TickCount.hpp>
 #include <FslDemoService/CpuStats/Impl/Adapter/ICpuStatsAdapter.hpp>
 #include <FslDemoService/CpuStats/Impl/Adapter/Linux/BufferedFileParser.hpp>
 #include <FslDemoService/CpuStats/Impl/Adapter/Linux/ProcFileUtil.hpp>
@@ -47,13 +47,13 @@ namespace Fsl
   {
     struct ProcessTimes
     {
-      uint64_t KernelTime{0};
-      uint64_t UserTime{0};
+      int64_t CurrentProcessCpuNanoseconds{0};
+      int64_t TotalCpuNanoseconds{0};
 
       ProcessTimes() = default;
-      ProcessTimes(const uint64_t kernelTime, const uint64_t userTime)
-        : KernelTime(kernelTime)
-        , UserTime(userTime)
+      ProcessTimes(const int64_t currentProcessCpuNanoseconds, const int64_t totalCpuNanoseconds)
+        : CurrentProcessCpuNanoseconds(currentProcessCpuNanoseconds)
+        , TotalCpuNanoseconds(totalCpuNanoseconds)
       {
       }
     };
@@ -67,13 +67,12 @@ namespace Fsl
     uint32_t m_cpuCount{0};
     mutable ProcessTimes m_appProcessLast;
 
-    mutable TimeSpan m_lastTryGetCpuUsage{0};
+    mutable TickCount m_lastTryGetCpuUsage{0};
     mutable std::string m_scratchpad;
 
-    mutable TimeSpan m_lastTryGetApplicationCpuUsageTime{0};
+    mutable TickCount m_lastTryGetApplicationCpuUsageTime{0};
     mutable float m_appCpuUsagePercentage{0.0f};
-
-    mutable clock_t m_lastAppTime;
+    mutable TickCount m_appCpuUsagePercentageTime;
 
     mutable std::array<CpuStats, 256> m_cpuStats;
 
@@ -88,15 +87,15 @@ namespace Fsl
   public:
     // NOLINTNEXTLINE(google-explicit-constructor)
     CpuStatsAdapterLinux(const bool coreParserEnabled = true);
-    void Process() final{};
+    void Process() final {};
     uint32_t GetCpuCount() const final;
-    bool TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex) const final;
-    bool TryGetApplicationCpuUsage(float& rUsagePercentage) const final;
+    bool TryGetCpuUsage(CpuUsageRecord& rUsageRecord, const uint32_t cpuIndex) const final;
+    bool TryGetApplicationCpuUsage(CpuUsageRecord& rUsageRecord) const final;
     bool TryGetApplicationRamUsage(uint64_t& rRamUsage) const final;
 
   private:
     bool TryParseCpuLoadNow() const;
-    bool TryGetProcessTimes(ProcessTimes& rTimes, clock_t* pCurrentTime = nullptr) const;
+    bool TryGetProcessTimes(ProcessTimes& rTimes) const;
   };
 }
 

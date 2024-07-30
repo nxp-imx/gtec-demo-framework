@@ -33,7 +33,6 @@
 #include <FslBase/IO/File.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringDateUtil.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkData.hpp>
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkDataPersistence.hpp>
 #include <nlohmann/json.hpp>
@@ -50,7 +49,7 @@ namespace Fsl::AppBenchmarkDataPersistence
   {
     namespace LocalConfig
     {
-      const uint32_t CurrentVersion = 1;
+      constexpr uint32_t CurrentVersion = 1;
     }
     namespace LocalSettings
     {
@@ -82,7 +81,7 @@ namespace Fsl::AppBenchmarkDataPersistence
           : std::optional<AppBenchmarkRenderInfo>();
 
       return AppBenchmarkData(json[LocalSettings::Info].get<AppBenchmarkInfo>(), json[LocalSettings::CpuData].get<AppBenchmarkCpuData>(),
-                              std::move(gpuData), renderInfo, StringDateUtil::Parse(StringViewLiteUtil::AsStringViewLite(strTime)));
+                              std::move(gpuData), renderInfo, StringDateUtil::Parse(StringViewLite(strTime)));
     }
 
     std::string Encode(const AppBenchmarkData& data)

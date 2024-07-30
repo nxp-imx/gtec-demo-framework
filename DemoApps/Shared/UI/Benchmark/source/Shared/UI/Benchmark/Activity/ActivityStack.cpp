@@ -34,6 +34,7 @@
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslSimpleUI/Base/DefaultAnim.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslSimpleUI/Base/UIColors.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <Shared/UI/Benchmark/Activity/ActivityStack.hpp>
 #include <Shared/UI/Benchmark/Activity/FakeActivity.hpp>
@@ -43,9 +44,9 @@ namespace Fsl::UI
   ActivityStack::ActivityStack(const std::shared_ptr<WindowContext>& context)
     : FillLayout(context)
     , m_context(context)
-    , m_parentBaseColor(m_context->UITransitionCache, DefaultAnim::ColorChangeTime, TransitionType::Smooth)
+    , m_parentBaseColor(DefaultAnim::ColorChangeTime, TransitionType::Smooth)
   {
-    m_parentBaseColor.SetActualValue(Color::White());
+    m_parentBaseColor.SetActualValue(UIColors::White());
     UpdateAnimationState(true);
   }
 
@@ -77,7 +78,7 @@ namespace Fsl::UI
     try
     {
       AddChild(activity);
-      m_stack.emplace_front(activity, Color::TransparentWhite(), m_context->UITransitionCache, DefaultAnim::ColorChangeTime);
+      m_stack.emplace_front(activity, UI::UIColors::TransparentWhite(), DefaultAnim::ColorChangeTime);
       CheckAnimationState();
       return m_stack.front().Promise.get_future();
     }
@@ -138,18 +139,18 @@ namespace Fsl::UI
         switch (rEntry.State)
         {
         case ActivityState::Ready:
-          rEntry.BaseColor.SetValue(col == 255 ? Color::White() : Color(col, col, col, 255u));
+          rEntry.BaseColor.SetValue(col == 255 ? UI::UIColors::White() : UI::UIColor::CreateR8G8B8A8(col, col, col, 255u));
           col = (col >= 0x40 ? col - 0x40 : 0);
           break;
         case ActivityState::Closing:
-          rEntry.BaseColor.SetValue(Color::TransparentWhite());
+          rEntry.BaseColor.SetValue(UI::UIColors::TransparentWhite());
           break;
         default:
           FSLLOG3_ERROR("Not handled");
           break;
         }
       }
-      m_parentBaseColor.SetValue(col == 255 ? Color::White() : Color(col, col, col, 255u));
+      m_parentBaseColor.SetValue(col == 255 ? UI::UIColors::White() : UI::UIColor::CreateR8G8B8A8(col, col, col, 255u));
     }
 
 

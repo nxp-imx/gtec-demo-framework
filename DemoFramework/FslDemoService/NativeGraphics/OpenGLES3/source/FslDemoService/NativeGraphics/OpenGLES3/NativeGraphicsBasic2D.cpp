@@ -36,6 +36,7 @@
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/Color.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/Font/EmbeddedFont8x8.hpp>
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include <cassert>
@@ -44,12 +45,15 @@ namespace Fsl
 {
   namespace
   {
-    const char MIN_VALUE = 33;
-    const char MAX_VALUE = 127;
+    namespace LocalConfig
+    {
+      constexpr char MinValue = 33;
+      constexpr char MaxValue = 127;
+    }
 
     inline bool IsValidChar(const int ch)
     {
-      return (ch >= static_cast<int>(MIN_VALUE) && ch <= static_cast<int>(MAX_VALUE));
+      return (ch >= static_cast<int>(LocalConfig::MinValue) && ch <= static_cast<int>(LocalConfig::MaxValue));
     }
   }
 
@@ -67,14 +71,14 @@ namespace Fsl
 
       // Create child images for each glyph and assign them to the valid chars
       {
-        const uint8_t firstChar = MIN_VALUE;
-        const uint8_t lastChar = MAX_VALUE;
+        const uint8_t firstChar = LocalConfig::MinValue;
+        const uint8_t lastChar = LocalConfig::MaxValue;
         const uint8_t numChars = (lastChar - firstChar) + 1;
 
         assert(EmbeddedFont8x8::MinCharacter() <= firstChar);
         assert(EmbeddedFont8x8::MaxCharacter() >= lastChar);
 
-        const auto imageWidth = PxSize1D::Create(UncheckedNumericCast<int32_t>(fontBitmap.Width()));
+        const auto imageWidthPx = fontBitmap.Width();
         PxSize2D fontSize = EmbeddedFont8x8::CharacterSize();
         fontSize.AddWidth(PxSize1D::Create(2));
         fontSize.AddHeight(PxSize1D::Create(2));
@@ -84,7 +88,7 @@ namespace Fsl
         {
           m_charRects[i] = PxRectangle(srcX, srcY, fontSize.Width(), fontSize.Height());
           srcX += fontSize.Width();
-          if ((srcX + fontSize.Width()) > imageWidth)
+          if ((srcX + fontSize.Width()) > imageWidthPx)
           {
             srcX = {};
             srcY += fontSize.Height();
@@ -92,17 +96,17 @@ namespace Fsl
         }
       }
 
-      assert(fontBitmap.Width() >= 9);
-      assert(fontBitmap.Height() >= 9);
-      for (uint32_t y = fontBitmap.Height() - 9; y < fontBitmap.Height(); ++y)
+      assert(fontBitmap.RawWidth() >= 9);
+      assert(fontBitmap.RawHeight() >= 9);
+      for (uint32_t y = fontBitmap.RawUnsignedHeight() - 9; y < fontBitmap.RawUnsignedHeight(); ++y)
       {
-        for (uint32_t x = fontBitmap.Width() - 9; x < fontBitmap.Width(); ++x)
+        for (uint32_t x = fontBitmap.RawUnsignedWidth() - 9; x < fontBitmap.RawUnsignedWidth(); ++x)
         {
           fontBitmap.SetNativePixel(x, y, 0xFFFFFFFF);
         }
       }
       m_fillPixelRect =
-        PxRectangle::Create(UncheckedNumericCast<int32_t>(fontBitmap.Width()) - 4, UncheckedNumericCast<int32_t>(fontBitmap.Height()) - 4, 1, 1);
+        PxRectangle(fontBitmap.Width() - PxSize1D::Create(4), fontBitmap.Height() - PxSize1D::Create(4), PxSize1D::Create(1), PxSize1D::Create(1));
 
       // Because GLES requires upside down textures.
       BitmapUtil::FlipHorizontal(fontBitmap);
@@ -160,7 +164,7 @@ namespace Fsl
         return;
       }
 
-      const Color colorWhite = Color::White();
+      const Color colorWhite = Colors::White();
       Vector2 dstPos = dstPosition;
 
       // build the arrays needed to render
@@ -181,7 +185,7 @@ namespace Fsl
       {
         if (IsValidChar(static_cast<int>(*pSrc)))
         {
-          m_batch2D.Draw(m_fontTexture, dstPos, m_charRects[*pSrc - MIN_VALUE], colorWhite);
+          m_batch2D.Draw(m_fontTexture, dstPos, m_charRects[*pSrc - LocalConfig::MinValue], colorWhite);
         }
         FSLLOG3_WARNING_IF(*pSrc == 0, "Zero is not a valid character in a string!");
         dstPos.X += charWidth;

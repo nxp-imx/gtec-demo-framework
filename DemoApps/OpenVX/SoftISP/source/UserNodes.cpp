@@ -54,7 +54,7 @@
 #define VX_KERNEL_NAME_YUV2RGBA "com.nxp.extension.yuv2rgba"
 #define VX_KERNEL_ENUM_YUV2RGBA 108
 
-#define gcmALIGN_NP2(n, align) (((n) + (align)-1) - (((n) + (align)-1) % (align)))
+#define gcmALIGN_NP2(n, align) (((n) + (align) - 1) - (((n) + (align) - 1) % (align)))
 
 namespace Fsl
 {

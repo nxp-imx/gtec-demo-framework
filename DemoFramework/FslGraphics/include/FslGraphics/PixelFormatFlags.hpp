@@ -46,50 +46,72 @@ namespace Fsl
   {
     enum Enum
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_COUNT_FORMAT_ID = 10,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_COUNT_NUMERIC_FORMAT = 4,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_COUNT_LAYOUT = 17,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_COUNT_RESERVED = 1,
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_INDEX_FORMAT_ID = 0,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_INDEX_NUMERIC_FORMAT = BIT_INDEX_FORMAT_ID + BIT_COUNT_FORMAT_ID,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_INDEX_LAYOUT = BIT_INDEX_NUMERIC_FORMAT + BIT_COUNT_NUMERIC_FORMAT,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_INDEX_RESERVED = BIT_INDEX_LAYOUT + BIT_COUNT_LAYOUT,
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_MASK_FORMAT_ID = ((1 << BIT_COUNT_FORMAT_ID) - 1) << BIT_INDEX_FORMAT_ID,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_MASK_NUMERIC_FORMAT = ((1 << BIT_COUNT_NUMERIC_FORMAT) - 1) << BIT_INDEX_NUMERIC_FORMAT,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_MASK_LAYOUT = ((1 << BIT_COUNT_LAYOUT) - 1) << BIT_INDEX_LAYOUT,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_MASK_RESERVED = ((1 << BIT_COUNT_RESERVED) - 1) << BIT_INDEX_RESERVED,
 
       // Numeric Formats (see the Vulkan for details)
+      // NOLINTNEXTLINE(readability-identifier-naming)
       NF_Undefined = 0,
 
       //! The components are unsigned normalized values in the range [0,1]
       //! See the Vulkan documentation for details
+      // NOLINTNEXTLINE(readability-identifier-naming)
       NF_UNorm = (1 << BIT_INDEX_NUMERIC_FORMAT),
       //! The components are signed normalized values in the range[-1, 1]
       //! See the Vulkan documentation for details
+      // NOLINTNEXTLINE(readability-identifier-naming)
       NF_SNorm = (2 << BIT_INDEX_NUMERIC_FORMAT),
       //! The components are unsigned integer values that get converted to floating-point in the range [0, pow(2,n)-1]
       //! See the Vulkan documentation for details
+      // NOLINTNEXTLINE(readability-identifier-naming)
       NF_UScaled = (3 << BIT_INDEX_NUMERIC_FORMAT),
       //! The components are signed integer values that get converted to floating-point in the range [-pow(2,n-1), pow(2,n-1)-1]
       //! See the Vulkan documentation for details
+      // NOLINTNEXTLINE(readability-identifier-naming)
       NF_SScaled = (4 << BIT_INDEX_NUMERIC_FORMAT),
       //! The components are unsigned integer values in the range [0, pow(2,n)-1]
       //! See the Vulkan documentation for details
+      // NOLINTNEXTLINE(readability-identifier-naming)
       NF_UInt = (5 << BIT_INDEX_NUMERIC_FORMAT),
       //! The components are signed integer values in the range [-pow(2,n-1), pow(2,n-1)-1]
       //! See the Vulkan documentation for details
+      // NOLINTNEXTLINE(readability-identifier-naming)
       NF_SInt = (6 << BIT_INDEX_NUMERIC_FORMAT),
       //! The components are unsigned floating - point numbers(used by packed, shared exponent, and some compressed formats)
       //! See the Vulkan documentation for details
+      // NOLINTNEXTLINE(readability-identifier-naming)
       NF_UFloat = (7 << BIT_INDEX_NUMERIC_FORMAT),
       //! The components are signed floating - point numbers
       //! See the Vulkan documentation for details
+      // NOLINTNEXTLINE(readability-identifier-naming)
       NF_SFloat = (8 << BIT_INDEX_NUMERIC_FORMAT),
       //! The R, G, and B components are unsigned normalized values that represent values using sRGB nonlinear encoding, while the A component (if one
       //! exists) is a regular unsigned normalized value See the Vulkan documentation for details
+      // NOLINTNEXTLINE(readability-identifier-naming)
       NF_Srgb = (9 << BIT_INDEX_NUMERIC_FORMAT),
     };
 
@@ -101,16 +123,10 @@ namespace Fsl
   };
 
 
-  constexpr inline int FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(const PixelFormatLayout pfl)
+  constexpr inline int FslGraphicsPixelFormatFlagsEncodeLayout(const PixelFormatLayout pfl) noexcept
   {
     return ((static_cast<int>((pfl)) & ((1 << PixelFormatFlags::BIT_COUNT_LAYOUT) - 1)) << PixelFormatFlags::BIT_INDEX_LAYOUT);
   }
 }
-
-// We keep the original macro around just in case we need it
-// Due to missing const_expr we use this nasty macro
-////#define FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(X) ((static_cast<int>((X)) & ((1 << PixelFormatFlags::BIT_COUNT_LAYOUT) - 1)) <<
-/// PixelFormatFlags::BIT_INDEX_LAYOUT)
-
 
 #endif

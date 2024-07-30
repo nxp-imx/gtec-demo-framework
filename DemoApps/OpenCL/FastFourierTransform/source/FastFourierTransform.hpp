@@ -42,52 +42,51 @@
 namespace Fsl
 {
   // Support 2^16 = 65536 point FFT
-  const int32_t FFT_MAX_LOG2N = 16;
-  const int32_t FFT_MAX = 1 << FFT_MAX_LOG2N;
+  constexpr int32_t FftMaxLoG2N = 16;
+  constexpr int32_t FftMax = 1 << FftMaxLoG2N;
 
 
-  class FastFourierTransform : public DemoAppOpenCL
+  class FastFourierTransform final : public DemoAppOpenCL
   {
     uint32_t m_length;
     bool m_save;
     std::size_t m_blockSize;
 
     OpenCL::ContextEx m_context;
-    cl_device_id m_deviceId;
     RapidOpenCL1::CommandQueue m_commandQueue;
 
     // h_Freal and h_Fimag represent the input signal to be transformed.
-    std::vector<float> m_Freal;
-    std::vector<float> m_Fimag;
+    std::vector<float> m_realF;
+    std::vector<float> m_imagF;
     // h_Rreal and h_Rimag represent the transformed output.
-    std::vector<float> m_Rreal;
-    std::vector<float> m_Rimag;
+    std::vector<float> m_realR;
+    std::vector<float> m_imagR;
 
     //  real & imag interleaved
     // time-domain input samples
     std::vector<float> m_intime;
     // freq-domain output samples
-    std::vector<float> m_outfft;
+    std::vector<float> m_outFft;
 
-    // m_deviceMemFreal and m_deviceMemFimag represent the input signal to be transformed.
-    // m_deviceMemRreal and m_deviceMemRimag represent the transformed output.
-    RapidOpenCL1::Buffer m_deviceMemFreal;
-    RapidOpenCL1::Buffer m_deviceMemFimag;
-    RapidOpenCL1::Buffer m_deviceMemRreal;
-    RapidOpenCL1::Buffer m_deviceMemRimag;
+    // m_deviceMemRealF and m_deviceMemImagR represent the input signal to be transformed.
+    // m_deviceMemRealR and m_deviceMemImagR represent the transformed output.
+    RapidOpenCL1::Buffer m_deviceMemRealF;
+    RapidOpenCL1::Buffer m_deviceMemImagF;
+    RapidOpenCL1::Buffer m_deviceMemRealR;
+    RapidOpenCL1::Buffer m_deviceMemImagR;
     // real & imag interleaved
-    RapidOpenCL1::Buffer m_deviceMemIntime;    // time-domain input samples
-    RapidOpenCL1::Buffer m_deviceMemOutfft;    // freq-domain output samples
+    RapidOpenCL1::Buffer m_deviceMemInTime;    // time-domain input samples
+    RapidOpenCL1::Buffer m_deviceMemOutFft;    // freq-domain output samples
 
     RapidOpenCL1::UserEvent m_gpuDone;
-    std::array<RapidOpenCL1::UserEvent, FFT_MAX_LOG2N> m_gpuExecution;
+    std::array<RapidOpenCL1::UserEvent, FftMaxLoG2N> m_gpuExecution;
 
   public:
     explicit FastFourierTransform(const DemoAppConfig& config);
-    ~FastFourierTransform() override;
+    ~FastFourierTransform() final;
 
   protected:
-    void Run() override;
+    void Run() final;
 
   private:
     void AllocateHostMemory(const std::size_t len);

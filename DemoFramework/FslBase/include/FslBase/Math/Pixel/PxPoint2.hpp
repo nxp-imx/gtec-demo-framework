@@ -32,9 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/MathHelper_MinMax.hpp>
 #include <FslBase/Math/Pixel/PxSize1D.hpp>
 #include <FslBase/Math/Pixel/PxValue.hpp>
-#include <algorithm>
 
 namespace Fsl
 {
@@ -125,14 +125,14 @@ namespace Fsl
     }
 
 
-    static constexpr PxPoint2 Min(const PxPoint2 val0, const PxPoint2 val1)
+    static constexpr PxPoint2 Min(const PxPoint2 val0, const PxPoint2 val1) noexcept
     {
-      return {std::min(val0.X, val1.X), std::min(val0.Y, val1.Y)};
+      return {MathHelper::Min(val0.X, val1.X), MathHelper::Min(val0.Y, val1.Y)};
     }
 
-    static constexpr PxPoint2 Max(const PxPoint2 val0, const PxPoint2 val1)
+    static constexpr PxPoint2 Max(const PxPoint2 val0, const PxPoint2 val1) noexcept
     {
-      return {std::max(val0.X, val1.X), std::max(val0.Y, val1.Y)};
+      return {MathHelper::Max(val0.X, val1.X), MathHelper::Max(val0.Y, val1.Y)};
     }
 
     inline static constexpr PxPoint2 Create(const raw_value_type x, const raw_value_type y) noexcept

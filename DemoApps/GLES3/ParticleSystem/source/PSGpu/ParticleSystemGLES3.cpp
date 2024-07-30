@@ -143,13 +143,13 @@ namespace Fsl
 
       std::uniform_int_distribution<uint16_t> randomVal(0, 255);
 
-      for (uint32_t i = 0; i < bitmap.Width(); ++i)
+      for (uint32_t i = 0; i < bitmap.RawUnsignedWidth(); ++i)
       {
         auto r = static_cast<uint8_t>(randomVal(random));
         auto g = static_cast<uint8_t>(randomVal(random));
         auto b = static_cast<uint8_t>(randomVal(random));
         auto a = static_cast<uint8_t>(randomVal(random));
-        bitmap.SetNativePixel(i, 0u, Color(r, g, b, a).PackedValue());
+        bitmap.SetNativePixel(i, 0u, PackedColor32::CreateR8G8B8A8UNorm(r, g, b, a).RawValue);
       }
       GLTextureParameters texParams(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
       rTexture.Reset(bitmap, texParams);
@@ -175,9 +175,9 @@ namespace Fsl
     , m_pOtherVertexBuffer(&m_vertexBuffer2)
     , m_transformFeedbackObject(0)
     , m_transformFeedbackQuery(0)
-    , m_locFeedbackDeltaTime(GLValues::INVALID_LOCATION)
-    , m_locViewProjectionMatrix(GLValues::INVALID_LOCATION)
-    , m_locWorldViewProjectionMatrix(GLValues::INVALID_LOCATION)
+    , m_locFeedbackDeltaTime(GLValues::InvalidLocation)
+    , m_locViewProjectionMatrix(GLValues::InvalidLocation)
+    , m_locWorldViewProjectionMatrix(GLValues::InvalidLocation)
   {
     GLShader vertShader(GL_VERTEX_SHADER, contentManager->ReadAllText("PS_TransformFeedbackShader.vert"));
     GLShader fragShader(GL_FRAGMENT_SHADER, contentManager->ReadAllText("PS_TransformFeedbackShader.frag"));
@@ -194,15 +194,15 @@ namespace Fsl
 
     {
       const auto hProgram = m_programTransform.Get();
-      constexpr const auto vertexDecl = ParticleGPU::GetVertexDeclarationArray();
+      constexpr const auto VertexDecl = ParticleGPU::GetVertexDeclarationArray();
       m_particleAttribLinkFeedback[0] = GLVertexAttribLink(m_programTransform.GetAttribLocation("ParticlePosition"),
-                                                           vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+                                                           VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
       m_particleAttribLinkFeedback[1] = GLVertexAttribLink(m_programTransform.GetAttribLocation("ParticleVelocity"),
-                                                           vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 0));
+                                                           VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 0));
       m_particleAttribLinkFeedback[2] =
-        GLVertexAttribLink(m_programTransform.GetAttribLocation("ParticleEnergy"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 1));
+        GLVertexAttribLink(m_programTransform.GetAttribLocation("ParticleEnergy"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 1));
       m_particleAttribLinkFeedback[3] =
-        GLVertexAttribLink(m_programTransform.GetAttribLocation("ParticleType"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 2));
+        GLVertexAttribLink(m_programTransform.GetAttribLocation("ParticleType"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 2));
 
       m_locFeedbackDeltaTime = glGetUniformLocation(hProgram, "DeltaTime");
     }
@@ -310,10 +310,10 @@ namespace Fsl
     m_shaderFrag.Reset(GL_FRAGMENT_SHADER, strFrag);
     GL_CHECK_FOR_ERROR();
 
-    constexpr const auto vertexDecl = ParticleGPU::GetVertexDeclarationArray();
+    constexpr const auto VertexDecl = ParticleGPU::GetVertexDeclarationArray();
 
     m_particleAttribLink[0] = GLVertexAttribLink(glGetAttribLocation(m_shaderVert.Get(), "ParticlePosition"),
-                                                 vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+                                                 VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
 
     m_locViewProjectionMatrix = glGetUniformLocation(m_shaderGeom.Get(), "WorldView");
     m_locWorldViewProjectionMatrix = glGetUniformLocation(m_shaderGeom.Get(), "WorldViewProjection");

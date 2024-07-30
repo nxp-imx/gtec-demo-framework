@@ -39,7 +39,7 @@ namespace Fsl::UI
 {
   namespace
   {
-    const std::size_t MAX_CAPACITY = 1024;
+    constexpr std::size_t MaxCapacity = 1024;
   }
 
 
@@ -71,7 +71,7 @@ namespace Fsl::UI
     }
 
     route->Shutdown();
-    if (m_pool.size() < MAX_CAPACITY)
+    if (m_pool.size() < MaxCapacity)
     {
       m_pool.push_back(route);
     }

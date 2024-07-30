@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -158,7 +158,7 @@ namespace Fsl
   Shared::~Shared() = default;
 
 
-  void Shared::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& /*theEvent*/)
+  void Shared::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& /*theEvent*/)
   {
     // if (theEvent->GetSource() == m_uiRecord.BtnSetDefaultValues)
     //{
@@ -166,7 +166,7 @@ namespace Fsl
     //}
   }
 
-  void Shared::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& /*theEvent*/)
+  void Shared::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& /*theEvent*/)
   {
     // if (theEvent->GetSource() == m_uiRecord.SwitchEmulateDpi)
     //{
@@ -651,21 +651,21 @@ namespace Fsl
     image1D->SetAlignmentX(UI::ItemAlignment::Stretch);
     image1D->SetAlignmentY(UI::ItemAlignment::Stretch);
 
-    constexpr float spacing = 8.0f;
+    constexpr float Spacing = 8.0f;
 
     auto gridLayout0 = std::make_shared<UI::GridLayout>(windowContext);
     gridLayout0->SetAlignmentX(UI::ItemAlignment::Stretch);
     gridLayout0->SetAlignmentY(UI::ItemAlignment::Stretch);
-    gridLayout0->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, spacing));
+    gridLayout0->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, Spacing));
     gridLayout0->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Auto));
-    gridLayout0->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, spacing));
+    gridLayout0->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, Spacing));
     gridLayout0->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Star, 1.0f));
-    gridLayout0->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, spacing));
-    gridLayout0->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Fixed, spacing));
+    gridLayout0->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, Spacing));
+    gridLayout0->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Fixed, Spacing));
     gridLayout0->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Auto));
-    gridLayout0->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Fixed, spacing));
+    gridLayout0->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Fixed, Spacing));
     gridLayout0->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Star, 1.0f));
-    gridLayout0->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Fixed, spacing));
+    gridLayout0->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Fixed, Spacing));
     gridLayout0->AddChild(image0A, 1, 1);
     gridLayout0->AddChild(image0B, 3, 1);
     gridLayout0->AddChild(image0C, 1, 3);
@@ -675,14 +675,14 @@ namespace Fsl
     auto gridLayout1 = std::make_shared<UI::GridLayout>(windowContext);
     gridLayout1->SetAlignmentX(UI::ItemAlignment::Stretch);
     gridLayout1->SetAlignmentY(UI::ItemAlignment::Stretch);
-    gridLayout1->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, spacing));
+    gridLayout1->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, Spacing));
     gridLayout1->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Auto));
     gridLayout1->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Star, 1.0f));
-    gridLayout1->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, spacing));
-    gridLayout1->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Fixed, spacing));
+    gridLayout1->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, Spacing));
+    gridLayout1->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Fixed, Spacing));
     gridLayout1->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Auto));
     gridLayout1->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Star, 1.0f));
-    gridLayout1->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Fixed, spacing));
+    gridLayout1->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Fixed, Spacing));
     gridLayout1->AddChild(image1A, 1, 1);
     gridLayout1->AddChild(image1B, 2, 1);
     gridLayout1->AddChild(image1C, 1, 2);

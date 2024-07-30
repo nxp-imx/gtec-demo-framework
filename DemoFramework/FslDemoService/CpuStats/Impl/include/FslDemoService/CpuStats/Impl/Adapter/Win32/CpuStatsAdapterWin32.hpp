@@ -63,8 +63,9 @@ namespace Fsl
     mutable ProcessTimes m_appSystemLast;
     mutable ProcessTimes m_appProcessLast;
 
-    mutable TimeSpan m_lastTryGetApplicationCpuUsageTime;
+    mutable TickCount m_lastTryGetApplicationCpuUsageTime;
     mutable float m_appCpuUsagePercentage{0.0f};
+    mutable TickCount m_appCpuUsagePercentageTime;
 
 
     HighResolutionTimer m_timer;
@@ -73,17 +74,17 @@ namespace Fsl
     CpuStatsAdapterWin32();
     ~CpuStatsAdapterWin32() final;
 
-    void Process() final{};
+    void Process() final {};
     uint32_t GetCpuCount() const final;
-    bool TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex) const final;
-    bool TryGetApplicationCpuUsage(float& rUsagePercentage) const final;
+    bool TryGetCpuUsage(CpuUsageRecord& rUsageRecord, const uint32_t cpuIndex) const final;
+    bool TryGetApplicationCpuUsage(CpuUsageRecord& rUsageRecord) const final;
     bool TryGetApplicationRamUsage(uint64_t& rRamUsage) const final;
 
   private:
-    void RemoveCounters() noexcept;
+    // void RemoveCounters() noexcept;
     bool TryQueryCountersNow() const;
-    bool TryGetProcessTimes(ProcessTimes& rTimes) const;
-    bool TryGetSystemTimes(ProcessTimes& rTimes) const;
+    static bool TryGetProcessTimes(ProcessTimes& rTimes);
+    static bool TryGetSystemTimes(ProcessTimes& rTimes);
   };
 }
 

@@ -32,10 +32,11 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslUtil/OpenCL1_2/ContextEx.hpp>
 #include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
 #include <RapidOpenCL1/Check.hpp>
+#include <RapidOpenCL1/DebugStrings.hpp>
 #include <RapidOpenCL1/Exceptions.hpp>
 #include <cassert>
 #include <cstring>
@@ -69,6 +70,50 @@ namespace Fsl::OpenCL
     }
   }
 
+
+  // Deprecated method
+  ContextEx::ContextEx(const cl_device_type deviceType, cl_device_id* pDeviceId, const bool allowFallback)
+    : ContextEx(deviceType, allowFallback)
+  {
+    if (pDeviceId != nullptr)
+    {
+      *pDeviceId = GetDeviceId();
+    }
+  }
+
+
+  // Deprecated method
+  ContextEx::ContextEx(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType, cl_device_id* pDeviceId,
+                       const bool allowFallback)
+    : ContextEx(contextPropertiesSpan, deviceType, allowFallback)
+  {
+    if (pDeviceId != nullptr)
+    {
+      *pDeviceId = GetDeviceId();
+    }
+  }
+
+  // Deprecated method
+  void ContextEx::Reset(const cl_device_type deviceType, cl_device_id* pDeviceId, const bool allowFallback)
+  {
+    Reset(deviceType, allowFallback);
+    if (pDeviceId != nullptr)
+    {
+      *pDeviceId = GetDeviceId();
+    }
+  }
+
+  // Deprecated method
+  void ContextEx::Reset(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType, cl_device_id* pDeviceId,
+                        const bool allowFallback)
+  {
+    Reset(contextPropertiesSpan, deviceType, allowFallback);
+    if (pDeviceId != nullptr)
+    {
+      *pDeviceId = GetDeviceId();
+    }
+  }
+
   // move assignment operator
   ContextEx& ContextEx::operator=(ContextEx&& other) noexcept
   {
@@ -82,10 +127,12 @@ namespace Fsl::OpenCL
 
       // Claim ownership here
       m_platformId = other.m_platformId;
+      m_deviceId = other.m_deviceId;
       m_context = std::move(other.m_context);
 
       // Remove the data from other
       other.m_platformId = nullptr;
+      other.m_deviceId = nullptr;
     }
     return *this;
   }
@@ -94,16 +141,15 @@ namespace Fsl::OpenCL
   // Transfer ownership from other to this
   ContextEx::ContextEx(ContextEx&& other) noexcept
     : m_platformId(other.m_platformId)
+    , m_deviceId(other.m_deviceId)
     , m_context(std::move(other.m_context))
   {
     other.m_platformId = nullptr;
+    other.m_deviceId = nullptr;
   }
 
 
-  ContextEx::ContextEx()
-    : m_platformId(nullptr)
-  {
-  }
+  ContextEx::ContextEx() = default;
 
 
   // NOLINTNEXTLINE(misc-misplaced-const)
@@ -115,18 +161,17 @@ namespace Fsl::OpenCL
 
 
   // NOLINTNEXTLINE(misc-misplaced-const)
-  ContextEx::ContextEx(const cl_device_type deviceType, cl_device_id* pDeviceId, const bool allowFallback)
+  ContextEx::ContextEx(const cl_device_type deviceType, const bool allowFallback)
     : ContextEx()
   {
-    Reset(deviceType, pDeviceId, allowFallback);
+    Reset(deviceType, allowFallback);
   }
 
 
-  ContextEx::ContextEx(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType, cl_device_id* pDeviceId,
-                       const bool allowFallback)
+  ContextEx::ContextEx(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType, const bool allowFallback)
     : ContextEx()
   {
-    Reset(contextPropertiesSpan, deviceType, pDeviceId, allowFallback);
+    Reset(contextPropertiesSpan, deviceType, allowFallback);
   }
 
 
@@ -135,13 +180,12 @@ namespace Fsl::OpenCL
     Reset();
   }
 
-  void ContextEx::Reset(const cl_device_type deviceType, cl_device_id* pDeviceId, const bool allowFallback)
+  void ContextEx::Reset(const cl_device_type deviceType, const bool allowFallback)
   {
-    Reset({}, deviceType, pDeviceId, allowFallback);
+    Reset({}, deviceType, allowFallback);
   }
 
-  void ContextEx::Reset(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType, cl_device_id* pDeviceId,
-                        const bool allowFallback)
+  void ContextEx::Reset(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType, const bool allowFallback)
   {
     if (!IsValidContextProperties(contextPropertiesSpan))
     {
@@ -158,12 +202,31 @@ namespace Fsl::OpenCL
       throw NotSupportedException("No OpenCL platform is available");
     }
 
+    if (platformIds.size() <= 1u)
+    {
+      FSLLOG3_VERBOSE("Found {} platform", platformIds.size());
+    }
+    else
+    {
+      FSLLOG3_VERBOSE("Found {} platforms", platformIds.size());
+    }
+
+    SelectDevice(SpanUtil::AsReadOnlySpan(platformIds), contextPropertiesSpan, deviceType, allowFallback);
+
+    FSLLOG3_VERBOSE("Device max compute units: {}", OpenCLHelper::GetDeviceMaxComputeUnits(m_deviceId));
+  }
+
+
+  void ContextEx::SelectDevice(const ReadOnlySpan<cl_platform_id> platformIds, const ReadOnlySpan<cl_context_properties> contextPropertiesSpan,
+                               const cl_device_type deviceType, const bool allowFallback)
+  {
     for (auto itr = platformIds.begin(); itr != platformIds.end(); ++itr)
     {
       const auto deviceIds = OpenCLHelper::GetDeviceIDs(*itr, deviceType);
       if (!deviceIds.empty())
       {
-        SelectDevice(contextPropertiesSpan, *itr, deviceIds, pDeviceId);
+        FSLLOG3_VERBOSE("Found {} devices of type {}", deviceIds.size(), RapidOpenCL1::Debug::DeviceTypeTostring(deviceType));
+        SelectDevice(contextPropertiesSpan, *itr, deviceIds);
         return;
       }
     }
@@ -176,23 +239,25 @@ namespace Fsl::OpenCL
         const auto deviceIds = OpenCLHelper::GetDeviceIDs(*itr, CL_DEVICE_TYPE_ALL);
         if (!deviceIds.empty())
         {
-          SelectDevice(contextPropertiesSpan, *itr, deviceIds, pDeviceId);
+          FSLLOG3_VERBOSE("Found {} devices of type CL_DEVICE_TYPE_ALL", deviceIds.size());
+          SelectDevice(contextPropertiesSpan, *itr, deviceIds);
           return;
         }
       }
     }
-
     throw NotSupportedException("No device found");
   }
 
+
   // NOLINTNEXTLINE(misc-misplaced-const)
   void ContextEx::SelectDevice(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, cl_platform_id platformId,
-                               const std::vector<cl_device_id>& deviceIds, cl_device_id* pDeviceId)
+                               const std::vector<cl_device_id>& deviceIds)
   {
     // FIX: for now just select the first device
     const cl_uint targetDevice = 0;
     // FIX: for now just use one device
     const cl_uint uiNumDevsUsed = 1;
+    FSLLOG3_VERBOSE("Using device {}", targetDevice);
 
     const cl_device_id selectedDeviceId = deviceIds[targetDevice];
 
@@ -204,15 +269,12 @@ namespace Fsl::OpenCL
     else
     {
       std::vector<cl_context_properties> patchesProperties = PatchProperties(platformId, contextPropertiesSpan);
-      assert(!patchesProperties.empty() && IsValidContextProperties(ReadOnlySpanUtil::AsSpan(patchesProperties)));
+      assert(!patchesProperties.empty() && IsValidContextProperties(SpanUtil::AsReadOnlySpan(patchesProperties)));
       m_context.Reset(patchesProperties.data(), uiNumDevsUsed, &selectedDeviceId, nullptr, nullptr);
     }
 
     m_platformId = platformId;
-    if (pDeviceId != nullptr)
-    {
-      *pDeviceId = selectedDeviceId;
-    }
+    m_deviceId = selectedDeviceId;
   }
 
   std::vector<cl_context_properties> ContextEx::PatchProperties(cl_platform_id platformId,
@@ -221,7 +283,7 @@ namespace Fsl::OpenCL
     assert(!contextPropertiesSpan.empty());
     assert(IsValidContextProperties(contextPropertiesSpan));
 
-    std::vector<cl_context_properties> result(ReadOnlySpanUtil::ToVector(contextPropertiesSpan));
+    std::vector<cl_context_properties> result(SpanUtil::ToVector(contextPropertiesSpan));
     int32_t indexOfProperty = IndexOfProperty(contextPropertiesSpan, CL_CONTEXT_PLATFORM);
     if (indexOfProperty >= 0)
     {
@@ -240,7 +302,7 @@ namespace Fsl::OpenCL
       result.push_back(CL_CONTEXT_PLATFORM);
       result.push_back(reinterpret_cast<cl_context_properties>(platformId));
     }
-    assert(IsValidContextProperties(ReadOnlySpanUtil::AsSpan(result)));
+    assert(IsValidContextProperties(SpanUtil::AsReadOnlySpan(result)));
     return result;
   }
 }

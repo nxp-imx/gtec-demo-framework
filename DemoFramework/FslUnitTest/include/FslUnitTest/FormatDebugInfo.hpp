@@ -34,15 +34,16 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <stdexcept>
+#include <string>
 
 namespace Fsl
 {
   template <typename T>
-  inline void FormatDebugInfo(std::string& rStr, const std::string& strFormat, const T currentValue, const T expectedValue)
+  inline void FormatDebugInfo(std::string& rStr, const fmt::format_string<T, T> formatString, const T currentValue, const T expectedValue)
   {
     if (currentValue != expectedValue)
     {
-      rStr += fmt::format(strFormat, currentValue, expectedValue);
+      rStr += fmt::vformat(formatString, fmt::make_format_args(currentValue, expectedValue));
     }
   }
 

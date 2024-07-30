@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslGraphics/Font/BitmapFontKerningFastLookup.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <fmt/format.h>
@@ -53,7 +53,7 @@ namespace
 
 TEST(TestFont_BitmapFontKerningFastLookup, Construct)
 {
-  BitmapFontKerningFastLookup fastlookup(ReadOnlySpanUtil::AsSpan(g_kernings));
+  BitmapFontKerningFastLookup fastlookup(SpanUtil::AsReadOnlySpan(g_kernings));
 
   for (std::size_t i = 0; i < g_kernings.size(); ++i)
   {
@@ -70,7 +70,7 @@ TEST(TestFont_BitmapFontKerningFastLookup, Construct)
 
 TEST(TestFont_BitmapFontKerningFastLookup, TryGet_NotFound)
 {
-  BitmapFontKerningFastLookup fastlookup(ReadOnlySpanUtil::AsSpan(g_kernings));
+  BitmapFontKerningFastLookup fastlookup(SpanUtil::AsReadOnlySpan(g_kernings));
 
   EXPECT_TRUE(nullptr == fastlookup.TryGet(0x39, 0));
   EXPECT_TRUE(nullptr == fastlookup.TryGet(0x139, 0));

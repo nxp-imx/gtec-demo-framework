@@ -31,8 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Transition/TransitionColor.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/Transition/TransitionUIColor.hpp>
+#include <FslSimpleUI/Base/UIColors.hpp>
 #include <Shared/UI/Benchmark/Activity/IActivityStack.hpp>
 #include <deque>
 #include <utility>
@@ -66,16 +67,15 @@ namespace Fsl
       {
         ActivityState State{ActivityState::Ready};
         std::shared_ptr<FakeActivity> Activity;
-        TransitionColor BaseColor;
+        TransitionUIColor BaseColor;
         ActivityPopResult PopResult{ActivityPopResult::NotSet};
         std::promise<bool> Promise;
 
-        explicit ActivityRecord(std::shared_ptr<FakeActivity> activity, const Color color, TransitionCache& rTransitionCache,
-                                const TimeSpan transitionTimeSpan)
+        explicit ActivityRecord(std::shared_ptr<FakeActivity> activity, const UI::UIColor color, const TimeSpan transitionTimeSpan)
           : Activity(std::move(activity))
-          , BaseColor(rTransitionCache, transitionTimeSpan, TransitionType::Smooth)
+          , BaseColor(transitionTimeSpan, TransitionType::Smooth)
         {
-          BaseColor.SetActualValue(Color::TransparentWhite());
+          BaseColor.SetActualValue(UI::UIColors::TransparentWhite());
           BaseColor.SetValue(color);
         }
 
@@ -97,7 +97,7 @@ namespace Fsl
 
       std::shared_ptr<WindowContext> m_context;
       std::deque<ActivityRecord> m_stack;
-      TransitionColor m_parentBaseColor;
+      TransitionUIColor m_parentBaseColor;
 
     public:
       explicit ActivityStack(const std::shared_ptr<WindowContext>& context);
@@ -108,7 +108,7 @@ namespace Fsl
         return m_stack.empty();
       }
 
-      Color GetDesiredParentColor() const
+      UIColor GetDesiredParentColor() const
       {
         return m_parentBaseColor.GetValue();
       }

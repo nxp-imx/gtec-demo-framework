@@ -89,6 +89,7 @@ namespace Fsl
       const UI::IRenderSystemBase& GetRenderSystem() const;
       UI::IRenderSystemBase* TryGetRenderSystem();
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       bool SYS_GetUseYFlipTextureCoordinates() const noexcept
       {
         return m_useYFlipTextureCoordinates;

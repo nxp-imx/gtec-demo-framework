@@ -51,10 +51,10 @@ namespace Fsl
     using raw_size_value_type = size_value_type::raw_value_type;
 
   private:
-    value_type m_left{};
-    value_type m_top{};
-    value_type m_right{};
-    value_type m_bottom{};
+    value_type m_left;
+    value_type m_top;
+    value_type m_right;
+    value_type m_bottom;
 
     constexpr explicit PxClipRectangle(const value_type left, const value_type top, const value_type right, const value_type bottom,
                                        const OptimizationInternal /*unused*/)
@@ -205,8 +205,8 @@ namespace Fsl
     //! @brief Get the center of this rect
     constexpr PxPoint2 Center() const
     {
-      constexpr PxValue size2Px(2);
-      return {m_left + (Width() / size2Px), m_top + (Height() / size2Px)};
+      constexpr PxValue Size2Px(2);
+      return {m_left + (Width() / Size2Px), m_top + (Height() / Size2Px)};
     }
 
 

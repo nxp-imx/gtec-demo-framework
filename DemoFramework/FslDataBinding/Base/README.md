@@ -72,7 +72,7 @@ auto converterBinding = std::make_shared<Fsl::DataBinding::ConverterBinding<int3
 );
 
 // target t1.Property0 with the converter binding that has t0.Property2 as source
-t1.SetBinding(ExampleB::Property0, Binding(converterBinding, t0.GetPropertyHandle(ExampleA::Property2));
+t1.SetBinding(ExampleB::Property0, Binding(converterBinding, t0.GetPropertyHandle(ExampleA::Property2)));
 ```
 
 ### Two-way conversion binding
@@ -89,7 +89,7 @@ auto convertingBinding = std::make_shared<Fsl::DataBinding::TwoWayConverterBindi
   [](const uint32_t value) { return static_cast<float>(value); });
 
 // target t1.Property0 with the converter binding that has t0.Property2 as source
-t1.SetBinding(ExampleB::Property0, Binding(converterBinding, t0.GetPropertyHandle(ExampleA::Property2));
+t1.SetBinding(ExampleB::Property0, Binding(converterBinding, t0.GetPropertyHandle(ExampleA::Property2)));
 ```
 
 ### One-way multi conversion binding

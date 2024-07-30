@@ -47,25 +47,25 @@ namespace Fsl
   {
     std::array<VGint, 4> g_coord = {0, 0, 1280, 1080};
 
-    const std::vector<VGubyte> vgTriangleSegments = {
+    const std::vector<VGubyte> g_vgTriangleSegments = {
       VG_MOVE_TO_ABS,
       VG_LINE_TO_ABS,
       VG_LINE_TO_ABS,
       VG_CLOSE_PATH,
     };
 
-    const std::vector<VGubyte> vgQuadCurveSegments = {
+    const std::vector<VGubyte> g_vgQuadCurveSegments = {
       VG_MOVE_TO_ABS,
       VG_LINE_TO_ABS,
       VG_QUAD_TO_ABS,
       VG_CLOSE_PATH,
     };
 
-    const std::vector<VGubyte> vgCubicCurveSegments = {
+    const std::vector<VGubyte> g_vgCubicCurveSegments = {
       VG_MOVE_TO_ABS, VG_LINE_TO_ABS, VG_CUBIC_TO_ABS, VG_LINE_TO_ABS, VG_CLOSE_PATH,
     };
 
-    const std::vector<VGubyte> vgArcSegments = {
+    const std::vector<VGubyte> g_vgArcSegments = {
       VG_MOVE_TO_ABS,
       VG_LINE_TO_ABS,
       VG_SCCWARC_TO_ABS,
@@ -80,11 +80,11 @@ namespace Fsl
     , m_scale(0)
     , m_shear(0)
     , m_translate(0)
-    , m_scale_direction(1)
-    , m_shear_direction(1)
-    , m_translate_direction(1)
-    , m_scissors_direction(0)
-    , m_scissor_rectangle(1280)
+    , m_scaleDirection(1)
+    , m_shearDirection(1)
+    , m_translateDirection(1)
+    , m_scissorsDirection(0)
+    , m_scissorRectangle(1280)
   {
     std::array<VGfloat, 4> afClearColour = {0.6f, 0.8f, 1.0f, 1.0f};
     vgSetfv(VG_CLEAR_COLOR, UncheckedNumericCast<VGint>(afClearColour.size()), afClearColour.data());
@@ -132,36 +132,36 @@ namespace Fsl
 
 
     // create path
-    m_vg_triangle_path.Reset(vgTrianglePoints, vgTriangleSegments);
-    m_vg_quad_path.Reset(vgQuadCurvePoints, vgQuadCurveSegments);
-    m_vg_cubic_path.Reset(vgCubicCurvePoints, vgCubicCurveSegments);
-    m_vg_arc_path.Reset(vgArcPoints, vgArcSegments);
+    m_vgTrianglePath.Reset(vgTrianglePoints, g_vgTriangleSegments);
+    m_vgQuadPath.Reset(vgQuadCurvePoints, g_vgQuadCurveSegments);
+    m_vgCubicPath.Reset(vgCubicCurvePoints, g_vgCubicCurveSegments);
+    m_vgArcPath.Reset(vgArcPoints, g_vgArcSegments);
 
     // create paint
-    m_vg_triangle_paint = vgCreatePaint();
-    vgSetParameteri(m_vg_triangle_paint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
-    vgSetColor(m_vg_triangle_paint, 0xFF0000FF);
+    m_vgTrianglePaint = vgCreatePaint();
+    vgSetParameteri(m_vgTrianglePaint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
+    vgSetColor(m_vgTrianglePaint, 0xFF0000FF);
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
 
-    m_vg_quad_paint = vgCreatePaint();
-    vgSetParameteri(m_vg_quad_paint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
-    vgSetColor(m_vg_quad_paint, 0x00FF00FF);
+    m_vgQuadPaint = vgCreatePaint();
+    vgSetParameteri(m_vgQuadPaint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
+    vgSetColor(m_vgQuadPaint, 0x00FF00FF);
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
 
-    m_vg_cubic_paint = vgCreatePaint();
-    vgSetParameteri(m_vg_cubic_paint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
-    vgSetColor(m_vg_cubic_paint, 0x0000FFFF);
+    m_vgCubicPaint = vgCreatePaint();
+    vgSetParameteri(m_vgCubicPaint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
+    vgSetColor(m_vgCubicPaint, 0x0000FFFF);
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
 
-    m_vg_arc_paint = vgCreatePaint();
-    vgSetParameteri(m_vg_arc_paint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
-    vgSetColor(m_vg_arc_paint, 0x00FFFFFF);
+    m_vgArcPaint = vgCreatePaint();
+    vgSetParameteri(m_vgArcPaint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
+    vgSetColor(m_vgArcPaint, 0x00FFFFFF);
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
 
-    m_vg_stroke_paint = vgCreatePaint();
-    vgSetParameteri(m_vg_stroke_paint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
+    m_vgStrokePaint = vgCreatePaint();
+    vgSetParameteri(m_vgStrokePaint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
 
-    vgSetColor(m_vg_stroke_paint, 0xFFFFFFFF);
+    vgSetColor(m_vgStrokePaint, 0xFFFFFFFF);
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
   }
 
@@ -173,38 +173,38 @@ namespace Fsl
   {
     const PxSize2D screenSizePx = GetWindowSizePx();
     const auto scissorLimit = static_cast<VGfloat>(std::min(screenSizePx.RawWidth(), screenSizePx.RawHeight()));
-    if (1 == m_scissors_direction)
+    if (1 == m_scissorsDirection)
     {
-      m_scissor_rectangle += 125.0f * demoTime.DeltaTime;
-      if (m_scissor_rectangle >= scissorLimit)
+      m_scissorRectangle += 125.0f * demoTime.DeltaTime;
+      if (m_scissorRectangle >= scissorLimit)
       {
-        m_scissor_rectangle = scissorLimit;
-        m_scissors_direction = 0;
+        m_scissorRectangle = scissorLimit;
+        m_scissorsDirection = 0;
       }
     }
     else
     {
-      m_scissor_rectangle -= 125.0f * demoTime.DeltaTime;
-      if (m_scissor_rectangle <= 0)
+      m_scissorRectangle -= 125.0f * demoTime.DeltaTime;
+      if (m_scissorRectangle <= 0)
       {
-        m_scissor_rectangle = 0;
-        m_scissors_direction = 1;
+        m_scissorRectangle = 0;
+        m_scissorsDirection = 1;
       }
     }
-    g_coord[2] = static_cast<VGint>(m_scissor_rectangle);
-    g_coord[3] = static_cast<VGint>(m_scissor_rectangle);
+    g_coord[2] = static_cast<VGint>(m_scissorRectangle);
+    g_coord[3] = static_cast<VGint>(m_scissorRectangle);
     m_angle += demoTime.DeltaTime;
     if (m_angle >= 6.28)
     {
       m_angle = 0;
     }
 
-    if (1 == m_scale_direction)
+    if (1 == m_scaleDirection)
     {
       m_scale += 2.0f * demoTime.DeltaTime;
       if (m_scale >= 1)
       {
-        m_scale_direction = 0;
+        m_scaleDirection = 0;
       }
     }
     else
@@ -212,16 +212,16 @@ namespace Fsl
       m_scale -= 2.0f * demoTime.DeltaTime;
       if (m_scale <= 0)
       {
-        m_scale_direction = 1;
+        m_scaleDirection = 1;
       }
     }
 
-    if (1 == m_shear_direction)
+    if (1 == m_shearDirection)
     {
       m_shear += 2.0f * demoTime.DeltaTime;
       if (m_shear >= 1)
       {
-        m_shear_direction = 0;
+        m_shearDirection = 0;
       }
     }
     else
@@ -229,16 +229,16 @@ namespace Fsl
       m_shear -= 2.0f * demoTime.DeltaTime;
       if (m_shear <= -2)
       {
-        m_shear_direction = 1;
+        m_shearDirection = 1;
       }
     }
 
-    if (1 == m_translate_direction)
+    if (1 == m_translateDirection)
     {
       m_translate += 25.0f * demoTime.DeltaTime;
       if (m_translate >= 300)
       {
-        m_translate_direction = 0;
+        m_translateDirection = 0;
       }
     }
     else
@@ -246,7 +246,7 @@ namespace Fsl
       m_translate -= 25.0f * demoTime.DeltaTime;
       if (m_translate <= 0)
       {
-        m_translate_direction = 1;
+        m_translateDirection = 1;
       }
     }
   }
@@ -258,16 +258,16 @@ namespace Fsl
 
     std::array<VGfloat, 4> afClearColour0 = {0.6f, 0.8f, 1.0f, 1.0f};
     std::array<VGfloat, 4> afClearColour1 = {0.0f, 0.0f, 0.0f, 1.0f};
-    if (1 == m_scissors_direction)
+    if (1 == m_scissorsDirection)
     {
-      if (m_scissor_rectangle >= 1280)
+      if (m_scissorRectangle >= 1280)
       {
         vgSetfv(VG_CLEAR_COLOR, UncheckedNumericCast<VGint>(afClearColour1.size()), afClearColour1.data());
       }
     }
     else
     {
-      if (m_scissor_rectangle <= 0)
+      if (m_scissorRectangle <= 0)
       {
         vgSetfv(VG_CLEAR_COLOR, UncheckedNumericCast<VGint>(afClearColour0.size()), afClearColour0.data());
       }
@@ -283,31 +283,31 @@ namespace Fsl
     // Loads identity matrix
     vgLoadIdentity();
 
-    vgSetPaint(m_vg_triangle_paint, VG_FILL_PATH);
+    vgSetPaint(m_vgTrianglePaint, VG_FILL_PATH);
     vgSetf(VG_STROKE_LINE_WIDTH, 10.0);
-    vgSetPaint(m_vg_stroke_paint, VG_STROKE_PATH);
+    vgSetPaint(m_vgStrokePaint, VG_STROKE_PATH);
     vgTranslate(300, 200);
     vgRotate(m_angle);
     vgTranslate(-300, -200);
-    vgDrawPath(m_vg_triangle_path.GetHandle(), VG_STROKE_PATH | VG_FILL_PATH);
+    vgDrawPath(m_vgTrianglePath.GetHandle(), VG_STROKE_PATH | VG_FILL_PATH);
 
     vgLoadIdentity();
-    vgSetPaint(m_vg_quad_paint, VG_FILL_PATH);
+    vgSetPaint(m_vgQuadPaint, VG_FILL_PATH);
     vgSetf(VG_STROKE_LINE_WIDTH, 5.0);
     vgScale(m_scale, m_scale);
-    vgDrawPath(m_vg_quad_path.GetHandle(), VG_STROKE_PATH | VG_FILL_PATH);
+    vgDrawPath(m_vgQuadPath.GetHandle(), VG_STROKE_PATH | VG_FILL_PATH);
 
     vgLoadIdentity();
     vgShear(m_shear, 0);
-    vgSetPaint(m_vg_cubic_paint, VG_FILL_PATH);
+    vgSetPaint(m_vgCubicPaint, VG_FILL_PATH);
     vgSetf(VG_STROKE_LINE_WIDTH, 15.0);
-    vgDrawPath(m_vg_cubic_path.GetHandle(), VG_STROKE_PATH | VG_FILL_PATH);
+    vgDrawPath(m_vgCubicPath.GetHandle(), VG_STROKE_PATH | VG_FILL_PATH);
 
     vgLoadIdentity();
-    vgSetPaint(m_vg_arc_paint, VG_FILL_PATH);
+    vgSetPaint(m_vgArcPaint, VG_FILL_PATH);
     vgSetf(VG_STROKE_LINE_WIDTH, 20.0);
     vgTranslate(m_translate, m_translate);
-    vgDrawPath(m_vg_arc_path.GetHandle(), VG_STROKE_PATH | VG_FILL_PATH);
+    vgDrawPath(m_vgArcPath.GetHandle(), VG_STROKE_PATH | VG_FILL_PATH);
 
     vgFinish();
   }

@@ -31,20 +31,19 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/String/CStringUtil_NotNullPtr.hpp>
 #include <FslBase/String/CStringView.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <string>
 
 namespace Fsl
 {
   // Adds comparision operators for std::string
-  // Added in a external file to ensure that not all StringViewLite users need to depend on std::string (and its header)
 
   namespace CStringViewUtil
   {
     inline CStringView AsCStringView(const std::string& str) noexcept
     {
-      return CStringView(StringViewLiteUtil::NotNull(str.c_str()), str.size(), OptimizationCheckFlag::NoCheck);
+      return CStringView::UncheckedCreate(CStringUtil::NotNullPtr(str.c_str()), str.size());
     }
 
     inline std::string ToString(const CStringView& strView)

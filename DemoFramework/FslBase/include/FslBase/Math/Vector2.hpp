@@ -44,7 +44,7 @@ namespace Fsl
 
     static constexpr size_type NumElements = 2;
 
-    constexpr size_type size() const    // NOLINT(readability-convert-member-functions-to-static)
+    constexpr size_type size() const    // NOLINT(readability-convert-member-functions-to-static,readability-identifier-naming)
     {
       return NumElements;
     }

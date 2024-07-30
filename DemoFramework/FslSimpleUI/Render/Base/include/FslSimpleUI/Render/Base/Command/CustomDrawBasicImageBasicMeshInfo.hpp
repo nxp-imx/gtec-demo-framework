@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_BASE_COMMAND_CUSTOMDRAWBASICIMAGEBASICMESHINFO_HPP
 #define FSLSIMPLEUI_RENDER_BASE_COMMAND_CUSTOMDRAWBASICIMAGEBASICMESHINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,29 +37,25 @@
 #include <memory>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::UI
 {
   class UIRawBasicMeshBuilder2D;
+  class ICustomDrawData;
+  using FnDrawCustomBasicImageBasicMesh = void (*)(UIRawBasicMeshBuilder2D&, const PxVector2, const PxSize2D, const RenderBasicImageInfo&,
+                                                   const ICustomDrawData* const);
 
-  namespace UI
+  struct CustomDrawBasicImageBasicMeshInfo
   {
-    class ICustomDrawData;
-    using FnDrawCustomBasicImageBasicMesh = void (*)(UIRawBasicMeshBuilder2D&, const PxVector2, const PxSize2D, const RenderBasicImageInfo&,
-                                                     const ICustomDrawData* const);
+    FnDrawCustomBasicImageBasicMesh FnDraw{nullptr};
+    std::shared_ptr<ICustomDrawData> CustomData;
 
-    struct CustomDrawBasicImageBasicMeshInfo
+    CustomDrawBasicImageBasicMeshInfo() noexcept = default;
+    explicit CustomDrawBasicImageBasicMeshInfo(const FnDrawCustomBasicImageBasicMesh fnDraw, std::shared_ptr<ICustomDrawData> customData) noexcept
+      : FnDraw(fnDraw)
+      , CustomData(std::move(customData))
     {
-      FnDrawCustomBasicImageBasicMesh FnDraw{nullptr};
-      std::shared_ptr<ICustomDrawData> CustomData;
-
-      CustomDrawBasicImageBasicMeshInfo() noexcept = default;
-      explicit CustomDrawBasicImageBasicMeshInfo(const FnDrawCustomBasicImageBasicMesh fnDraw, std::shared_ptr<ICustomDrawData> customData) noexcept
-        : FnDraw(fnDraw)
-        , CustomData(std::move(customData))
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

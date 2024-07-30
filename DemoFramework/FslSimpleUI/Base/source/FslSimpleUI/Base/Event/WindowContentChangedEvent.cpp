@@ -33,7 +33,7 @@
 
 namespace Fsl::UI
 {
-  WindowContentChangedEvent::WindowContentChangedEvent()
+  WindowContentChangedEvent::WindowContentChangedEvent() noexcept
     : WindowEvent(EventTypeId::ContentChanged, EventDescription(EventRoutingStrategy::Bubble, WindowFlags()))
     , m_contentId(0)
     , m_param1(0)
@@ -42,18 +42,18 @@ namespace Fsl::UI
   }
 
 
-  uint32_t WindowContentChangedEvent::GetContentId() const
+  uint32_t WindowContentChangedEvent::GetContentId() const noexcept
   {
     return m_contentId;
   }
 
 
-  int32_t WindowContentChangedEvent::GetParam1() const
+  int32_t WindowContentChangedEvent::GetParam1() const noexcept
   {
     return m_param1;
   }
 
-  int32_t WindowContentChangedEvent::GetParam2() const
+  int32_t WindowContentChangedEvent::GetParam2() const noexcept
   {
     return m_param2;
   }

@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxViewport.hpp>
+#include <FslGraphics/Render/Basic/BasicPrimitiveTopology.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialId.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
@@ -81,7 +82,7 @@ namespace Fsl
 
       struct MaterialRecord
       {
-        UIAppTextureHandle TextureHandle{};
+        UIAppTextureHandle TextureHandle;
         std::shared_ptr<BasicSpriteMaterial> BasicMaterial;
         SpriteMaterialInfo MaterialInfo;
         BlendState SourceBlendState{BlendState::Opaque};
@@ -108,11 +109,11 @@ namespace Fsl
       bool Contains(const SpriteMaterialId spriteMaterialId) const;
 
       void AddMaterial(IBasicRenderSystem& rRenderSystem, const SpriteMaterialId spriteMaterialId, const UIAppTextureHandle hTexture,
-                       const UIAppTextureInfo& textureInfo, const BlendState blendState);
+                       const UIAppTextureInfo& textureInfo, const BlendState blendState, const BasicPrimitiveTopology primitiveTopology);
 
       //! @brief Add a material with a dynamic sprite id (the actual id is managed by this class)
       SpriteMaterialId AddMaterial(IBasicRenderSystem& rRenderSystem, const UIAppTextureHandle hTexture, const UIAppTextureInfo& textureInfo,
-                                   const BlendState blendState);
+                                   const BlendState blendState, const BasicPrimitiveTopology primitiveTopology);
 
       bool RemoveMaterial(const SpriteMaterialId id);
 

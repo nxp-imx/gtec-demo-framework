@@ -41,15 +41,17 @@ namespace fmt
   struct formatter<Fsl::PxThicknessU>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::PxThicknessU& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{Left={} Top={} Right={} Bottom={}}}", value.Left, value.Top, value.Right, value.Bottom);
+      return fmt::format_to(ctx.out(), "{{Left={} Top={} Right={} Bottom={}}}", value.Left, value.Top, value.Right, value.Bottom);
     }
   };
 }

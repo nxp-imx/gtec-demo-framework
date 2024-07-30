@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslGraphics/Bitmap/RawBitmapEx.hpp>
 #include <FslGraphics/PixelFormat.hpp>
@@ -70,10 +69,7 @@ namespace Fsl::Helios
     }
 
     //! @brief Returns the camera size (signed)
-    PxSize2D GetSize() const
-    {
-      return TypeConverter::UncheckedTo<PxSize2D>(m_cameraConfig.Extent);
-    }
+    PxSize2D GetSize() const noexcept;
 
     PixelFormat GetPixelFormat() const
     {

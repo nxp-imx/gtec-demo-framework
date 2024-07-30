@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXVALUE_HPP
 #define FSLBASE_MATH_PIXEL_PXVALUE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <compare>
 
 namespace Fsl
 {
@@ -49,7 +50,7 @@ namespace Fsl
     {
     }
 
-    PxValue operator-() noexcept
+    inline constexpr PxValue operator-() const noexcept
     {
       return PxValue(-Value);
     }
@@ -148,51 +149,33 @@ namespace Fsl
     {
       return PxValue((value));
     }
+
+
+    // op<==>
+    constexpr auto operator<=>(const PxValue& other) const noexcept = default;
+    // op==
+    constexpr bool operator==(const PxValue& other) const noexcept = default;
   };
 
-  // op==
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
+  // PxValue::value_type
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-  inline constexpr bool operator==(const PxValue lhs, const PxValue rhs) noexcept
+  inline constexpr auto operator<=>(const PxValue lhs, const PxValue::value_type rhs) noexcept
   {
-    return lhs.Value == rhs.Value;
+    return lhs.Value <=> rhs;
   }
 
-  // op!=
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-  inline constexpr bool operator!=(const PxValue lhs, const PxValue rhs) noexcept
+  inline constexpr bool operator==(const PxValue lhs, const PxValue::value_type rhs) noexcept
   {
-    return lhs.Value != rhs.Value;
+    return lhs.Value == rhs;
   }
 
-  // op<
-
-  inline constexpr bool operator<(const PxValue lhs, const PxValue rhs) noexcept
-  {
-    return lhs.Value < rhs.Value;
-  }
-
-  // op<=
-
-  inline constexpr bool operator<=(const PxValue lhs, const PxValue rhs) noexcept
-  {
-    return lhs.Value <= rhs.Value;
-  }
-
-  // op>
-
-  inline constexpr bool operator>(const PxValue lhs, const PxValue rhs) noexcept
-  {
-    return lhs.Value > rhs.Value;
-  }
-
-  // op>=
-
-  inline constexpr bool operator>=(const PxValue lhs, const PxValue rhs) noexcept
-  {
-    return lhs.Value >= rhs.Value;
-  }
-
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
   // op add
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
   inline constexpr PxValue operator+(const PxValue lhs, const PxValue rhs) noexcept
   {

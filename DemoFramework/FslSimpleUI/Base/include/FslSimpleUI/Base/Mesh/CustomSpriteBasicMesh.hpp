@@ -34,6 +34,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslGraphics/Render/Basic/BasicPrimitiveTopology.hpp>
 #include <FslSimpleUI/Base/ItemScalePolicy.hpp>
 #include <FslSimpleUI/Base/PxAvailableSize.hpp>
 #include <FslSimpleUI/Base/UIScaleUtil.hpp>
@@ -190,6 +191,15 @@ namespace Fsl::UI
           meshManager->EnsureCapacity(m_hMesh, m_vertexCapacity, 0u);
         }
       }
+    }
+
+    BasicPrimitiveTopology GetPrimitiveTopology() const
+    {
+      if (m_sprite && m_sprite->GetMaterialCount() > 0u)
+      {
+        return m_sprite->GetMaterialInfo(0u).PrimitiveTopology;
+      }
+      return BasicPrimitiveTopology::TriangleList;
     }
 
   protected:

@@ -36,8 +36,10 @@
 namespace Fsl
 {
   // Since we dont have access to the header file we have to access it by other means
+  // NOLINTNEXTLINE(readability-identifier-naming)
   extern int TestFunc_P1();
 
+  // NOLINTNEXTLINE(readability-identifier-naming)
   int TestFunc_P2LinkP1()
   {
     return 30 + TestFunc_P1();

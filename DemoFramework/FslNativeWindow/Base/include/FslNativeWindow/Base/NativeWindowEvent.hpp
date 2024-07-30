@@ -32,24 +32,64 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Time/MillisecondTickCount32.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventType.hpp>
 
 namespace Fsl
 {
-  struct NativeWindowEvent
+  struct NativeWindowEvent final
   {
-    NativeWindowEventType Type;
-    int32_t Arg1;
-    int32_t Arg2;
-    int32_t Arg3;
-    int32_t Arg4;
+    MillisecondTickCount32 Timestamp;
+    NativeWindowEventType Type{NativeWindowEventType::NOP};
+    int32_t Arg1{0};
+    int32_t Arg2{0};
+    int32_t Arg3{0};
+    int32_t Arg4{0};
 
-    NativeWindowEvent();
-    explicit NativeWindowEvent(const NativeWindowEventType type);
-    NativeWindowEvent(const NativeWindowEventType type, const int32_t arg1);
-    NativeWindowEvent(const NativeWindowEventType type, const int32_t arg1, const int32_t arg2);
-    NativeWindowEvent(const NativeWindowEventType type, const int32_t arg1, const int32_t arg2, const int32_t arg3);
-    NativeWindowEvent(const NativeWindowEventType type, const int32_t arg1, const int32_t arg2, const int32_t arg3, const int32_t arg4);
+    constexpr NativeWindowEvent() noexcept = default;
+
+    constexpr NativeWindowEvent(const MillisecondTickCount32 timestamp, const NativeWindowEventType type) noexcept
+      : Timestamp(timestamp)
+      , Type(type)
+    {
+    }
+
+    constexpr NativeWindowEvent(const MillisecondTickCount32 timestamp, const NativeWindowEventType type, const int32_t arg1) noexcept
+      : Timestamp(timestamp)
+      , Type(type)
+      , Arg1(arg1)
+    {
+    }
+
+    constexpr NativeWindowEvent(const MillisecondTickCount32 timestamp, const NativeWindowEventType type, const int32_t arg1,
+                                const int32_t arg2) noexcept
+      : Timestamp(timestamp)
+      , Type(type)
+      , Arg1(arg1)
+      , Arg2(arg2)
+    {
+    }
+
+    constexpr NativeWindowEvent(const MillisecondTickCount32 timestamp, const NativeWindowEventType type, const int32_t arg1, const int32_t arg2,
+                                const int32_t arg3) noexcept
+      : Timestamp(timestamp)
+      , Type(type)
+      , Arg1(arg1)
+      , Arg2(arg2)
+      , Arg3(arg3)
+    {
+    }
+
+    constexpr NativeWindowEvent(const MillisecondTickCount32 timestamp, const NativeWindowEventType type, const int32_t arg1, const int32_t arg2,
+                                const int32_t arg3, const int32_t arg4) noexcept
+      : Timestamp(timestamp)
+      , Type(type)
+      , Arg1(arg1)
+      , Arg2(arg2)
+      , Arg3(arg3)
+      , Arg4(arg4)
+    {
+    }
   };
 }
 

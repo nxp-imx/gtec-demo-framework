@@ -35,6 +35,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   inline void LogDeviceInfo2_1(LogHelp& rLog, const cl_device_id deviceId)
   {
     rLog.Log_CL_DEVICE_ADDRESS_BITS(deviceId);

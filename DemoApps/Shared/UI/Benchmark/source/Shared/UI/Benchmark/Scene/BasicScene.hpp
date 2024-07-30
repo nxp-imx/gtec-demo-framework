@@ -109,7 +109,7 @@ namespace Fsl
 
     void ScheduleClose();
     void ScheduleClose(const SceneId nextSceneId);
-    virtual void OnBeginClose(){};
+    virtual void OnBeginClose() {};
   };
 }
 

@@ -64,7 +64,7 @@ namespace Fsl
       , public DataBinding::IObjectObserver
     {
       using base_type = BaseWindow;
-      using color_prop_type = Color;
+      using color_prop_type = UIColor;
       using spacing_prop_type = DpSize1DF;
       using size_prop_type = DpLayoutSize1D;
       using dataview_prop_type = std::shared_ptr<ChartDataView>;
@@ -84,11 +84,17 @@ namespace Fsl
       bool m_cacheIsReady{false};
 
     public:
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyMedianColor;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertySpacing;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyBoxSize;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyWhiskerSize;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyOutlierSize;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyDataView;
 
 
@@ -138,7 +144,7 @@ namespace Fsl
     private:
       bool ProcessDataViewChange();
       static void PopulateDrawDataWithBoxPlots(Render::BoxPlotDrawData& rDrawData, const ChartDataView* const pDataView,
-                                               ReadOnlySpan<ChartSortedDataChannelView> channels);
+                                               ReadOnlySpan<ChartSortedDataChannelView> channels, const UIColorConverter colorConverter);
       void RebuildCacheOnDemand();
     };
   }

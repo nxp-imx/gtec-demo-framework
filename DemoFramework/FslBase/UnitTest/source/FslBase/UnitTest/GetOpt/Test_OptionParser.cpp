@@ -32,7 +32,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Getopt/OptionParser.hpp>
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
@@ -136,7 +136,7 @@ TEST(TestGetOpt_OptionParser, Parse0)
 {
   std::array<StringViewLite, 1> testArgs = {"-v"};
 
-  auto result = OptionParser::Parse(ReadOnlySpanUtil::AsSpan(testArgs), "help caption");
+  auto result = OptionParser::Parse(SpanUtil::AsReadOnlySpan(testArgs), "help caption");
 
   EXPECT_EQ(OptionParser::Result::OK, result.Status);
   EXPECT_EQ(1u, result.VerbosityLevel);
@@ -148,7 +148,7 @@ TEST(TestGetOpt_OptionParser, Parse1)
   std::array<StringViewLite, 1> testArgs = {"-v"};
 
   DummyOptionParser dummyOptionParser;
-  auto result = OptionParser::Parse(ReadOnlySpanUtil::AsSpan(testArgs), dummyOptionParser, "help caption");
+  auto result = OptionParser::Parse(SpanUtil::AsReadOnlySpan(testArgs), dummyOptionParser, "help caption");
 
   EXPECT_EQ(OptionParser::Result::OK, result.Status);
   EXPECT_EQ(1u, result.VerbosityLevel);
@@ -163,7 +163,7 @@ TEST(TestGetOpt_OptionParser, Parse2)
   std::deque<IOptionParser*> optionParsers;
   optionParsers.push_back(&dummyOptionParser);
 
-  auto result = OptionParser::Parse(ReadOnlySpanUtil::AsSpan(testArgs), optionParsers, "help caption");
+  auto result = OptionParser::Parse(SpanUtil::AsReadOnlySpan(testArgs), optionParsers, "help caption");
 
   EXPECT_EQ(OptionParser::Result::OK, result.Status);
   EXPECT_EQ(1u, result.VerbosityLevel);
@@ -178,7 +178,7 @@ TEST(TestGetOpt_OptionParser, Parse3)
   std::deque<OptionParser::ParserRecord> optionParsers;
   optionParsers.emplace_back(&dummyOptionParser, 0x1000);
 
-  auto result = OptionParser::Parse(ReadOnlySpanUtil::AsSpan(testArgs), optionParsers, "help caption");
+  auto result = OptionParser::Parse(SpanUtil::AsReadOnlySpan(testArgs), optionParsers, "help caption");
 
   EXPECT_EQ(OptionParser::Result::OK, result.Status);
   EXPECT_EQ(1u, result.VerbosityLevel);
@@ -189,7 +189,7 @@ TEST(TestGetOpt_OptionParser, Parse_Help)
 {
   std::array<StringViewLite, 1> testArgs = {"-h"};
 
-  auto result = OptionParser::Parse(ReadOnlySpanUtil::AsSpan(testArgs), "help caption");
+  auto result = OptionParser::Parse(SpanUtil::AsReadOnlySpan(testArgs), "help caption");
 
   // We expect help to cause a exit
   EXPECT_EQ(OptionParser::Result::Exit, result.Status);

@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Transition/TransitionCache.hpp>
 #include <FslBase/Transition/TransitionValue.hpp>
 #include <FslDemoApp/Base/Service/Keyboard/IKeyboard.hpp>
 #include <FslDemoApp/Base/Service/Mouse/IMouse.hpp>
@@ -81,12 +80,12 @@ namespace Fsl
       GLES3::GLTexture TexSRGB;
 
       GLES3::GLProgram Program;
-      GLint ModelViewMatrixLoc = GLES3::GLValues::INVALID_LOCATION;
-      GLint ProjMatrixLoc = GLES3::GLValues::INVALID_LOCATION;
-      GLint LightPositionsLoc = GLES3::GLValues::INVALID_LOCATION;
-      GLint LightColorsLoc = GLES3::GLValues::INVALID_LOCATION;
-      GLint ViewPosLoc = GLES3::GLValues::INVALID_LOCATION;
-      GLint GammaLoc = GLES3::GLValues::INVALID_LOCATION;
+      GLint ModelViewMatrixLoc = GLES3::GLValues::InvalidLocation;
+      GLint ProjMatrixLoc = GLES3::GLValues::InvalidLocation;
+      GLint LightPositionsLoc = GLES3::GLValues::InvalidLocation;
+      GLint LightColorsLoc = GLES3::GLValues::InvalidLocation;
+      GLint ViewPosLoc = GLES3::GLValues::InvalidLocation;
+      GLint GammaLoc = GLES3::GLValues::InvalidLocation;
 
       GLES3::GLVertexBuffer VertexBuffer;
       GLES3::GLVertexArray VertexArray;
@@ -109,7 +108,6 @@ namespace Fsl
     FragmentUboData m_fragmentUboData;
 
     State m_state;
-    TransitionCache m_transitionCache;
     TransitionValue m_splitX;
     TransitionValue m_splitY;
     TransitionValue m_scene1LabelAlpha;

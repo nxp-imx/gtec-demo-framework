@@ -47,10 +47,10 @@ namespace Fsl
   {
     struct Resources
     {
-      Vulkan::VUBufferMemory m_vertexBuffer;
-      RapidVulkan::ShaderModule m_vertexShaderModule;
-      RapidVulkan::ShaderModule m_fragmentShaderModule;
-      RapidVulkan::PipelineLayout m_pipelineLayout;
+      Vulkan::VUBufferMemory VertexBuffer;
+      RapidVulkan::ShaderModule VertexShaderModule;
+      RapidVulkan::ShaderModule FragmentShaderModule;
+      RapidVulkan::PipelineLayout PipelineLayout;
 
       Resources() = default;
       Resources(const Resources&) = delete;
@@ -61,8 +61,8 @@ namespace Fsl
 
     struct DependentResources
     {
-      RapidVulkan::RenderPass m_renderPass;
-      RapidVulkan::GraphicsPipeline m_pipeline;
+      RapidVulkan::RenderPass RenderPass;
+      RapidVulkan::GraphicsPipeline Pipeline;
 
       DependentResources() = default;
       DependentResources(const DependentResources&) = delete;
@@ -73,8 +73,8 @@ namespace Fsl
       void Reset() noexcept
       {
         // Reset in destruction order
-        m_pipeline.Reset();
-        m_renderPass.Reset();
+        Pipeline.Reset();
+        RenderPass.Reset();
       }
     };
 

@@ -111,7 +111,9 @@ namespace Fsl
       GamePadDpadRight = 0xF013,
       GamePadDpadCenter = 0xF014,
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       SYS_GAMEPAD_RANGE_FIRST = GamePadButtonA,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       SYS_GAMEPAD_RANGE_LAST = GamePadDpadCenter,
 
       UpArrow = 0xF700,

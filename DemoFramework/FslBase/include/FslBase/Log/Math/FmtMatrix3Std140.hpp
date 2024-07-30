@@ -41,19 +41,21 @@ namespace fmt
   struct formatter<Fsl::Matrix3Std140>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::Matrix3Std140& value, FormatContext& ctx)
     {
       const auto* pMatrix = value.DirectAccess();
-      return format_to(ctx.out(), "{{{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}}}", pMatrix[Fsl::Matrix3Std140Fields::_M11],
-                       pMatrix[Fsl::Matrix3Std140Fields::_M12], pMatrix[Fsl::Matrix3Std140Fields::_M13], pMatrix[Fsl::Matrix3Std140Fields::_M21],
-                       pMatrix[Fsl::Matrix3Std140Fields::_M22], pMatrix[Fsl::Matrix3Std140Fields::_M23], pMatrix[Fsl::Matrix3Std140Fields::_M31],
-                       pMatrix[Fsl::Matrix3Std140Fields::_M32], pMatrix[Fsl::Matrix3Std140Fields::_M33]);
+      return fmt::format_to(ctx.out(), "{{{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}}}", pMatrix[Fsl::Matrix3Std140Fields::_M11],
+                            pMatrix[Fsl::Matrix3Std140Fields::_M12], pMatrix[Fsl::Matrix3Std140Fields::_M13], pMatrix[Fsl::Matrix3Std140Fields::_M21],
+                            pMatrix[Fsl::Matrix3Std140Fields::_M22], pMatrix[Fsl::Matrix3Std140Fields::_M23], pMatrix[Fsl::Matrix3Std140Fields::_M31],
+                            pMatrix[Fsl::Matrix3Std140Fields::_M32], pMatrix[Fsl::Matrix3Std140Fields::_M33]);
     }
   };
 }

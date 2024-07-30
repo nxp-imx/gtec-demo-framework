@@ -47,9 +47,9 @@ namespace Fsl
     std::queue<T> m_queue;
 
   public:
-    ConcurrentQueue<T>(const ConcurrentQueue<T>&) = delete;
-    ConcurrentQueue<T>& operator=(const ConcurrentQueue<T>&) = delete;
-    ConcurrentQueue<T>() = default;
+    ConcurrentQueue(const ConcurrentQueue&) = delete;
+    ConcurrentQueue& operator=(const ConcurrentQueue&) = delete;
+    ConcurrentQueue() = default;
 
     using value_type = T;
 

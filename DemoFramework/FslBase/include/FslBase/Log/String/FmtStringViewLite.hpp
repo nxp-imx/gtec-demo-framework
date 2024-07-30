@@ -32,30 +32,15 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/String/StringViewLite.hpp>
-#include <fmt/core.h>
-#include <string>
+#include <fmt/format.h>
 
-namespace fmt
+namespace Fsl
 {
-  template <>
-  struct formatter<Fsl::StringViewLite>
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  inline auto format_as(const StringViewLite value)
   {
-    template <typename ParseContext>
-    constexpr auto parse(ParseContext& ctx)
-    {
-      return ctx.begin();
-    }
-
-    template <typename FormatContext>
-    auto format(const Fsl::StringViewLite& value, FormatContext& ctx)
-    {
-      if (value.data() != nullptr)
-      {
-        return format_to(ctx.out(), value.AsStringView());
-      }
-      return format_to(ctx.out(), "");
-    }
-  };
+    return value.AsStringView();
+  }
 }
 
 #endif

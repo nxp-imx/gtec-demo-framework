@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,12 +32,13 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsDeviceShaders.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsMaterialFactory.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/TypeConverter.hpp>
+#include <FslGraphics/Log/Render/Basic/FmtBasicPrimitiveTopology.hpp>
 #include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <FslUtil/Vulkan1_0/Batch/ConfigHelper.hpp>
 #include <FslUtil/Vulkan1_0/TypeConverter.hpp>
@@ -67,14 +68,21 @@ namespace Fsl::Vulkan
     }
 
     //! Set up the predefined shaders
-    std::array<BasicNativeShaderCreateInfo, 3> g_predefindShaders = {
-      // PredefinedShaderType::Vertex
-      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Vertex, NativeGraphicsDeviceShaders::GetVertexShader(),
-                                  NativeGraphicsDeviceShaders::VertexShaderVertexDecl.AsReadOnlySpan()),
-      // PredefinedShaderType::Fragment
-      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Fragment, NativeGraphicsDeviceShaders::GetFragmentShader(), VertexAttributeDescriptionSpan()),
-      // PredefinedShaderType::FragmentSdf
-      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Fragment, NativeGraphicsDeviceShaders::GetSdfFragmentShader(),
+    std::array<BasicNativeShaderCreateInfo, 5> g_predefindShaders = {
+      // PredefinedShaderType::PositionColorTextureVertex
+      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Vertex, NativeGraphicsDeviceShaders::GetVertexColorTextureShader(),
+                                  NativeGraphicsDeviceShaders::VertexShaderVertexPositionColorTextureDecl.AsReadOnlySpan()),
+      // PredefinedShaderType::PositionColorTextureFragment
+      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Fragment, NativeGraphicsDeviceShaders::GetFragmentColorTextureShader(),
+                                  VertexAttributeDescriptionSpan()),
+      // PredefinedShaderType::PositionColorTextureSdfFragment
+      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Fragment, NativeGraphicsDeviceShaders::GetFragmentColorTextureSdfShader(),
+                                  VertexAttributeDescriptionSpan()),
+      // PredefinedShaderType::PositionColorVertex
+      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Vertex, NativeGraphicsDeviceShaders::GetVertexColorShader(),
+                                  NativeGraphicsDeviceShaders::VertexShaderVertexPositionColorDecl.AsReadOnlySpan()),
+      // PredefinedShaderType::PositionColorFragment
+      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Fragment, NativeGraphicsDeviceShaders::GetFragmentColorShader(),
                                   VertexAttributeDescriptionSpan())};
 
 
@@ -82,15 +90,15 @@ namespace Fsl::Vulkan
     {
       std::array<VkPushConstantRange, 2> pushConstantRange{};
 
-      constexpr auto pushConstModelViewProj = LocalConfig::PushConstant::ModelViewProj;
-      constexpr auto pushConstSdfSmooth = LocalConfig::PushConstant::SdfSmoothing;
+      constexpr auto PushConstModelViewProj = LocalConfig::PushConstant::ModelViewProj;
+      constexpr auto PushConstSdfSmooth = LocalConfig::PushConstant::SdfSmoothing;
 
-      pushConstantRange[0].stageFlags = pushConstModelViewProj.ShaderStageFlags;
-      pushConstantRange[0].offset = pushConstModelViewProj.VariableElement.Offset;
-      pushConstantRange[0].size = pushConstModelViewProj.ByteSize;
-      pushConstantRange[1].stageFlags = pushConstSdfSmooth.ShaderStageFlags;
-      pushConstantRange[1].offset = pushConstSdfSmooth.VariableElement.Offset;
-      pushConstantRange[1].size = pushConstSdfSmooth.ByteSize;
+      pushConstantRange[0].stageFlags = PushConstModelViewProj.ShaderStageFlags;
+      pushConstantRange[0].offset = PushConstModelViewProj.VariableElement.Offset;
+      pushConstantRange[0].size = PushConstModelViewProj.ByteSize;
+      pushConstantRange[1].stageFlags = PushConstSdfSmooth.ShaderStageFlags;
+      pushConstantRange[1].offset = PushConstSdfSmooth.VariableElement.Offset;
+      pushConstantRange[1].size = PushConstSdfSmooth.ByteSize;
 
       const std::array<VkDescriptorSetLayout, 1> layouts = {descriptorSetLayoutTexture};
 
@@ -151,6 +159,55 @@ namespace Fsl::Vulkan
       }
     }
 
+
+    VkViewport DefineViewport(const PxExtent2D& screenExtentPx, const BasicMaterialInfo& materialInfo)
+    {
+      VkViewport viewport{};
+      viewport.minDepth = 0.0f;
+      viewport.maxDepth = 1.0f;
+      switch (materialInfo.ViewportMode)
+      {
+      case BasicViewportMode::CustomOriginTopLeft:
+        viewport.x = static_cast<float>(materialInfo.Viewport.X());
+        viewport.y = static_cast<float>(materialInfo.Viewport.Y());
+        viewport.width = static_cast<float>(materialInfo.Viewport.Width());
+        viewport.height = static_cast<float>(materialInfo.Viewport.Height());
+        break;
+      case BasicViewportMode::CustomOriginBottomLeft:
+        {
+          const int32_t newY = UncheckedNumericCast<int32_t>(screenExtentPx.Height.Value) - materialInfo.Viewport.Bottom();
+          viewport.x = static_cast<float>(materialInfo.Viewport.X());
+          viewport.y = static_cast<float>(newY);
+          viewport.width = static_cast<float>(materialInfo.Viewport.Width());
+          viewport.height = static_cast<float>(materialInfo.Viewport.Height());
+          break;
+        }
+      case BasicViewportMode::Fullscreen:
+        viewport.width = static_cast<float>(screenExtentPx.Width.Value);
+        viewport.height = static_cast<float>(screenExtentPx.Height.Value);
+        break;
+      default:
+        throw NotSupportedException("Unsupported viewport mode");
+      }
+      return viewport;
+    }
+
+
+    VkPrimitiveTopology Convert(const BasicPrimitiveTopology primitiveTopology)
+    {
+      switch (primitiveTopology)
+      {
+      case BasicPrimitiveTopology::LineList:
+        return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+      case BasicPrimitiveTopology::LineStrip:
+        return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+      case BasicPrimitiveTopology::TriangleList:
+        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+      }
+      throw NotSupportedException(fmt::format("Unsupported primitiveTopology: {}", primitiveTopology));
+    }
+
+
     RapidVulkan::GraphicsPipeline CreateGraphicsPipeline(const VkDevice device, const VkShaderModule vertexShader,
                                                          const VkShaderModule fragmentShader, const VkPipelineLayout pipelineLayout,
                                                          const VkPipelineCache pipelineCache, const VkRenderPass renderPass, const uint32_t subpass,
@@ -196,35 +253,9 @@ namespace Fsl::Vulkan
 
       VkPipelineInputAssemblyStateCreateInfo inputAssemblyState{};
       inputAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-      inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+      inputAssemblyState.topology = Convert(materialInfo.PrimitiveTopology);
 
-      VkViewport viewport{};
-      viewport.minDepth = 0.0f;
-      viewport.maxDepth = 1.0f;
-      switch (materialInfo.ViewportMode)
-      {
-      case BasicViewportMode::CustomOriginTopLeft:
-        viewport.x = static_cast<float>(materialInfo.Viewport.X());
-        viewport.y = static_cast<float>(materialInfo.Viewport.Y());
-        viewport.width = static_cast<float>(materialInfo.Viewport.Width());
-        viewport.height = static_cast<float>(materialInfo.Viewport.Height());
-        break;
-      case BasicViewportMode::CustomOriginBottomLeft:
-        {
-          const int32_t newY = UncheckedNumericCast<int32_t>(screenExtentPx.Height.Value) - materialInfo.Viewport.Bottom();
-          viewport.x = static_cast<float>(materialInfo.Viewport.X());
-          viewport.y = static_cast<float>(newY);
-          viewport.width = static_cast<float>(materialInfo.Viewport.Width());
-          viewport.height = static_cast<float>(materialInfo.Viewport.Height());
-          break;
-        }
-      case BasicViewportMode::Fullscreen:
-        viewport.width = static_cast<float>(screenExtentPx.Width.Value);
-        viewport.height = static_cast<float>(screenExtentPx.Height.Value);
-        break;
-      default:
-        throw NotSupportedException("Unsupported viewport mode");
-      }
+      const VkViewport viewport = DefineViewport(screenExtentPx, materialInfo);
 
       VkRect2D scissor{};
       scissor.extent = TypeConverter::UncheckedTo<VkExtent2D>(screenExtentPx);
@@ -300,7 +331,7 @@ namespace Fsl::Vulkan
 
   ReadOnlySpan<BasicNativeShaderCreateInfo> NativeGraphicsMaterialFactory::GetPredefinedShaders()
   {
-    return ReadOnlySpanUtil::AsSpan(g_predefindShaders);
+    return SpanUtil::AsReadOnlySpan(g_predefindShaders);
   }
 
 
@@ -351,7 +382,7 @@ namespace Fsl::Vulkan
 
     const int32_t handleValue = m_resources.Shaders.Add(ShaderRecord(
       createInfo.Flag,
-      RapidVulkan::ShaderModule(m_resources.Device, 0, createInfo.Shader.byte_size(), reinterpret_cast<const uint32_t*>(createInfo.Shader.data())),
+      RapidVulkan::ShaderModule(m_resources.Device, 0, createInfo.Shader.size_bytes(), reinterpret_cast<const uint32_t*>(createInfo.Shader.data())),
       VertexAttributeDescriptions(createInfo.VertexAttributeDescSpan)));
 
     return BasicNativeShaderHandle(handleValue);

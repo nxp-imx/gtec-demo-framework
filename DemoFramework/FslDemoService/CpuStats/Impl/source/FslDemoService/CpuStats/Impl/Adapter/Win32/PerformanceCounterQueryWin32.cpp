@@ -45,7 +45,7 @@ namespace Fsl
   {
     namespace LocalConfig
     {
-      constexpr TimeSpan MinIntervalCoreCpuUsage(TimeSpanUtil::FromMicroseconds(250 * 1000));
+      constexpr TimeSpan MinIntervalCoreCpuUsage(TimeSpanUtil::FromSeconds(1));
     }
 
     std::string ToErrorCodeString(const PDH_STATUS status)
@@ -90,7 +90,7 @@ namespace Fsl
     }
   }
 
-  PerformanceCounterQueryWin32::PerformanceCounterQueryWin32(const uint32_t cpuCount, const TimeSpan currentTime)
+  PerformanceCounterQueryWin32::PerformanceCounterQueryWin32(const uint32_t cpuCount, const TickCount currentTime)
     : m_cpuCount(std::min(cpuCount, UncheckedNumericCast<uint32_t>(m_cpuStats.size())))
   {
     PDH_STATUS result = PdhOpenQuery(nullptr, 0, &m_hQuery);
@@ -140,13 +140,13 @@ namespace Fsl
     DisposeNow();
   }
 
-  bool PerformanceCounterQueryWin32::TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex, const TimeSpan currentTime) const
+  bool PerformanceCounterQueryWin32::TryGetCpuUsage(CpuUsageRecord& rUsageRecord, const uint32_t cpuIndex, const TickCount currentTime) const
   {
     // We rely on the service to do the actual validation
     assert(m_cpuCount <= m_cpuStats.size());
     if (cpuIndex >= m_cpuCount || !m_cpuStats[cpuIndex].Initialized)
     {
-      rUsagePercentage = 0.0f;
+      rUsageRecord = {};
       return false;
     }
 
@@ -161,7 +161,7 @@ namespace Fsl
       }
     }
 
-    rUsagePercentage = m_cpuStats[cpuIndex].Value;
+    rUsageRecord = {m_lastTryGetCpuUsage, m_cpuStats[cpuIndex].Value};
     return true;
   }
 

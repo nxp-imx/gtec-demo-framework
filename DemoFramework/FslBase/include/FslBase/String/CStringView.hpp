@@ -1,7 +1,7 @@
 #ifndef FSLBASE_STRING_CSTRINGVIEW_HPP
 #define FSLBASE_STRING_CSTRINGVIEW_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,11 @@
 #include <FslBase/Attributes.hpp>
 #include <FslBase/Iterator/PointerConstIterator.hpp>
 #include <FslBase/OptimizationFlag.hpp>
+#include <FslBase/String/CStringPointer.hpp>
+#include <FslBase/String/CStringUtil_Length.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <cassert>
+#include <compare>
 #include <cstddef>
 #include <stdexcept>
 #include <string_view>
@@ -57,36 +60,39 @@ namespace Fsl
     using const_iterator = PointerConstIterator<char>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static constexpr const size_type npos = static_cast<size_type>(-1);
-    static constexpr const char* g_empty = "";
+    static constexpr const char* Empty = "";
 
   protected:
-    const char* m_psz{g_empty};
+    const char* m_psz{Empty};
     size_type m_length{0u};
 
-  public:
-    constexpr CStringView() noexcept = default;
-    constexpr CStringView(const CStringView& other) noexcept = default;
-    //! @brief overload that allows you to create a StringViewLite from pointer and count that is noexcept.
-    //!        only use this in cases where you are 100% sure that your input is valid
+  private:
     explicit constexpr CStringView(const const_pointer psz, size_type count, const OptimizationCheckFlag /*unused*/) noexcept
       : m_psz(psz)
       , m_length(count)
     {
       assert(psz != nullptr);
       assert(psz[count] == 0);
-      assert(CalcLength(m_psz) == m_length);
+      assert(CStringUtil::UncheckedLength(m_psz) == m_length);
     }
 
+  public:
+    constexpr CStringView() noexcept = default;
+    constexpr CStringView(const CStringView& other) noexcept = default;
+    //! @brief overload that allows you to create a StringViewLite from pointer and count that is noexcept.
+    //!        only use this in cases where you are 100% sure that your input is valid
+
     explicit constexpr CStringView(const const_pointer psz, size_type count)
-      : m_psz(psz != nullptr ? psz : g_empty)
+      : m_psz(psz != nullptr ? psz : Empty)
       , m_length(count)
     {
       if (psz == nullptr && count != 0u)
       {
         throw std::invalid_argument("psz can not be null");
       }
-      if (m_length != CalcLength(m_psz))
+      if (m_length != CStringUtil::UncheckedLength(m_psz))
       {
         throw std::invalid_argument("the supplied length did not match the expected length");
       }
@@ -97,26 +103,30 @@ namespace Fsl
     }
 
     constexpr CStringView(const const_pointer psz) noexcept    // NOLINT(google-explicit-constructor)
-      : m_psz(psz != nullptr ? psz : g_empty)
-      , m_length(CalcLength(m_psz))
+      : m_psz(psz != nullptr ? psz : Empty)
+      , m_length(CStringUtil::UncheckedLength(m_psz))
     {
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_pointer c_str() const noexcept
     {
       return m_psz;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_pointer data() const noexcept
     {
       return m_psz;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr size_type size() const noexcept
     {
       return m_length;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr bool empty() const noexcept
     {
       return m_length == 0;
@@ -129,6 +139,7 @@ namespace Fsl
       return m_psz[pos];
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_reference at(size_type pos) const
     {
       if (pos >= size())
@@ -139,17 +150,20 @@ namespace Fsl
       return m_psz[pos];
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr size_type length() const noexcept
     {
       return m_length;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_reference back() const
     {
       assert(!empty());
       return m_psz[m_length - 1];
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_reference front() const
     {
       assert(!empty());
@@ -163,78 +177,92 @@ namespace Fsl
     //   m_length -= n;
     // }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr int compare(const char* const psz) const noexcept
     {
       return compare(StringViewLite(psz));
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr int compare(CStringView value) const noexcept
     {
       return compare(value.AsStringViewLite());
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr int compare(StringViewLite value) const noexcept
     {
       return AsStringViewLite().compare(value);
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr int compare(std::string_view value) const noexcept
     {
       return AsStringView().compare(value);
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr bool starts_with(const char* const psz) const noexcept
     {
       return starts_with(StringViewLite(psz));
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr bool starts_with(CStringView view) const noexcept
     {
       return starts_with(view.AsStringViewLite());
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr bool starts_with(StringViewLite view) const noexcept
     {
       return AsStringViewLite().starts_with(view);
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr bool starts_with(char ch) const noexcept
     {
       return AsStringViewLite().starts_with(ch);
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr bool ends_with(const char* const psz) const noexcept
     {
       return ends_with(StringViewLite(psz));
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr bool ends_with(const CStringView view) const noexcept
     {
       return ends_with(view.AsStringViewLite());
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr bool ends_with(const StringViewLite view) const noexcept
     {
       return AsStringViewLite().ends_with(view);
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr bool ends_with(char ch) const noexcept
     {
       return AsStringViewLite().ends_with(ch);
     }
 
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr size_type find(const value_type ch, size_type pos = 0) const noexcept
     {
       return AsStringViewLite().find(ch, pos);
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr size_type rfind(value_type ch, size_type pos = npos) const noexcept
     {
       return AsStringViewLite().rfind(ch, pos);
     }
 
-
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_iterator begin() const noexcept
     {
 #ifdef NDEBUG
@@ -244,6 +272,7 @@ namespace Fsl
 #endif
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_iterator end() const noexcept
     {
 #ifdef NDEBUG
@@ -253,225 +282,141 @@ namespace Fsl
 #endif
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_iterator cbegin() const noexcept
     {
       return begin();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_iterator cend() const noexcept
     {
       return end();
     }
 
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_reverse_iterator rbegin() const noexcept
     {
       return const_reverse_iterator(end());
     }
 
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_reverse_iterator rend() const noexcept
     {
       return const_reverse_iterator(begin());
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_reverse_iterator crbegin() const noexcept
     {
       return rbegin();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_reverse_iterator crend() const noexcept
     {
       return rend();
     }
 
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
     constexpr StringViewLite AsStringViewLite() const noexcept
     {
-      return StringViewLite(m_psz, m_length, OptimizationCheckFlag::NoCheck);
+      return StringViewLite::UncheckedCreate(m_psz, m_length);
     }
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
 
     constexpr std::string_view AsStringView() const noexcept
     {
       return {m_psz, m_length};
     }
 
-  private:
-    static constexpr inline size_type CalcLength(const char* const pszStart) noexcept
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    constexpr operator std::string_view() const noexcept    // NOLINT(google-explicit-constructor)
     {
-      if (pszStart != nullptr)
-      {
-        const auto* psz = pszStart;
-        while (*psz != 0)
-        {
-          ++psz;
-        }
-        return psz - pszStart;
-      }
-      return 0u;
+      return StringViewUtil::UncheckedCreate(m_psz, m_length);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    constexpr std::strong_ordering operator<=>(const CStringView& other) const noexcept
+    {
+      const auto val = compare(other);
+      return val == 0 ? std::strong_ordering::equal : (val < 0 ? std::strong_ordering::less : std::strong_ordering::greater);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    constexpr bool operator==(const CStringView& other) const noexcept
+    {
+      return compare(other) == 0;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    static constexpr CStringView UncheckedCreate(const const_pointer psz, size_type count) noexcept
+    {
+      return CStringView(psz, count, OptimizationCheckFlag::NoCheck);
     }
   };
 
-  // Operator ==
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
+  // const char*const psz
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-  inline constexpr bool operator==(const CStringView& lhs, const CStringView& rhs) noexcept
+  inline constexpr auto operator<=>(const CStringView lhs, const char* const pszRhz) noexcept
   {
-    return lhs.compare(rhs) == 0;
+    return CStringPointer(lhs.c_str()) <=> CStringPointer(pszRhz);
   }
 
-  inline constexpr bool operator==(const CStringView& lhs, const StringViewLite rhs) noexcept
-  {
-    return lhs.compare(rhs) == 0;
-  }
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-  inline constexpr bool operator==(const StringViewLite lhs, const CStringView& rhs) noexcept
+  inline constexpr bool operator==(const CStringView lhs, const char* const pszRhz) noexcept
   {
-    return rhs.compare(lhs) == 0;
-  }
-
-  inline constexpr bool operator==(const CStringView& lhs, const std::string_view rhs) noexcept
-  {
-    return lhs.compare(rhs) == 0;
-  }
-
-  inline constexpr bool operator==(const std::string_view lhs, const CStringView& rhs) noexcept
-  {
-    return rhs.compare(lhs) == 0;
-  }
-
-  inline constexpr bool operator==(const CStringView& lhs, const char* const pszRhs) noexcept
-  {
-    return lhs.compare(pszRhs) == 0;
-  }
-
-  inline constexpr bool operator==(const char* const pszLhs, const CStringView& rhs) noexcept
-  {
-    return rhs.compare(pszLhs) == 0;
+    return CStringPointer(lhs.c_str()) == CStringPointer(pszRhz);
   }
 
 
-  // Operator !=
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
+  // std::string_view
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-  inline constexpr bool operator!=(const CStringView& lhs, const CStringView& rhs) noexcept
+  inline constexpr auto operator<=>(const CStringView lhs, std::string_view rhs) noexcept
   {
-    return !(lhs == rhs);
-  }
-  inline constexpr bool operator!=(const CStringView& lhs, const StringViewLite rhs) noexcept
-  {
-    return !(lhs == rhs);
-  }
-  inline constexpr bool operator!=(const StringViewLite lhs, const CStringView& rhs) noexcept
-  {
-    return !(lhs == rhs);
-  }
-  inline constexpr bool operator!=(const CStringView& lhs, const char* const pszRhs) noexcept
-  {
-    return !(lhs == pszRhs);
-  }
-  inline constexpr bool operator!=(const char* const pszLhs, const CStringView& rhs) noexcept
-  {
-    return !(pszLhs == rhs);
+    return std::string_view(lhs) <=> rhs;
   }
 
-  // Operator <
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-  inline constexpr bool operator<(const CStringView& lhs, const CStringView& rhs) noexcept
+  inline constexpr bool operator==(const CStringView lhs, std::string_view rhs) noexcept
   {
-    return lhs.compare(rhs) < 0;
-  }
-
-  inline constexpr bool operator<(const CStringView& lhs, const StringViewLite rhs) noexcept
-  {
-    return lhs.AsStringViewLite() < rhs;
+    return std::string_view(lhs) == rhs;
   }
 
-  inline constexpr bool operator<(const StringViewLite lhs, const CStringView& rhs) noexcept
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
+  // StringViewLite
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
+
+  inline constexpr auto operator<=>(const CStringView lhs, StringViewLite rhs) noexcept
   {
-    return lhs < rhs.AsStringViewLite();
+    return std::string_view(lhs) <=> rhs;
   }
 
-  inline constexpr bool operator<(const CStringView& lhs, const char* const pszRhs) noexcept
-  {
-    return lhs.AsStringViewLite() < pszRhs;
-  }
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-  inline constexpr bool operator<(const char* const pszLhs, const CStringView& rhs) noexcept
+  inline constexpr bool operator==(const CStringView lhs, StringViewLite rhs) noexcept
   {
-    return pszLhs < rhs.AsStringViewLite();
-  }
-
-  // Operator <=
-
-  inline constexpr bool operator<=(const CStringView& lhs, const CStringView& rhs) noexcept
-  {
-    return lhs.compare(rhs) <= 0;
-  }
-
-  inline constexpr bool operator<=(const CStringView& lhs, const StringViewLite rhs) noexcept
-  {
-    return lhs.AsStringViewLite() <= rhs;
-  }
-
-  inline constexpr bool operator<=(const StringViewLite lhs, const CStringView& rhs) noexcept
-  {
-    return lhs <= rhs.AsStringViewLite();
-  }
-
-  inline constexpr bool operator<=(const CStringView& lhs, const char* const pszRhs) noexcept
-  {
-    return lhs.AsStringViewLite() <= pszRhs;
-  }
-
-  inline constexpr bool operator<=(const char* const pszLhs, const CStringView& rhs) noexcept
-  {
-    return pszLhs <= rhs.AsStringViewLite();
-  }
-
-  // Operator >
-
-  inline constexpr bool operator>(const CStringView& lhs, const CStringView& rhs) noexcept
-  {
-    return rhs < lhs;
-  }
-  inline constexpr bool operator>(const CStringView& lhs, const StringViewLite rhs) noexcept
-  {
-    return lhs.AsStringViewLite() > rhs;
-  }
-  inline constexpr bool operator>(const StringViewLite lhs, const CStringView& rhs) noexcept
-  {
-    return lhs > rhs.AsStringViewLite();
-  }
-  inline constexpr bool operator>(const CStringView& lhs, const char* const pszRhs) noexcept
-  {
-    return lhs.AsStringViewLite() > pszRhs;
-  }
-  inline constexpr bool operator>(const char* const pszLhs, const CStringView& rhs) noexcept
-  {
-    return pszLhs > rhs.AsStringViewLite();
-  }
-
-  // Operator >=
-
-  inline constexpr bool operator>=(const CStringView& lhs, const CStringView& rhs) noexcept
-  {
-    return rhs <= lhs;
-  }
-  inline constexpr bool operator>=(const CStringView& lhs, const StringViewLite rhs) noexcept
-  {
-    return lhs.AsStringViewLite() >= rhs;
-  }
-  inline constexpr bool operator>=(const StringViewLite lhs, const CStringView& rhs) noexcept
-  {
-    return lhs >= rhs.AsStringViewLite();
-  }
-
-  inline constexpr bool operator>=(const CStringView& lhs, const char* const pszRhs) noexcept
-  {
-    return lhs.AsStringViewLite() >= StringViewLite(pszRhs);
-  }
-
-  inline constexpr bool operator>=(const char* const pszLhs, const CStringView& rhs) noexcept
-  {
-    return StringViewLite(pszLhs) >= rhs.AsStringViewLite();
+    return std::string_view(lhs) == rhs;
   }
 }
 

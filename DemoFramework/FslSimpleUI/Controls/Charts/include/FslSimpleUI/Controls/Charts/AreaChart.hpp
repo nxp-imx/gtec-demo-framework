@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_CONTROLS_CHARTS_AREACHART_HPP
 #define FSLSIMPLEUI_CONTROLS_CHARTS_AREACHART_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@
 #include <FslSimpleUI/Base/Mesh/CustomBasicSpriteBasicMesh.hpp>
 #include <FslSimpleUI/Base/Mesh/CustomBasicSpriteMesh.hpp>
 #include <FslSimpleUI/Base/Mesh/CustomSpriteFontMesh.hpp>
+#include <FslSimpleUI/Base/UIColorRecord.hpp>
 #include <FslSimpleUI/Controls/Charts/AreaChartGridLineManager.hpp>
 #include <FslSimpleUI/Controls/Charts/ChartRenderPolicy.hpp>
 #include <memory>
@@ -79,9 +80,9 @@ namespace Fsl
       CustomBasicSpriteMesh m_gridLinesMesh;
       CustomSpriteMesh<NineSliceSprite> m_gridLabelsBackground;
       CustomSpriteFontMesh m_gridLabelsMesh;
-      Color m_lineColor;
-      Color m_backgroundColor;
-      Color m_labelColor;
+      UIColorRecord m_lineColor;
+      UIColorRecord m_backgroundColor;
+      UIColorRecord m_labelColor;
       ChartRenderPolicy m_renderPolicy;
       DataViewCache m_dataViewCache;
 
@@ -90,7 +91,9 @@ namespace Fsl
 
 
     public:
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyMatchDataViewEntries;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyDataView;
 
       explicit AreaChart(const std::shared_ptr<BaseWindowContext>& context);
@@ -126,26 +129,26 @@ namespace Fsl
       bool SetDataView(const std::shared_ptr<AChartData>& data);
 
 
-      Color GetLineColor() const
+      UIColor GetLineColor() const noexcept
       {
-        return m_lineColor;
+        return m_lineColor.Get();
       }
 
-      void SetLineColor(const Color color);
+      void SetLineColor(const UIColor color);
 
-      Color GetBackgroundColor() const
+      UIColor GetBackgroundColor() const noexcept
       {
-        return m_backgroundColor;
+        return m_backgroundColor.Get();
       }
 
-      void SetBackgroundColor(const Color color);
+      void SetBackgroundColor(const UIColor color);
 
-      Color GetLabelColor() const
+      UIColor GetLabelColor() const noexcept
       {
-        return m_labelColor;
+        return m_labelColor.Get();
       }
 
-      void SetLabelColor(const Color color);
+      void SetLabelColor(const UIColor color);
 
       // void SetEntryColor(const uint32_t index, const Color color);
 

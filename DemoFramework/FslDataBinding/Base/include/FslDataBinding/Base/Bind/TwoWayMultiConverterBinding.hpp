@@ -34,7 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Core.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslDataBinding/Base/Bind/AMultiConverterBinding.hpp>
 #include <FslDataBinding/Base/Internal/ConverterChecks.hpp>
 #include <FslDataBinding/Base/Internal/ConverterUtil.hpp>
@@ -60,7 +60,7 @@ namespace Fsl::DataBinding
   private:
     static_assert(sizeof...(TSource) > 1, "TwoWayMultiConverterBinding should only be used when there are multiple bindings");
     // NOLINTNEXTLINE(google-readability-casting)
-    static inline const std::array<PropertyTypeInfo, sizeof...(TSource)> g_types{PropertyTypeInfo(typeid(TSource))...};
+    static inline const std::array<PropertyTypeInfo, sizeof...(TSource)> Types{PropertyTypeInfo(typeid(TSource))...};
 
     convert_function_type m_fnConvert;
     convert_back_function_type m_fnConvertBack;
@@ -87,7 +87,7 @@ namespace Fsl::DataBinding
 
     ReadOnlySpan<PropertyTypeInfo> GetSourceTypes() const final
     {
-      return ReadOnlySpanUtil::AsSpan(g_types);
+      return SpanUtil::AsReadOnlySpan(Types);
     }
 
     std::type_index GetTargetType() const final

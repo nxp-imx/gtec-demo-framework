@@ -3,18 +3,18 @@
     "Version": "1",
     "Content.SyncList": [
       {
-        "SourcePath" : "${ProjectRoot}/Resources/Source",
+        "SourcePath" : "${ProjectRoot}/Resources/Source/BasicUI/Gen",
         "Content": [
-          "BasicUI/Font/NormalAtlas/FontAtlas.bta",
-          "BasicUI/Font/NormalAtlas/FontAtlas.png",
-          "BasicUI/Font/NormalAtlas/FontAtlas_Font.fbk",
-          "BasicUI/Font/NormalAtlas/FontAtlas_Font.nbf",
-          "BasicUI/Font/NormalAtlas/License.json",
-          "BasicUI/Font/SdfAtlas/FontAtlas.bta",
-          "BasicUI/Font/SdfAtlas/FontAtlas.png",
-          "BasicUI/Font/SdfAtlas/FontAtlas_Font.fbk",
-          "BasicUI/Font/SdfAtlas/FontAtlas_Font.nbf",
-          "BasicUI/Font/SdfAtlas/License.json"
+          "NonLinear/Font/NormalAtlas/FontAtlas.bta",
+          "NonLinear/Font/NormalAtlas/FontAtlas.png",
+          "NonLinear/Font/NormalAtlas/FontAtlas_Font.fbk",
+          "NonLinear/Font/NormalAtlas/FontAtlas_Font.nbf",
+          "NonLinear/Font/NormalAtlas/License.json",
+          "Linear/Font/SdfAtlas/FontAtlas.bta",
+          "Linear/Font/SdfAtlas/FontAtlas.png",
+          "Linear/Font/SdfAtlas/FontAtlas_Font.fbk",
+          "Linear/Font/SdfAtlas/FontAtlas_Font.nbf",
+          "Linear/Font/SdfAtlas/License.json"
         ]
       }
     ]

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,16 +39,12 @@
 #include <FslBase/Math/Rectangle2D.hpp>
 #include <FslBase/Math/Rectangle3D.hpp>
 #include <FslBase/Math/Vector3.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics3D/Build/LineBuilder.hpp>
 #include <array>
 
 namespace Fsl::Graphics3D
 {
-  // FIX-LATER: remove once we move to C++17
-  constexpr std::size_t LineBuilder::MIN_VERTEX_CAPACITY;    // NOLINT(readability-redundant-declaration)
-  // FIX-LATER: remove once we move to C++17
-  constexpr float LineBuilder::RAY_LENGTH;    // NOLINT(readability-redundant-declaration)
-
   namespace
   {
     inline void Fill(std::vector<VertexPositionColor>& rVertices, const uint32_t dstOffset, const std::array<Vector3, 8>& corners, const Color& color)
@@ -531,7 +527,7 @@ namespace Fsl::Graphics3D
     vertices[0].Position = value.Position;
     vertices[0].Color = color;
     // Add directly into Position
-    Vector3::Add(value.Position, Vector3::Normalize(value.Direction) * RAY_LENGTH, vertices[1].Position);
+    Vector3::Add(value.Position, Vector3::Normalize(value.Direction) * RayLength, vertices[1].Position);
     vertices[1].Color = color;
 
     AddLines(vertices.data(), vertices.size());
@@ -543,7 +539,7 @@ namespace Fsl::Graphics3D
     std::array<vertex_type, 2> vertices;
     Vector3::Transform(value.Position, matrix, vertices[0].Position);
     vertices[0].Color = color;
-    Vector3::Transform((value.Position + (Vector3::Normalize(value.Direction) * RAY_LENGTH)), matrix, vertices[1].Position);
+    Vector3::Transform((value.Position + (Vector3::Normalize(value.Direction) * RayLength)), matrix, vertices[1].Position);
     vertices[1].Color = color;
 
     AddLines(vertices.data(), vertices.size());
@@ -1036,33 +1032,33 @@ namespace Fsl::Graphics3D
     EnsureCapacityFor(6u);
     auto* pDst = m_vertices.data() + m_entries;
 
-    constexpr Color colorRed = Color::Red();
-    constexpr Color colorGreen = Color::Green();
-    constexpr Color colorBlue = Color::Blue();
+    constexpr Color ColorRed = Colors::Red();
+    constexpr Color ColorGreen = Colors::Green();
+    constexpr Color ColorBlue = Colors::Blue();
 
     // Line 0 - X-Axis
     pDst[0].Position = position;
-    pDst[0].Color = colorRed;
+    pDst[0].Color = ColorRed;
     pDst[1].Position.X = position.X + axisLength;
     pDst[1].Position.Y = position.Y;
     pDst[1].Position.Z = position.Z;
-    pDst[1].Color = colorRed;
+    pDst[1].Color = ColorRed;
 
     // Line 1 - Y-Axis
     pDst[2].Position = position;
-    pDst[2].Color = colorGreen;
+    pDst[2].Color = ColorGreen;
     pDst[3].Position.X = position.X;
     pDst[3].Position.Y = position.Y + axisLength;
     pDst[3].Position.Z = position.Z;
-    pDst[3].Color = colorGreen;
+    pDst[3].Color = ColorGreen;
 
     // Line 2 - Z-Axis
     pDst[4].Position = position;
-    pDst[4].Color = colorBlue;
+    pDst[4].Color = ColorBlue;
     pDst[5].Position.X = position.X;
     pDst[5].Position.Y = position.Y;
     pDst[5].Position.Z = position.Z + axisLength;
-    pDst[5].Color = colorBlue;
+    pDst[5].Color = ColorBlue;
 
     m_entries += 6u;
     assert(m_entries <= m_vertices.size());
@@ -1073,27 +1069,27 @@ namespace Fsl::Graphics3D
     EnsureCapacityFor(6u);
     auto* pDst = m_vertices.data() + m_entries;
 
-    constexpr Color colorRed = Color::Red();
-    constexpr Color colorGreen = Color::Green();
-    constexpr Color colorBlue = Color::Blue();
+    constexpr Color ColorRed = Colors::Red();
+    constexpr Color ColorGreen = Colors::Green();
+    constexpr Color ColorBlue = Colors::Blue();
 
     // Line 0 - X-Axis
     Vector3::Transform(position, matrix, pDst[0].Position);
-    pDst[0].Color = colorRed;
+    pDst[0].Color = ColorRed;
     Vector3::Transform(Vector3(position.X + axisLength, position.Y, position.Z), matrix, pDst[1].Position);
-    pDst[1].Color = colorRed;
+    pDst[1].Color = ColorRed;
 
     // Line 1 - Y-Axis
     pDst[2].Position = pDst[0].Position;
-    pDst[2].Color = colorGreen;
+    pDst[2].Color = ColorGreen;
     Vector3::Transform(Vector3(position.X, position.Y + axisLength, position.Z), matrix, pDst[3].Position);
-    pDst[3].Color = colorGreen;
+    pDst[3].Color = ColorGreen;
 
     // Line 2 - Z-Axis
     pDst[4].Position = pDst[0].Position;
-    pDst[4].Color = colorBlue;
+    pDst[4].Color = ColorBlue;
     Vector3::Transform(Vector3(position.X, position.Y, position.Z + axisLength), matrix, pDst[5].Position);
-    pDst[5].Color = colorBlue;
+    pDst[5].Color = ColorBlue;
 
     m_entries += 6u;
     assert(m_entries <= m_vertices.size());
@@ -1109,7 +1105,7 @@ namespace Fsl::Graphics3D
 
   void LineBuilder::AddGridXY(const Rect& rect, const float posZ, const uint32_t stepsX, const uint32_t stepsY, const Color& color)
   {
-    const auto numVertices = VERTICES_PER_LINE * (stepsX + stepsY);
+    const auto numVertices = VerticesPerLine * (stepsX + stepsY);
     EnsureCapacityFor(numVertices);
     auto* pDst = m_vertices.data() + m_entries;
 
@@ -1164,7 +1160,7 @@ namespace Fsl::Graphics3D
   void LineBuilder::AddGridXY(const Rect& rect, const float posZ, const uint32_t stepsX, const uint32_t stepsY, const Color& color,
                               const Matrix& matrix)
   {
-    const auto numVertices = VERTICES_PER_LINE * (stepsX + stepsY);
+    const auto numVertices = VerticesPerLine * (stepsX + stepsY);
     EnsureCapacityFor(numVertices);
     auto* pDst = m_vertices.data() + m_entries;
 
@@ -1209,7 +1205,7 @@ namespace Fsl::Graphics3D
 
   void LineBuilder::AddGridXZ(const Rect& rect, const float posY, const uint32_t steps, const Color& color)
   {
-    const auto numVertices = VERTICES_PER_LINE * 2u * steps;
+    const auto numVertices = VerticesPerLine * 2u * steps;
     EnsureCapacityFor(numVertices);
     auto* pDst = m_vertices.data() + m_entries;
 
@@ -1263,7 +1259,7 @@ namespace Fsl::Graphics3D
 
   void LineBuilder::AddGridXZ(const Rect& rect, const float posY, const uint32_t steps, const Color& color, const Matrix& matrix)
   {
-    const auto numVertices = VERTICES_PER_LINE * (2u * steps);
+    const auto numVertices = VerticesPerLine * (2u * steps);
     EnsureCapacityFor(numVertices);
     auto* pDst = m_vertices.data() + m_entries;
 
@@ -1313,7 +1309,7 @@ namespace Fsl::Graphics3D
     {
       throw std::invalid_argument("pVertices can not be null");
     }
-    if ((vertexCount % VERTICES_PER_LINE) != 0)
+    if ((vertexCount % VerticesPerLine) != 0)
     {
       throw std::invalid_argument("the added lines did not contain the expected amount of vertices");
     }
@@ -1346,7 +1342,7 @@ namespace Fsl::Graphics3D
     {
       throw std::invalid_argument("pVertices can not be null");
     }
-    if ((vertexCount % VERTICES_PER_LINE) != 0)
+    if ((vertexCount % VerticesPerLine) != 0)
     {
       throw std::invalid_argument("the added lines did not contain the expected amount of vertices");
     }
@@ -1376,7 +1372,7 @@ namespace Fsl::Graphics3D
   void LineBuilder::AddSphere(const Vector3& center, const float radius, const Color& colYZ, const Color& colXZ, const Color& colXY,
                               const uint32_t steps)
   {
-    const auto numVertices = VERTICES_PER_LINE * steps * 3;
+    const auto numVertices = VerticesPerLine * steps * 3;
     EnsureCapacityFor(numVertices);
     auto* pDst = m_vertices.data() + m_entries;
 
@@ -1447,7 +1443,7 @@ namespace Fsl::Graphics3D
   void LineBuilder::AddSphere(const Vector3& center, const float radius, const Color& colYZ, const Color& colXZ, const Color& colXY,
                               const Matrix& matrix, const uint32_t steps)
   {
-    const auto numVertices = VERTICES_PER_LINE * steps * 3;
+    const auto numVertices = VerticesPerLine * steps * 3;
     EnsureCapacityFor(numVertices);
     auto* pDst = m_vertices.data() + m_entries;
 

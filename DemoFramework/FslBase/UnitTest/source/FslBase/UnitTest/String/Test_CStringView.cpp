@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 
 #include <FslBase/Log/String/LogCStringView.hpp>
 #include <FslBase/String/CStringView.hpp>
-#include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <cstring>
 
@@ -1929,136 +1928,136 @@ TEST(TestString_CStringView, OperatorNotEqual_CString_RHS)
 TEST(TestString_CStringView, OperatorLessThan_Null)
 {
   const char* pszNull = nullptr;
-  constexpr CStringView strViewNull(nullptr);
+  constexpr CStringView StrViewNull(nullptr);
 
   EXPECT_FALSE(CStringView("A") < pszNull);
-  EXPECT_FALSE(CStringView("A") < strViewNull);
+  EXPECT_FALSE(CStringView("A") < StrViewNull);
   EXPECT_TRUE(pszNull < CStringView("A"));
-  EXPECT_TRUE(strViewNull < CStringView("A"));
+  EXPECT_TRUE(StrViewNull < CStringView("A"));
 
   // Compare against empty string
   EXPECT_FALSE(CStringView("") < pszNull);
-  EXPECT_FALSE(CStringView("") < strViewNull);
+  EXPECT_FALSE(CStringView("") < StrViewNull);
   EXPECT_FALSE(pszNull < CStringView(""));
-  EXPECT_FALSE(strViewNull < CStringView(""));
+  EXPECT_FALSE(StrViewNull < CStringView(""));
 
   // Compare against null
-  EXPECT_FALSE(pszNull < strViewNull);
-  EXPECT_FALSE(strViewNull < pszNull);
-  EXPECT_FALSE(strViewNull < strViewNull);
+  EXPECT_FALSE(pszNull < StrViewNull);
+  EXPECT_FALSE(StrViewNull < pszNull);
+  EXPECT_FALSE(StrViewNull < StrViewNull);
 }
 
 
 TEST(TestString_CStringView, OperatorLessThanOrEqual_Null)
 {
   const char* pszNull = nullptr;
-  constexpr CStringView strViewNull(nullptr);
+  constexpr CStringView StrViewNull(nullptr);
 
   EXPECT_FALSE(CStringView("A") <= pszNull);
-  EXPECT_FALSE(CStringView("A") <= strViewNull);
+  EXPECT_FALSE(CStringView("A") <= StrViewNull);
   EXPECT_TRUE(pszNull <= CStringView("A"));
-  EXPECT_TRUE(strViewNull <= CStringView("A"));
+  EXPECT_TRUE(StrViewNull <= CStringView("A"));
 
   // Compare against empty string
   EXPECT_TRUE(CStringView("") <= pszNull);
-  EXPECT_TRUE(CStringView("") <= strViewNull);
+  EXPECT_TRUE(CStringView("") <= StrViewNull);
   EXPECT_TRUE(pszNull <= CStringView(""));
-  EXPECT_TRUE(strViewNull <= CStringView(""));
+  EXPECT_TRUE(StrViewNull <= CStringView(""));
 
   // Compare against null
-  EXPECT_TRUE(pszNull <= strViewNull);
-  EXPECT_TRUE(strViewNull <= pszNull);
-  EXPECT_TRUE(strViewNull <= strViewNull);
+  EXPECT_TRUE(pszNull <= StrViewNull);
+  EXPECT_TRUE(StrViewNull <= pszNull);
+  EXPECT_TRUE(StrViewNull <= StrViewNull);
 }
 
 
 TEST(TestString_CStringView, OperatorGreaterThan_Null)
 {
   const char* pszNull = nullptr;
-  constexpr CStringView strViewNull(nullptr);
+  constexpr CStringView StrViewNull(nullptr);
 
   EXPECT_TRUE(CStringView("A") > pszNull);
-  EXPECT_TRUE(CStringView("A") > strViewNull);
+  EXPECT_TRUE(CStringView("A") > StrViewNull);
   EXPECT_FALSE(pszNull > CStringView("A"));
-  EXPECT_FALSE(strViewNull > CStringView("A"));
+  EXPECT_FALSE(StrViewNull > CStringView("A"));
 
   // Compare against empty string
   EXPECT_FALSE(CStringView("") > pszNull);
-  EXPECT_FALSE(CStringView("") > strViewNull);
+  EXPECT_FALSE(CStringView("") > StrViewNull);
   EXPECT_FALSE(pszNull > CStringView(""));
-  EXPECT_FALSE(strViewNull > CStringView(""));
+  EXPECT_FALSE(StrViewNull > CStringView(""));
 
   // Compare against null
-  EXPECT_FALSE(pszNull > strViewNull);
-  EXPECT_FALSE(strViewNull > pszNull);
-  EXPECT_FALSE(strViewNull > strViewNull);
+  EXPECT_FALSE(pszNull > StrViewNull);
+  EXPECT_FALSE(StrViewNull > pszNull);
+  EXPECT_FALSE(StrViewNull > StrViewNull);
 }
 
 
 TEST(TestString_CStringView, OperatorGreaterThanOrEqual_Null)
 {
   const char* pszNull = nullptr;
-  constexpr CStringView strViewNull(nullptr);
+  constexpr CStringView StrViewNull(nullptr);
 
   EXPECT_TRUE(CStringView("A") >= pszNull);
-  EXPECT_TRUE(CStringView("A") >= strViewNull);
+  EXPECT_TRUE(CStringView("A") >= StrViewNull);
   EXPECT_FALSE(pszNull >= CStringView("A"));
-  EXPECT_FALSE(strViewNull >= CStringView("A"));
+  EXPECT_FALSE(StrViewNull >= CStringView("A"));
 
   // Compare against empty string
   EXPECT_TRUE(CStringView("") >= pszNull);
-  EXPECT_TRUE(CStringView("") >= strViewNull);
+  EXPECT_TRUE(CStringView("") >= StrViewNull);
   EXPECT_TRUE(pszNull >= CStringView(""));
-  EXPECT_TRUE(strViewNull >= CStringView(""));
+  EXPECT_TRUE(StrViewNull >= CStringView(""));
 
   // Compare against null
-  EXPECT_TRUE(pszNull >= strViewNull);
-  EXPECT_TRUE(strViewNull >= pszNull);
-  EXPECT_TRUE(strViewNull >= strViewNull);
+  EXPECT_TRUE(pszNull >= StrViewNull);
+  EXPECT_TRUE(StrViewNull >= pszNull);
+  EXPECT_TRUE(StrViewNull >= StrViewNull);
 }
 
 
 TEST(TestString_CStringView, OperatorEqual_Null)
 {
   const char* pszNull = nullptr;
-  constexpr CStringView strViewNull(nullptr);
+  constexpr CStringView StrViewNull(nullptr);
 
   EXPECT_FALSE(CStringView("A") == pszNull);
-  EXPECT_FALSE(CStringView("A") == strViewNull);
+  EXPECT_FALSE(CStringView("A") == StrViewNull);
   EXPECT_FALSE(pszNull == CStringView("A"));
-  EXPECT_FALSE(strViewNull == CStringView("A"));
+  EXPECT_FALSE(StrViewNull == CStringView("A"));
 
   // Compare against empty string
   EXPECT_TRUE(pszNull == CStringView(""));
-  EXPECT_TRUE(strViewNull == CStringView(""));
+  EXPECT_TRUE(StrViewNull == CStringView(""));
   EXPECT_TRUE(CStringView("") == pszNull);
-  EXPECT_TRUE(CStringView("") == strViewNull);
+  EXPECT_TRUE(CStringView("") == StrViewNull);
 
   // Compare against null
-  EXPECT_TRUE(pszNull == strViewNull);
-  EXPECT_TRUE(strViewNull == pszNull);
-  EXPECT_TRUE(strViewNull == strViewNull);
+  EXPECT_TRUE(pszNull == StrViewNull);
+  EXPECT_TRUE(StrViewNull == pszNull);
+  EXPECT_TRUE(StrViewNull == StrViewNull);
 }
 
 
 TEST(TestString_CStringView, OperatorNotEqual_Null)
 {
   const char* pszNull = nullptr;
-  constexpr CStringView strViewNull(nullptr);
+  constexpr CStringView StrViewNull(nullptr);
 
   EXPECT_TRUE(CStringView("A") != pszNull);
-  EXPECT_TRUE(CStringView("A") != strViewNull);
+  EXPECT_TRUE(CStringView("A") != StrViewNull);
   EXPECT_TRUE(pszNull != CStringView("A"));
-  EXPECT_TRUE(strViewNull != CStringView("A"));
+  EXPECT_TRUE(StrViewNull != CStringView("A"));
 
   // Compare against empty string
   EXPECT_FALSE(pszNull != CStringView(""));
-  EXPECT_FALSE(strViewNull != CStringView(""));
+  EXPECT_FALSE(StrViewNull != CStringView(""));
   EXPECT_FALSE(CStringView("") != pszNull);
-  EXPECT_FALSE(CStringView("") != strViewNull);
+  EXPECT_FALSE(CStringView("") != StrViewNull);
 
   // Compare against null
-  EXPECT_FALSE(pszNull != strViewNull);
-  EXPECT_FALSE(strViewNull != pszNull);
-  EXPECT_FALSE(strViewNull != strViewNull);
+  EXPECT_FALSE(pszNull != StrViewNull);
+  EXPECT_FALSE(StrViewNull != pszNull);
+  EXPECT_FALSE(StrViewNull != StrViewNull);
 }

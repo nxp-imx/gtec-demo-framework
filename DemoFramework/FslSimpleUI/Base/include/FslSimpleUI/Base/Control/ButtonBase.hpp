@@ -61,7 +61,7 @@ namespace Fsl::UI
 
   protected:
     explicit ButtonBase(const std::shared_ptr<BaseWindowContext>& context);
-    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
+    void OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
 
     //! @brief Check if the button is down at the moment
     bool IsDown() const

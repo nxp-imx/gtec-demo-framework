@@ -32,7 +32,7 @@
 #include <FslBase/Log/Math/LogMinMax.hpp>
 #include <FslBase/NumericCast.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslDataBinding/Base/DataBindingService.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/ChartData.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/ChartDataView.hpp>
@@ -85,7 +85,7 @@ namespace
   std::shared_ptr<UI::ChartDataView> CreateDataViewFromSpan(const std::shared_ptr<DataBinding::DataBindingService>& dataBinding,
                                                             const std::array<uint32_t, TSize>& source)
   {
-    return CreateDataViewFromSpan(dataBinding, ReadOnlySpanUtil::AsSpan(source));
+    return CreateDataViewFromSpan(dataBinding, SpanUtil::AsReadOnlySpan(source));
   }
 
 }

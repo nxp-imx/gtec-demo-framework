@@ -34,22 +34,19 @@
 
 namespace Fsl
 {
-  struct VirtualMouseButton
+  enum class VirtualMouseButton
   {
-    enum Enum
-    {
-      Left = 0x0001,
-      Middle = 0x0002,
-      Right = 0x0004,
-      X1 = 0x0008,
-      X2 = 0x0010,
-      X3 = 0x0020,
-      X4 = 0x0040,
-      X5 = 0x0080,
-      X6 = 0x0100,
-      X7 = 0x0200,
-      Undefined = 0x8000
-    };
+    Left = 0x0001,
+    Middle = 0x0002,
+    Right = 0x0004,
+    X1 = 0x0008,
+    X2 = 0x0010,
+    X3 = 0x0020,
+    X4 = 0x0040,
+    X5 = 0x0080,
+    X6 = 0x0100,
+    X7 = 0x0200,
+    Undefined = 0x8000
   };
 }
 

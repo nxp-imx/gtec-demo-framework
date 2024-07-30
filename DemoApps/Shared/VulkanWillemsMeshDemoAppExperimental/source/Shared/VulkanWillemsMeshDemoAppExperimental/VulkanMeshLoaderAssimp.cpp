@@ -107,7 +107,7 @@ namespace Fsl::Willems
     aiColor3D pColor(0.f, 0.f, 0.f);
     pScene->mMaterials[pAiMesh->mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, pColor);
 
-    aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
+    aiVector3D zero3D(0.0f, 0.0f, 0.0f);
 
     rMeshEntry.Vertices.clear();
     rMeshEntry.Vertices.resize(pAiMesh->mNumVertices);
@@ -116,9 +116,9 @@ namespace Fsl::Willems
     {
       aiVector3D* pPos = &(pAiMesh->mVertices[i]);
       aiVector3D* pNormal = &(pAiMesh->mNormals[i]);
-      aiVector3D* pTexCoord = (pAiMesh->HasTextureCoords(0)) ? &(pAiMesh->mTextureCoords[0][i]) : &Zero3D;
-      aiVector3D* pTangent = (pAiMesh->HasTangentsAndBitangents()) ? &(pAiMesh->mTangents[i]) : &Zero3D;
-      aiVector3D* pBiTangent = (pAiMesh->HasTangentsAndBitangents()) ? &(pAiMesh->mBitangents[i]) : &Zero3D;
+      aiVector3D* pTexCoord = (pAiMesh->HasTextureCoords(0)) ? &(pAiMesh->mTextureCoords[0][i]) : &zero3D;
+      aiVector3D* pTangent = (pAiMesh->HasTangentsAndBitangents()) ? &(pAiMesh->mTangents[i]) : &zero3D;
+      aiVector3D* pBiTangent = (pAiMesh->HasTangentsAndBitangents()) ? &(pAiMesh->mBitangents[i]) : &zero3D;
 
       Vertex v(glm::vec3(pPos->x, -pPos->y, pPos->z), glm::vec2(pTexCoord->x, pTexCoord->y), glm::vec3(pNormal->x, pNormal->y, pNormal->z),
                glm::vec3(pTangent->x, pTangent->y, pTangent->z), glm::vec3(pBiTangent->x, pBiTangent->y, pBiTangent->z),
@@ -140,12 +140,12 @@ namespace Fsl::Willems
     auto indexBase = UncheckedNumericCast<uint32_t>(rMeshEntry.Indices.size());
     for (unsigned int i = 0; i < pAiMesh->mNumFaces; i++)
     {
-      const aiFace& Face = pAiMesh->mFaces[i];
-      if (Face.mNumIndices == 3)
+      const aiFace& face = pAiMesh->mFaces[i];
+      if (face.mNumIndices == 3)
       {
-        rMeshEntry.Indices.push_back(indexBase + Face.mIndices[0]);
-        rMeshEntry.Indices.push_back(indexBase + Face.mIndices[1]);
-        rMeshEntry.Indices.push_back(indexBase + Face.mIndices[2]);
+        rMeshEntry.Indices.push_back(indexBase + face.mIndices[0]);
+        rMeshEntry.Indices.push_back(indexBase + face.mIndices[1]);
+        rMeshEntry.Indices.push_back(indexBase + face.mIndices[2]);
       }
     }
   }

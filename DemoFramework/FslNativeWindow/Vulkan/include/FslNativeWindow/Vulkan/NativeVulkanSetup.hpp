@@ -42,8 +42,8 @@ namespace Fsl
     VkInstance Instance;
     VkPhysicalDevice PhysicalDevice;
 
-    NativeVulkanSetup(const VkInstance Instance, const VkPhysicalDevice physicalDevice)
-      : Instance(Instance)
+    NativeVulkanSetup(const VkInstance instance, const VkPhysicalDevice physicalDevice)
+      : Instance(instance)
       , PhysicalDevice(physicalDevice)
     {
     }

@@ -34,7 +34,7 @@
 #include <FslBase/IO/Path.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
-#include <FslGraphics/Bitmap/RawBitmap.hpp>
+#include <FslGraphics/Bitmap/ReadOnlyRawBitmap.hpp>
 #include <fstream>
 
 namespace Fsl
@@ -83,7 +83,7 @@ namespace Fsl
     //! @brief Save bitmap to file
     //! @note Only supportes bitmaps in PixelFormatLayout::B8G8R8A8 format all other formats will
     //        throw a UnsupportedPixelFormatException.
-    static void Save(const IO::Path& strFilename, const RawBitmap& bitmap);
+    static void Save(const IO::Path& strFilename, const ReadOnlyRawBitmap& bitmap);
 
     //! @brief Save bitmap to file
     //! @note Only supportes bitmaps in PixelFormatLayout::B8G8R8A8 format all other formats will
@@ -93,7 +93,7 @@ namespace Fsl
     //! @brief Save bitmap to file
     //! @note Only supportes bitmaps in PixelFormatLayout::B8G8R8A8 format all other formats will
     //        throw a UnsupportedPixelFormatException.
-    static void Save(std::ofstream& stream, const RawBitmap& bitmap);
+    static void Save(std::ofstream& stream, const ReadOnlyRawBitmap& bitmap);
   };
 }
 

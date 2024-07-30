@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "RenderConfig.hpp"
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <Shared/UI/Benchmark/App/TestAppFactory.hpp>
@@ -57,6 +57,6 @@ namespace Fsl::RenderConfig
 
   ReadOnlySpan<RenderMethodInfo> Get()
   {
-    return ReadOnlySpanUtil::AsSpan(g_renderRecords);
+    return SpanUtil::AsReadOnlySpan(g_renderRecords);
   }
 }

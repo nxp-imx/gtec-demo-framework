@@ -260,7 +260,7 @@ namespace Fsl
             {
               const auto bitmapExtent = PxExtent2D::Create(bitmapWidth, bitmapHeight);
               const std::size_t cbBitmap = std::size_t(4) * bitmapExtent.Width.Value * bitmapExtent.Height.Value;
-              rBitmap.Reset(pPixels, cbBitmap, bitmapExtent, PixelFormat::B8G8R8A8_UINT);
+              rBitmap.Reset(ReadOnlySpan<uint8_t>(reinterpret_cast<const uint8_t*>(pPixels), cbBitmap), bitmapExtent, PixelFormat::B8G8R8A8_UINT);
               loadCompleted = true;
             }
             catch (const std::exception& ex)

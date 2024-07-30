@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
 #include <FslGraphics/Log/Texture/FmtTextureType.hpp>
@@ -60,25 +61,23 @@ namespace Fsl
 
     Texture GenerateMipMaps(const Bitmap& src, const TextureMipMapFilter filter)
     {
-      RawBitmap srcBitmap;
-      Bitmap::ScopedDirectAccess access(src, srcBitmap);
-      return GenerateMipMaps(srcBitmap, filter);
+      const Bitmap::ScopedDirectReadAccess access(src);
+      return GenerateMipMaps(access.AsRawBitmap(), filter);
     }
 
     Texture GenerateMipMaps(const Texture& src, const TextureMipMapFilter filter)
     {
-      RawTexture srcTexture;
-      Texture::ScopedDirectAccess access(src, srcTexture);
-      return GenerateMipMaps(srcTexture, filter);
+      Texture::ScopedDirectReadAccess access(src);
+      return GenerateMipMaps(access.AsRawTexture(), filter);
     }
 
-    Texture GenerateMipMaps(const RawBitmap& src, const TextureMipMapFilter filter)
+    Texture GenerateMipMaps(const ReadOnlyRawBitmap& src, const TextureMipMapFilter filter)
     {
-      RawTexture srcTexture = RawTextureHelper::ToRawTexture(src);
+      ReadOnlyRawTexture srcTexture = RawTextureHelper::ToRawTexture(src);
       return GenerateMipMaps(srcTexture, filter);
     }
 
-    Texture GenerateMipMaps(const RawTexture& src, const TextureMipMapFilter filter)
+    Texture GenerateMipMaps(const ReadOnlyRawTexture& src, const TextureMipMapFilter filter)
     {
       if (!src.IsValid())
       {
@@ -114,12 +113,12 @@ namespace Fsl
       const TextureInfo textureInfo(mipLevels, src.GetFaces(), src.GetLayers());
       Texture result(TextureBlobBuilder(src.GetTextureType(), src.GetExtent(), pixelFormat, textureInfo, origin, true));
       {
-        RawTextureEx rawDstTexture;
-        Texture::ScopedDirectAccess dstAccess(result, rawDstTexture);
+        Texture::ScopedDirectReadWriteAccess dstAccess(result);
+        RawTextureEx rawDstTexture = dstAccess.AsRawTexture();
 
-        auto* const pDstStart = reinterpret_cast<uint8_t*>(rawDstTexture.GetContentWriteAccess());
+        auto* const pDstStart = static_cast<uint8_t*>(rawDstTexture.GetContent());
         {    // Copy the original 'faces' directly
-          const auto* const pSrcStart = reinterpret_cast<const uint8_t*>(src.GetContent());
+          const auto* const pSrcStart = static_cast<const uint8_t*>(src.GetContent());
           for (uint32_t faceIndex = 0; faceIndex < textureInfo.Faces; ++faceIndex)
           {
             BlobRecord srcBlobRecord = src.GetTextureBlob(0, faceIndex, 0);
@@ -145,8 +144,10 @@ namespace Fsl
               BlobRecord srcBlobRecord = rawDstTexture.GetTextureBlob(levelIndex, faceIndex, 0);
               BlobRecord dstBlobRecord = rawDstTexture.GetTextureBlob(levelIndex + 1, faceIndex, 0);
               // Since we copied the original data to dest and are reusing the previous mipmaps pDstStart is the base
-              RawBitmap srcBitmap(pDstStart + srcBlobRecord.Offset, width, height, pixelFormat, origin);
-              RawBitmapEx dstBitmap(pDstStart + dstBlobRecord.Offset, width / 2, height / 2, pixelFormat, origin);
+              ReadOnlyRawBitmap srcBitmap(ReadOnlyRawBitmap::UncheckedCreate(
+                pDstStart + srcBlobRecord.Offset, NumericCast<uint32_t>(srcBlobRecord.Size), PxExtent2D::Create(width, height), pixelFormat, origin));
+              RawBitmapEx dstBitmap(RawBitmapEx::UncheckedCreate(pDstStart + dstBlobRecord.Offset, NumericCast<uint32_t>(dstBlobRecord.Size),
+                                                                 PxExtent2D::Create(width / 2, height / 2), pixelFormat, origin));
 
               switch (filter)
               {

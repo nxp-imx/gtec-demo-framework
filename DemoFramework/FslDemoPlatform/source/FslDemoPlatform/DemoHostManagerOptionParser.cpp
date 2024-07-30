@@ -30,22 +30,48 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Getopt/OptionBaseValues.hpp>
+#include <FslBase/Getopt/Util/OptionArg.hpp>
+#include <FslBase/Getopt/Util/OptionArgUtil.hpp>
 #include <FslBase/Log/Common/FmtVersionInfo2.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslBase/Time/TimeSpanUtil.hpp>
 #include <FslDemoPlatform/DemoHostManagerOptionParser.hpp>
 #include <FslGraphics/ImageFormatUtil.hpp>
+#include <FslGraphics/ToneMapping/BasicToneMapper.hpp>
 #include <FslVersion/FslVersion.hpp>
 #include <fmt/format.h>
+#include <array>
 
 namespace Fsl
 {
   namespace
   {
+    namespace ArgName
+    {
+      constexpr auto ExitAfterFrame = "ExitAfterFrame";
+      constexpr auto ExitAfterDuration = "ExitAfterDuration";
+      constexpr auto LogStats = "LogStats";
+      constexpr auto LogStatsMode = "LogStatsMode";
+      constexpr auto Stats = "Stats";
+      constexpr auto StatsFlags = "StatsFlags";
+      constexpr auto AppFirewall = "AppFirewall";
+      constexpr auto EnableBasic2DPrealloc = "EnableBasic2DPrealloc";
+      constexpr auto ScreenshotFrequency = "ScreenshotFrequency";
+      constexpr auto ScreenshotFormat = "ScreenshotFormat";
+      constexpr auto ScreenshotNameScheme = "ScreenshotNameScheme";
+      constexpr auto ScreenshotNamePrefix = "ScreenshotNamePrefix";
+      constexpr auto ScreenshotToneMapper = "ScreenshotToneMapper";
+      constexpr auto ContentMonitor = "ContentMonitor";
+      constexpr auto ForceUpdateTime = "ForceUpdateTime";
+      constexpr auto Version = "Version";
+    }
+
+
     struct CommandId
     {
       enum Enum
@@ -55,6 +81,7 @@ namespace Fsl
         ScreenshotFrequency,
         ScreenshotFormat,
         ScreenshotNamePrefix,
+        ScreenshotToneMapper,
         LogStats,
         LogStatsMode,
         Stats,
@@ -77,19 +104,35 @@ namespace Fsl
     };
 
 
-    DemoAppStatsFlags::Enum TryParse(const StringViewLite& str)
-    {
-      if (str == "frame")
-      {
-        return DemoAppStatsFlags::Frame;
-      }
-      if (str == "cpu")
-      {
-        return DemoAppStatsFlags::CPU;
-      }
-      return DemoAppStatsFlags::Nothing;
-    }
+    constexpr std::array<OptionArg<DemoAppStatsFlags::Enum>, 2> StatsFlagsArgs = {
+      OptionArg<DemoAppStatsFlags::Enum>("frame", DemoAppStatsFlags::Frame), OptionArg<DemoAppStatsFlags::Enum>("cpu", DemoAppStatsFlags::CPU)};
 
+    //  bmp, jpg, png or tga
+    constexpr std::array<OptionArg<ImageFormat>, 4> ScreenshotFormat = {
+      OptionArg<ImageFormat>("bmp", ImageFormat::Bmp), OptionArg<ImageFormat>("jpg", ImageFormat::Jpeg),
+      OptionArg<ImageFormat>("png", "default", ImageFormat::Png), OptionArg<ImageFormat>("tga", ImageFormat::Tga)};
+
+    //  bmp, jpg, png, tga or HDR
+    constexpr std::array<OptionArg<ImageFormat>, 5> ScreenshotFormatHDR = {
+      OptionArg<ImageFormat>("bmp", ImageFormat::Bmp), OptionArg<ImageFormat>("jpg", ImageFormat::Jpeg),
+      OptionArg<ImageFormat>("png", "default", ImageFormat::Png), OptionArg<ImageFormat>("tga", ImageFormat::Tga),
+      OptionArg<ImageFormat>("hdr", ImageFormat::Hdr)};
+
+    // frame, sequence or exact
+    constexpr std::array<OptionArg<TestScreenshotNameScheme>, 3> ScreenshotNameSchemeArgs = {
+      OptionArg<TestScreenshotNameScheme>("frame", "default", TestScreenshotNameScheme::FrameNumber),
+      OptionArg<TestScreenshotNameScheme>("sequence", TestScreenshotNameScheme::Sequential),
+      OptionArg<TestScreenshotNameScheme>("exact", TestScreenshotNameScheme::Exact)};
+
+    constexpr std::array<OptionArg<BasicToneMapper>, 3> ScreenshotToneMapperArgs = {
+      OptionArg<BasicToneMapper>("hable", BasicToneMapper::Hable), OptionArg<BasicToneMapper>("reinhard", BasicToneMapper::Reinhard),
+      OptionArg<BasicToneMapper>("clamp", "default, colors are clamped to SDR ranges", BasicToneMapper::Clamp)};
+
+
+    constexpr ReadOnlySpan<OptionArg<ImageFormat>> GetScreenshotFormat(const bool hdrEnabled) noexcept
+    {
+      return hdrEnabled ? SpanUtil::AsReadOnlySpan(ScreenshotFormatHDR) : SpanUtil::AsReadOnlySpan(ScreenshotFormat);
+    }
 
     OptionParseResult TryParseStatsFlags(DemoAppStatsFlags& rFlags, const StringViewLite& strArg)
     {
@@ -98,7 +141,7 @@ namespace Fsl
       uint32_t flags = 0u;
       for (const auto& entry : entries)
       {
-        auto flag = TryParse(entry);
+        auto flag = OptionArgUtil::Parse(SpanUtil::AsReadOnlySpan(StatsFlagsArgs), entry, DemoAppStatsFlags::Nothing);
         if (flag == DemoAppStatsFlags::Nothing)
         {
           FSLLOG3_WARNING("Unknown stats flag: {}", entry);
@@ -112,45 +155,55 @@ namespace Fsl
     }
   }
 
-  DemoHostManagerOptionParser::DemoHostManagerOptionParser()
-    : m_screenshotConfig(TestScreenshotNameScheme::FrameNumber, ImageFormat::Png, 0, "Screenshot")
+  DemoHostManagerOptionParser::DemoHostManagerOptionParser(const ColorSpaceType colorSpaceType, const bool hdrEnabled)
+    : m_colorSpaceType(colorSpaceType)
+    , m_hdrEnabled(hdrEnabled)
+    , m_screenshotConfig(TestScreenshotNameScheme::FrameNumber, ImageFormat::Png, 0, "Screenshot", BasicToneMapper::Clamp)
   {
   }
 
 
   void DemoHostManagerOptionParser::ArgumentSetup(std::deque<Option>& rOptions)
   {
-    rOptions.emplace_back("ExitAfterFrame", OptionArgument::OptionRequired, CommandId::ExitAfterFrame,
+    rOptions.emplace_back(ArgName::ExitAfterFrame, OptionArgument::OptionRequired, CommandId::ExitAfterFrame,
                           "Exit after the given number of frames has been rendered");
     rOptions.emplace_back(
-      "ExitAfterDuration", OptionArgument::OptionRequired, CommandId::ExitAfterDuration,
+      ArgName::ExitAfterDuration, OptionArgument::OptionRequired, CommandId::ExitAfterDuration,
       "Exit after the given duration has passed. The value can be specified in seconds or milliseconds. For example 10s or 10ms.");
-    rOptions.emplace_back("LogStats", OptionArgument::OptionNone, CommandId::LogStats,
+    rOptions.emplace_back(ArgName::LogStats, OptionArgument::OptionNone, CommandId::LogStats,
                           "Log basic rendering stats (this is equal to setting LogStatsMode to latest)");
-    rOptions.emplace_back("LogStatsMode", OptionArgument::OptionRequired, CommandId::LogStatsMode,
+    rOptions.emplace_back(ArgName::LogStatsMode, OptionArgument::OptionRequired, CommandId::LogStatsMode,
                           "Set the log stats mode, more advanced version of LogStats. Can be disabled, latest, average");
-    rOptions.emplace_back("Stats", OptionArgument::OptionNone, CommandId::Stats, "Display basic frame profiling stats");
-    rOptions.emplace_back("StatsFlags", OptionArgument::OptionRequired, CommandId::StatsFlags,
+    rOptions.emplace_back(ArgName::Stats, OptionArgument::OptionNone, CommandId::Stats, "Display basic frame profiling stats");
+    rOptions.emplace_back(ArgName::StatsFlags, OptionArgument::OptionRequired, CommandId::StatsFlags,
                           "Select the stats to be displayed/logged. Defaults to frame|cpu. Can be 'frame', 'cpu' or any combination");
-    rOptions.emplace_back("AppFirewall", OptionArgument::OptionNone, CommandId::AppFirewall,
+    rOptions.emplace_back(ArgName::AppFirewall, OptionArgument::OptionNone, CommandId::AppFirewall,
                           "Enable the app firewall, reporting crashes on-screen instead of exiting");
-    rOptions.emplace_back("EnableBasic2DPrealloc", OptionArgument::OptionRequired, CommandId::EnableBasic2DPrealloc,
+    rOptions.emplace_back(ArgName::EnableBasic2DPrealloc, OptionArgument::OptionRequired, CommandId::EnableBasic2DPrealloc,
                           "Enable/disable basic2d preallocation (Stats is enabled this is forced true)", OptionGroup::Hidden);
-    rOptions.emplace_back("ScreenshotFrequency", OptionArgument::OptionRequired, CommandId::ScreenshotFrequency,
+    rOptions.emplace_back(ArgName::ScreenshotFrequency, OptionArgument::OptionRequired, CommandId::ScreenshotFrequency,
                           "Create a screenshot at the given frame frequency");
-    rOptions.emplace_back("ScreenshotFormat", OptionArgument::OptionRequired, CommandId::ScreenshotFormat,
-                          "Chose the format for the screenshot: bmp, jpg, png or tga (defaults to png)");
-    rOptions.emplace_back("ScreenshotNamePrefix", OptionArgument::OptionRequired, CommandId::ScreenshotNamePrefix,
+    rOptions.emplace_back(
+      ArgName::ScreenshotFormat, OptionArgument::OptionRequired, CommandId::ScreenshotFormat,
+      fmt::format("Chose the format for the screenshot: {}", OptionArgUtil::BuildArgumentString(GetScreenshotFormat(m_hdrEnabled), true)));
+    rOptions.emplace_back(ArgName::ScreenshotNamePrefix, OptionArgument::OptionRequired, CommandId::ScreenshotNamePrefix,
                           "Chose the screenshot name prefix (defaults to 'Screenshot')");
-    rOptions.emplace_back("ScreenshotNameScheme", OptionArgument::OptionRequired, CommandId::ScreenshotNameScheme,
-                          "Chose the screenshot name scheme: frame, sequence or exact (defaults to frame)");
-    rOptions.emplace_back("ContentMonitor", OptionArgument::OptionNone, CommandId::ContentMonitor,
+    rOptions.emplace_back(ArgName::ScreenshotNameScheme, OptionArgument::OptionRequired, CommandId::ScreenshotNameScheme,
+                          fmt::format("Chose the screenshot name scheme: {}.",
+                                      OptionArgUtil::BuildArgumentString(SpanUtil::AsReadOnlySpan(ScreenshotNameSchemeArgs), true)));
+    if (m_hdrEnabled)
+    {
+      rOptions.emplace_back(ArgName::ScreenshotToneMapper, OptionArgument::OptionRequired, CommandId::ScreenshotToneMapper,
+                            fmt::format("Chose the tone mapper to apply when converting a HDR screenshot to SDR: {}.",
+                                        OptionArgUtil::BuildArgumentString(SpanUtil::AsReadOnlySpan(ScreenshotToneMapperArgs), true)));
+    }
+    rOptions.emplace_back(ArgName::ContentMonitor, OptionArgument::OptionNone, CommandId::ContentMonitor,
                           "Monitor the Content directory for changes and restart the app on changes.\nWARNING: Might not work on all platforms "
                           "and it might impact app performance (experimental)");
     rOptions.emplace_back(
-      "ForceUpdateTime", OptionArgument::OptionRequired, CommandId::ForceUpdateTime,
+      ArgName::ForceUpdateTime, OptionArgument::OptionRequired, CommandId::ForceUpdateTime,
       "Force the update time to be the given value in microseconds (can be useful when taking a lot of screen-shots). If 0 this option is disabled");
-    rOptions.emplace_back("Version", OptionArgument::OptionNone, CommandId::Version, "Print version information");
+    rOptions.emplace_back(ArgName::Version, OptionArgument::OptionNone, CommandId::Version, "Print version information");
   }
 
 
@@ -169,11 +222,15 @@ namespace Fsl
       StringParseUtil::Parse(m_screenshotConfig.Frequency, strOptArg);
       return OptionParseResult::Parsed;
     case CommandId::ScreenshotFormat:
-      return ParseScreenshotImageFormat(strOptArg);
+      return OptionArgUtil::TryParseOptionArg(ArgName::ScreenshotFormat, GetScreenshotFormat(m_hdrEnabled), strOptArg, m_screenshotConfig.Format);
     case CommandId::ScreenshotNameScheme:
-      return ParseScreenshotNameScheme(strOptArg);
+      return OptionArgUtil::TryParseOptionArg(ArgName::ScreenshotNameScheme, SpanUtil::AsReadOnlySpan(ScreenshotNameSchemeArgs), strOptArg,
+                                              m_screenshotConfig.NamingScheme);
     case CommandId::ScreenshotNamePrefix:
       return ParseScreenshotNamePrefix(strOptArg);
+    case CommandId::ScreenshotToneMapper:
+      return OptionArgUtil::TryParseOptionArg(ArgName::ScreenshotToneMapper, SpanUtil::AsReadOnlySpan(ScreenshotToneMapperArgs), strOptArg,
+                                              m_screenshotConfig.ToneMapper);
     case CommandId::ForceUpdateTime:
       {
         uint32_t value = 0;
@@ -319,32 +376,6 @@ namespace Fsl
     return OptionParseResult::Parsed;
   }
 
-
-  OptionParseResult DemoHostManagerOptionParser::ParseScreenshotImageFormat(const StringViewLite& strOptArg)
-  {
-    ImageFormat format = ImageFormatUtil::TryDetectImageFormat(strOptArg);
-    if (format == ImageFormat::Undefined)
-    {
-      FSLLOG3_ERROR("Unsupported image format '{}' expected 'bmp', 'jpg', 'png' or 'tga'", strOptArg);
-      return OptionParseResult::Failed;
-    }
-    switch (format)
-    {
-    case ImageFormat::Bmp:
-    // case ImageFormat::Hdr:
-    case ImageFormat::Jpeg:
-    case ImageFormat::Png:
-    case ImageFormat::Tga:
-      m_screenshotConfig.Format = format;
-      break;
-    default:
-      FSLLOG3_ERROR("Unsupported image format '{}' expected 'bmp', 'jpg', 'png' or 'tga'", strOptArg);
-      return OptionParseResult::Failed;
-    }
-    return OptionParseResult::Parsed;
-  }
-
-
   OptionParseResult DemoHostManagerOptionParser::ParseScreenshotNamePrefix(const StringViewLite& strOptArg)
   {
     try
@@ -363,27 +394,5 @@ namespace Fsl
       FSLLOG3_ERROR("Failed to parse screenshot name with error: {}", ex.what());
       return OptionParseResult::Failed;
     }
-  }
-
-
-  OptionParseResult DemoHostManagerOptionParser::ParseScreenshotNameScheme(const StringViewLite& strOptArg)
-  {
-    if (strOptArg == "frame")
-    {
-      m_screenshotConfig.NamingScheme = TestScreenshotNameScheme::FrameNumber;
-      return OptionParseResult::Parsed;
-    }
-    if (strOptArg == "sequential")
-    {
-      m_screenshotConfig.NamingScheme = TestScreenshotNameScheme::Sequential;
-      return OptionParseResult::Parsed;
-    }
-    if (strOptArg == "exact")
-    {
-      m_screenshotConfig.NamingScheme = TestScreenshotNameScheme::Exact;
-      return OptionParseResult::Parsed;
-    }
-    FSLLOG3_ERROR("Unsupported ScreenshotNameScheme '{}' expected 'frame', 'sequential 'or 'exact'.", strOptArg);
-    return OptionParseResult::Failed;
   }
 }

@@ -34,6 +34,7 @@
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Pixel/PxVector2.hpp>
 #include <FslGraphics/Color.hpp>
+#include <FslSimpleUI/Render/Base/UIRenderColor.hpp>
 #include <FslSimpleUI/Render/Base/Command/DrawCommandType.hpp>
 #include <FslSimpleUI/Render/Base/MeshHandle.hpp>
 
@@ -46,7 +47,7 @@ namespace Fsl::UI
     MeshHandle Mesh;
     PxVector2 DstPositionPxf;
     PxSize2D DstSizePx;
-    Color DstColor;
+    UIRenderColor DstColor;
     uint32_t Custom0{0};
 
     constexpr bool operator==(const EncodedCommand rhs) const noexcept

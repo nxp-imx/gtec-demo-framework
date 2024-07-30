@@ -17,13 +17,13 @@ namespace Fsl::Willems
   class Camera
   {
   private:
-    float Fov;
-    float ZNear;
-    float ZFar;
+    float m_fov;
+    float m_zNear;
+    float m_zFar;
 
     void UpdateViewMatrix()
     {
-      glm::mat4 rotM = glm::mat4(1.0f);
+      auto rotM = glm::mat4(1.0f);
       glm::mat4 transM;
 
       rotM = glm::rotate(rotM, glm::radians(Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -57,7 +57,7 @@ namespace Fsl::Willems
     float RotationSpeed = 1.0f;
     float MovementSpeed = 1.0f;
 
-    bool updated = false;
+    bool Updated = false;
 
     struct
     {
@@ -82,25 +82,25 @@ namespace Fsl::Willems
 
     float GetNearClip() const
     {
-      return ZNear;
+      return m_zNear;
     }
 
     float GetFarClip() const
     {
-      return ZFar;
+      return m_zFar;
     }
 
     void SetPerspective(const float fov, const float aspect, const float znear, const float zfar)
     {
-      Fov = fov;
-      ZNear = znear;
-      ZFar = zfar;
-      Matrices.Perspective = glm::perspective(glm::radians(Fov), aspect, znear, zfar);
+      m_fov = fov;
+      m_zNear = znear;
+      m_zFar = zfar;
+      Matrices.Perspective = glm::perspective(glm::radians(m_fov), aspect, znear, zfar);
     };
 
     void UpdateAspectRatio(float aspect)
     {
-      Matrices.Perspective = glm::perspective(glm::radians(Fov), aspect, ZNear, ZFar);
+      Matrices.Perspective = glm::perspective(glm::radians(m_fov), aspect, m_zNear, m_zFar);
     }
 
     void SetPosition(const glm::vec3& position)
@@ -135,7 +135,7 @@ namespace Fsl::Willems
 
     void Update(const float deltaTime)
     {
-      updated = false;
+      Updated = false;
       if (Type == CameraType::FirstPerson)
       {
         if (Moving())

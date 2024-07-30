@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,9 @@
 
 #include "Screenshot.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Span/SpanUtil_Create.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
@@ -57,7 +59,7 @@ namespace Fsl
   namespace
   {
     // timeout in nanoseconds
-    constexpr uint64_t FENCE_TIMEOUT = 1000000000ull * 10;
+    constexpr uint64_t FenceTimeout = 1000000000ull * 10;
 
     VulkanBasic::DemoAppVulkanSetup CreateSetup()
     {
@@ -144,18 +146,18 @@ namespace Fsl
       assert(subResourceLayout.offset <= image.AllocationSize);
 
       const uint8_t* pImageMemory = static_cast<const uint8_t*>(pImage) + subResourceLayout.offset;
-      const auto extent = PxExtent2D::Create(image.Extent.width, image.Extent.height);
+      const auto sizePx = PxSize2D::Create(UncheckedNumericCast<int32_t>(image.Extent.width), UncheckedNumericCast<int32_t>(image.Extent.height));
       // Calculate the content size adjusting for the offset
       assert(subResourceLayout.rowPitch <= std::numeric_limits<uint32_t>::max());
       const auto stride = UncheckedNumericCast<uint32_t>(subResourceLayout.rowPitch);
 
       // Extract the bitmap data
-      return {pImageMemory, subResourceLayout.size, extent, pixelFormat, stride, BitmapOrigin::UpperLeft};
+      return {SpanUtil::CreateReadOnly(pImageMemory, subResourceLayout.size), sizePx, pixelFormat, stride, BitmapOrigin::UpperLeft};
     }
 
     void TransitionImagesToTransferLayout(const VkCommandBuffer commandBuffer, const VkImage dstImage, const VkImage srcImage)
     {
-      constexpr VkImageSubresourceRange imageSubresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+      constexpr VkImageSubresourceRange ImageSubresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
       {
         VkImageMemoryBarrier imageMemoryBarrier{};
         imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -164,7 +166,7 @@ namespace Fsl
         imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         imageMemoryBarrier.image = dstImage;
-        imageMemoryBarrier.subresourceRange = imageSubresourceRange;
+        imageMemoryBarrier.subresourceRange = ImageSubresourceRange;
 
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1,
                              &imageMemoryBarrier);
@@ -179,7 +181,7 @@ namespace Fsl
         imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
         imageMemoryBarrier.image = srcImage;
-        imageMemoryBarrier.subresourceRange = imageSubresourceRange;
+        imageMemoryBarrier.subresourceRange = ImageSubresourceRange;
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1,
                              &imageMemoryBarrier);
       }
@@ -187,7 +189,7 @@ namespace Fsl
 
     void TransitionFromTransferLayout(const VkCommandBuffer commandBuffer, const VkImage dstImage, const VkImage srcImage)
     {
-      constexpr VkImageSubresourceRange imageSubresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+      constexpr VkImageSubresourceRange ImageSubresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
       // Transition source image back to source format
       {
         VkImageMemoryBarrier imageMemoryBarrier{};
@@ -197,7 +199,7 @@ namespace Fsl
         imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
         imageMemoryBarrier.image = srcImage;
-        imageMemoryBarrier.subresourceRange = imageSubresourceRange;
+        imageMemoryBarrier.subresourceRange = ImageSubresourceRange;
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1,
                              &imageMemoryBarrier);
       }
@@ -211,7 +213,7 @@ namespace Fsl
         imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
         imageMemoryBarrier.image = dstImage;
-        imageMemoryBarrier.subresourceRange = imageSubresourceRange;
+        imageMemoryBarrier.subresourceRange = ImageSubresourceRange;
 
         vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1,
                              &imageMemoryBarrier);
@@ -270,7 +272,7 @@ namespace Fsl
   }
 
 
-  void Screenshot::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void Screenshot::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_btnScreenshot)
     {
@@ -332,7 +334,7 @@ namespace Fsl
       rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
         m_nativeBatch->Begin();
-        m_nativeBatch->Draw(m_texture, Vector2(), Color::White());
+        m_nativeBatch->Draw(m_texture, Vector2(), Colors::White());
         m_nativeBatch->End();
 
         // Calling this last allows the UI to draw on top of everything.
@@ -512,7 +514,7 @@ namespace Fsl
     m_deviceQueue.Submit(1, &submitInfo, fence.Get());
 
     // Wait for the fence to signal that command buffer has finished executing
-    fence.WaitForFence(FENCE_TIMEOUT);
+    fence.WaitForFence(FenceTimeout);
 
     // The dst image now contains the content
     return ExtractToBitmap(dstImage, dstImageFormat);

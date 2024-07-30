@@ -90,16 +90,16 @@ TEST(TestMathPixel_PxViewport, Construct_Rectangle)
 
 TEST(TestMathPixel_PxViewport, Construct_Rectangle2)
 {
-  constexpr float minDepth = 32.0f;
-  constexpr float maxDepth = 42.0f;
+  constexpr float MinDepth = 32.0f;
+  constexpr float MaxDepth = 42.0f;
   auto rect = PxRectangle::Create(1, 2, 20, 21);
-  PxViewport value(rect, minDepth, maxDepth);
+  PxViewport value(rect, MinDepth, MaxDepth);
 
   EXPECT_EQ(value.X(), rect.X().Value);
   EXPECT_EQ(value.Y(), rect.Y().Value);
   EXPECT_EQ(value.Width(), rect.RawWidth());
   EXPECT_EQ(value.Height(), rect.RawHeight());
-  EXPECT_EQ(value.MinDepth(), minDepth);
-  EXPECT_EQ(value.MaxDepth(), maxDepth);
+  EXPECT_EQ(value.MinDepth(), MinDepth);
+  EXPECT_EQ(value.MaxDepth(), MaxDepth);
   EXPECT_EQ(value.GetAspectRatio(), static_cast<float>(rect.Width().RawValue()) / static_cast<float>(rect.Height().RawValue()));
 }

@@ -44,25 +44,25 @@ namespace Fsl
   using namespace OpenVG;
   namespace
   {
-    const std::vector<VGubyte> vgTriangleSegments = {
+    const std::vector<VGubyte> g_vgTriangleSegments = {
       VG_MOVE_TO_ABS,
       VG_LINE_TO_ABS,
       VG_LINE_TO_ABS,
       VG_CLOSE_PATH,
     };
 
-    const std::vector<VGubyte> vgQuadCurveSegments = {
+    const std::vector<VGubyte> g_vgQuadCurveSegments = {
       VG_MOVE_TO_ABS,
       VG_LINE_TO_ABS,
       VG_QUAD_TO_ABS,
       VG_CLOSE_PATH,
     };
 
-    const std::vector<VGubyte> vgCubicCurveSegments = {
+    const std::vector<VGubyte> g_vgCubicCurveSegments = {
       VG_MOVE_TO_ABS, VG_LINE_TO_ABS, VG_CUBIC_TO_ABS, VG_LINE_TO_ABS, VG_CLOSE_PATH,
     };
 
-    const std::vector<VGubyte> vgArcSegments = {
+    const std::vector<VGubyte> g_vgArcSegments = {
       VG_MOVE_TO_ABS,
       VG_LINE_TO_ABS,
       VG_SCCWARC_TO_ABS,
@@ -120,36 +120,36 @@ namespace Fsl
 
 
     // create path
-    m_vg_triangle_path.Reset(vgTrianglePoints, vgTriangleSegments);
-    m_vg_quad_path.Reset(vgQuadCurvePoints, vgQuadCurveSegments);
-    m_vg_cubic_path.Reset(vgCubicCurvePoints, vgCubicCurveSegments);
-    m_vg_arc_path.Reset(vgArcPoints, vgArcSegments);
+    m_vgTrianglePath.Reset(vgTrianglePoints, g_vgTriangleSegments);
+    m_vgQuadPath.Reset(vgQuadCurvePoints, g_vgQuadCurveSegments);
+    m_vgCubicPath.Reset(vgCubicCurvePoints, g_vgCubicCurveSegments);
+    m_vgArcPath.Reset(vgArcPoints, g_vgArcSegments);
 
     // create paint
-    m_vg_triangle_paint = vgCreatePaint();
-    vgSetParameteri(m_vg_triangle_paint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
-    vgSetColor(m_vg_triangle_paint, 0xFF0000FF);
+    m_vgTrianglePaint = vgCreatePaint();
+    vgSetParameteri(m_vgTrianglePaint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
+    vgSetColor(m_vgTrianglePaint, 0xFF0000FF);
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
 
-    m_vg_quad_paint = vgCreatePaint();
-    vgSetParameteri(m_vg_quad_paint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
-    vgSetColor(m_vg_quad_paint, 0x00FF00FF);
+    m_vgQuadPaint = vgCreatePaint();
+    vgSetParameteri(m_vgQuadPaint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
+    vgSetColor(m_vgQuadPaint, 0x00FF00FF);
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
 
-    m_vg_cubic_paint = vgCreatePaint();
-    vgSetParameteri(m_vg_cubic_paint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
-    vgSetColor(m_vg_cubic_paint, 0x0000FFFF);
+    m_vgCubicPaint = vgCreatePaint();
+    vgSetParameteri(m_vgCubicPaint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
+    vgSetColor(m_vgCubicPaint, 0x0000FFFF);
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
 
-    m_vg_arc_paint = vgCreatePaint();
-    vgSetParameteri(m_vg_arc_paint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
-    vgSetColor(m_vg_arc_paint, 0x00FFFFFF);
+    m_vgArcPaint = vgCreatePaint();
+    vgSetParameteri(m_vgArcPaint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
+    vgSetColor(m_vgArcPaint, 0x00FFFFFF);
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
 
-    m_vg_stroke_paint = vgCreatePaint();
-    vgSetParameteri(m_vg_stroke_paint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
+    m_vgStrokePaint = vgCreatePaint();
+    vgSetParameteri(m_vgStrokePaint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
 
-    vgSetColor(m_vg_stroke_paint, 0xFFFFFFFF);
+    vgSetColor(m_vgStrokePaint, 0xFFFFFFFF);
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
   }
 
@@ -174,22 +174,22 @@ namespace Fsl
     // Loads identity matrix
     vgLoadIdentity();
 
-    vgSetPaint(m_vg_triangle_paint, VG_FILL_PATH);
+    vgSetPaint(m_vgTrianglePaint, VG_FILL_PATH);
     vgSetf(VG_STROKE_LINE_WIDTH, 10.0);
-    vgSetPaint(m_vg_stroke_paint, VG_STROKE_PATH);
-    vgDrawPath(m_vg_triangle_path.GetHandle(), VG_STROKE_PATH | VG_FILL_PATH);
+    vgSetPaint(m_vgStrokePaint, VG_STROKE_PATH);
+    vgDrawPath(m_vgTrianglePath.GetHandle(), VG_STROKE_PATH | VG_FILL_PATH);
 
-    vgSetPaint(m_vg_quad_paint, VG_FILL_PATH);
+    vgSetPaint(m_vgQuadPaint, VG_FILL_PATH);
     vgSetf(VG_STROKE_LINE_WIDTH, 5.0);
-    vgDrawPath(m_vg_quad_path.GetHandle(), VG_STROKE_PATH | VG_FILL_PATH);
+    vgDrawPath(m_vgQuadPath.GetHandle(), VG_STROKE_PATH | VG_FILL_PATH);
 
-    vgSetPaint(m_vg_cubic_paint, VG_FILL_PATH);
+    vgSetPaint(m_vgCubicPaint, VG_FILL_PATH);
     vgSetf(VG_STROKE_LINE_WIDTH, 15.0);
-    vgDrawPath(m_vg_cubic_path.GetHandle(), VG_STROKE_PATH | VG_FILL_PATH);
+    vgDrawPath(m_vgCubicPath.GetHandle(), VG_STROKE_PATH | VG_FILL_PATH);
 
-    vgSetPaint(m_vg_arc_paint, VG_FILL_PATH);
+    vgSetPaint(m_vgArcPaint, VG_FILL_PATH);
     vgSetf(VG_STROKE_LINE_WIDTH, 20.0);
-    vgDrawPath(m_vg_arc_path.GetHandle(), VG_STROKE_PATH | VG_FILL_PATH);
+    vgDrawPath(m_vgArcPath.GetHandle(), VG_STROKE_PATH | VG_FILL_PATH);
 
     vgFinish();
   }

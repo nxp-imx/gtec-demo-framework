@@ -34,14 +34,15 @@
 
 namespace Fsl
 {
-  RawMouseMoveEvent::RawMouseMoveEvent(const PxPoint2& position, const VirtualMouseButtonFlags& mouseButtonFlags)
-    : BasicEvent(EventType::RawMouseMove, position.X.Value, position.Y.Value,
+  RawMouseMoveEvent::RawMouseMoveEvent(const MillisecondTickCount32 timestamp, const PxPoint2 position,
+                                       const VirtualMouseButtonFlags mouseButtonFlags) noexcept
+    : BasicEvent(EventType::RawMouseMove, timestamp, position.X.Value, position.Y.Value,
                  NativeWindowEventHelper::EncodeVirtualMouseButtonFlags(mouseButtonFlags))
   {
   }
 
 
-  VirtualMouseButtonFlags RawMouseMoveEvent::GetMouseButtonFlags() const
+  VirtualMouseButtonFlags RawMouseMoveEvent::GetMouseButtonFlags() const noexcept
   {
     return NativeWindowEventHelper::DecodeVirtualMouseButtonFlags(m_arg3);
   }

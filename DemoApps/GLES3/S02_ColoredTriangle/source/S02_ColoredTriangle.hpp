@@ -17,6 +17,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(readability-identifier-naming)
   class S02_ColoredTriangle : public DemoAppGLES3
   {
     GLES3::GLProgram m_program;

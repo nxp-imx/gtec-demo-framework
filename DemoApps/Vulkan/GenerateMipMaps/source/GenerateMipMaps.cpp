@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,81 +58,81 @@ namespace Fsl
 {
   namespace
   {
-    const auto VERTEX_BUFFER_BIND_ID = 0;
+    constexpr auto VertexBufferBindId = 0;
 
     // B D
     // |\|
     // A C
     // A = 1.0
-    const float CUBE_DIMENSIONS = 100.0f;
+    constexpr float CubeDimensions = 100.0f;
 
-    const float CUBE_CEILING = CUBE_DIMENSIONS;
-    const float CUBE_FLOOR = -CUBE_DIMENSIONS;
+    constexpr float CubeCeiling = CubeDimensions;
+    constexpr float CubeFloor = -CubeDimensions;
 
-    const float CUBE_LEFT = -CUBE_DIMENSIONS;
-    const float CUBE_RIGHT = CUBE_DIMENSIONS;
-    const float CUBE_BACK = CUBE_DIMENSIONS;      // zBack
-    const float CUBE_FRONT = -CUBE_DIMENSIONS;    // zFront
-    const float CUBE_U0 = 0.0f;
-    const float CUBE_U1 = 1.0f;
-    const float CUBE_V0 = 1.0f;
-    const float CUBE_V1 = 0.0f;
+    constexpr float CubeLeft = -CubeDimensions;
+    constexpr float CubeRight = CubeDimensions;
+    constexpr float CubeBack = CubeDimensions;      // zBack
+    constexpr float CubeFront = -CubeDimensions;    // zFront
+    constexpr float CubeU0 = 0.0f;
+    constexpr float CubeU1 = 1.0f;
+    constexpr float CubeV0 = 1.0f;
+    constexpr float CubeV1 = 0.0f;
 
 
     const std::array<VertexPositionTexture, 6 * 6> g_vertices = {
       // Floor
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),      // LB
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V1)),     // LF
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),    // RF
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeBack), Vector2(CubeU1, CubeV1)),      // LB
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeFront), Vector2(CubeU0, CubeV1)),     // LF
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeFront), Vector2(CubeU0, CubeV0)),    // RF
 
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),      // LB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),    // RF
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),     // RB
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeBack), Vector2(CubeU1, CubeV1)),      // LB
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeFront), Vector2(CubeU0, CubeV0)),    // RF
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeBack), Vector2(CubeU1, CubeV0)),     // RB
 
       // Ceiling
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V1)),     // LF
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),      // LB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),    // RF
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV1)),     // LF
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), Vector2(CubeU0, CubeV1)),      // LB
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV0)),    // RF
 
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),    // RF
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),      // LB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V0)),     // RB
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV0)),    // RF
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), Vector2(CubeU0, CubeV1)),      // LB
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeBack), Vector2(CubeU0, CubeV0)),     // RB
 
       // Back wall
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), Vector2(CubeU1, CubeV0)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeBack), Vector2(CubeU1, CubeV1)),
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeBack), Vector2(CubeU0, CubeV1)),
 
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V0)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), Vector2(CubeU1, CubeV0)),
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeBack), Vector2(CubeU0, CubeV1)),
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeBack), Vector2(CubeU0, CubeV0)),
 
       // Front wall
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V1)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V1)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), Vector2(CubeU0, CubeV0)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeFront), Vector2(CubeU0, CubeV1)),
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeFront), Vector2(CubeU1, CubeV1)),
 
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V1)),
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), Vector2(CubeU0, CubeV0)),
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeFront), Vector2(CubeU1, CubeV1)),
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV0)),
 
       //// Right wall
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),       // FB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V1)),      // FF
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),    // CF
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeBack), Vector2(CubeU1, CubeV1)),       // FB
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeFront), Vector2(CubeU0, CubeV1)),      // FF
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeFront), Vector2(CubeU0, CubeV0)),    // CF
 
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),       // FB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),    // CF
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),     // CB
+      VertexPositionTexture(Vector3(CubeRight, CubeFloor, CubeBack), Vector2(CubeU1, CubeV1)),       // FB
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeFront), Vector2(CubeU0, CubeV0)),    // CF
+      VertexPositionTexture(Vector3(CubeRight, CubeCeiling, CubeBack), Vector2(CubeU1, CubeV0)),     // CB
 
       // Left wall
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V1)),      // FF
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),       // FB
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),    // CF
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeFront), Vector2(CubeU1, CubeV1)),      // FF
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeBack), Vector2(CubeU0, CubeV1)),       // FB
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV0)),    // CF
 
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),    // CF
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),       // FB
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V0)),     // CB
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeFront), Vector2(CubeU1, CubeV0)),    // CF
+      VertexPositionTexture(Vector3(CubeLeft, CubeFloor, CubeBack), Vector2(CubeU0, CubeV1)),       // FB
+      VertexPositionTexture(Vector3(CubeLeft, CubeCeiling, CubeBack), Vector2(CubeU0, CubeV0)),     // CB
     };
 
     float Clamp(const float value)
@@ -426,7 +426,7 @@ namespace Fsl
       rFrame.UboBuffer = CreateVertexShaderUBO(m_device, sizeof(VertexUBOData));
       rFrame.DescriptorSet =
         CreateDescriptorSet(m_resources.MainDescriptorPool, m_resources.MainDescriptorSetLayout, rFrame.UboBuffer, m_resources.Texture);
-      rFrame.mipMapLod = mipSelectionInfo.FinalMipLod;
+      rFrame.MipMapLod = mipSelectionInfo.FinalMipLod;
     }
 
     m_resources.MainPipelineLayout = CreatePipelineLayout(m_resources.MainDescriptorSetLayout);
@@ -462,7 +462,7 @@ namespace Fsl
     }
   }
 
-  // void GenerateMipMaps::OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) final
+  // void GenerateMipMaps::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) final
   //{
   //  if (theEvent->GetSource() == m_ui.Slider)
   //  {
@@ -470,7 +470,7 @@ namespace Fsl
   //  }
   //}
 
-  void GenerateMipMaps::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void GenerateMipMaps::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_ui.BtnDefault)
     {
@@ -507,9 +507,9 @@ namespace Fsl
 
     // Update the descriptor set when the mip lod changes
     const uint32_t currentMipLod = m_ui.Slider->GetValue();
-    if (m_resources.MainFrameResources[currentFrameIndex].mipMapLod != currentMipLod)
+    if (m_resources.MainFrameResources[currentFrameIndex].MipMapLod != currentMipLod)
     {
-      m_resources.MainFrameResources[currentFrameIndex].mipMapLod = currentMipLod;
+      m_resources.MainFrameResources[currentFrameIndex].MipMapLod = currentMipLod;
       VkDescriptorImageInfo textureImageInfo = m_resources.Texture.GetDescriptorImageInfo();
       textureImageInfo.sampler = m_resources.Samplers[currentMipLod].Get();
       UpdateDescriptorSet(m_device.Get(), m_resources.MainFrameResources[currentFrameIndex].DescriptorSet,
@@ -628,7 +628,7 @@ namespace Fsl
     FSL_PARAM_NOT_USED(matModel);
 
     VkDeviceSize offsets = 0;
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MainVertexBufferInfo.VertexBuffer.GetBufferPointer(), &offsets);
+    vkCmdBindVertexBuffers(commandBuffer, VertexBufferBindId, 1, m_resources.MainVertexBufferInfo.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(commandBuffer, m_resources.MainVertexBufferInfo.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 

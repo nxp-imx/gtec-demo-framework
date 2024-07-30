@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_PXAVAILABLESIZE_HPP
 #define FSLSIMPLEUI_BASE_PXAVAILABLESIZE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022-2023 NXP
+ * Copyright 2020, 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/MathHelper_MinMax.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/OptimizationFlag.hpp>
@@ -239,6 +240,20 @@ namespace Fsl::UI
     static constexpr PxAvailableSize Subtract(const PxAvailableSize sizePx, const PxSize2D valuePx) noexcept
     {
       return {PxAvailableSize1D::Subtract(sizePx.m_width, valuePx.Width()), PxAvailableSize1D::Subtract(sizePx.m_height, valuePx.Height())};
+    }
+
+
+    static constexpr PxSize2D MinPxSize2D(const PxAvailableSize val0, const PxSize2D val1) noexcept
+    {
+      return {PxSize1D::Create(MathHelper::Min(val0.RawWidth(), val1.RawWidth())),
+              PxSize1D::Create(MathHelper::Min(val0.RawHeight(), val1.RawHeight()))};
+    }
+
+
+    static constexpr PxSize2D MinPxSize2D(const PxSize2D val0, const PxAvailableSize val1) noexcept
+    {
+      return {PxSize1D::Create(MathHelper::Min(val0.RawWidth(), val1.RawWidth())),
+              PxSize1D::Create(MathHelper::Min(val0.RawHeight(), val1.RawHeight()))};
     }
   };
 }

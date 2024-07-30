@@ -30,19 +30,301 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslGraphics/Bitmap/Converter/RawBitmapConverter.hpp>
 #include <FslGraphics/Bitmap/RawBitmapEx.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
+#include <FslGraphics/Bitmap/SupportedConversionsHelper.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
+#include <FslGraphics/PixelFormatUtil2.hpp>
 #include <cassert>
 
 namespace Fsl
 {
+  // Inplace
+  // - PixelFormatUtil::GetPixelFormatLayout(srcPixelFormat) -> PixelFormatUtil::GetPixelFormatLayout(desiredPixelFormat);
+  // - PixelFormatLayout::B8G8R8 -> PixelFormatLayout::R8G8B8
+  // - PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::R8G8B8A8
+  // - PixelFormatLayout::R8G8B8 -> PixelFormatLayout::B8G8R8
+  // - PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::B8G8R8A8
+
+  // Non overlapping
+  // - PixelFormatUtil::GetPixelFormatLayout(srcPixelFormat)->PixelFormatUtil::GetPixelFormatLayout(desiredPixelFormat);
+  // - PixelFormatLayout::B8G8R8 -> PixelFormatLayout::B8G8R8A8
+  // - PixelFormatLayout::B8G8R8 -> PixelFormatLayout::R8G8B8
+  // - PixelFormatLayout::B8G8R8 -> PixelFormatLayout::R8G8B8A8
+  // - PixelFormatLayout::B8G8R8 -> PixelFormat::EX_ALPHA8_UNORM
+  // - PixelFormatLayout::B8G8R8 -> PixelFormat::EX_LUMINANCE8_UNORM
+  // - PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::B8G8R8
+  // - PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::R8G8B8
+  // - PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::R8G8B8A8
+  // - PixelFormatLayout::B8G8R8A8 -> PixelFormat::EX_ALPHA8_UNORM
+  // - PixelFormatLayout::B8G8R8A8 -> PixelFormat::EX_LUMINANCE8_UNORM
+  // - PixelFormatLayout::R8G8B8 -> PixelFormatLayout::B8G8R8
+  // - PixelFormatLayout::R8G8B8 -> PixelFormatLayout::B8G8R8A8
+  // - PixelFormatLayout::R8G8B8 -> PixelFormatLayout::R8G8B8A8
+  // - PixelFormatLayout::R8G8B8 -> PixelFormat::EX_ALPHA8_UNORM
+  // - PixelFormatLayout::R8G8B8 -> PixelFormat::EX_LUMINANCE8_UNORM
+  // - PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::B8G8R8
+  // - PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::B8G8R8A8
+  // - PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::R8G8B8
+  // - PixelFormatLayout::R8G8B8A8 -> PixelFormat::EX_ALPHA8_UNORM
+  // - PixelFormatLayout::R8G8B8A8 -> PixelFormat::EX_LUMINANCE8_UNORM
+  // - PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::B8G8R8
+  // - PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::R8G8B8
+  // - PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::B8G8R8A8
+  // - PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::R8G8B8A8
+  // - PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::B8G8R8
+  // - PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::R8G8B8
+  // - PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::B8G8R8A8
+  // - PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::R8G8B8A8
   namespace
   {
+    constexpr std::size_t CalcSupportedConversionsInplace() noexcept
+    {
+      constexpr std::size_t NumFormatsWithR8G8B8 = PixelFormatUtil::CountEntriesWithPixelLayout(PixelFormatLayout::R8G8B8);
+      constexpr std::size_t NumFormatsWithB8G8R8 = PixelFormatUtil::CountEntriesWithPixelLayout(PixelFormatLayout::B8G8R8);
+      constexpr std::size_t NumFormatsWithB8G8R8A8 = PixelFormatUtil::CountEntriesWithPixelLayout(PixelFormatLayout::B8G8R8A8);
+      constexpr std::size_t NumFormatsWithR8G8B8A8 = PixelFormatUtil::CountEntriesWithPixelLayout(PixelFormatLayout::R8G8B8A8);
+      std::size_t total = 0;
+
+      // PixelFormatLayout::B8G8R8 -> PixelFormatLayout::R8G8B8
+      total += NumFormatsWithB8G8R8 * NumFormatsWithR8G8B8;
+      // PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::R8G8B8A8
+      total += NumFormatsWithB8G8R8A8 * NumFormatsWithR8G8B8A8;
+      // PixelFormatLayout::R8G8B8 -> PixelFormatLayout::B8G8R8
+      total += NumFormatsWithR8G8B8 * NumFormatsWithB8G8R8;
+      // PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::B8G8R8A8
+      total += NumFormatsWithR8G8B8A8 * NumFormatsWithB8G8R8A8;
+      return total;
+    }
+
+    constexpr std::size_t CalcSupportedConversionsNonOverlapping() noexcept
+    {
+      constexpr std::size_t NumFormatsWithR8G8B8 = PixelFormatUtil::CountEntriesWithPixelLayout(PixelFormatLayout::R8G8B8);
+      constexpr std::size_t NumFormatsWithB8G8R8 = PixelFormatUtil::CountEntriesWithPixelLayout(PixelFormatLayout::B8G8R8);
+      constexpr std::size_t NumFormatsWithB8G8R8A8 = PixelFormatUtil::CountEntriesWithPixelLayout(PixelFormatLayout::B8G8R8A8);
+      constexpr std::size_t NumFormatsWithR8G8B8A8 = PixelFormatUtil::CountEntriesWithPixelLayout(PixelFormatLayout::R8G8B8A8);
+      std::size_t total = 0;
+
+      // PixelFormatLayout::B8G8R8 -> PixelFormatLayout::B8G8R8A8
+      total += NumFormatsWithB8G8R8 * NumFormatsWithB8G8R8A8;
+      // PixelFormatLayout::B8G8R8 -> PixelFormatLayout::R8G8B8
+      total += NumFormatsWithB8G8R8 * NumFormatsWithR8G8B8;
+      // PixelFormatLayout::B8G8R8 -> PixelFormatLayout::R8G8B8A8
+      total += NumFormatsWithB8G8R8 * NumFormatsWithR8G8B8A8;
+      // PixelFormatLayout::B8G8R8 -> PixelFormat::EX_ALPHA8_UNORM
+      total += NumFormatsWithB8G8R8;
+      // PixelFormatLayout::B8G8R8 -> PixelFormat::EX_LUMINANCE8_UNORM
+      total += NumFormatsWithB8G8R8;
+
+      // PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::B8G8R8
+      total += NumFormatsWithB8G8R8A8 * NumFormatsWithB8G8R8;
+      // PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::R8G8B8
+      total += NumFormatsWithB8G8R8A8 * NumFormatsWithR8G8B8;
+      // PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::R8G8B8A8
+      total += NumFormatsWithB8G8R8A8 * NumFormatsWithR8G8B8A8;
+      // PixelFormatLayout::B8G8R8A8 -> PixelFormat::EX_ALPHA8_UNORM
+      total += NumFormatsWithB8G8R8A8;
+      // PixelFormatLayout::B8G8R8A8 -> PixelFormat::EX_LUMINANCE8_UNORM
+      total += NumFormatsWithB8G8R8A8;
+
+      // PixelFormatLayout::R8G8B8 -> PixelFormatLayout::B8G8R8
+      total += NumFormatsWithR8G8B8 * NumFormatsWithB8G8R8;
+      // PixelFormatLayout::R8G8B8 -> PixelFormatLayout::B8G8R8A8
+      total += NumFormatsWithR8G8B8 * NumFormatsWithB8G8R8A8;
+      // PixelFormatLayout::R8G8B8 -> PixelFormatLayout::R8G8B8A8
+      total += NumFormatsWithR8G8B8 * NumFormatsWithR8G8B8A8;
+      // PixelFormatLayout::R8G8B8 -> PixelFormat::EX_ALPHA8_UNORM
+      total += NumFormatsWithR8G8B8;
+      // PixelFormatLayout::R8G8B8 -> PixelFormat::EX_LUMINANCE8_UNORM
+      total += NumFormatsWithR8G8B8;
+
+      // PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::B8G8R8
+      total += NumFormatsWithR8G8B8A8 * NumFormatsWithB8G8R8;
+      // PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::B8G8R8A8
+      total += NumFormatsWithR8G8B8A8 * NumFormatsWithB8G8R8A8;
+      // PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::R8G8B8
+      total += NumFormatsWithR8G8B8A8 * NumFormatsWithR8G8B8;
+      // PixelFormatLayout::R8G8B8A8 -> PixelFormat::EX_ALPHA8_UNORM
+      total += NumFormatsWithR8G8B8A8;
+      // PixelFormatLayout::R8G8B8A8 -> PixelFormat::EX_LUMINANCE8_UNORM
+      total += NumFormatsWithR8G8B8A8;
+
+      // PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::B8G8R8
+      total += NumFormatsWithB8G8R8;
+      // PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::R8G8B8
+      total += NumFormatsWithR8G8B8;
+      // PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::B8G8R8A8
+      total += NumFormatsWithB8G8R8A8;
+      // PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::R8G8B8A8
+      total += NumFormatsWithR8G8B8A8;
+
+      // PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::B8G8R8
+      total += NumFormatsWithB8G8R8;
+      // PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::R8G8B8
+      total += NumFormatsWithR8G8B8;
+      // PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::B8G8R8A8
+      total += NumFormatsWithB8G8R8A8;
+      // PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::R8G8B8A8
+      total += NumFormatsWithR8G8B8A8;
+      return total;
+    }
+
+    template <std::size_t TSupportedConversions>
+    class SupportedConversionsHelperInplace final : public SupportedConversionsHelper<TSupportedConversions>
+    {
+    public:
+      using SupportedConversionsHelper<TSupportedConversions>::Write;
+
+      static constexpr std::array<SupportedConversion, TSupportedConversions> GenerateSupportedConversions()
+      {
+        std::array<SupportedConversion, TSupportedConversions> conversions{};
+        auto dstSpan = SpanUtil::AsSpan(conversions);
+
+        // PixelFormatLayout::B8G8R8 -> PixelFormatLayout::R8G8B8
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8, PixelFormatLayout::R8G8B8);
+        // PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::R8G8B8A8
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8A8, PixelFormatLayout::R8G8B8A8);
+        // PixelFormatLayout::R8G8B8 -> PixelFormatLayout::B8G8R8
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8, PixelFormatLayout::B8G8R8);
+        // PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::B8G8R8A8
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8A8, PixelFormatLayout::B8G8R8A8);
+
+        if (!dstSpan.empty())
+        {
+          throw InternalErrorException("the span was not filled");
+        }
+        return conversions;
+      }
+    };
+
+    template <std::size_t TSupportedConversions>
+    class SupportedConversionsHelperNonOverlapping final : public SupportedConversionsHelper<TSupportedConversions>
+    {
+    public:
+      using SupportedConversionsHelper<TSupportedConversions>::Write;
+
+      static constexpr std::array<SupportedConversion, TSupportedConversions> GenerateSupportedConversions()
+      {
+        std::array<SupportedConversion, TSupportedConversions> conversions{};
+        auto dstSpan = SpanUtil::AsSpan(conversions);
+
+        // PixelFormatLayout::B8G8R8 -> PixelFormatLayout::B8G8R8A8
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8, PixelFormatLayout::B8G8R8A8);
+        // PixelFormatLayout::B8G8R8 -> PixelFormatLayout::R8G8B8
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8, PixelFormatLayout::R8G8B8);
+        // PixelFormatLayout::B8G8R8 -> PixelFormatLayout::R8G8B8A8
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8, PixelFormatLayout::R8G8B8A8);
+        // PixelFormatLayout::B8G8R8 -> PixelFormat::EX_ALPHA8_UNORM
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8, PixelFormat::EX_ALPHA8_UNORM);
+        // PixelFormatLayout::B8G8R8 -> PixelFormat::EX_LUMINANCE8_UNORM
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8, PixelFormat::EX_LUMINANCE8_UNORM);
+
+        // PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::B8G8R8
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8A8, PixelFormatLayout::B8G8R8);
+        // PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::R8G8B8
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8A8, PixelFormatLayout::R8G8B8);
+        // PixelFormatLayout::B8G8R8A8 -> PixelFormatLayout::R8G8B8A8
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8A8, PixelFormatLayout::R8G8B8A8);
+        // PixelFormatLayout::B8G8R8A8 -> PixelFormat::EX_ALPHA8_UNORM
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8A8, PixelFormat::EX_ALPHA8_UNORM);
+        // PixelFormatLayout::B8G8R8A8 -> PixelFormat::EX_LUMINANCE8_UNORM
+        dstSpan = Write(dstSpan, PixelFormatLayout::B8G8R8A8, PixelFormat::EX_LUMINANCE8_UNORM);
+
+        // PixelFormatLayout::R8G8B8 -> PixelFormatLayout::B8G8R8
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8, PixelFormatLayout::B8G8R8);
+        // PixelFormatLayout::R8G8B8 -> PixelFormatLayout::B8G8R8A8
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8, PixelFormatLayout::B8G8R8A8);
+        // PixelFormatLayout::R8G8B8 -> PixelFormatLayout::R8G8B8A8
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8, PixelFormatLayout::R8G8B8A8);
+        // PixelFormatLayout::R8G8B8 -> PixelFormat::EX_ALPHA8_UNORM
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8, PixelFormat::EX_ALPHA8_UNORM);
+        // PixelFormatLayout::R8G8B8 -> PixelFormat::EX_LUMINANCE8_UNORM
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8, PixelFormat::EX_LUMINANCE8_UNORM);
+
+        // PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::B8G8R8
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8A8, PixelFormatLayout::B8G8R8);
+        // PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::B8G8R8A8
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8A8, PixelFormatLayout::B8G8R8A8);
+        // PixelFormatLayout::R8G8B8A8 -> PixelFormatLayout::R8G8B8
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8A8, PixelFormatLayout::R8G8B8);
+        // PixelFormatLayout::R8G8B8A8 -> PixelFormat::EX_ALPHA8_UNORM
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8A8, PixelFormat::EX_ALPHA8_UNORM);
+        // PixelFormatLayout::R8G8B8A8 -> PixelFormat::EX_LUMINANCE8_UNORM
+        dstSpan = Write(dstSpan, PixelFormatLayout::R8G8B8A8, PixelFormat::EX_LUMINANCE8_UNORM);
+
+        // PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::B8G8R8
+        dstSpan = Write(dstSpan, PixelFormat::EX_ALPHA8_UNORM, PixelFormatLayout::B8G8R8);
+        // PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::R8G8B8
+        dstSpan = Write(dstSpan, PixelFormat::EX_ALPHA8_UNORM, PixelFormatLayout::R8G8B8);
+        // PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::B8G8R8A8
+        dstSpan = Write(dstSpan, PixelFormat::EX_ALPHA8_UNORM, PixelFormatLayout::B8G8R8A8);
+        // PixelFormat::EX_ALPHA8_UNORM -> PixelFormatLayout::R8G8B8A8
+        dstSpan = Write(dstSpan, PixelFormat::EX_ALPHA8_UNORM, PixelFormatLayout::R8G8B8A8);
+
+        // PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::B8G8R8
+        dstSpan = Write(dstSpan, PixelFormat::EX_LUMINANCE8_UNORM, PixelFormatLayout::B8G8R8);
+        // PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::R8G8B8
+        dstSpan = Write(dstSpan, PixelFormat::EX_LUMINANCE8_UNORM, PixelFormatLayout::R8G8B8);
+        // PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::B8G8R8A8
+        dstSpan = Write(dstSpan, PixelFormat::EX_LUMINANCE8_UNORM, PixelFormatLayout::B8G8R8A8);
+        // PixelFormat::EX_LUMINANCE8_UNORM -> PixelFormatLayout::R8G8B8A8
+        dstSpan = Write(dstSpan, PixelFormat::EX_LUMINANCE8_UNORM, PixelFormatLayout::R8G8B8A8);
+
+        if (!dstSpan.empty())
+        {
+          throw InternalErrorException("the span was not filled");
+        }
+        return conversions;
+      }
+    };
+
+    constexpr bool Contains(const ReadOnlySpan<SupportedConversion> set, const SupportedConversion value) noexcept
+    {
+      for (const auto& entry : set)
+      {
+        if (entry == value)
+        {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    constexpr bool IsSubSet(const ReadOnlySpan<SupportedConversion> set, const ReadOnlySpan<SupportedConversion> subSet) noexcept
+    {
+      for (const auto& entry : subSet)
+      {
+        if (Contains(set, entry))
+        {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // Compile time generate the list of actually supported conversions
+    constexpr auto SupportedConversionsInplace = SupportedConversionsHelperInplace<CalcSupportedConversionsInplace()>::GenerateSupportedConversions();
+    constexpr auto SupportedConversionsNonOverlapping =
+      SupportedConversionsHelperNonOverlapping<CalcSupportedConversionsNonOverlapping()>::GenerateSupportedConversions();
+
+    static_assert(IsSubSet(SpanUtil::AsReadOnlySpan(SupportedConversionsNonOverlapping), SpanUtil::AsReadOnlySpan(SupportedConversionsInplace)),
+                  "SupportedConversionsInplace is expected to be a subset of SupportedConversionsNonOverlapping");
   }
 
+  ReadOnlySpan<SupportedConversion> RawBitmapConverter::GetSupportedConversionsInplace() noexcept
+  {
+    return SpanUtil::AsReadOnlySpan(SupportedConversionsInplace);
+  }
+
+
+  ReadOnlySpan<SupportedConversion> RawBitmapConverter::GetSupportedConversionsNonOverlapping() noexcept
+  {
+    return SpanUtil::AsReadOnlySpan(SupportedConversionsNonOverlapping);
+  }
 
   bool RawBitmapConverter::TryConvert(RawBitmapEx& rDstBitmap, const PixelFormat desiredPixelFormat)
   {
@@ -59,9 +341,9 @@ namespace Fsl
       return true;
     }
 
-    if (rDstBitmap.Width() == 0 || rDstBitmap.Height() == 0)
+    if (rDstBitmap.RawWidth() == 0 || rDstBitmap.RawHeight() == 0)
     {
-      rDstBitmap.SetPixelFormat(desiredPixelFormat);
+      rDstBitmap.UncheckedSetPixelFormat(desiredPixelFormat);
       return true;
     }
 
@@ -70,7 +352,7 @@ namespace Fsl
     if (srcPixelFormatLayout == desiredPixelFormatLayout)
     {
       // The pixel format layout does not need to be changed, so just update the pixel format
-      rDstBitmap.SetPixelFormat(desiredPixelFormat);
+      rDstBitmap.UncheckedSetPixelFormat(desiredPixelFormat);
       return true;
     }
 
@@ -82,7 +364,7 @@ namespace Fsl
       // RGB -> BGR
       // BGR -> RGB
       RawBitmapUtil::Swizzle24From012To210(rDstBitmap);
-      rDstBitmap.SetPixelFormat(desiredPixelFormat);
+      rDstBitmap.UncheckedSetPixelFormat(desiredPixelFormat);
       return true;
     }
     if ((srcPixelFormatLayout == PixelFormatLayout::R8G8B8A8 && desiredPixelFormatLayout == PixelFormatLayout::B8G8R8A8) ||
@@ -92,14 +374,14 @@ namespace Fsl
       // RGBA -> BGRA
       // BGRA -> RGBA
       RawBitmapUtil::Swizzle32(rDstBitmap, 2, 1, 0, 3);
-      rDstBitmap.SetPixelFormat(desiredPixelFormat);
+      rDstBitmap.UncheckedSetPixelFormat(desiredPixelFormat);
       return true;
     }
     return false;
   }
 
 
-  bool RawBitmapConverter::TryConvert(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap)
+  bool RawBitmapConverter::TryConvert(RawBitmapEx& rDstBitmap, const ReadOnlyRawBitmap& srcBitmap)
   {
     if (!rDstBitmap.IsValid() || !srcBitmap.IsValid())
     {

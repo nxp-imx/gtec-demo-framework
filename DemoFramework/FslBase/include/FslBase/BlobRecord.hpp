@@ -43,13 +43,17 @@ namespace Fsl
     std::size_t Offset{0};
     std::size_t Size{0};
 
-    BlobRecord() = default;
+    constexpr BlobRecord() noexcept = default;
 
-    BlobRecord(const std::size_t& offset, const std::size_t size)
+    constexpr BlobRecord(const std::size_t& offset, const std::size_t size) noexcept
       : Offset(offset)
       , Size(size)
     {
     }
+
+    // Request that the compiler generates a copy constructor and assignment operator
+    constexpr BlobRecord(const BlobRecord&) noexcept = default;
+    constexpr BlobRecord& operator=(const BlobRecord&) noexcept = default;
   };
 }
 

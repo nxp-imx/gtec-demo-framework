@@ -33,6 +33,7 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslGraphics/Colors.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
@@ -64,13 +65,13 @@ namespace Fsl
 
   namespace
   {
-    const uint32_t PARTICLE_CAPACITY = 100000;
+    constexpr uint32_t ParticleCapacity = 100000;
 
-    const float DEFAULT_ZOOM = 32;
+    constexpr float DefaultZoom = 32;
 
     namespace LocalConfig
     {
-      ConstrainedValue<int32_t> EmitRange(0, 0, 2000);
+      constexpr ConstrainedValue<int32_t> EmitRange(0, 0, 2000);
     }
 
 
@@ -84,52 +85,52 @@ namespace Fsl
       const float z = dimensions.Z * 0.5f;
       std::array<VertexPositionColorTexture, 6 * 6> vertices = {
         // Front
-        VertexPositionColorTexture(Vector3(-x, +y, +z), Color::White(), Vector2(0, 1)),
-        VertexPositionColorTexture(Vector3(-x, -y, +z), Color::White(), Vector2(0, 0)),
-        VertexPositionColorTexture(Vector3(+x, -y, +z), Color::White(), Vector2(1, 0)),
-        VertexPositionColorTexture(Vector3(-x, +y, +z), Color::White(), Vector2(0, 1)),
-        VertexPositionColorTexture(Vector3(+x, -y, +z), Color::White(), Vector2(1, 0)),
-        VertexPositionColorTexture(Vector3(+x, +y, +z), Color::White(), Vector2(1, 1)),
+        VertexPositionColorTexture(Vector3(-x, +y, +z), Colors::White(), Vector2(0, 1)),
+        VertexPositionColorTexture(Vector3(-x, -y, +z), Colors::White(), Vector2(0, 0)),
+        VertexPositionColorTexture(Vector3(+x, -y, +z), Colors::White(), Vector2(1, 0)),
+        VertexPositionColorTexture(Vector3(-x, +y, +z), Colors::White(), Vector2(0, 1)),
+        VertexPositionColorTexture(Vector3(+x, -y, +z), Colors::White(), Vector2(1, 0)),
+        VertexPositionColorTexture(Vector3(+x, +y, +z), Colors::White(), Vector2(1, 1)),
 
         // Back
-        VertexPositionColorTexture(Vector3(-x, +y, -z), Color::White(), Vector2(1, 1)),
-        VertexPositionColorTexture(Vector3(+x, -y, -z), Color::White(), Vector2(0, 0)),
-        VertexPositionColorTexture(Vector3(-x, -y, -z), Color::White(), Vector2(1, 0)),
-        VertexPositionColorTexture(Vector3(-x, +y, -z), Color::White(), Vector2(1, 1)),
-        VertexPositionColorTexture(Vector3(+x, +y, -z), Color::White(), Vector2(0, 1)),
-        VertexPositionColorTexture(Vector3(+x, -y, -z), Color::White(), Vector2(0, 0)),
+        VertexPositionColorTexture(Vector3(-x, +y, -z), Colors::White(), Vector2(1, 1)),
+        VertexPositionColorTexture(Vector3(+x, -y, -z), Colors::White(), Vector2(0, 0)),
+        VertexPositionColorTexture(Vector3(-x, -y, -z), Colors::White(), Vector2(1, 0)),
+        VertexPositionColorTexture(Vector3(-x, +y, -z), Colors::White(), Vector2(1, 1)),
+        VertexPositionColorTexture(Vector3(+x, +y, -z), Colors::White(), Vector2(0, 1)),
+        VertexPositionColorTexture(Vector3(+x, -y, -z), Colors::White(), Vector2(0, 0)),
 
         // Right
-        VertexPositionColorTexture(Vector3(+x, +y, +z), Color::White(), Vector2(0, 1)),
-        VertexPositionColorTexture(Vector3(+x, -y, +z), Color::White(), Vector2(0, 0)),
-        VertexPositionColorTexture(Vector3(+x, -y, -z), Color::White(), Vector2(1, 0)),
-        VertexPositionColorTexture(Vector3(+x, +y, +z), Color::White(), Vector2(0, 1)),
-        VertexPositionColorTexture(Vector3(+x, -y, -z), Color::White(), Vector2(1, 0)),
-        VertexPositionColorTexture(Vector3(+x, +y, -z), Color::White(), Vector2(1, 1)),
+        VertexPositionColorTexture(Vector3(+x, +y, +z), Colors::White(), Vector2(0, 1)),
+        VertexPositionColorTexture(Vector3(+x, -y, +z), Colors::White(), Vector2(0, 0)),
+        VertexPositionColorTexture(Vector3(+x, -y, -z), Colors::White(), Vector2(1, 0)),
+        VertexPositionColorTexture(Vector3(+x, +y, +z), Colors::White(), Vector2(0, 1)),
+        VertexPositionColorTexture(Vector3(+x, -y, -z), Colors::White(), Vector2(1, 0)),
+        VertexPositionColorTexture(Vector3(+x, +y, -z), Colors::White(), Vector2(1, 1)),
 
         // Left
-        VertexPositionColorTexture(Vector3(-x, +y, -z), Color::White(), Vector2(0, 1)),
-        VertexPositionColorTexture(Vector3(-x, -y, -z), Color::White(), Vector2(0, 0)),
-        VertexPositionColorTexture(Vector3(-x, -y, +z), Color::White(), Vector2(1, 0)),
-        VertexPositionColorTexture(Vector3(-x, +y, -z), Color::White(), Vector2(0, 1)),
-        VertexPositionColorTexture(Vector3(-x, -y, +z), Color::White(), Vector2(1, 0)),
-        VertexPositionColorTexture(Vector3(-x, +y, +z), Color::White(), Vector2(1, 1)),
+        VertexPositionColorTexture(Vector3(-x, +y, -z), Colors::White(), Vector2(0, 1)),
+        VertexPositionColorTexture(Vector3(-x, -y, -z), Colors::White(), Vector2(0, 0)),
+        VertexPositionColorTexture(Vector3(-x, -y, +z), Colors::White(), Vector2(1, 0)),
+        VertexPositionColorTexture(Vector3(-x, +y, -z), Colors::White(), Vector2(0, 1)),
+        VertexPositionColorTexture(Vector3(-x, -y, +z), Colors::White(), Vector2(1, 0)),
+        VertexPositionColorTexture(Vector3(-x, +y, +z), Colors::White(), Vector2(1, 1)),
 
         // Top
-        VertexPositionColorTexture(Vector3(-x, +y, -z), Color::White(), Vector2(0, 1)),
-        VertexPositionColorTexture(Vector3(-x, +y, +z), Color::White(), Vector2(0, 0)),
-        VertexPositionColorTexture(Vector3(+x, +y, +z), Color::White(), Vector2(1, 0)),
-        VertexPositionColorTexture(Vector3(-x, +y, -z), Color::White(), Vector2(0, 1)),
-        VertexPositionColorTexture(Vector3(+x, +y, +z), Color::White(), Vector2(1, 0)),
-        VertexPositionColorTexture(Vector3(+x, +y, -z), Color::White(), Vector2(1, 1)),
+        VertexPositionColorTexture(Vector3(-x, +y, -z), Colors::White(), Vector2(0, 1)),
+        VertexPositionColorTexture(Vector3(-x, +y, +z), Colors::White(), Vector2(0, 0)),
+        VertexPositionColorTexture(Vector3(+x, +y, +z), Colors::White(), Vector2(1, 0)),
+        VertexPositionColorTexture(Vector3(-x, +y, -z), Colors::White(), Vector2(0, 1)),
+        VertexPositionColorTexture(Vector3(+x, +y, +z), Colors::White(), Vector2(1, 0)),
+        VertexPositionColorTexture(Vector3(+x, +y, -z), Colors::White(), Vector2(1, 1)),
 
         // Bottom
-        VertexPositionColorTexture(Vector3(-x, -y, +z), Color::White(), Vector2(0, 1)),
-        VertexPositionColorTexture(Vector3(-x, -y, -z), Color::White(), Vector2(0, 0)),
-        VertexPositionColorTexture(Vector3(+x, -y, -z), Color::White(), Vector2(1, 0)),
-        VertexPositionColorTexture(Vector3(-x, -y, +z), Color::White(), Vector2(0, 1)),
-        VertexPositionColorTexture(Vector3(+x, -y, -z), Color::White(), Vector2(1, 0)),
-        VertexPositionColorTexture(Vector3(+x, -y, +z), Color::White(), Vector2(1, 1)),
+        VertexPositionColorTexture(Vector3(-x, -y, +z), Colors::White(), Vector2(0, 1)),
+        VertexPositionColorTexture(Vector3(-x, -y, -z), Colors::White(), Vector2(0, 0)),
+        VertexPositionColorTexture(Vector3(+x, -y, -z), Colors::White(), Vector2(1, 0)),
+        VertexPositionColorTexture(Vector3(-x, -y, +z), Colors::White(), Vector2(0, 1)),
+        VertexPositionColorTexture(Vector3(+x, -y, -z), Colors::White(), Vector2(1, 0)),
+        VertexPositionColorTexture(Vector3(+x, -y, +z), Colors::White(), Vector2(1, 1)),
       };
 
       rDst.Reset(vertices, GL_STATIC_DRAW);
@@ -142,13 +143,13 @@ namespace Fsl
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
     , m_allowAdvancedTechniques(false)
     , m_camera(config.WindowMetrics.GetSizePx())
-    , m_locWorldViewMatrix(GLValues::INVALID_LOCATION)
-    , m_locProjMatrix(GLValues::INVALID_LOCATION)
+    , m_locWorldViewMatrix(GLValues::InvalidLocation)
+    , m_locProjMatrix(GLValues::InvalidLocation)
     , m_rotationSpeed(0.0f, 0.5f, 0.0f)
     , m_rotate(false)
     , m_particleSystemType(ParticleSystemType::GeometryShader)
   {
-    m_camera.SetZoom(DEFAULT_ZOOM);
+    m_camera.SetZoom(DefaultZoom);
 
     SetParticleSystem(m_particleSystemType, true);
 
@@ -179,13 +180,13 @@ namespace Fsl
     {    // Prepare the default program
       m_program.Reset(contentManager->ReadAllText("Shader.vert"), contentManager->ReadAllText("Shader.frag"));
       const GLuint hProgram = m_program.Get();
-      constexpr auto vertexDecl = VertexPositionColorTexture::GetVertexDeclarationArray();
+      constexpr auto VertexDecl = VertexPositionColorTexture::GetVertexDeclarationArray();
       m_cubeAttribLink[0] =
-        GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+        GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexPosition"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
       m_cubeAttribLink[1] =
-        GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
+        GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexColor"), VertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
       m_cubeAttribLink[2] = GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexTexCoord"),
-                                               vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+                                               VertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
 
       m_locWorldViewMatrix = glGetUniformLocation(hProgram, "WorldView");
       m_locProjMatrix = glGetUniformLocation(hProgram, "Projection");
@@ -199,14 +200,14 @@ namespace Fsl
   ParticleSystemScene::~ParticleSystemScene() = default;
 
 
-  void ParticleSystemScene::OnSelect(const RoutedEventArgs& /*args*/, const std::shared_ptr<WindowSelectEvent>& /*theEvent*/)
+  void ParticleSystemScene::OnSelect(const std::shared_ptr<WindowSelectEvent>& /*theEvent*/)
   {
     // auto source = theEvent->GetSource();
     // if
   }
 
 
-  void ParticleSystemScene::OnContentChanged(const RoutedEventArgs& /*args*/, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
+  void ParticleSystemScene::OnContentChanged(const std::shared_ptr<WindowContentChangedEvent>& theEvent)
   {
     auto source = theEvent->GetSource();
 
@@ -239,7 +240,7 @@ namespace Fsl
     {
       if (m_cbParticleSystemGPU1->IsChecked())
       {
-        m_particleSystemGpu = std::make_shared<ParticleSystemGLES3>(PARTICLE_CAPACITY, GetContentManager());
+        m_particleSystemGpu = std::make_shared<ParticleSystemGLES3>(ParticleCapacity, GetContentManager());
       }
       else
       {
@@ -250,7 +251,7 @@ namespace Fsl
     {
       if (m_cbParticleSystemGPU2->IsChecked())
       {
-        m_particleSystemGpu2 = std::make_shared<ParticleSystemSnow>(PARTICLE_CAPACITY, GetContentManager(), Vector3(100, 50, 100), 0.08f);
+        m_particleSystemGpu2 = std::make_shared<ParticleSystemSnow>(ParticleCapacity, GetContentManager(), Vector3(100, 50, 100), 0.08f);
       }
       else
       {
@@ -304,7 +305,7 @@ namespace Fsl
       if (event.IsPressed())
       {
         m_camera.ResetRotation();
-        m_camera.SetZoom(DEFAULT_ZOOM);
+        m_camera.SetZoom(DefaultZoom);
         m_rotation = Vector3();
         event.Handled();
       }
@@ -628,20 +629,20 @@ namespace Fsl
     switch (typeEx)
     {
     case ParticleSystemType::Points:
-      particleDraw = std::make_shared<ParticleDrawPointsGLES3>(GetContentManager(), PARTICLE_CAPACITY, particle_system_type::ParticleRecordSize());
+      particleDraw = std::make_shared<ParticleDrawPointsGLES3>(GetContentManager(), ParticleCapacity, particle_system_type::ParticleRecordSize());
       break;
     case ParticleSystemType::GeometryShader:
       particleDraw =
-        std::make_shared<ParticleDrawGeometryShaderGLES3>(GetContentManager(), PARTICLE_CAPACITY, particle_system_type::ParticleRecordSize());
+        std::make_shared<ParticleDrawGeometryShaderGLES3>(GetContentManager(), ParticleCapacity, particle_system_type::ParticleRecordSize());
       break;
     case ParticleSystemType::Quads:
     default:
-      particleDraw = std::make_shared<ParticleDrawQuadsGLES3>(GetContentManager(), PARTICLE_CAPACITY);
+      particleDraw = std::make_shared<ParticleDrawQuadsGLES3>(GetContentManager(), ParticleCapacity);
       break;
     }
     if (particleDraw)
     {
-      m_particleSystem = std::make_shared<particle_system_type>(particleDraw, PARTICLE_CAPACITY);
+      m_particleSystem = std::make_shared<particle_system_type>(particleDraw, ParticleCapacity);
 
       m_boxEmitter = std::make_shared<BoxEmitter>();
       m_particleSystem->AddEmitter(m_boxEmitter);

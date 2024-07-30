@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Render/BaseTexture2D.hpp>
 #include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
 
@@ -62,28 +61,25 @@ namespace Fsl
     ~AtlasTexture2D();
 
     //! @brief Check if this contains a valid texture.
-    bool IsValid() const;
+    bool IsValid() const noexcept;
 
     //! @brief Get the texture size of the atlas.
-    PxSize2D GetAtlasSize() const
+    PxSize2D GetAtlasSize() const noexcept
     {
       return m_atlas.GetSize();
     }
 
     //! @brief Get the virtual texture size.
     //! @note Not valid entries will be zero size
-    PxSize2D GetSize() const
-    {
-      return TypeConverter::UncheckedTo<PxSize2D>(m_info.ExtentPx);
-    }
+    PxSize2D GetSize() const noexcept;
 
-    PxExtent2D GetExtent() const
+    PxExtent2D GetExtent() const noexcept
     {
       return m_info.ExtentPx;
     }
 
     //! @brief Get the virtual texture size.
-    const AtlasTextureInfo& GetInfo() const
+    const AtlasTextureInfo& GetInfo() const noexcept
     {
       return m_info;
     }

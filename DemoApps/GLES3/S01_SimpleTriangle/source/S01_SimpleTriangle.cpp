@@ -11,7 +11,7 @@
 
 #include "S01_SimpleTriangle.hpp"
 #include <FslBase/Math/Matrix.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <GLES3/gl3.h>
@@ -26,8 +26,8 @@ namespace Fsl
                                                         100.0f, 100.0f, 0.0f, -100.0f, 100.0f,  0.0f, 100.0f,  -100.0,  0.0f};
 
     // The index in these variables should match the g_pszShaderAttributeArray ordering
-    constexpr GLuint g_hVertexLoc = 0;
-    constexpr std::array<GLES3::GLBindAttribLocation, 1> g_shaderAttributeArray = {GLES3::GLBindAttribLocation(g_hVertexLoc, "g_vPosition")};
+    constexpr GLuint VertexLoc = 0;
+    constexpr std::array<GLES3::GLBindAttribLocation, 1> ShaderAttributeArray = {GLES3::GLBindAttribLocation(VertexLoc, "g_vPosition")};
   }
 
   S01_SimpleTriangle::S01_SimpleTriangle(const DemoAppConfig& config)
@@ -36,7 +36,7 @@ namespace Fsl
     , m_hProjMatrixLoc(0)
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
-    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray));
+    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), SpanUtil::AsReadOnlySpan(ShaderAttributeArray));
 
     const GLuint hProgram = m_program.Get();
 
@@ -83,12 +83,12 @@ namespace Fsl
     glUniformMatrix4fv(m_hProjMatrixLoc, 1, 0, matProj.DirectAccess());
 
     // Bind the vertex attributes
-    glVertexAttribPointer(g_hVertexLoc, 3, GL_FLOAT, 0, 0, g_vertexPositions.data());
-    glEnableVertexAttribArray(g_hVertexLoc);
+    glVertexAttribPointer(VertexLoc, 3, GL_FLOAT, 0, 0, g_vertexPositions.data());
+    glEnableVertexAttribArray(VertexLoc);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     // Cleanup
-    glDisableVertexAttribArray(g_hVertexLoc);
+    glDisableVertexAttribArray(VertexLoc);
   }
 }

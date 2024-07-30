@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_BASE_COMMAND_CUSTOMDRAWBASICIMAGEINFO_HPP
 #define FSLSIMPLEUI_RENDER_BASE_COMMAND_CUSTOMDRAWBASICIMAGEINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,29 +37,25 @@
 #include <memory>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::UI
 {
   class UIRawMeshBuilder2D;
+  class ICustomDrawData;
+  using FnDrawCustomBasicImageMesh = void (*)(UIRawMeshBuilder2D&, const PxVector2, const PxSize2D, const RenderBasicImageInfo&,
+                                              const ICustomDrawData* const);
 
-  namespace UI
+  struct CustomDrawBasicImageInfo
   {
-    class ICustomDrawData;
-    using FnDrawCustomBasicImageMesh = void (*)(UIRawMeshBuilder2D&, const PxVector2, const PxSize2D, const RenderBasicImageInfo&,
-                                                const ICustomDrawData* const);
+    FnDrawCustomBasicImageMesh FnDraw{nullptr};
+    std::shared_ptr<ICustomDrawData> CustomData;
 
-    struct CustomDrawBasicImageInfo
+    CustomDrawBasicImageInfo() noexcept = default;
+    explicit CustomDrawBasicImageInfo(const FnDrawCustomBasicImageMesh fnDraw, std::shared_ptr<ICustomDrawData> customData) noexcept
+      : FnDraw(fnDraw)
+      , CustomData(std::move(customData))
     {
-      FnDrawCustomBasicImageMesh FnDraw{nullptr};
-      std::shared_ptr<ICustomDrawData> CustomData;
-
-      CustomDrawBasicImageInfo() noexcept = default;
-      explicit CustomDrawBasicImageInfo(const FnDrawCustomBasicImageMesh fnDraw, std::shared_ptr<ICustomDrawData> customData) noexcept
-        : FnDraw(fnDraw)
-        , CustomData(std::move(customData))
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

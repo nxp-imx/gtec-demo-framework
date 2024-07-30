@@ -1,7 +1,7 @@
 #ifndef FSLBASE_TYPECONVERTER_HPP
 #define FSLBASE_TYPECONVERTER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,36 +38,35 @@
 #include <limits>
 #include <type_traits>
 
-namespace Fsl
+
+//! Provides type conversion.
+//!
+//! The main methods are
+//! - To<type>        Convert the input type to the given type with proper checks. This can be done as a constexpr.
+//! - ChangeTo<type>  Convert the input type to the given type with proper checks. This can not be done as a constexpr.
+//!                   ChangeTo is primarily needed becasue std::round isn't a constexpr yet.
+namespace Fsl::TypeConverter
 {
-  //! Provides type conversion.
-  //!
-  //! The main methods are
-  //! - To<type>        Convert the input type to the given type with proper checks. This can be done as a constexpr.
-  //! - ChangeTo<type>  Convert the input type to the given type with proper checks. This can not be done as a constexpr.
-  //!                   ChangeTo is primarily needed becasue std::round isn't a constexpr yet.
-  namespace TypeConverter
-  {
-    //! Convert to a type where we can guarantee it can be done as a constexpr
-    //! Will validate that the conversion is valid in and if its not it throws a ConversionException.
-    template <typename TTo, typename TFrom>
-    constexpr inline TTo To(const TFrom& value) = delete;
+  //! Convert to a type where we can guarantee it can be done as a constexpr
+  //! Will validate that the conversion is valid in and if its not it throws a ConversionException.
+  template <typename TTo, typename TFrom>
+  constexpr inline TTo To(const TFrom& value) = delete;
 
-    //! Convert to a type where we can not guarantee it can be done as a constexpr
-    //! Will validate that the conversion is valid in and if its not it throws a ConversionException.
-    template <typename TTo, typename TFrom>
-    inline TTo ChangeTo(const TFrom& value) = delete;
+  //! Convert to a type where we can not guarantee it can be done as a constexpr
+  //! Will validate that the conversion is valid in and if its not it throws a ConversionException.
+  template <typename TTo, typename TFrom>
+  inline TTo ChangeTo(const TFrom& value) = delete;
 
-    //! Convert to a type where we can not guarantee it can be done as a constexpr
-    //! Will validate that the conversion is valid in debug builds, but will do nothing in release builds.
-    template <typename TTo, typename TFrom>
-    constexpr inline TTo UncheckedTo(const TFrom& value) noexcept = delete;
+  //! Convert to a type where we can not guarantee it can be done as a constexpr
+  //! Will validate that the conversion is valid in debug builds, but will do nothing in release builds.
+  template <typename TTo, typename TFrom>
+  constexpr inline TTo UncheckedTo(const TFrom& value) noexcept = delete;
 
-    //! Convert to a type where we can not guarantee it can be done as a constexpr
-    //! Will validate that the conversion is valid in debug builds, but will do nothing in release builds.
-    template <typename TTo, typename TFrom>
-    inline TTo UncheckedChangeTo(const TFrom& value) = delete;
-  }
+  //! Convert to a type where we can not guarantee it can be done as a constexpr
+  //! Will validate that the conversion is valid in debug builds, but will do nothing in release builds.
+  template <typename TTo, typename TFrom>
+  inline TTo UncheckedChangeTo(const TFrom& value) = delete;
 }
+
 
 #endif

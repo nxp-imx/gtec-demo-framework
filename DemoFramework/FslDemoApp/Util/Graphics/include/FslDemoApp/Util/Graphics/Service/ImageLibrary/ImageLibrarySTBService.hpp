@@ -59,7 +59,7 @@ namespace Fsl
     bool TryWrite(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat, const bool allowOverwrite) final;
 
   private:
-    bool TryWrite(const IO::Path& dstName, const Bitmap& bitmap, const int comp, const ImageFormat imageFormat);
+    bool TryWriteNow(const IO::Path& dstName, const Bitmap& bitmap, const ImageFormat imageFormat);
   };
 }
 

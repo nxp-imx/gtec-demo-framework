@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_TRANSITION_TRANSITIONCOLOR_HPP
 #define FSLGRAPHICS_TRANSITION_TRANSITIONCOLOR_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,37 +35,35 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Time/TimeSpan.hpp>
+#include <FslBase/Transition/EasingFunctionUtil.hpp>
 #include <FslBase/Transition/TransitionState.hpp>
 #include <FslBase/Transition/TransitionType.hpp>
 #include <FslGraphics/Color.hpp>
-#include <memory>
-#include <vector>
 
 namespace Fsl
 {
-  class TransitionCache;
-
   class TransitionColor
   {
-    std::shared_ptr<std::vector<float>> m_transition;
     TransitionType m_transitionType{TransitionType::Smooth};
+    EasingFunctionUtil::FNEasingFunction m_fnEasingFunction{EasingFunctionUtil::GetEasingFunction(m_transitionType)};
+
     Color m_val;
     Color m_from;
     Color m_target;
 
-    int64_t m_currentTime{0};
-    int64_t m_endTime{0};
-    int32_t m_startDelay{0};
+    TimeSpan m_endTime;
+    TimeSpan m_currentTime;
+    TimeSpan m_startDelay;
 
   public:
-    TransitionColor();
-    TransitionColor(TransitionCache& rTransitionCache, const TimeSpan& time);
-    TransitionColor(TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type);
+    TransitionColor() noexcept;
+    explicit TransitionColor(const TimeSpan time) noexcept;
+    TransitionColor(const TimeSpan time, const TransitionType type) noexcept;
 
     //! @brief The timespan that we will wait before we start the actual animation (however the animation is considered in progresses while waiting)
-    TimeSpan GetStartDelay() const;
+    TimeSpan GetStartDelay() const noexcept;
 
-    void SetStartDelay(const TimeSpan& value);
+    void SetStartDelay(const TimeSpan value) noexcept;
 
     //! @brief Check if the animation is completed
     bool IsCompleted() const noexcept
@@ -79,7 +77,7 @@ namespace Fsl
       return m_val;
     }
 
-    void SetValue(const Color& value);
+    void SetValue(const Color value) noexcept;
 
     //! @brief Get the actual value (the value the animation will finish at)
     Color GetActualValue() const noexcept
@@ -88,17 +86,17 @@ namespace Fsl
     }
 
     //! @brief Set the actual value, this force completes the animation
-    void SetActualValue(const Color& value);
+    void SetActualValue(const Color value) noexcept;
 
-    void ForceComplete();
+    void ForceComplete() noexcept;
 
-    TimeSpan GetTransitionTime() const;
-    void SetTransitionTime(TransitionCache& rTransitionCache, const TimeSpan& time);
-    void SetTransitionTime(TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type);
-    TransitionState Update(const TimeSpan& deltaTime);
+    TimeSpan GetTransitionTime() const noexcept;
+    void SetTransitionTime(const TimeSpan time) noexcept;
+    void SetTransitionTime(const TimeSpan time, const TransitionType type) noexcept;
+    TransitionState Update(const TimeSpan deltaTime) noexcept;
 
   private:
-    void CalcTransition();
+    void CalcTransition() noexcept;
   };
 }
 

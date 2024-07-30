@@ -43,6 +43,10 @@ namespace Fsl
 {
   struct VertexPositionColorTexture
   {
+    using position_type = Vector3;
+    using color_type = Fsl::Color;
+    using texture_coordinate_type = Vector2;
+
     Vector3 Position;
     Fsl::Color Color;
     Vector2 TextureCoordinate;
@@ -67,36 +71,22 @@ namespace Fsl
 
     static constexpr VertexDeclarationArray<3> GetVertexDeclarationArray()
     {
-      constexpr BasicVertexDeclarationArray<3> g_elements = {
+      constexpr BasicVertexDeclarationArray<3> Elements = {
         VertexElement(offsetof(VertexPositionColorTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
         VertexElement(offsetof(VertexPositionColorTexture, Color), VertexElementFormat::X8Y8Z8W8_UNORM, VertexElementUsage::Color, 0),
         VertexElement(offsetof(VertexPositionColorTexture, TextureCoordinate), VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate,
                       0)};
-      constexpr VertexDeclarationArray<3> span(g_elements, sizeof(VertexPositionColorTexture));
-      return span;
+      constexpr VertexDeclarationArray<3> Span(Elements, sizeof(VertexPositionColorTexture));
+      return Span;
     }
 
     // IMPROVEMENT: In C++17 this could be a constexpr since array .data() becomes a constexpr
     //              At least this workaround still gives us compile time validation of the vertex element data
     static VertexDeclarationSpan AsVertexDeclarationSpan()
     {
-      constexpr static VertexDeclarationArray<3> decl = GetVertexDeclarationArray();
-      return decl.AsReadOnlySpan();
+      constexpr static VertexDeclarationArray<3> Decl = GetVertexDeclarationArray();
+      return Decl.AsReadOnlySpan();
     }
-
-    // IMPROVEMENT: In C++17 this could be a constexpr since array .data() becomes a constexpr
-    // static VertexDeclarationSpan GetVertexDeclarationArray()
-    //{
-    //  constexpr static std::array<VertexElement, 3> g_elements = {
-    //    VertexElement(offsetof(VertexPositionColorTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
-    //    VertexElement(offsetof(VertexPositionColorTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
-    //    VertexElement(offsetof(VertexPositionColorTexture, TextureCoordinate), VertexElementFormat::Vector2,
-    //    VertexElementUsage::TextureCoordinate,
-    //                    0)};
-    //  // In C++ declare this a constexpr!
-    //  static VertexDeclarationSpan span(g_elements.data(), g_elements.size(), sizeof(VertexPositionColorTexture));
-    //  return span;
-    //}
 
 
     constexpr bool operator==(const VertexPositionColorTexture& rhs) const noexcept

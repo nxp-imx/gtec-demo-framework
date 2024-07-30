@@ -59,13 +59,13 @@ namespace Fsl
     //! The width of the bitmap in pixels
     constexpr uint32_t Width() const
     {
-      return m_bitmapPosX.Width();
+      return m_bitmapPosX.RawUnsignedWidth();
     }
 
     //! The height of the bitmap in pixels
     constexpr uint32_t Height() const
     {
-      return m_bitmapPosX.Height();
+      return m_bitmapPosX.RawUnsignedHeight();
     }
 
     //! @brief Get the extent
@@ -122,7 +122,7 @@ namespace Fsl
              m_bitmapPosZ.GetByteSize() + m_bitmapNegZ.GetByteSize();
     }
 
-    //! Conversion operator for easy conversion to a RawBitmap
+    //! Conversion operator for easy conversion to a ReadOnlyRawBitmap
     explicit operator RawCubeBitmap() const
     {
       return {m_bitmapPosX, m_bitmapNegX, m_bitmapPosY, m_bitmapNegY, m_bitmapPosZ, m_bitmapNegZ};

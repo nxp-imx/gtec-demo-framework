@@ -76,7 +76,7 @@ namespace Fsl
     // Skysphere vertex shader stage
     struct UboVS
     {
-      glm::mat4 mvp;
+      glm::mat4 Mvp;
     };
 
     struct DescriptorSetLayouts

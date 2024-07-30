@@ -37,10 +37,10 @@
 
 namespace Fsl::StringViewLiteArrayUtil
 {
-  template <std::size_t T>
-  void CopyToAndZeroTerminate(std::array<char, T>& rDst, StringViewLite strView)
+  template <std::size_t TSize>
+  void CopyToAndZeroTerminate(std::array<char, TSize>& rDst, StringViewLite strView)
   {
-    static_assert(T > 0, "Array size must be larger than zero");
+    static_assert(TSize > 0, "Array size must be larger than zero");
 
     const std::size_t maxCharsToCopy = std::min(rDst.size() - 1u, strView.size());
     for (std::size_t i = 0; i < maxCharsToCopy; ++i)
@@ -50,12 +50,12 @@ namespace Fsl::StringViewLiteArrayUtil
     rDst[maxCharsToCopy] = 0;
   }
 
-  template <std::size_t T>
-  std::array<char, T> ToArray(StringViewLite strView)
+  template <std::size_t TSize>
+  std::array<char, TSize> ToArray(StringViewLite strView)
   {
-    static_assert(T > 0, "Array size must be larger than zero");
+    static_assert(TSize > 0, "Array size must be larger than zero");
 
-    std::array<char, T> dst;
+    std::array<char, TSize> dst;
     const std::size_t maxCharsToCopy = std::min(dst.size() - 1u, strView.size());
     for (std::size_t i = 0; i < maxCharsToCopy; ++i)
     {

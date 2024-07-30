@@ -44,7 +44,7 @@ namespace
   using TestBits_ByteArrayUtil = TestFixtureFslBase;
 
   template <std::size_t TSize>
-  void Expect_EQ(const std::array<uint8_t, TSize>& src, const std::array<uint8_t, TSize>& dst)
+  void ExpectEq(const std::array<uint8_t, TSize>& src, const std::array<uint8_t, TSize>& dst)
   {
     for (std::size_t i = 0; i < src.size(); ++i)
     {
@@ -262,7 +262,7 @@ TEST(TestBits_ByteArrayUtil, WriteUInt8LE)
     auto writtenValue = ByteArrayUtil::ReadUInt8LE(dst.data(), dst.size(), i);
     EXPECT_EQ(value, writtenValue);
   }
-  Expect_EQ(src, dst);
+  ExpectEq(src, dst);
 }
 
 
@@ -278,7 +278,7 @@ TEST(TestBits_ByteArrayUtil, WriteUInt8BE)
     auto writtenValue = ByteArrayUtil::ReadUInt8BE(dst.data(), dst.size(), i);
     EXPECT_EQ(value, writtenValue);
   }
-  Expect_EQ(src, dst);
+  ExpectEq(src, dst);
 }
 
 
@@ -384,7 +384,7 @@ TEST(TestBits_ByteArrayUtil, WriteInt8LE)
     auto writtenValue = ByteArrayUtil::ReadInt8LE(dst.data(), dst.size(), i);
     EXPECT_EQ(value, writtenValue);
   }
-  Expect_EQ(src, dst);
+  ExpectEq(src, dst);
 }
 
 
@@ -400,7 +400,7 @@ TEST(TestBits_ByteArrayUtil, WriteInt8BE)
     auto writtenValue = ByteArrayUtil::ReadInt8BE(dst.data(), dst.size(), i);
     EXPECT_EQ(value, writtenValue);
   }
-  Expect_EQ(src, dst);
+  ExpectEq(src, dst);
 }
 
 
@@ -507,7 +507,7 @@ TEST(TestBits_ByteArrayUtil, WriteLE_UInt8)
     auto writtenValue = ByteArrayUtil::ReadUInt8LE(dst.data(), dst.size(), i);
     EXPECT_EQ(value, writtenValue);
   }
-  Expect_EQ(src, dst);
+  ExpectEq(src, dst);
 }
 
 
@@ -523,7 +523,7 @@ TEST(TestBits_ByteArrayUtil, WriteBE_UInt8)
     auto writtenValue = ByteArrayUtil::ReadUInt8BE(dst.data(), dst.size(), i);
     EXPECT_EQ(value, writtenValue);
   }
-  Expect_EQ(src, dst);
+  ExpectEq(src, dst);
 }
 
 
@@ -629,7 +629,7 @@ TEST(TestBits_ByteArrayUtil, WriteLE_Int8)
     auto writtenValue = ByteArrayUtil::ReadInt8LE(dst.data(), dst.size(), i);
     EXPECT_EQ(value, writtenValue);
   }
-  Expect_EQ(src, dst);
+  ExpectEq(src, dst);
 }
 
 
@@ -645,7 +645,7 @@ TEST(TestBits_ByteArrayUtil, WriteBE_Int8)
     auto writtenValue = ByteArrayUtil::ReadInt8BE(dst.data(), dst.size(), i);
     EXPECT_EQ(value, writtenValue);
   }
-  Expect_EQ(src, dst);
+  ExpectEq(src, dst);
 }
 
 
@@ -747,5 +747,5 @@ TEST(TestBits_ByteArrayUtil, WriteBytes)
 
   ByteArrayUtil::WriteBytes(dst.data(), dst.size(), 0, src.data(), src.size());
 
-  Expect_EQ(src, dst);
+  ExpectEq(src, dst);
 }

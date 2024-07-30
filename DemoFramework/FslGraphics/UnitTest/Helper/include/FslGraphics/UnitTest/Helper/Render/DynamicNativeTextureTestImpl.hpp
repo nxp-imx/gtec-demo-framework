@@ -33,9 +33,9 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxRectangleU32.hpp>
-#include <FslGraphics/Bitmap/RawBitmap.hpp>
+#include <FslGraphics/Bitmap/ReadOnlyRawBitmap.hpp>
 #include <FslGraphics/Render/Adapter/IDynamicNativeTexture2D.hpp>
-#include <FslGraphics/Texture/RawTexture.hpp>
+#include <FslGraphics/Texture/ReadOnlyRawTexture.hpp>
 #include <cassert>
 #include <vector>
 
@@ -47,7 +47,7 @@ namespace Fsl
     PxExtent3D m_extentPx;
 
   public:
-    DynamicNativeTextureTestImpl(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+    DynamicNativeTextureTestImpl(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
       : m_extentPx(texture.GetExtent())
     {
       SetData(texture, filterHint, textureFlags);
@@ -73,7 +73,7 @@ namespace Fsl
     }
 
     //! @brief Set the data of the texture
-    void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) override
+    void SetData(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) override
     {
       FSL_PARAM_NOT_USED(filterHint);
       FSL_PARAM_NOT_USED(textureFlags);

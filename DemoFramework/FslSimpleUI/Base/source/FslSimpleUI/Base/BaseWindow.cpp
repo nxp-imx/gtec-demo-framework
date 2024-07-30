@@ -39,7 +39,6 @@
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <FslSimpleUI/Base/BaseWindowContext.hpp>
 #include <FslSimpleUI/Base/Event/RoutedEvent.hpp>
-#include <FslSimpleUI/Base/Event/RoutedEventArgs.hpp>
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
 #include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
@@ -69,7 +68,7 @@ namespace Fsl::UI
   TDef TClass::PropertyMarginDpf = TFactory::Create<DpThicknessF, TClass, &TClass::GetMargin, &TClass::SetMargin>("Margin");
   TDef TClass::PropertyAlignmentX = TFactory::Create<ItemAlignment, TClass, &TClass::GetAlignmentX, &TClass::SetAlignmentX>("AlignmentX");
   TDef TClass::PropertyAlignmentY = TFactory::Create<ItemAlignment, TClass, &TClass::GetAlignmentY, &TClass::SetAlignmentY>("AlignmentY");
-  TDef TClass::PropertyBaseColor = TFactory::Create<Color, TClass, &TClass::GetBaseColor, &TClass::SetBaseColor>("BaseColor");
+  TDef TClass::PropertyBaseColor = TFactory::Create<UIColor, TClass, &TClass::GetBaseColor, &TClass::SetBaseColor>("BaseColor");
 }
 
 namespace Fsl::UI
@@ -98,6 +97,7 @@ namespace Fsl::UI
   BaseWindow::BaseWindow(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags initialFlags)
     : DataBinding::DependencyObject(context->UIDataBindingService)
     , m_context(context)
+    , m_propertyBaseColor(context->ColorConverter, UIColors::White())
     , m_flags(initialFlags)
   {
     if (!context)
@@ -129,7 +129,6 @@ namespace Fsl::UI
 
   void BaseWindow::WinHandleEvent(const RoutedEvent& routedEvent)
   {
-    RoutedEventArgs routedEventArgs;
     switch (routedEvent.Content->GetEventTypeId())
     {
     case EventTypeId::InputClick:
@@ -137,11 +136,11 @@ namespace Fsl::UI
         auto event = SafeDynamicPointerCast<WindowInputClickEvent>(routedEvent.Content);
         if (routedEvent.IsTunneling)
         {
-          OnClickInputPreview(routedEventArgs, event);
+          OnClickInputPreview(event);
         }
         else
         {
-          OnClickInput(routedEventArgs, event);
+          OnClickInput(event);
         }
         break;
       }
@@ -150,11 +149,11 @@ namespace Fsl::UI
         auto event = SafeDynamicPointerCast<WindowMouseOverEvent>(routedEvent.Content);
         if (routedEvent.IsTunneling)
         {
-          OnMouseOverPreview(routedEventArgs, event);
+          OnMouseOverPreview(event);
         }
         else
         {
-          OnMouseOver(routedEventArgs, event);
+          OnMouseOver(event);
         }
         break;
       }
@@ -162,14 +161,14 @@ namespace Fsl::UI
       {
         auto event = SafeDynamicPointerCast<WindowSelectEvent>(routedEvent.Content);
         assert(!routedEvent.IsTunneling);
-        OnSelect(routedEventArgs, event);
+        OnSelect(event);
         break;
       }
     case EventTypeId::ContentChanged:
       {
         auto event = SafeDynamicPointerCast<WindowContentChangedEvent>(routedEvent.Content);
         assert(!routedEvent.IsTunneling);
-        OnContentChanged(routedEventArgs, event);
+        OnContentChanged(event);
         break;
       }
     default:
@@ -443,12 +442,12 @@ namespace Fsl::UI
   }
 
 
-  bool BaseWindow::SetBaseColor(const Color value)
+  bool BaseWindow::SetBaseColor(const UIColor value)
   {
-    const bool changed = m_propertyBaseColor.Set(ThisDependencyObject(), value);
+    const bool changed = m_propertyBaseColor.Set(m_context->ColorConverter, ThisDependencyObject(), value);
     if (changed)
     {
-      m_cachedBaseColor = m_propertyBaseColor.Get() * m_parentBaseColor;
+      m_cachedBaseColor = m_propertyBaseColor.InternalColor * m_parentBaseColor;
       PropertyUpdated(PropertyType::BaseColor);
     }
     return changed;
@@ -494,12 +493,12 @@ namespace Fsl::UI
   }
 
 
-  void BaseWindow::SYS_SetParentBaseColor(const Color color)
+  void BaseWindow::SYS_SetParentBaseColor(const UIRenderColor color)
   {
     if (color != m_parentBaseColor)
     {
       m_parentBaseColor = color;
-      m_cachedBaseColor = m_propertyBaseColor.Get() * m_parentBaseColor;
+      m_cachedBaseColor = m_propertyBaseColor.InternalColor * m_parentBaseColor;
       PropertyUpdated(PropertyType::BaseColor);
     }
   }
@@ -664,7 +663,7 @@ namespace Fsl::UI
       DataBinding::PropLinkRefs(PropertyMinHeightDp, m_propertyMinHeightDpf), DataBinding::PropLinkRefs(PropertyMaxWidthDp, m_propertyMaxWidthDpf),
       DataBinding::PropLinkRefs(PropertyMaxHeightDp, m_propertyMaxHeightDpf), DataBinding::PropLinkRefs(PropertyMarginDpf, m_propertyMarginDpf),
       DataBinding::PropLinkRefs(PropertyAlignmentX, m_propertyAlignmentX), DataBinding::PropLinkRefs(PropertyAlignmentY, m_propertyAlignmentY),
-      DataBinding::PropLinkRefs(PropertyBaseColor, m_propertyBaseColor));
+      DataBinding::PropLinkRefs(PropertyBaseColor, m_propertyBaseColor.ExternalColor));
     return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
   }
 
@@ -678,7 +677,7 @@ namespace Fsl::UI
       DataBinding::PropLinkRefs(PropertyMinHeightDp, m_propertyMinHeightDpf), DataBinding::PropLinkRefs(PropertyMaxWidthDp, m_propertyMaxWidthDpf),
       DataBinding::PropLinkRefs(PropertyMaxHeightDp, m_propertyMaxHeightDpf), DataBinding::PropLinkRefs(PropertyMarginDpf, m_propertyMarginDpf),
       DataBinding::PropLinkRefs(PropertyAlignmentX, m_propertyAlignmentX), DataBinding::PropLinkRefs(PropertyAlignmentY, m_propertyAlignmentY),
-      DataBinding::PropLinkRefs(PropertyBaseColor, m_propertyBaseColor));
+      DataBinding::PropLinkRefs(PropertyBaseColor, m_propertyBaseColor.ExternalColor));
     return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
   }
 

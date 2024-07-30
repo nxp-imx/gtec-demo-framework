@@ -32,6 +32,7 @@
 
 #include <FslBase/BlobRecord.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Span/SpanUtil_Create.hpp>
 #include <FslDemoApp/Base/Service/ImageLibrary/IImageLibraryService.hpp>
 #include <FslDemoApp/Util/Graphics/Service/ImageLibrary/ImageLibraryGLIService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
@@ -169,8 +170,8 @@ namespace Fsl
     try
     {
       // NOTE: gli does not seem to have a origin concept so we have no way of knowing the 'origin' of the content
-      rBitmap.Reset(tex.data(), cbTexL0, PxExtent2D::Create(extentL0.x, extentL0.y), pixelFormat, static_cast<uint32_t>(strideL0),
-                    BitmapOrigin::UpperLeft);
+      rBitmap.Reset(SpanUtil::CreateReadOnly(reinterpret_cast<const uint8_t*>(tex.data()), cbTexL0), PxSize2D::Create(extentL0.x, extentL0.y),
+                    pixelFormat, static_cast<uint32_t>(strideL0), BitmapOrigin::UpperLeft);
     }
     catch (const std::exception&)
     {

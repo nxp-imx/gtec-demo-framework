@@ -362,7 +362,7 @@ namespace Fsl::Vulkan
   }
 
 
-  void NativeGraphicsService::Capture(Bitmap& rBitmap, const Rectangle& /*srcRectangle*/)
+  void NativeGraphicsService::Capture(Bitmap& rBitmap, const PxRectangle& /*srcRectanglePx*/)
   {
     auto swapchainInfo = m_swapchainInfo.lock();
     if (!swapchainInfo || m_resources.Device == VK_NULL_HANDLE)
@@ -434,7 +434,7 @@ namespace Fsl::Vulkan
     std::vector<uint8_t> fragShaderBinary(contentFragShader.data(), contentFragShader.data() + contentFragShader.size());
     std::vector<uint8_t> sdfFragShaderBinary(contentSdfFragShader.data(), contentSdfFragShader.data() + contentSdfFragShader.size());
 
-    auto quadBatch = std::make_shared<QuadBatch>(vertShaderBinary, fragShaderBinary, sdfFragShaderBinary, GenericBatch2D_DEFAULT_CAPACITY);
+    auto quadBatch = std::make_shared<QuadBatch>(vertShaderBinary, fragShaderBinary, sdfFragShaderBinary, GenericBatch2DDefaultCapacity);
 
     if (m_state >= State::DeviceInitialized)
     {

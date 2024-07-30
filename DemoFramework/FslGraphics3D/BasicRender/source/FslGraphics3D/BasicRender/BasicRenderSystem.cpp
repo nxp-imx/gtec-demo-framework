@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -183,30 +183,28 @@ namespace Fsl::Graphics3D
   std::shared_ptr<INativeTexture2D> BasicRenderSystem::CreateTexture2D(const Bitmap& bitmap, const Texture2DFilterHint filterHint,
                                                                        const TextureFlags textureFlags)
   {
-    RawBitmap raw;
-    Bitmap::ScopedDirectAccess access(bitmap, raw);
-    return CreateTexture2D(raw, filterHint, textureFlags);
+    const Bitmap::ScopedDirectReadAccess access(bitmap);
+    return CreateTexture2D(access.AsRawBitmap(), filterHint, textureFlags);
   }
 
 
   std::shared_ptr<IDynamicNativeTexture2D> BasicRenderSystem::CreateDynamicTexture2D(const Bitmap& bitmap, const Texture2DFilterHint filterHint,
                                                                                      const TextureFlags textureFlags)
   {
-    RawBitmap raw;
-    Bitmap::ScopedDirectAccess access(bitmap, raw);
-    return CreateDynamicTexture2D(raw, filterHint, textureFlags);
+    const Bitmap::ScopedDirectReadAccess access(bitmap);
+    return CreateDynamicTexture2D(access.AsRawBitmap(), filterHint, textureFlags);
   }
 
 
-  std::shared_ptr<INativeTexture2D> BasicRenderSystem::CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
+  std::shared_ptr<INativeTexture2D> BasicRenderSystem::CreateTexture2D(const ReadOnlyRawBitmap& bitmap, const Texture2DFilterHint filterHint,
                                                                        const TextureFlags textureFlags)
   {
     return CreateTexture2D(RawTextureHelper::ToRawTexture(bitmap), filterHint, textureFlags);
   }
 
 
-  std::shared_ptr<IDynamicNativeTexture2D> BasicRenderSystem::CreateDynamicTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
-                                                                                     const TextureFlags textureFlags)
+  std::shared_ptr<IDynamicNativeTexture2D>
+    BasicRenderSystem::CreateDynamicTexture2D(const ReadOnlyRawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
   {
     return CreateDynamicTexture2D(RawTextureHelper::ToRawTexture(bitmap), filterHint, textureFlags);
   }
@@ -215,22 +213,20 @@ namespace Fsl::Graphics3D
   std::shared_ptr<INativeTexture2D> BasicRenderSystem::CreateTexture2D(const Texture& texture, const Texture2DFilterHint filterHint,
                                                                        const TextureFlags textureFlags)
   {
-    RawTexture raw;
-    Texture::ScopedDirectAccess access(texture, raw);
-    return CreateTexture2D(raw, filterHint, textureFlags);
+    Texture::ScopedDirectReadAccess access(texture);
+    return CreateTexture2D(access.AsRawTexture(), filterHint, textureFlags);
   }
 
 
   std::shared_ptr<IDynamicNativeTexture2D> BasicRenderSystem::CreateDynamicTexture2D(const Texture& texture, const Texture2DFilterHint filterHint,
                                                                                      const TextureFlags textureFlags)
   {
-    RawTexture raw;
-    Texture::ScopedDirectAccess access(texture, raw);
-    return CreateDynamicTexture2D(raw, filterHint, textureFlags);
+    Texture::ScopedDirectReadAccess access(texture);
+    return CreateDynamicTexture2D(access.AsRawTexture(), filterHint, textureFlags);
   }
 
 
-  std::shared_ptr<INativeTexture2D> BasicRenderSystem::CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+  std::shared_ptr<INativeTexture2D> BasicRenderSystem::CreateTexture2D(const ReadOnlyRawTexture& texture, const Texture2DFilterHint filterHint,
                                                                        const TextureFlags textureFlags)
   {
     if (!m_deviceResources)
@@ -240,7 +236,8 @@ namespace Fsl::Graphics3D
     return m_deviceResources->Textures.CreateTexture2D(texture, filterHint, textureFlags);
   }
 
-  std::shared_ptr<IDynamicNativeTexture2D> BasicRenderSystem::CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+  std::shared_ptr<IDynamicNativeTexture2D> BasicRenderSystem::CreateDynamicTexture2D(const ReadOnlyRawTexture& texture,
+                                                                                     const Texture2DFilterHint filterHint,
                                                                                      const TextureFlags textureFlags)
   {
     if (!m_deviceResources)

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_BASE_DRAWCOMMANDBUFFER_HPP
 #define FSLSIMPLEUI_RENDER_BASE_DRAWCOMMANDBUFFER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-//#include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Pixel/PxVector2.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslGraphics/Color.hpp>
+#include <FslSimpleUI/Render/Base/UIRenderColor.hpp>
 #include <FslSimpleUI/Render/Base/Command/CommandDrawAtOffsetAndSize.hpp>
 #include <FslSimpleUI/Render/Base/Command/CommandDrawCustomBasicImageAtOffsetAndSize.hpp>
 #include <FslSimpleUI/Render/Base/Command/CommandDrawCustomBasicImageAtOffsetAndSizeBasicMesh.hpp>
@@ -90,7 +89,7 @@ namespace Fsl::UI
       return m_commandRecords.size();
     }
 
-    inline void Draw(const MeshHandle hMesh, const PxVector2& dstPositionPxf, const PxSize2D& dstSizePx, const Color dstColor)
+    inline void Draw(const MeshHandle hMesh, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx, const UIRenderColor dstColor)
     {
       if (Check(hMesh, dstColor, dstSizePx))
       {
@@ -98,7 +97,7 @@ namespace Fsl::UI
       }
     }
 
-    inline void DrawRotated90CW(const MeshHandle hMesh, const PxVector2& dstPositionPxf, const PxSize2D& dstSizePx, const Color dstColor)
+    inline void DrawRotated90CW(const MeshHandle hMesh, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx, const UIRenderColor dstColor)
     {
       if (Check(hMesh, dstColor, dstSizePx))
       {
@@ -106,7 +105,7 @@ namespace Fsl::UI
       }
     }
 
-    inline void DrawCustom(const MeshHandle hMesh, const PxVector2& dstPositionPxf, const PxSize2D& dstSizePx, const Color dstColor,
+    inline void DrawCustom(const MeshHandle hMesh, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx, const UIRenderColor dstColor,
                            FnDrawCustomBasicImageMesh fnDrawCustomMesh, const std::shared_ptr<ICustomDrawData>& customData)
     {
       if (Check(hMesh, dstColor, dstSizePx) && fnDrawCustomMesh != nullptr)
@@ -116,7 +115,7 @@ namespace Fsl::UI
       }
     }
 
-    inline void DrawCustom(const MeshHandle hMesh, const PxVector2& dstPositionPxf, const PxSize2D& dstSizePx, const Color dstColor,
+    inline void DrawCustom(const MeshHandle hMesh, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx, const UIRenderColor dstColor,
                            FnDrawCustomBasicImageBasicMesh fnDrawCustomMesh, const std::shared_ptr<ICustomDrawData>& customData)
     {
       if (Check(hMesh, dstColor, dstSizePx) && fnDrawCustomMesh != nullptr)
@@ -126,7 +125,7 @@ namespace Fsl::UI
       }
     }
 
-    inline void DrawCustom(const MeshHandle hMesh, const PxVector2& dstPositionPxf, const PxSize2D& dstSizePx, const Color dstColor,
+    inline void DrawCustom(const MeshHandle hMesh, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx, const UIRenderColor dstColor,
                            FnDrawCustomNineSliceMesh fnDrawCustomMesh, const std::shared_ptr<ICustomDrawData>& customData)
     {
       if (Check(hMesh, dstColor, dstSizePx) && fnDrawCustomMesh != nullptr)
@@ -136,7 +135,7 @@ namespace Fsl::UI
       }
     }
 
-    inline void DrawCustom(const MeshHandle hMesh, const PxVector2& dstPositionPxf, const PxSize2D& dstSizePx, const Color dstColor,
+    inline void DrawCustom(const MeshHandle hMesh, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx, const UIRenderColor dstColor,
                            FnDrawCustomTextMesh fnDrawCustomMesh, const std::shared_ptr<ICustomDrawData>& customData)
     {
       if (Check(hMesh, dstColor, dstSizePx) && fnDrawCustomMesh != nullptr)
@@ -146,9 +145,9 @@ namespace Fsl::UI
       }
     }
 
-    // inline void Draw(const MeshHandle hMesh, const PxAreaRectangleF& dstAreaRectanglePxf, const Color dstColor)
+    //inline void Draw(const MeshHandle hMesh, const PxAreaRectangleF& dstAreaRectanglePxf, const UIRenderColor dstColor)
     //{
-    //  if (Check(hMesh, dstColor))
+    //  if (Check(hMesh, dstColor, dstAreaRectanglePxf.Size()))
     //  {
     //    AddCommand(CommandDrawAtOffsetAndSize::Encode(hMesh, dstAreaRectanglePxf.Location(), dstAreaRectanglePxf.GetSize(), dstColor));
     //  }
@@ -156,10 +155,15 @@ namespace Fsl::UI
 
 
   protected:
-    inline static bool Check(const MeshHandle hMesh, const Color dstColor, const PxSize2D& dstSizePx) noexcept
+    inline constexpr static bool Check(const MeshHandle hMesh, const UIRenderColor dstColor, const PxSize2D dstSizePx) noexcept
     {
-      return hMesh.IsValid() && dstColor.A() > 0 && dstSizePx.RawWidth() > 0 && dstSizePx.RawHeight() > 0;
+      return hMesh.IsValid() && dstColor.RawA() > 0 && dstSizePx.RawWidth() > 0 && dstSizePx.RawHeight() > 0;
     }
+
+    //inline constexpr static bool Check(const MeshHandle hMesh, const UIRenderColor dstColor, const PxSize2DF& dstSizePxf) noexcept
+    //{
+    //  return hMesh.IsValid() && dstColor.RawA() > 0 && dstSizePxf.RawWidth() > 0 && dstSizePxf.RawHeight() > 0;
+    //}
 
     void DoClear()
     {

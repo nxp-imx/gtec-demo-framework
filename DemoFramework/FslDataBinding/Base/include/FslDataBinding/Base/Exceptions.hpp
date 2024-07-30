@@ -1,7 +1,7 @@
 #ifndef FSLDATABINDING_BASE_EXCEPTIONS_HPP
 #define FSLDATABINDING_BASE_EXCEPTIONS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -176,6 +176,21 @@ namespace Fsl::DataBinding
     }
 
     explicit TwoWayBindingSourceException(const std::string& whatArg)
+      : UsageErrorException(whatArg)
+    {
+    }
+  };
+
+
+  class TwoWayBindingReadOnlySourceException : public UsageErrorException
+  {
+  public:
+    explicit TwoWayBindingReadOnlySourceException(const char* const pszWhatArg)
+      : UsageErrorException(pszWhatArg)
+    {
+    }
+
+    explicit TwoWayBindingReadOnlySourceException(const std::string& whatArg)
       : UsageErrorException(whatArg)
     {
     }

@@ -36,7 +36,7 @@
 
 namespace Fsl::StringToValue
 {
-  extern bool TryParse(uint64_t& rResult, const StringViewLite& strView);
+  extern bool TryParse(uint64_t& rResult, const StringViewLite strView);
 }
 
 #endif

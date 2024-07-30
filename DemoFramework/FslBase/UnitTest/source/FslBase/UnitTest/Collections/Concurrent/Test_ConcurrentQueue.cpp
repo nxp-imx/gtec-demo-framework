@@ -31,8 +31,7 @@
 
 #include <FslBase/Collections/Concurrent/ConcurrentQueue.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
-#include <FslBase/UnitTest/Helper/Common.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>

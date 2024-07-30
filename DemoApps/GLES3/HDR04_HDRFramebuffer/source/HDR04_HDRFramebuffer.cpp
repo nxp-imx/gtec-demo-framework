@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,8 +53,8 @@ namespace Fsl
 
   namespace
   {
-    const Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, -20.0f);
-    const Vector3 DEFAULT_CAMERA_TARGET(0.0f, 0.0f, -25.0f);
+    constexpr Vector3 DefaultCameraPosition(0.0f, 0.0f, -20.0f);
+    constexpr Vector3 DefaultCameraTarget(0.0f, 0.0f, -25.0f);
 
     GLES3::GLTexture CreateTexture(const std::shared_ptr<IContentManager>& contentManager)
     {
@@ -62,7 +62,7 @@ namespace Fsl
       auto tex =
         contentManager->ReadTexture("Textures/Bricks/Bricks_ETC2_rgb_flipped.ktx", PixelFormat::ETC2_R8G8B8_SRGB_BLOCK, BitmapOrigin::UpperLeft);
       // auto tex = contentManager->ReadTexture("Textures/Test.png", PixelFormat::R8G8B8A8_UNORM);
-      // Then override it to match the default GL setting since we know thats the way the texture is stored in the file
+      // Then override it to match the default GL setting since we know that's the way the texture is stored in the file
       tex.OverrideOrigin(BitmapOrigin::LowerLeft);
 
       GLTextureParameters texParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
@@ -88,7 +88,7 @@ namespace Fsl
   HDR04_HDRFramebuffer::HDR04_HDRFramebuffer(const DemoAppConfig& config)
     : DemoAppGLES3(config)
     , m_hasHDRFramebuffer(IsHDRFramebuffer(config.CustomConfig.AppRegistrationUserTag))
-    , m_menuUI(config, !m_hasHDRFramebuffer ? ColorSpace::SRGBNonLinear : ColorSpace::SCRGBLinear)
+    , m_menuUI(config, !m_hasHDRFramebuffer ? UI::UIColorSpace::SRGBNonLinear : UI::UIColorSpace::SRGBLinear)
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
@@ -113,7 +113,7 @@ namespace Fsl
     m_menuUI.SetMenuTextLeft("Linear");
     m_menuUI.SetMenuTextRight("Tonemapped");
 
-    m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+    m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
 
     const auto contentManager = GetContentManager();
 
@@ -190,7 +190,7 @@ namespace Fsl
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
-        m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+        m_camera.SetPosition(DefaultCameraPosition, DefaultCameraTarget, Vector3::Up());
         event.Handled();
       }
       break;
@@ -333,11 +333,11 @@ namespace Fsl
     glUseProgram(program.Get());
 
     // Load the matrices
-    assert(location.ModelMatrix != GLValues::INVALID_LOCATION);
-    assert(location.ViewMatrix != GLValues::INVALID_LOCATION);
-    assert(location.ProjMatrix != GLValues::INVALID_LOCATION);
-    assert(location.LightPositions != GLValues::INVALID_LOCATION);
-    assert(location.LightColors != GLValues::INVALID_LOCATION);
+    assert(location.ModelMatrix != GLValues::InvalidLocation);
+    assert(location.ViewMatrix != GLValues::InvalidLocation);
+    assert(location.ProjMatrix != GLValues::InvalidLocation);
+    assert(location.LightPositions != GLValues::InvalidLocation);
+    assert(location.LightColors != GLValues::InvalidLocation);
 
     glUniformMatrix4fv(location.ModelMatrix, 1, 0, m_vertexUboData.MatModel.DirectAccess());
     glUniformMatrix4fv(location.ViewMatrix, 1, 0, m_vertexUboData.MatView.DirectAccess());
@@ -365,7 +365,7 @@ namespace Fsl
     glUseProgram(program.Get());
 
     // The LDR shader dont use exposure
-    if (location.Exposure != GLValues::INVALID_LOCATION)
+    if (location.Exposure != GLValues::InvalidLocation)
     {
       glUniform1f(location.Exposure, m_menuUI.GetExposure());
     }

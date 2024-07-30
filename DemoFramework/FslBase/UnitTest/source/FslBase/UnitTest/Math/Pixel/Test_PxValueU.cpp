@@ -51,10 +51,10 @@ TEST(TestMathPx_PxValueU, Construct_Default)
 
 TEST(TestMathPx_PxValueU, Construct)
 {
-  constexpr const uint32_t testValue = 3;
-  PxValueU value(testValue);
+  constexpr const uint32_t TestValue = 3;
+  PxValueU value(TestValue);
 
-  EXPECT_EQ(testValue, value.Value);
+  EXPECT_EQ(TestValue, value.Value);
 }
 
 TEST(TestMathPx_PxValueU, Op_Equal)

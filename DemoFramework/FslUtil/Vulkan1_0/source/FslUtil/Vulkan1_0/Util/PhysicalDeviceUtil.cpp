@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Core.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PropertyUtil.hpp>
@@ -48,7 +48,7 @@ namespace Fsl::Vulkan::PhysicalDeviceUtil
     }
 
     const std::vector<VkExtensionProperties> extensionProperties = EnumerateDeviceExtensionProperties(device, pszLayerName);
-    const auto extensionPropertiesSpan = ReadOnlySpanUtil::AsSpan(extensionProperties);
+    const auto extensionPropertiesSpan = SpanUtil::AsReadOnlySpan(extensionProperties);
     for (uint32_t extensionIndex = 0; extensionIndex < extensionCount; ++extensionIndex)
     {
       if (!PropertyUtil::IsExtensionAvailable(extensionPropertiesSpan, enabledExtensionNames[extensionIndex]))

@@ -44,8 +44,8 @@ namespace Fsl
   {
     namespace LocalConfig
     {
-      ConstrainedValue<float> BlurRange(1.0f, 0.001f, 1.0f);
-      ConstrainedValue<float> BlendRange(1.0f, 0.001f, 1.0f);
+      constexpr ConstrainedValue<float> BlurRange(1.0f, 0.001f, 1.0f);
+      constexpr ConstrainedValue<float> BlendRange(1.0f, 0.001f, 1.0f);
     }
   }
 
@@ -110,17 +110,14 @@ namespace Fsl
   }
 
 
-  void MenuUI::OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
+  void MenuUI::OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
     FSL_PARAM_NOT_USED(theEvent);
   }
 
 
-  void MenuUI::OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void MenuUI::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
-    FSL_PARAM_NOT_USED(args);
-
     if (theEvent->GetSource() == m_cbMenuRotate)
     {
       theEvent->Handled();

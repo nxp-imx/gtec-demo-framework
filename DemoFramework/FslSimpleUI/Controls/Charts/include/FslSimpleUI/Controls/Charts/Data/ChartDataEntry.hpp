@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_CONTROLS_CHARTS_DATA_CHARTDATAENTRY_HPP
 #define FSLSIMPLEUI_CONTROLS_CHARTS_DATA_CHARTDATAENTRY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,21 @@ namespace Fsl::UI
       Values[0] = value0;
     }
   };
+
+  // op==
+
+  inline bool operator==(const ChartDataEntry& lhs, const ChartDataEntry& rhs) noexcept
+  {
+    return lhs.Values == rhs.Values;
+  }
+
+  // op!=
+
+  inline bool operator!=(const ChartDataEntry& lhs, const ChartDataEntry& rhs) noexcept
+  {
+    return lhs.Values != rhs.Values;
+  }
+
 }
 
 

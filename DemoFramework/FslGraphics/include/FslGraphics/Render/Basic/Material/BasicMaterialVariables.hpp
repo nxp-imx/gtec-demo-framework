@@ -51,8 +51,11 @@ namespace Fsl
     using const_pointer = const void*;
 
   protected:
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const const_pointer m_pData{nullptr};
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const size_type m_byteSize{0u};
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const BasicMaterialVariableDeclarationSpan m_materialDeclaration;
 
   public:
@@ -97,16 +100,19 @@ namespace Fsl
     }
 
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_pointer data() const noexcept
     {
       return m_pData;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr size_type byteSize() const noexcept
     {
       return m_byteSize;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr bool empty() const noexcept
     {
       return m_byteSize == 0u;

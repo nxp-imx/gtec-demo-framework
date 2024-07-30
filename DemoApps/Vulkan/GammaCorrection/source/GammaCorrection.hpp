@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Transition/TransitionCache.hpp>
 #include <FslBase/Transition/TransitionValue.hpp>
 #include <FslDemoApp/Base/Service/Keyboard/IKeyboard.hpp>
 #include <FslDemoApp/Base/Service/Mouse/IMouse.hpp>
@@ -159,7 +158,7 @@ namespace Fsl
     FragmentUboData m_fragmentUboData;
 
     State m_state;
-    TransitionCache m_transitionCache;
+
     TransitionValue m_splitX;
     TransitionValue m_splitY;
     TransitionValue m_scene1LabelAlpha;

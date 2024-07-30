@@ -31,20 +31,37 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/Service/BitmapConverter/IBitmapConverter.hpp>
-#include <FslDemoApp/Base/Service/ImageConverterLibrary/IImageConverterLibraryService.hpp>
+#include <FslDemoService/BitmapConverter/IBitmapConverter.hpp>
+#include <FslDemoService/ImageConverter/IImageConverterService.hpp>
+#include <FslDemoService/ImageConverter/IImageToneMappingService.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
-#include <deque>
+#include <map>
 #include <memory>
+#include <utility>
+#include <vector>
 
 namespace Fsl
 {
+  struct ToneMappingRecord
+  {
+    PixelFormat Format;
+    std::shared_ptr<IImageToneMappingService> Service;
+
+    explicit ToneMappingRecord(const PixelFormat format, std::shared_ptr<IImageToneMappingService> service)
+      : Format(format)
+      , Service(std::move(service))
+    {
+    }
+  };
+
+
   class BitmapConverterService final
     : public ThreadLocalService
     , public IBitmapConverter
   {
-    std::deque<std::shared_ptr<IImageConverterLibraryService>> m_converterLibraries;
+    std::vector<std::shared_ptr<IImageConverterService>> m_converterLibraries;
+    std::map<BasicToneMapper, std::vector<ToneMappingRecord>> m_toneMappingMap;
 
   public:
     explicit BitmapConverterService(const ServiceProvider& serviceProvider);
@@ -60,8 +77,15 @@ namespace Fsl
     void Convert(Texture& rTexture, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
                  const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) final;
 
-    // virtual bool TryConvert(Bitmap& rDstBitmap, const Bitmap& srcBitmap, const PixelFormat desiredPixelFormat) final;
-    // virtual void Convert(Bitmap& rDstBitmap, const Bitmap& srcBitmap, const PixelFormat desiredPixelFormat) final;
+    bool TryConvert(Bitmap& rBitmap, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
+                    const BitmapConverterConfig& converterConfig) final;
+    bool TryConvert(Texture& rTexture, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
+                    const BitmapConverterConfig& converterConfig) final;
+
+    void Convert(Bitmap& rBitmap, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
+                 const BitmapConverterConfig& converterConfig) final;
+    void Convert(Texture& rTexture, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
+                 const BitmapConverterConfig& converterConfig) final;
   };
 }
 

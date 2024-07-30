@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Span/Span.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Create.hpp>
 #include <FslDemoApp/Base/Service/NativeWindowEvents/INativeWindowEvents.hpp>
 #include <FslDemoHost/Base/Service/Gamepad/GamepadsState.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
@@ -45,7 +45,10 @@ namespace Fsl
 {
   namespace
   {
-    const float DEADZONE = 0.25f;
+    namespace LocalConfig
+    {
+      constexpr float Deadzone = 0.25f;
+    }
 
 
     // Deadzone code based on this article:
@@ -53,11 +56,11 @@ namespace Fsl
 
     void ApplyAxialDeadZone(GamepadThumbStick& rStick)
     {
-      if (std::abs(rStick.X) < DEADZONE)
+      if (std::abs(rStick.X) < LocalConfig::Deadzone)
       {
         rStick.X = 0.0f;
       }
-      if (std::abs(rStick.Y) < DEADZONE)
+      if (std::abs(rStick.Y) < LocalConfig::Deadzone)
       {
         rStick.Y = 0.0f;
       }
@@ -67,7 +70,7 @@ namespace Fsl
     void ApplyRadialDeadZone(GamepadThumbStick& rStick)
     {
       const auto length = std::sqrt((rStick.X * rStick.X) + (rStick.Y * rStick.Y));
-      if (length < DEADZONE)
+      if (length < LocalConfig::Deadzone)
       {
         rStick.X = 0.0f;
         rStick.Y = 0.0f;
@@ -78,14 +81,14 @@ namespace Fsl
     void ApplyScaledRadialDeadZone(GamepadThumbStick& rStick)
     {
       const auto length = std::sqrt((rStick.X * rStick.X) + (rStick.Y * rStick.Y));
-      if (length < DEADZONE)
+      if (length < LocalConfig::Deadzone)
       {
         rStick.X = 0.0f;
         rStick.Y = 0.0f;
       }
       else
       {
-        const float scaled = ((length - DEADZONE) / (1.0f - DEADZONE));
+        const float scaled = ((length - LocalConfig::Deadzone) / (1.0f - LocalConfig::Deadzone));
         rStick.X = std::max(std::min((rStick.X / length) * scaled, 1.0f), -1.0f);
         rStick.Y = std::max(std::min((rStick.Y / length) * scaled, 1.0f), -1.0f);
       }
@@ -230,7 +233,7 @@ namespace Fsl
       m_isConfigured = true;
       break;
     case NativeWindowEventType::GamepadState:
-      HandleGamepadStateEvent(event, SpanUtil::AsSpan(m_gamepads.data(), m_gamepadCount), m_deadZoneType, m_isConfigured);
+      HandleGamepadStateEvent(event, SpanUtil::Create(m_gamepads.data(), m_gamepadCount), m_deadZoneType, m_isConfigured);
       break;
     case NativeWindowEventType::InputKey:
       CheckInputKeyStateEvent(event, m_gamepadCount, m_isConfigured);

@@ -56,7 +56,7 @@ namespace Fsl
     }
   }
 
-  std::shared_ptr<INativeTexture2D> ANativeGraphicsServiceNo3D::CreateTexture2D(const RawTexture& /*texture*/,
+  std::shared_ptr<INativeTexture2D> ANativeGraphicsServiceNo3D::CreateTexture2D(const ReadOnlyRawTexture& /*texture*/,
                                                                                 const Texture2DFilterHint /*filterHint*/,
                                                                                 const TextureFlags /*textureFlags*/)
   {
@@ -68,7 +68,7 @@ namespace Fsl
   }
 
 
-  std::shared_ptr<IDynamicNativeTexture2D> ANativeGraphicsServiceNo3D::CreateDynamicTexture2D(const RawTexture& /*texture*/,
+  std::shared_ptr<IDynamicNativeTexture2D> ANativeGraphicsServiceNo3D::CreateDynamicTexture2D(const ReadOnlyRawTexture& /*texture*/,
                                                                                               const Texture2DFilterHint /*filterHint*/,
                                                                                               const TextureFlags /*textureFlags*/)
   {

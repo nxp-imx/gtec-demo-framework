@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,20 +29,21 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/Time/TimeSpan.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
 #include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
-#include <FslGraphics2D/Procedural/Builder/UIRawBasicMeshBuilder2D.hpp>
 #include <FslSimpleUI/Base/BaseWindowContext.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
+#include <FslSimpleUI/Base/UIColors.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Controls/Charts/BoxPlotChart.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/ChartData.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/ChartDataView.hpp>
 #include <FslSimpleUI/Controls/Charts/Util/BoxPlotHelper.hpp>
 #include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
+#include <FslSimpleUI/Render/Builder/UIRawBasicMeshBuilder2D.hpp>
 #include <cassert>
 #include "Render/BoxPlotDrawData.hpp"
 
@@ -69,7 +70,7 @@ namespace Fsl::UI
   {
     namespace LocalConfig
     {
-      constexpr Color DefaultMedianColor = Color::White();
+      constexpr UIColor DefaultMedianColor = UIColors::White();
 
       // constexpr TimeSpan ViewChangeTime(TimeSpan::FromMilliseconds(600));
 
@@ -129,11 +130,11 @@ namespace Fsl::UI
         PxValue startOffsetPx;
         auto startPositionPxf = dstPositionPxf;
         const auto baseColor = rBuilder.GetColor();
-        const auto medianColor = Color::Premultiply(pDrawData->MedianColor * baseColor);
+        const auto medianColor = UIRenderColor::Premultiply(pDrawData->MedianColor * baseColor);
         for (std::size_t spanIndex = 0; spanIndex < span.size(); ++spanIndex)
         {
           const auto& spanEntry = span[spanIndex];
-          const auto primaryColor = Color::Premultiply(spanEntry.PrimaryColor * baseColor);
+          const auto primaryColor = UIRenderColor::Premultiply(spanEntry.PrimaryColor * baseColor);
           rBuilder.SetColor(primaryColor);
 
           const auto barMiddlePx = (pDrawData->DrawInfo.MaxSizePx.RawValue() + 1) / 2;
@@ -457,11 +458,11 @@ namespace Fsl::UI
   {
     assert(m_drawData);
 
-    const Color finalBaseColor(GetFinalBaseColor());
+    const UIRenderColor finalBaseColor(GetFinalBaseColor());
 
     if (m_graphMesh.IsValid() && !m_drawData->IsEmpty())
     {
-      m_drawData->MedianColor = m_propertyMedianColor.Get();
+      m_drawData->MedianColor = GetContext()->ColorConverter.Convert(m_propertyMedianColor.Get());
 
       // Schedule the rendering
       context.CommandBuffer.DrawCustom(m_graphMesh.Get(), context.TargetRect.Location(), RenderSizePx(), finalBaseColor, DrawCustomBoxPlots,
@@ -550,13 +551,13 @@ namespace Fsl::UI
     }
 
     // Recalculate the box plot data
-    PopulateDrawDataWithBoxPlots(rDrawData, pDataViewElement, ReadOnlySpanUtil::AsSpan(m_channels));
+    PopulateDrawDataWithBoxPlots(rDrawData, pDataViewElement, SpanUtil::AsReadOnlySpan(m_channels), GetContext()->ColorConverter);
     return requireRelayout;
   }
 
   // Update the draw data with BoxPlot calculations per channel (if available)
   void BoxPlotChart::PopulateDrawDataWithBoxPlots(Render::BoxPlotDrawData& rDrawData, const ChartDataView* const pDataView,
-                                                  ReadOnlySpan<ChartSortedDataChannelView> channels)
+                                                  ReadOnlySpan<ChartSortedDataChannelView> channels, const UIColorConverter colorConverter)
   {
     if (pDataView == nullptr || pDataView->Count() < BoxPlotHelper::MinimumEntries)
     {
@@ -575,7 +576,7 @@ namespace Fsl::UI
           auto viewSpan = channels[i].GetChannelViewSpan();
           assert(viewSpan.size() >= BoxPlotHelper::MinimumEntries);
           auto boxPlot = BoxPlotHelper::Calculate(viewSpan);
-          rDrawData.Add(boxPlot, pDataView->GetChannelMetaDataInfo(i).PrimaryColor);
+          rDrawData.Add(boxPlot, colorConverter.Convert(pDataView->GetChannelMetaDataInfo(i).PrimaryColor));
         }
       }
     }

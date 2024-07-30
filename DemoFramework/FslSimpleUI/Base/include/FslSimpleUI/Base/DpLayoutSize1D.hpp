@@ -94,7 +94,7 @@ namespace Fsl::UI
       return m_value;
     }
 
-    static DpLayoutSize1D Create(float value) noexcept
+    static constexpr DpLayoutSize1D Create(float value) noexcept
     {
       return DpLayoutSize1D(DpValueF(value));
     }

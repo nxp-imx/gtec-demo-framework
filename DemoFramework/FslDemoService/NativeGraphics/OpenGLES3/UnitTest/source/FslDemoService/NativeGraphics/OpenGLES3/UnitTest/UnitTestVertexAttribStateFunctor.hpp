@@ -42,6 +42,7 @@ namespace Fsl::GLES3
 {
   struct UnitTestVertexAttribStateFunctor
   {
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static std::array<VertexAttribState, 32> GlobalState;
 
     static void Populate()

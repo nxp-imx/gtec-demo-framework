@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022-2023 NXP
+ * Copyright 2022-2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,9 +35,8 @@
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/Math/Dp/DpSize1D.hpp>
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDataBinding/Base/DataBindingService.hpp>
 #include <FslDataBinding/Base/Exceptions.hpp>
 #include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
@@ -47,6 +46,7 @@
 #include <FslDataBinding/Base/Property/TypedDependencyProperty.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <FslSimpleUI/Base/Control/ContentControl.hpp>
+#include <FslSimpleUI/Base/Control/ScrollModeFlags.hpp>
 #include <FslSimpleUI/Base/DpLayoutSize1D.hpp>
 #include <FslSimpleUI/Base/ItemAlignment.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
@@ -54,6 +54,7 @@
 #include <FslSimpleUI/Base/Layout/LayoutOrientation.hpp>
 #include <FslSimpleUI/Base/LayoutDirection.hpp>
 #include <FslSimpleUI/Declarative/ControlFactory.hpp>
+#include <FslSimpleUI/Declarative/ControlInfoUtil.hpp>
 #include <FslSimpleUI/Declarative/PropertyName.hpp>
 #include <FslSimpleUI/Declarative/PropertyRecord.hpp>
 #include <FslSimpleUI/Declarative/PropertyValue.hpp>
@@ -82,18 +83,34 @@ namespace Fsl::UI::Declarative::UIReader
       DataBinding::TypedDependencyProperty<UI::DpLayoutSize1D> m_propertyDpLayoutSize1D;
       DataBinding::TypedDependencyProperty<UI::ItemAlignment> m_propertyItemAlignment;
       DataBinding::TypedDependencyProperty<UI::LayoutOrientation> m_propertyLayoutOrientation;
+      DataBinding::TypedDependencyProperty<UI::ScrollModeFlags> m_propertyScrollModeFlags;
+      DataBinding::TypedDependencyProperty<TransitionType> m_propertyTransitionType;
       DataBinding::TypedDependencyProperty<StringViewLite> m_propertyStringView;
 
     public:
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyBool;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyUInt8;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyInt32;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyUInt32;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyDpSize1D;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyDpSize1DF;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyDpLayoutSize1D;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyItemAlignment;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyLayoutOrientation;
+      // NOLINTNEXTLINE(readability-identifier-naming)
+      static DataBinding::DependencyPropertyDefinition PropertyScrollModeFlags;
+      // NOLINTNEXTLINE(readability-identifier-naming)
+      static DataBinding::DependencyPropertyDefinition PropertyTransitionType;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyStringView;
 
       explicit PropertySetter(std::shared_ptr<DataBinding::DataBindingService> dataBinding)
@@ -191,6 +208,25 @@ namespace Fsl::UI::Declarative::UIReader
         return m_propertyLayoutOrientation.Set(ThisDependencyObject(), value);
       }
 
+      UI::ScrollModeFlags GetScrollModeFlags() const noexcept
+      {
+        return m_propertyScrollModeFlags.Get();
+      }
+
+      bool SetScrollModeFlags(const UI::ScrollModeFlags value)
+      {
+        return m_propertyScrollModeFlags.Set(ThisDependencyObject(), value);
+      }
+
+      TransitionType GetTransitionType() const noexcept
+      {
+        return m_propertyTransitionType.Get();
+      }
+
+      bool SetTransitionType(const TransitionType value)
+      {
+        return m_propertyTransitionType.Set(ThisDependencyObject(), value);
+      }
 
       StringViewLite GetStringView() const noexcept
       {
@@ -211,7 +247,8 @@ namespace Fsl::UI::Declarative::UIReader
           PropLinkRefs(PropertyInt32, m_propertyInt32), PropLinkRefs(PropertyUInt32, m_propertyUInt32),
           PropLinkRefs(PropertyDpSize1D, m_propertyDpSize1D), PropLinkRefs(PropertyDpSize1DF, m_propertyDpSize1DF),
           PropLinkRefs(PropertyDpLayoutSize1D, m_propertyDpLayoutSize1D), PropLinkRefs(PropertyItemAlignment, m_propertyItemAlignment),
-          PropLinkRefs(PropertyLayoutOrientation, m_propertyLayoutOrientation), PropLinkRefs(PropertyStringView, m_propertyStringView));
+          PropLinkRefs(PropertyLayoutOrientation, m_propertyLayoutOrientation), PropLinkRefs(PropertyScrollModeFlags, m_propertyScrollModeFlags),
+          PropLinkRefs(PropertyTransitionType, m_propertyTransitionType), PropLinkRefs(PropertyStringView, m_propertyStringView));
         return res.IsValid() ? res : DependencyObject::TryGetPropertyHandleNow(sourceDef);
       }
 
@@ -224,7 +261,8 @@ namespace Fsl::UI::Declarative::UIReader
           PropLinkRefs(PropertyInt32, m_propertyInt32), PropLinkRefs(PropertyUInt32, m_propertyUInt32),
           PropLinkRefs(PropertyDpSize1D, m_propertyDpSize1D), PropLinkRefs(PropertyDpSize1DF, m_propertyDpSize1DF),
           PropLinkRefs(PropertyDpLayoutSize1D, m_propertyDpLayoutSize1D), PropLinkRefs(PropertyItemAlignment, m_propertyItemAlignment),
-          PropLinkRefs(PropertyLayoutOrientation, m_propertyLayoutOrientation), PropLinkRefs(PropertyStringView, m_propertyStringView));
+          PropLinkRefs(PropertyLayoutOrientation, m_propertyLayoutOrientation), PropLinkRefs(PropertyScrollModeFlags, m_propertyScrollModeFlags),
+          PropLinkRefs(PropertyTransitionType, m_propertyTransitionType), PropLinkRefs(PropertyStringView, m_propertyStringView));
         return res != PropertySetBindingResult::NotFound ? res : DependencyObject::TrySetBindingNow(targetDef, binding);
       }
     };
@@ -264,6 +302,14 @@ namespace Fsl::UI::Declarative::UIReader
     DataBinding::DependencyPropertyDefinition PropertySetter::PropertyLayoutOrientation =
       DataBinding::DependencyPropertyDefinitionFactory::Create<UI::LayoutOrientation, PropertySetter, &PropertySetter::GetLayoutOrientation,
                                                                &PropertySetter::SetOrientation>("LayoutOrientation");
+
+    DataBinding::DependencyPropertyDefinition PropertySetter::PropertyScrollModeFlags =
+      DataBinding::DependencyPropertyDefinitionFactory::Create<UI::ScrollModeFlags, PropertySetter, &PropertySetter::GetScrollModeFlags,
+                                                               &PropertySetter::SetScrollModeFlags>("ScrollModeFlags");
+
+    DataBinding::DependencyPropertyDefinition PropertySetter::PropertyTransitionType =
+      DataBinding::DependencyPropertyDefinitionFactory::Create<TransitionType, PropertySetter, &PropertySetter::GetTransitionType,
+                                                               &PropertySetter::SetTransitionType>("TransitionType");
 
     DataBinding::DependencyPropertyDefinition PropertySetter::PropertyStringView =
       DataBinding::DependencyPropertyDefinitionFactory::Create<StringViewLite, PropertySetter, &PropertySetter::GetStringView,
@@ -305,12 +351,12 @@ namespace Fsl::UI::Declarative::UIReader
           FSLLOG3_ERROR("Could not create a control for class: '{}'", className);
           return {};
         }
-        ApplyAttributes(current, ReadOnlySpanUtil::AsSpan(nodeAttributes), pParentGrid);
+        ApplyAttributes(current, SpanUtil::AsReadOnlySpan(nodeAttributes), pParentGrid);
         nodeAttributes.clear();
 
         current->FinishAnimation();
 
-        if (IsContainer(current.get()))
+        if (ControlInfoUtil::IsContainer(current.get()))
         {
           auto* pGrid = dynamic_cast<UI::GridLayout*>(current.get());
           if (pGrid != nullptr)
@@ -331,7 +377,7 @@ namespace Fsl::UI::Declarative::UIReader
                     // Quick solution to handle the special grid attachment properties
                     nodeAttributes.clear();
                     ExtractAttributes(nodeAttributes, child);
-                    ApplyAttributes(childControl, ReadOnlySpanUtil::AsSpan(nodeAttributes), pGrid, true);
+                    ApplyAttributes(childControl, SpanUtil::AsReadOnlySpan(nodeAttributes), pGrid, true);
                     nodeAttributes.clear();
                     current->FinishAnimation();
                   }
@@ -354,7 +400,7 @@ namespace Fsl::UI::Declarative::UIReader
             }
           }
         }
-        else if (IsContentControl(current.get()))
+        else if (ControlInfoUtil::IsContentControl(current.get()))
         {
           if (std::distance(node.children().begin(), node.children().end()) == 1u)
           {
@@ -514,7 +560,7 @@ namespace Fsl::UI::Declarative::UIReader
         try
         {
           float value = 0.0f;
-          StringParseUtil::Parse(value, StringViewLiteUtil::AsStringViewLite(attr));
+          StringParseUtil::Parse(value, StringViewLite(attr));
           return GridColumnDefinition(GridUnitType::Fixed, value);
         }
         catch (const std::exception&)
@@ -540,7 +586,7 @@ namespace Fsl::UI::Declarative::UIReader
         try
         {
           float value = NAN;
-          StringParseUtil::Parse(value, StringViewLiteUtil::AsStringViewLite(attr));
+          StringParseUtil::Parse(value, StringViewLite(attr));
           return GridRowDefinition(GridUnitType::Fixed, value);
         }
         catch (const std::exception&)
@@ -660,7 +706,7 @@ namespace Fsl::UI::Declarative::UIReader
         elementName = elementName.substr(12);
         path = path.substr(5);
 
-        auto itrFind = m_namedControls.find(StringViewLiteUtil::ToString(elementName));
+        auto itrFind = m_namedControls.find(std::string(elementName));
         if (itrFind == m_namedControls.end())
         {
           FSLLOG3_ERROR("Could not find a named control called: '{}'", elementName);
@@ -806,44 +852,38 @@ namespace Fsl::UI::Declarative::UIReader
             FSLLOG3_ERROR("Unsupported ItemAlignment value: {}", strValue);
           }
         }
+        else if (setType == typeid(UI::ScrollModeFlags))
+        {
+          auto result = TryToScrollModeFlags(strValue);
+          if (result.has_value())
+          {    // Quick solution, use the data binding service as a setter
+            m_valueSource.SetScrollModeFlags(result.value());
+            ExecuteChanges(window, propertyDef, PropertySetter::PropertyScrollModeFlags);
+          }
+          else
+          {
+            FSLLOG3_ERROR("Unsupported ItemAlignment value: {}", strValue);
+          }
+        }
+        else if (setType == typeid(TransitionType))
+        {
+          auto result = TryToTransitionType(strValue);
+          if (result.has_value())
+          {    // Quick solution, use the data binding service as a setter
+            m_valueSource.SetTransitionType(result.value());
+            ExecuteChanges(window, propertyDef, PropertySetter::PropertyTransitionType);
+          }
+          else
+          {
+            FSLLOG3_ERROR("Unsupported ItemAlignment value: {}", strValue);
+          }
+        }
         else
         {
           FSLLOG3_ERROR("Unknown property value type: '{}'", propertyDef.Type().name());
         }
       }
 
-
-      bool IsContainer(UI::BaseWindow* const pWindow) const
-      {
-        // Really crude, a better solution would get enough meta data from the factory
-
-        // Check known containers
-        assert(pWindow != nullptr);
-        {
-          auto* const pContainer = dynamic_cast<UI::Layout*>(pWindow);
-          if (pContainer != nullptr)
-          {
-            return true;
-          }
-        }
-        return false;
-      }
-
-      bool IsContentControl(UI::BaseWindow* const pWindow) const
-      {
-        // Really crude, a better solution would get enough meta data from the factory
-
-        // Check known containers
-        assert(pWindow != nullptr);
-        {
-          auto* const pContentControl = dynamic_cast<UI::ContentControl*>(pWindow);
-          if (pContentControl != nullptr)
-          {
-            return true;
-          }
-        }
-        return false;
-      }
 
       bool TryAddToContentControl(UI::BaseWindow* const pContentControl, const std::shared_ptr<UI::BaseWindow>& baseWindow) const
       {
@@ -908,6 +948,152 @@ namespace Fsl::UI::Declarative::UIReader
         if (value == "Horizontal")
         {
           return UI::LayoutOrientation::Horizontal;
+        }
+        return {};
+      }
+
+      std::optional<UI::ScrollModeFlags> TryToScrollModeFlags(const StringViewLite value)
+      {
+        if (value == "TranslateX")
+        {
+          return UI::ScrollModeFlags::TranslateX;
+        }
+        if (value == "TranslateY")
+        {
+          return UI::ScrollModeFlags::TranslateY;
+        }
+        if (value == "Translate")
+        {
+          return UI::ScrollModeFlags::Translate;
+        }
+        return {};
+      }
+
+      std::optional<TransitionType> TryToTransitionType(const StringViewLite value)
+      {
+        if (value == "Linear")
+        {
+          return TransitionType::Linear;
+        }
+        if (value == "EaseInSine")
+        {
+          return TransitionType::EaseInSine;
+        }
+        if (value == "EaseOutSine")
+        {
+          return TransitionType::EaseOutSine;
+        }
+        if (value == "EaseInOutSine")
+        {
+          return TransitionType::EaseInOutSine;
+        }
+        if (value == "EaseInQuad")
+        {
+          return TransitionType::EaseInQuad;
+        }
+        if (value == "EaseOutQuad")
+        {
+          return TransitionType::EaseOutQuad;
+        }
+        if (value == "EaseInOutQuad")
+        {
+          return TransitionType::EaseInOutQuad;
+        }
+        if (value == "EaseInCubic")
+        {
+          return TransitionType::EaseInCubic;
+        }
+        if (value == "EaseOutCubic")
+        {
+          return TransitionType::EaseOutCubic;
+        }
+        if (value == "EaseInOutCubic")
+        {
+          return TransitionType::EaseInOutCubic;
+        }
+        if (value == "EaseInQuart")
+        {
+          return TransitionType::EaseInQuart;
+        }
+        if (value == "EaseOutQuart")
+        {
+          return TransitionType::EaseOutQuart;
+        }
+        if (value == "EaseInOutQuart")
+        {
+          return TransitionType::EaseInOutQuart;
+        }
+        if (value == "EaseInQuint")
+        {
+          return TransitionType::EaseInQuint;
+        }
+        if (value == "EaseOutQuint")
+        {
+          return TransitionType::EaseOutQuint;
+        }
+        if (value == "EaseInOutQuint")
+        {
+          return TransitionType::EaseInOutQuint;
+        }
+        if (value == "EaseInExpo")
+        {
+          return TransitionType::EaseInExpo;
+        }
+        if (value == "EaseOutExpo")
+        {
+          return TransitionType::EaseOutExpo;
+        }
+        if (value == "EaseInOutExpo")
+        {
+          return TransitionType::EaseInOutExpo;
+        }
+        if (value == "EaseInCirc")
+        {
+          return TransitionType::EaseInCirc;
+        }
+        if (value == "EaseOutCirc")
+        {
+          return TransitionType::EaseOutCirc;
+        }
+        if (value == "EaseInOutCirc")
+        {
+          return TransitionType::EaseInOutCirc;
+        }
+        if (value == "EaseInBack")
+        {
+          return TransitionType::EaseInBack;
+        }
+        if (value == "EaseOutBack")
+        {
+          return TransitionType::EaseOutBack;
+        }
+        if (value == "EaseInOutBack")
+        {
+          return TransitionType::EaseInOutBack;
+        }
+        if (value == "EaseInElastic")
+        {
+          return TransitionType::EaseInElastic;
+        }
+        if (value == "EaseOutElastic")
+        {
+          return TransitionType::EaseOutElastic;
+        }
+        if (value == "EaseInOutElastic")
+        {
+          return TransitionType::EaseInOutElastic;
+        }
+        if (value == "EaseInBounce")
+        {
+          return TransitionType::EaseInBounce;
+        }
+        if (value == "EaseOutBounce")
+        {
+          return TransitionType::EaseOutBounce;
+        }
+        if (value == "EaseInOutBounce")
+        {
+          return TransitionType::EaseInOutBounce;
         }
         return {};
       }

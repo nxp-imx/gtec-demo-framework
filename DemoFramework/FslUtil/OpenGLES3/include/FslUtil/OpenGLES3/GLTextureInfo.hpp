@@ -54,7 +54,7 @@ namespace Fsl
 
       //! @brief Create a uninitialized texture (use SetData to add texture data to it)
       constexpr GLTextureInfo()
-        : Handle(GLValues::INVALID_HANDLE)
+        : Handle(GLValues::InvalidHandle)
       {
       }
 
@@ -85,13 +85,13 @@ namespace Fsl
 
       constexpr void Reset()
       {
-        Handle = GLValues::INVALID_HANDLE;
+        Handle = GLValues::InvalidHandle;
         Extent = PxExtent3D();
       }
 
       constexpr bool IsValid() const
       {
-        return Handle != GLValues::INVALID_HANDLE;
+        return Handle != GLValues::InvalidHandle;
       }
 
       constexpr bool operator==(const GLTextureInfo& rhs) const

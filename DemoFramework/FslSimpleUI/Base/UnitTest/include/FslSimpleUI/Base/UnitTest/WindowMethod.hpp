@@ -49,6 +49,7 @@ enum class WindowMethod : uint32_t
   ArrangeOverride = 0x0800,
   MeasureOverride = 0x1000,
   OnPropertiesUpdated = 0x2000,
+  OnShutdown = 0x4000,
 
   All = 0xFFFF
 };

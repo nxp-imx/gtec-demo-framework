@@ -30,7 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES3/VertexElementAttribLinks.hpp>
 #include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <FslUtil/OpenGLES3/GLVertexElements.hpp>
@@ -77,7 +78,7 @@ namespace Fsl::GLES3
   {
     // This is not optimal but it works for now
     auto configuration = GLVertexElements(vertexDeclaration).ExtractConfiguration(attribLinks);
-    return ToArray(ReadOnlySpanUtil::AsSpan(configuration));
+    return ToArray(SpanUtil::AsReadOnlySpan(configuration));
   }
 
   VertexElementAttribLinks::InlineArray VertexElementAttribLinks::ToArray(const ReadOnlySpan<GLVertexElementAttribConfig>& vertexElementAttribConfigs)
@@ -96,9 +97,8 @@ namespace Fsl::GLES3
     // sort the entries based on attrib index (low to high)
 
     // Work around GCC warning by using a span for sorting instead
-    Span<GLVertexElementAttribConfig> sortSpan = SpanUtil::AsSubSpan(result.Entries, 0, convertedSize);
-    std::sort(sortSpan.begin(), sortSpan.end(),
-              [](const GLVertexElementAttribConfig& lhs, const GLVertexElementAttribConfig& rhs) -> bool
+    Span<GLVertexElementAttribConfig> sortSpan = SpanUtil::AsSpan(result.Entries, 0, convertedSize);
+    std::sort(sortSpan.begin(), sortSpan.end(), [](const GLVertexElementAttribConfig& lhs, const GLVertexElementAttribConfig& rhs) -> bool
               { return lhs.AttribIndex < rhs.AttribIndex; });
 
     result.Count = NumericCast<uint32_t>(convertedSize);

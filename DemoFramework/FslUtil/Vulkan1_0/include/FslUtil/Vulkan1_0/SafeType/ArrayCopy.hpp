@@ -100,11 +100,13 @@ namespace Fsl::Vulkan
       }
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const TSrc* data() const
     {
       return m_array.data();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     std::size_t size() const
     {
       return m_array.size();

@@ -85,41 +85,64 @@ namespace Fsl
   {
     enum Enum
     {
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_COUNT_FORMAT_ID = 8,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_COUNT_ENCODED_LAYOUT_BLOCK = 9,
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_INDEX_FORMAT_ID = 0,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_INDEX_ENCODED_LAYOUT_BLOCK = BIT_INDEX_FORMAT_ID + BIT_COUNT_FORMAT_ID,
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_MASK_FORMAT_ID = ((1 << BIT_COUNT_FORMAT_ID) - 1),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_MASK_ENCODED_LAYOUT_BLOCK = ((1 << BIT_COUNT_ENCODED_LAYOUT_BLOCK) - 1) << BIT_INDEX_ENCODED_LAYOUT_BLOCK,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_MASK_ENCODED_LAYOUT_BIT0 = ((1 << 1) - 1) << BIT_INDEX_ENCODED_LAYOUT_BLOCK,
 
       // Encoded layout 0 (9 bits)
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_COUNT_ENCODED_LAYOUT0_ENCODING = 1,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_COUNT_ENCODED_LAYOUT0_BYTES_PER_PIXEL = 7,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_COUNT_ENCODED_LAYOUT0_PACKED = 1,
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_INDEX_ENCODED_LAYOUT0_ENCODING = BIT_INDEX_ENCODED_LAYOUT_BLOCK,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL = BIT_INDEX_ENCODED_LAYOUT0_ENCODING + BIT_COUNT_ENCODED_LAYOUT0_ENCODING,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_INDEX_ENCODED_LAYOUT0_PACKED = BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL + BIT_COUNT_ENCODED_LAYOUT0_BYTES_PER_PIXEL,
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_MASK_ENCODED_LAYOUT0_ENCODING = ((1 << BIT_COUNT_ENCODED_LAYOUT0_ENCODING) - 1) << BIT_INDEX_ENCODED_LAYOUT0_ENCODING,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_MASK_ENCODED_LAYOUT0_BYTES_PER_PIXEL = ((1 << BIT_COUNT_ENCODED_LAYOUT0_BYTES_PER_PIXEL) - 1) << BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_MASK_ENCODED_LAYOUT0_PACKED = ((1 << BIT_COUNT_ENCODED_LAYOUT0_PACKED) - 1) << BIT_INDEX_ENCODED_LAYOUT0_PACKED,
 
       // Encoded layout 1 (9 bits)
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_COUNT_ENCODED_LAYOUT1_ENCODING = 2,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_COUNT_ENCODED_LAYOUT1_COMPRESSION_SCHEME = 7,
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_INDEX_ENCODED_LAYOUT1_ENCODING = BIT_INDEX_ENCODED_LAYOUT_BLOCK,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME = BIT_INDEX_ENCODED_LAYOUT1_ENCODING + BIT_COUNT_ENCODED_LAYOUT1_ENCODING,
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_MASK_ENCODED_LAYOUT1_ENCODING = ((1 << BIT_COUNT_ENCODED_LAYOUT1_ENCODING) - 1) << BIT_INDEX_ENCODED_LAYOUT1_ENCODING,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BIT_MASK_ENCODED_LAYOUT1_COMPRESSION_SCHEME = ((1 << BIT_COUNT_ENCODED_LAYOUT1_COMPRESSION_SCHEME) - 1)
                                                     << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME,
 
       // Layout 0 - Bytes per pixel
+      // NOLINTNEXTLINE(readability-identifier-naming)
       BytesPerPixelUndefined = (0 << BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL),
       BytesPerPixel1 = (1 << BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL),
       BytesPerPixel2 = (2 << BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL),
@@ -186,7 +209,9 @@ namespace Fsl
       BytesPerPixel63 = (63 << BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL),
       BytesPerPixel64 = (64 << BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL),
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       ENCODED_LAYOUT0 = 0,
+      // NOLINTNEXTLINE(readability-identifier-naming)
       ENCODED_LAYOUT1 = BIT_MASK_ENCODED_LAYOUT_BIT0,
 
       // Layout 0 - Packing
@@ -197,41 +222,69 @@ namespace Fsl
       // Layout 1 - Compression scheme
 
       //! No compression
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_NONE = ENCODED_LAYOUT1 | (0 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
       //! Block Compression
       //! See the Vulkan documentation for details
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_BC1_RGB = ENCODED_LAYOUT1 | (1 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_BC1_RGBA = ENCODED_LAYOUT1 | (2 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_BC2 = ENCODED_LAYOUT1 | (3 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_BC3 = ENCODED_LAYOUT1 | (4 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_BC4 = ENCODED_LAYOUT1 | (5 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_BC5 = ENCODED_LAYOUT1 | (6 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_BC6H = ENCODED_LAYOUT1 | (7 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_BC7 = ENCODED_LAYOUT1 | (8 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
       //! Ericsson Texture Compression
       //! See the Vulkan documentation for details
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ETC2_R8G8B8 = ENCODED_LAYOUT1 | (9 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ETC2_R8G8B8A1 = ENCODED_LAYOUT1 | (10 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ETC2_R8G8B8A8 = ENCODED_LAYOUT1 | (11 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
       //! ETC2 Alpha Compression
       //! See the Vulkan documentation for details
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_EAC_R11 = ENCODED_LAYOUT1 | (12 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_EAC_R11G11 = ENCODED_LAYOUT1 | (13 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
       //! Adaptive Scalable Texture Compression(LDR Profile)
       //! See the Vulkan documentation for details
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ASTC_4X4 = ENCODED_LAYOUT1 | (14 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ASTC_5X4 = ENCODED_LAYOUT1 | (15 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ASTC_5X5 = ENCODED_LAYOUT1 | (16 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ASTC_6X5 = ENCODED_LAYOUT1 | (17 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ASTC_6X6 = ENCODED_LAYOUT1 | (18 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ASTC_8X5 = ENCODED_LAYOUT1 | (19 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ASTC_8X6 = ENCODED_LAYOUT1 | (20 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ASTC_8X8 = ENCODED_LAYOUT1 | (21 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ASTC_10X5 = ENCODED_LAYOUT1 | (22 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ASTC_10X6 = ENCODED_LAYOUT1 | (23 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ASTC_10X8 = ENCODED_LAYOUT1 | (24 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ASTC_10X10 = ENCODED_LAYOUT1 | (25 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ASTC_12X10 = ENCODED_LAYOUT1 | (26 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
+      // NOLINTNEXTLINE(readability-identifier-naming)
       CS_ASTC_12X12 = ENCODED_LAYOUT1 | (27 << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME),
     };
   };

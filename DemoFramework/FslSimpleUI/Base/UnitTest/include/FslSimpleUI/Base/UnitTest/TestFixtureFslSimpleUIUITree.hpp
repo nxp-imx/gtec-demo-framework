@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <FslSimpleUI/Base/Render/UIRenderSystem.hpp>
+#include <FslSimpleUI/Base/System/RootWindow.hpp>
 #include <FslSimpleUI/Render/Base/DrawCommandBufferEx.hpp>
 
 

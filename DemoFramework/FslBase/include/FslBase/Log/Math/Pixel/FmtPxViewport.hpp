@@ -40,16 +40,18 @@ namespace fmt
   struct formatter<Fsl::PxViewport>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::PxViewport& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{X={} Y={} Width={} Height={} MinDepth={} MaxDepth={}}}", value.X(), value.Y(), value.Width(), value.Height(),
-                       value.MinDepth(), value.MaxDepth());
+      return fmt::format_to(ctx.out(), "{{X={} Y={} Width={} Height={} MinDepth={} MaxDepth={}}}", value.X(), value.Y(), value.Width(),
+                            value.Height(), value.MinDepth(), value.MaxDepth());
     }
   };
 }

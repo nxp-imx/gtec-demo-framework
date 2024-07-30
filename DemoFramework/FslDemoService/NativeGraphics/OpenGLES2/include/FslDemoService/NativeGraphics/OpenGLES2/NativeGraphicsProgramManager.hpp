@@ -53,13 +53,13 @@ namespace Fsl::GLES2
     {
       GLProgram Program;
       // Uniform locations
-      GLint LocMatModelViewProj{GLValues::INVALID_LOCATION};
-      GLint LocTexture{GLValues::INVALID_LOCATION};
-      GLint LocSmoothing{GLValues::INVALID_LOCATION};
+      GLint LocMatModelViewProj{GLValues::InvalidLocation};
+      GLint LocTexture{GLValues::InvalidLocation};
+      GLint LocSmoothing{GLValues::InvalidLocation};
       // Attrib locations
-      GLint LocVertexPosition{GLValues::INVALID_LOCATION};
-      GLint LocVertexColor{GLValues::INVALID_LOCATION};
-      GLint LocVertexTextureCoord{GLValues::INVALID_LOCATION};
+      GLint LocVertexPosition{GLValues::InvalidLocation};
+      GLint LocVertexColor{GLValues::InvalidLocation};
+      GLint LocVertexTextureCoord{GLValues::InvalidLocation};
 
       uint32_t ReferenceCount{0};
       uint32_t CameraChangeId{0};

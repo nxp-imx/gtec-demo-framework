@@ -41,8 +41,8 @@ namespace Fsl::UI
   struct SliderPixelSpanInfo
   {
   private:
-    PxValue m_startPx{};
-    PxSize1D m_lengthPx{};
+    PxValue m_startPx;
+    PxSize1D m_lengthPx;
     bool m_reverseDirection{false};
 
   public:

@@ -33,7 +33,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/ConstrainedValue.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslSimpleUI/Declarative/ThemeProperties/ParseHelper.hpp>
 #include <FslSimpleUI/Declarative/ThemeProperties/ParsedTypedThemeProperty.hpp>
@@ -48,7 +48,7 @@ namespace Fsl::UI::Declarative
 
   public:
     ConstrainedValueThemeProperty()
-      : ConstrainedValueThemeProperty(PropertyName("theme:Constraint"))
+      : ConstrainedValueThemeProperty(PropertyName("theme_Constraint"))
     {
     }
 

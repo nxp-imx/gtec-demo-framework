@@ -65,7 +65,7 @@ namespace Fsl::GLES2
 
         // Remove the data from other
         other.m_shaderType = 0;
-        other.m_handle = GLValues::INVALID_HANDLE;
+        other.m_handle = GLValues::InvalidHandle;
       }
       return *this;
     }
@@ -78,7 +78,7 @@ namespace Fsl::GLES2
     {
       // Remove the data from other
       other.m_shaderType = 0;
-      other.m_handle = GLValues::INVALID_HANDLE;
+      other.m_handle = GLValues::InvalidHandle;
     }
 
     GLShader();
@@ -89,7 +89,7 @@ namespace Fsl::GLES2
     //! @brief Check if this contains a valid gl handle.
     bool IsValid() const noexcept
     {
-      return m_handle != GLValues::INVALID_HANDLE;
+      return m_handle != GLValues::InvalidHandle;
     }
 
     void Reset() noexcept;
@@ -106,14 +106,14 @@ namespace Fsl::GLES2
     }
 
     //! @brief Get the gl handle associated with the shader.
-    //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
+    //! @return the handle or GLValues::InvalidHandle if the buffer is unallocated.
     GLuint Get() const noexcept
     {
       return m_handle;
     }
 
     //! @brief Get the gl handle associated with the shader.
-    //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
+    //! @return the handle or GLValues::InvalidHandle if the buffer is unallocated.
     [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
     {
       return Get();

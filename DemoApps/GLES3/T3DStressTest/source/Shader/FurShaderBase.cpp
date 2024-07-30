@@ -90,16 +90,16 @@ namespace Fsl
     : ShaderBase(contentManager->ReadAllText(GetVertAndLog(shaderPath, useHighPrecision)),
                  contentManager->ReadAllText(GetFragAndLog(shaderPath, useHighPrecision, lightCount)))
     , m_lightCount(lightCount)
-    , m_locInstanceDistance(GLValues::INVALID_LOCATION)
-    , m_locWorld(GLValues::INVALID_LOCATION)
-    , m_locView(GLValues::INVALID_LOCATION)
-    , m_locProjection(GLValues::INVALID_LOCATION)
-    , m_locTexture0(GLValues::INVALID_LOCATION)
-    , m_locTexture1(GLValues::INVALID_LOCATION)
-    , m_locLightCount(GLValues::INVALID_LOCATION)
-    , m_locAmbientColor(GLValues::INVALID_LOCATION)
-    , m_locMaxHairLength(GLValues::INVALID_LOCATION)
-    , m_locDisplacement(GLValues::INVALID_LOCATION)
+    , m_locInstanceDistance(GLValues::InvalidLocation)
+    , m_locWorld(GLValues::InvalidLocation)
+    , m_locView(GLValues::InvalidLocation)
+    , m_locProjection(GLValues::InvalidLocation)
+    , m_locTexture0(GLValues::InvalidLocation)
+    , m_locTexture1(GLValues::InvalidLocation)
+    , m_locLightCount(GLValues::InvalidLocation)
+    , m_locAmbientColor(GLValues::InvalidLocation)
+    , m_locMaxHairLength(GLValues::InvalidLocation)
+    , m_locDisplacement(GLValues::InvalidLocation)
   {
     Construct(lightCount);
   }
@@ -109,16 +109,16 @@ namespace Fsl
                                const int lightCount)
     : ShaderBase(contentManager->ReadAllText(vertShaderPath), contentManager->ReadAllText(fragShaderPath))
     , m_lightCount(lightCount)
-    , m_locInstanceDistance(GLValues::INVALID_LOCATION)
-    , m_locWorld(GLValues::INVALID_LOCATION)
-    , m_locView(GLValues::INVALID_LOCATION)
-    , m_locProjection(GLValues::INVALID_LOCATION)
-    , m_locTexture0(GLValues::INVALID_LOCATION)
-    , m_locTexture1(GLValues::INVALID_LOCATION)
-    , m_locLightCount(GLValues::INVALID_LOCATION)
-    , m_locAmbientColor(GLValues::INVALID_LOCATION)
-    , m_locMaxHairLength(GLValues::INVALID_LOCATION)
-    , m_locDisplacement(GLValues::INVALID_LOCATION)
+    , m_locInstanceDistance(GLValues::InvalidLocation)
+    , m_locWorld(GLValues::InvalidLocation)
+    , m_locView(GLValues::InvalidLocation)
+    , m_locProjection(GLValues::InvalidLocation)
+    , m_locTexture0(GLValues::InvalidLocation)
+    , m_locTexture1(GLValues::InvalidLocation)
+    , m_locLightCount(GLValues::InvalidLocation)
+    , m_locAmbientColor(GLValues::InvalidLocation)
+    , m_locMaxHairLength(GLValues::InvalidLocation)
+    , m_locDisplacement(GLValues::InvalidLocation)
   {
     Construct(lightCount);
   }
@@ -126,7 +126,7 @@ namespace Fsl
 
   void FurShaderBase::SetInstanceDistance(const float distance)
   {
-    if (m_locInstanceDistance == GLValues::INVALID_LOCATION)
+    if (m_locInstanceDistance == GLValues::InvalidLocation)
     {
       FSLLOG3_WARNING("InstanceDistance not available, so request was ignored");
       return;
@@ -173,7 +173,7 @@ namespace Fsl
 
     if (m_lightCount <= 4)
     {
-      assert(m_locLightDirection[index] != GLValues::INVALID_LOCATION);
+      assert(m_locLightDirection[index] != GLValues::InvalidLocation);
       glUniform3f(m_locLightDirection[index], lightDirection.X, lightDirection.Y, lightDirection.Z);
     }
     else
@@ -181,7 +181,7 @@ namespace Fsl
       m_lightDirection[index * 3 + 0] = lightDirection.X;
       m_lightDirection[index * 3 + 1] = lightDirection.Y;
       m_lightDirection[index * 3 + 2] = lightDirection.Z;
-      assert(m_locLightDirection[0] != GLValues::INVALID_LOCATION);
+      assert(m_locLightDirection[0] != GLValues::InvalidLocation);
       glUniform3fv(m_locLightDirection[0], m_lightCount * 3, &m_lightDirection[0]);
     }
   }
@@ -242,7 +242,7 @@ namespace Fsl
   void FurShaderBase::SetLightCount(const int lightCount)
   {
     assert(IsLoaded());
-    if (m_locLightCount != GLValues::INVALID_LOCATION)
+    if (m_locLightCount != GLValues::InvalidLocation)
     {
       glUniform1f(m_locLightCount, static_cast<GLfloat>(lightCount));
     }
@@ -271,8 +271,8 @@ namespace Fsl
     {
       m_locLightDirection.resize(lightCount);
       m_locLightColor.resize(lightCount);
-      std::fill(m_locLightDirection.begin(), m_locLightDirection.end(), GLValues::INVALID_LOCATION);
-      std::fill(m_locLightColor.begin(), m_locLightColor.end(), GLValues::INVALID_LOCATION);
+      std::fill(m_locLightDirection.begin(), m_locLightDirection.end(), GLValues::InvalidLocation);
+      std::fill(m_locLightColor.begin(), m_locLightColor.end(), GLValues::InvalidLocation);
 
       m_locLightDirection[0] = rProgram.GetUniformLocation("LightDirection1");
       m_locLightColor[0] = rProgram.GetUniformLocation("LightColor1");

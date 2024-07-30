@@ -68,7 +68,7 @@ namespace Fsl
       auto contentSize = ByteSpanUtil::ReadUInt32LE(header, NBFHeader::HeaderOffsetContentSize);
       if (magic != NBFHeader::Magic)
       {
-        throw FormatException("invalid header");
+        throw FormatException("invalid NBF header");
       }
       if (version < NBFHeader::MinVersion || version > NBFHeader::MaxVersion)
       {

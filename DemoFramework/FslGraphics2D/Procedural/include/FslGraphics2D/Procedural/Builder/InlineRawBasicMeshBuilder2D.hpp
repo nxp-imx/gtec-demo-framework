@@ -36,7 +36,6 @@
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslGraphics/Color.hpp>
 #include <FslGraphics/NativeNineSliceTextureArea.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
 #include <FslGraphics2D/Procedural/Builder/Clip2DUtil.hpp>
@@ -66,7 +65,7 @@ namespace Fsl
 
     using vertex_position_type = Vector3;
     using vertex_position_value_type = Vector3::value_type;
-    using vertex_color_type = Color;
+    using vertex_color_type = typename vertex_element_type::color_type;
     using vertex_uv_type = Vector2;
 
   private:
@@ -103,12 +102,12 @@ namespace Fsl
       FSLLOG3_DEBUG_INFO_IF(pVertices == nullptr && vertexCapacity != 0, "forcing vertex capacity to zero");
     }
 
-    Color GetColor() const noexcept
+    vertex_color_type GetColor() const noexcept
     {
       return m_color;
     }
 
-    void SetColor(const Color color) noexcept
+    void SetColor(const vertex_color_type color) noexcept
     {
       m_color = color;
     }
@@ -144,6 +143,13 @@ namespace Fsl
     {
       assert((m_vertexCount + 1) <= m_vertexCapacity);
       *(m_pVertexData + m_vertexCount) = TVertex(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(u0, v0));
+      ++m_vertexCount;
+    }
+
+    constexpr void AddVertex(const float x0, const float y0, const float u0, const float v0, const vertex_color_type color) noexcept
+    {
+      assert((m_vertexCount + 1) <= m_vertexCapacity);
+      *(m_pVertexData + m_vertexCount) = TVertex(vertex_position_type(x0, y0, m_zPos), color, vertex_uv_type(u0, v0));
       ++m_vertexCount;
     }
 

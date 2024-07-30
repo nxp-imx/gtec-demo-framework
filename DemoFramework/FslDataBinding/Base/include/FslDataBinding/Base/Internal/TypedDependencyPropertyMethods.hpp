@@ -33,6 +33,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslDataBinding/Base/Internal/ATypedDependencyPropertyMethods.hpp>
+#include <FslDataBinding/Base/Internal/ATypedReadOnlyDependencyPropertyMethods.hpp>
 #include <FslDataBinding/Base/Internal/TypedDependencyPropertyMethodsDefinition.hpp>
 #include <cassert>
 #include <memory>
@@ -78,6 +79,13 @@ namespace Fsl::DataBinding::Internal
     {
       {    // Try a known get type
         const auto* const pTypedGetOperation = dynamic_cast<const ATypedDependencyPropertyMethods<property_value_type>*>(pGet);
+        if (pTypedGetOperation != nullptr)
+        {
+          return Set(pTypedGetOperation->Get()) ? PropertySetResult::ValueChanged : PropertySetResult::ValueUnchanged;
+        }
+      }
+      {    // Try a known get type
+        const auto* const pTypedGetOperation = dynamic_cast<const ATypedReadOnlyDependencyPropertyMethods<property_value_type>*>(pGet);
         if (pTypedGetOperation != nullptr)
         {
           return Set(pTypedGetOperation->Get()) ? PropertySetResult::ValueChanged : PropertySetResult::ValueUnchanged;

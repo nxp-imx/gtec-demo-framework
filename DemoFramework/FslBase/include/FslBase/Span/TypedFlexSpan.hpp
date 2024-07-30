@@ -1,7 +1,7 @@
 #ifndef FSLBASE_SPAN_TYPEDFLEXSPAN_HPP
 #define FSLBASE_SPAN_TYPEDFLEXSPAN_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,7 @@ namespace Fsl
   {
   public:
     constexpr TypedFlexSpanBase() noexcept = default;
+    // NOLINTNEXTLINE(readability-identifier-naming)
     static constexpr std::size_t extent = static_cast<std::size_t>(-1);
   };
 
@@ -107,28 +108,33 @@ namespace Fsl
     }
 
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr const_pointer flex_data() const noexcept
     {
       return m_pData;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr pointer flex_data() noexcept
     {
       return m_pData;
     }
 
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr size_type size() const noexcept
     {
       return m_length;
     }
 
     //! @brief return the element size in bytes
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr size_type stride() const noexcept
     {
       return m_stride;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr bool empty() const noexcept
     {
       return m_length == 0;
@@ -148,6 +154,7 @@ namespace Fsl
       return GetReference(pos);
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const_reference at(size_type pos) const
     {
       if (pos >= size())
@@ -158,6 +165,7 @@ namespace Fsl
       return GetConstReference(pos);
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     reference at(size_type pos)
     {
       if (pos >= size())
@@ -168,29 +176,34 @@ namespace Fsl
       return GetReference(pos);
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr size_type byte_size() const noexcept
     {
       return m_length * m_stride;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const_reference back() const
     {
       assert(!empty());
       return GetConstReference(m_length - 1);
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     reference back()
     {
       assert(!empty());
       return GetReference(m_length - 1);
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     const_reference front() const
     {
       assert(!empty());
       return GetConstReference(0);
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     reference front()
     {
       assert(!empty());
@@ -199,6 +212,7 @@ namespace Fsl
 
 
     //! @brief Returns a view of the substring [pos, pos + rcount), where rcount is the smaller of count and size() - pos.
+    // NOLINTNEXTLINE(readability-identifier-naming)
     ReadOnlyTypedFlexSpan<T> subspan(size_type pos = 0, size_type count = extent) const
     {
       if (pos > m_length)
@@ -210,6 +224,7 @@ namespace Fsl
     }
 
     //! @brief Returns a view of the substring [pos, pos + rcount), where rcount is the smaller of count and size() - pos.
+    // NOLINTNEXTLINE(readability-identifier-naming)
     TypedFlexSpan subspan(size_type pos = 0, size_type count = extent)
     {
       if (pos > m_length)

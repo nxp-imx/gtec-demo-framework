@@ -116,7 +116,7 @@ TEST(TestRender_Batch2DUtil, Clip_BruteForce)
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 8
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 9
     };
-    constexpr auto rectB = PxAreaRectangleF::Create(4, 3, 6, 5);
+    constexpr auto RectB = PxAreaRectangleF::Create(4, 3, 6, 5);
 
     auto srcRect = PxAreaRectangleF::Create(10, 20, 40, 80);
 
@@ -128,10 +128,10 @@ TEST(TestRender_Batch2DUtil, Clip_BruteForce)
         auto rectA = PxAreaRectangleF::Create(static_cast<float>(x), static_cast<float>(y), 4, 3);
         auto resA = rectA;
         auto resSrcA = srcRect;
-        auto resB = rectB;
+        auto resB = RectB;
         auto resSrcB = srcRect;
 
-        const bool clippedA = Batch2DUtil::Clip(resA, resSrcA, rectB);
+        const bool clippedA = Batch2DUtil::Clip(resA, resSrcA, RectB);
         const bool clippedB = Batch2DUtil::Clip(resB, resSrcB, rectA);
         EXPECT_EQ(result[x + yOffset] != 0u, clippedA);
         EXPECT_EQ(result[x + yOffset] != 0u, clippedB);
@@ -141,13 +141,13 @@ TEST(TestRender_Batch2DUtil, Clip_BruteForce)
         {
           EXPECT_EQ(resA, resB);
           // check result
-          ASSERT_EQ(std::max(rectA.Left(), rectB.Left()), resA.Left());
-          ASSERT_EQ(std::max(rectA.Top(), rectB.Top()), resA.Top());
-          ASSERT_EQ(std::min(rectA.Right(), rectB.Right()), resA.Right());
-          ASSERT_EQ(std::min(rectA.Bottom(), rectB.Bottom()), resA.Bottom());
+          ASSERT_EQ(std::max(rectA.Left(), RectB.Left()), resA.Left());
+          ASSERT_EQ(std::max(rectA.Top(), RectB.Top()), resA.Top());
+          ASSERT_EQ(std::min(rectA.Right(), RectB.Right()), resA.Right());
+          ASSERT_EQ(std::min(rectA.Bottom(), RectB.Bottom()), resA.Bottom());
 
           auto expectedSrcA = CalcClippedSrcRect(rectA, resA, srcRect);
-          auto expectedSrcB = CalcClippedSrcRect(rectB, resB, srcRect);
+          auto expectedSrcB = CalcClippedSrcRect(RectB, resB, srcRect);
 
           EXPECT_FLOAT_EQ(expectedSrcA.RawLeft(), resSrcA.RawLeft());
           EXPECT_FLOAT_EQ(expectedSrcA.RawTop(), resSrcA.RawTop());

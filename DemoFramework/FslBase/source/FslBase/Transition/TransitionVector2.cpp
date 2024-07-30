@@ -30,8 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/EqualHelper_Vector2.hpp>
-#include <FslBase/Transition/TransitionCache.hpp>
-#include <FslBase/Transition/TransitionConfig.hpp>
+#include <FslBase/Transition/EasingFunctionUtil.hpp>
 #include <FslBase/Transition/TransitionTimeSpanHelper.hpp>
 #include <FslBase/Transition/TransitionVector2.hpp>
 #include <cassert>
@@ -39,49 +38,44 @@
 
 namespace Fsl
 {
-  TransitionVector2::TransitionVector2() = default;
+  TransitionVector2::TransitionVector2() noexcept = default;
 
 
-  TransitionVector2::TransitionVector2(TransitionCache& rTransitionCache, const TimeSpan& time)
-    : m_currentTime(time.Ticks())
-    , m_endTime(time.Ticks())
-
+  TransitionVector2::TransitionVector2(const TimeSpan time)
+    : m_endTime(time)
+    , m_currentTime(time)
   {
-    SetTransitionTime(rTransitionCache, time, m_transitionType);
+    SetTransitionTime(time, m_transitionType);
   }
 
 
-  TransitionVector2::TransitionVector2(TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type)
+  TransitionVector2::TransitionVector2(const TimeSpan time, const TransitionType type)
     : m_transitionType(type)
-    , m_currentTime(time.Ticks())
-    , m_endTime(time.Ticks())
-
+    , m_fnEasingFunction(EasingFunctionUtil::GetEasingFunction(type))
+    , m_endTime(time)
+    , m_currentTime(time)
   {
-    SetTransitionTime(rTransitionCache, time, type);
+    SetTransitionTime(time, type);
   }
 
 
-  TimeSpan TransitionVector2::GetStartDelay() const
+  TimeSpan TransitionVector2::GetStartDelay() const noexcept
   {
-    return TimeSpan(m_startDelay);
+    return m_startDelay;
   }
 
 
-  void TransitionVector2::SetStartDelay(const TimeSpan& value)
+  void TransitionVector2::SetStartDelay(const TimeSpan value) noexcept
   {
-    auto ticks = value.Ticks();
-    if (ticks != m_startDelay)
+    if (value != m_startDelay)
     {
-      assert(ticks >= 0 && ticks <= std::numeric_limits<int32_t>::max());
-      auto startDelay = static_cast<int32_t>(ticks);
       if (!IsCompleted())
       {
-        m_currentTime = -startDelay;
+        m_currentTime = -value;
       }
-      m_startDelay = startDelay;
+      m_startDelay = value;
     }
   }
-
 
   void TransitionVector2::SetValue(const Vector2& value)
   {
@@ -94,7 +88,7 @@ namespace Fsl
   }
 
 
-  void TransitionVector2::SetActualValue(const Vector2& value)
+  void TransitionVector2::SetActualValue(const Vector2& value) noexcept
   {
     m_from = value;
     m_target = value;
@@ -103,7 +97,7 @@ namespace Fsl
   }
 
 
-  void TransitionVector2::ForceComplete()
+  void TransitionVector2::ForceComplete() noexcept
   {
     m_from = m_target;
     m_val = m_target;
@@ -111,28 +105,29 @@ namespace Fsl
   }
 
 
-  TimeSpan TransitionVector2::GetTransitionTime() const
+  TimeSpan TransitionVector2::GetTransitionTime() const noexcept
   {
     return TimeSpan(m_endTime + m_startDelay);
   }
 
 
-  void TransitionVector2::SetTransitionTime(TransitionCache& rTransitionCache, const TimeSpan& time)
+  void TransitionVector2::SetTransitionTime(const TimeSpan time)
   {
-    SetTransitionTime(rTransitionCache, time, m_transitionType);
+    SetTransitionTime(time, m_transitionType);
   }
 
 
-  void TransitionVector2::SetTransitionTime(TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type)
+  void TransitionVector2::SetTransitionTime(const TimeSpan time, const TransitionType type)
   {
-    if (!m_transition || m_endTime != time.Ticks() || type != m_transitionType)
+    if (m_endTime != time || type != m_transitionType)
     {
-      m_endTime = time.Ticks() >= 0 ? time.Ticks() : 0;
+      m_endTime = time >= TimeSpan(0) ? time : TimeSpan();
 
-      m_transitionType = type;
-      int numSeconds = TimeSpanHelper::AsSecondsRoundedUp(time);
-      m_transition = rTransitionCache.GetLookupTable((numSeconds * TransitionConfig::InternalResolutionPerSecond) + 1, type);
-      assert(m_transition);
+      if (type != m_transitionType)
+      {
+        m_transitionType = type;
+        m_fnEasingFunction = EasingFunctionUtil::GetEasingFunction(type);
+      }
 
       if (!EqualHelper::IsAlmostEqual(m_target, m_val))
       {
@@ -146,22 +141,21 @@ namespace Fsl
   }
 
 
-  TransitionState TransitionVector2::Update(const TimeSpan& deltaTime)
+  TransitionState TransitionVector2::Update(const TimeSpan deltaTime) noexcept
   {
-    if (m_transition && m_currentTime < m_endTime)
+    if (m_currentTime < m_endTime)
     {
-      // We do the increase here because the first entry in the m_transition table is zero which we want to skip
-      m_currentTime += deltaTime.Ticks();
-      if (m_currentTime < 0)
+      // We do the increase here because we want to skip the zero starting point
+      m_currentTime += deltaTime;
+      if (m_currentTime <= TimeSpan(0))
       {
         return TransitionState::StartDelay;
       }
       if (m_currentTime < m_endTime)
       {
-        const auto toIndex = static_cast<int32_t>((static_cast<int64_t>(m_transition->size()) * m_currentTime) / m_endTime);
-        assert(toIndex >= 0);
-        assert(static_cast<uint32_t>(toIndex) < m_transition->size());
-        m_val = m_from + ((m_target - m_from) * (*m_transition)[toIndex]);
+        const auto progress = static_cast<float>(static_cast<double>(m_currentTime.Ticks()) / static_cast<double>(m_endTime.Ticks()));
+        assert(progress >= 0.0f && progress <= 1.0f);
+        m_val = m_from + ((m_target - m_from) * m_fnEasingFunction(progress));
         return TransitionState::Running;
       }
 
@@ -176,7 +170,7 @@ namespace Fsl
   }
 
 
-  void TransitionVector2::CalcTransition()
+  void TransitionVector2::CalcTransition() noexcept
   {
     m_currentTime = -m_startDelay;
   }

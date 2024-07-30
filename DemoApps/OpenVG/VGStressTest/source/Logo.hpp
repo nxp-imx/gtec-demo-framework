@@ -31,16 +31,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Bitmap/RawBitmap.hpp>
+#include <FslGraphics/Bitmap/ReadOnlyRawBitmap.hpp>
 
 namespace Fsl
 {
   class Logo
   {
-    static const uint8_t gpImageData[];    // NOLINT(modernize-avoid-c-arrays)
-
   public:
-    static RawBitmap GetBitmap();
+    static ReadOnlyRawBitmap GetBitmap();
   };
 }
 

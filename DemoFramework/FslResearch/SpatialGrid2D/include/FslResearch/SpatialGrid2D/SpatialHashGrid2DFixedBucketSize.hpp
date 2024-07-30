@@ -34,6 +34,7 @@
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/Span/SpanUtil_Create.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <vector>
 
@@ -254,7 +255,7 @@ namespace Fsl
       const uint32_t offsetX = chunkX * TMaxEntriesPerChunk;
       const uint32_t offsetY = chunkY * m_gridStride;
       const uint32_t* pRecord = m_grid.data() + offsetY + offsetX;
-      return (chunkX < m_gridCellCountX && chunkY < m_gridCellCountY) ? ReadOnlySpan<uint32_t>(pRecord + 1, *pRecord, OptimizationCheckFlag::NoCheck)
+      return (chunkX < m_gridCellCountX && chunkY < m_gridCellCountY) ? SpanUtil::UncheckedCreateReadOnly(pRecord + 1, *pRecord)
                                                                       : ReadOnlySpan<uint32_t>();
     }
 
@@ -263,7 +264,7 @@ namespace Fsl
       const uint32_t offsetX = chunkX * TMaxEntriesPerChunk;
       const uint32_t offsetY = chunkY * m_gridStride;
       const uint32_t* pRecord = m_grid.data() + offsetY + offsetX;
-      return ReadOnlySpan<uint32_t>(pRecord + 1, *pRecord, OptimizationCheckFlag::NoCheck);
+      return SpanUtil::UncheckedCreateReadOnly(pRecord + 1, *pRecord);
     }
   };
 

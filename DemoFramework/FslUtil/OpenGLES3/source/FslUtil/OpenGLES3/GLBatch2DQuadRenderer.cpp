@@ -45,8 +45,11 @@ namespace Fsl::GLES3
 {
   namespace
   {
-    constexpr const int32_t QUAD_BATCH_SIZE = 2048;
-    constexpr const int32_t QUAD_VERTEX_COUNT = 4;
+    namespace LocalConfig
+    {
+      constexpr const int32_t QuadBatchSize = 2048;
+      constexpr const int32_t QuadVertexCount = 4;
+    }
 
     const char* const g_vertexShader =
       "#version 300 es\n"
@@ -154,10 +157,10 @@ namespace Fsl::GLES3
     : m_vertexOffset(0)
     , m_indexOffset(0)
   {
-    const int32_t quadCapacity = std::max(quadCapacityHint, QUAD_BATCH_SIZE);
+    const int32_t quadCapacity = std::max(quadCapacityHint, LocalConfig::QuadBatchSize);
     // (4*(quadCapacity-1) because we need four degenerated triangles to bind the quads together
     const int32_t vertexCapacity = 4 * quadCapacity;
-    const int32_t indexCapacity = 4 + (((vertexCapacity / QUAD_VERTEX_COUNT) - 1) * 6);
+    const int32_t indexCapacity = 4 + (((vertexCapacity / LocalConfig::QuadVertexCount) - 1) * 6);
 
     // Prepare the vertex buffer
     std::vector<VertexPositionColorTexture> emptyVertices(vertexCapacity);
@@ -296,7 +299,7 @@ namespace Fsl::GLES3
       glUniform1i(activeInfo.LocTexture, 0);
     }
 
-    if (activeInfo.LocSmoothing != GLValues::INVALID_LOCATION)
+    if (activeInfo.LocSmoothing != GLValues::InvalidLocation)
     {
       float smoothing = SdfFontUtil::CalcSmooth(sdfRenderConfig.Spread, sdfRenderConfig.Scale);
       glUniform1f(activeInfo.LocSmoothing, smoothing);
@@ -377,7 +380,7 @@ namespace Fsl::GLES3
     glBindTexture(GL_TEXTURE_2D, textureInfo.Handle);
 
     const VertexPositionColorTexture* pSrcVertices = pVertices;
-    uint32_t verticesLeft = length * QUAD_VERTEX_COUNT;
+    uint32_t verticesLeft = length * LocalConfig::QuadVertexCount;
     const auto maxCapacity = m_vertexBuffer.GetCapacity();
     assert(m_vertexOffset <= maxCapacity);
     auto capacityLeft = maxCapacity - m_vertexOffset;
@@ -390,7 +393,7 @@ namespace Fsl::GLES3
       pSrcVertices += verticesToAdd;
       m_vertexOffset += verticesToAdd;
 
-      const auto numIndices = 4 + (((verticesToAdd / QUAD_VERTEX_COUNT) - 1) * 6);
+      const auto numIndices = 4 + (((verticesToAdd / LocalConfig::QuadVertexCount) - 1) * 6);
       assert((m_indexOffset + numIndices) <= m_indexBuffer.GetCapacity());
       glDrawElements(GL_TRIANGLE_STRIP, UncheckedNumericCast<GLsizei>(numIndices), m_indexBuffer.GetType(),
                      reinterpret_cast<const void*>(m_indexOffset * sizeof(uint16_t)));
@@ -422,7 +425,7 @@ namespace Fsl::GLES3
       pSrcVertices += verticesLeft;
       m_vertexOffset += verticesLeft;
 
-      const int32_t numIndices = 4 + (((UncheckedNumericCast<int32_t>(verticesLeft) / QUAD_VERTEX_COUNT) - 1) * 6);
+      const int32_t numIndices = 4 + (((UncheckedNumericCast<int32_t>(verticesLeft) / LocalConfig::QuadVertexCount) - 1) * 6);
       assert((m_indexOffset + numIndices) <= m_indexBuffer.GetCapacity());
       glDrawElements(GL_TRIANGLE_STRIP, numIndices, m_indexBuffer.GetType(), reinterpret_cast<const void*>(m_indexOffset * sizeof(uint16_t)));
       ++m_stats.DrawCalls;
@@ -450,7 +453,7 @@ namespace Fsl::GLES3
 
     info.LocMatModelViewProj = info.Program.GetUniformLocation("g_matModelViewProj");
     info.LocTexture = info.Program.GetUniformLocation("Texture");
-    info.LocSmoothing = sdf ? info.Program.GetUniformLocation("g_smoothing") : GLValues::INVALID_LOCATION;
+    info.LocSmoothing = sdf ? info.Program.GetUniformLocation("g_smoothing") : GLValues::InvalidLocation;
     return info;
   }
 }

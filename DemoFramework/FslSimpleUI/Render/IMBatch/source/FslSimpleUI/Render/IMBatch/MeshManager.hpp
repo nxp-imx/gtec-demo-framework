@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Collections/HandleVector.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFontGlyphPosition.hpp>
 #include <FslGraphics/Sprite/ISprite.hpp>
@@ -57,8 +57,12 @@ namespace Fsl
   class OptimizedBasicNineSliceSprite;
   class OptimizedNineSliceSprite;
   class SpriteFont;
-  class UITextMeshBuilder;
+  namespace UI
+  {
+    class UITextMeshBuilder;
+  }
 }
+
 
 namespace Fsl::UI::RenderIMBatch
 {
@@ -288,8 +292,11 @@ namespace Fsl::UI::RenderIMBatch
     struct SpriteFontMeshRecord
     {
       std::shared_ptr<SpriteFont> Sprite;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       std::string m_text;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       std::vector<SpriteFontGlyphPosition> m_glyphs;
+      // NOLINTNEXTLINE(readability-identifier-naming)
       uint32_t m_glyphCount{};
       BatchMaterialHandle MaterialHandle;
       uint32_t SpriteMaterialIndex{0};
@@ -327,7 +334,7 @@ namespace Fsl::UI::RenderIMBatch
 
       ReadOnlySpan<SpriteFontGlyphPosition> GetGlyphs() const noexcept
       {
-        return ReadOnlySpanUtil::AsSpan(m_glyphs, 0, m_glyphCount, OptimizationCheckFlag::NoCheck);
+        return SpanUtil::UncheckedAsReadOnlySpan(m_glyphs, 0, m_glyphCount);
       }
     };
 

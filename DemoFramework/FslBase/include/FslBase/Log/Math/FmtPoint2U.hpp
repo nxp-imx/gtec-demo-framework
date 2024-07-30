@@ -40,15 +40,17 @@ namespace fmt
   struct formatter<Fsl::Point2U>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::Point2U& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{X={} Y={}}}", value.X, value.Y);
+      return fmt::format_to(ctx.out(), "{{X={} Y={}}}", value.X, value.Y);
     }
   };
 }

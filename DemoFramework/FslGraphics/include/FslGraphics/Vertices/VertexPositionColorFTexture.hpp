@@ -44,6 +44,10 @@ namespace Fsl
 {
   struct VertexPositionColorFTexture
   {
+    using position_type = Vector3;
+    using color_type = Vector4;
+    using texture_coordinate_type = Vector2;
+
     Vector3 Position;
     Vector4 Color;
     Vector2 TextureCoordinate;
@@ -67,21 +71,21 @@ namespace Fsl
 
     static constexpr VertexDeclarationArray<3> GetVertexDeclarationArray()
     {
-      constexpr BasicVertexDeclarationArray<3> g_elements = {
+      constexpr BasicVertexDeclarationArray<3> Elements = {
         VertexElement(offsetof(VertexPositionColorFTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
         VertexElement(offsetof(VertexPositionColorFTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
         VertexElement(offsetof(VertexPositionColorFTexture, TextureCoordinate), VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate,
                       0)};
-      constexpr VertexDeclarationArray<3> span(g_elements, sizeof(VertexPositionColorFTexture));
-      return span;
+      constexpr VertexDeclarationArray<3> Span(Elements, sizeof(VertexPositionColorFTexture));
+      return Span;
     }
 
     // IMPROVEMENT: In C++17 this could be a constexpr since array .data() becomes a constexpr
     //              At least this workaround still gives us compile time validation of the vertex element data
     static VertexDeclarationSpan AsVertexDeclarationSpan()
     {
-      constexpr static VertexDeclarationArray<3> decl = GetVertexDeclarationArray();
-      return decl.AsReadOnlySpan();
+      constexpr static VertexDeclarationArray<3> Decl = GetVertexDeclarationArray();
+      return Decl.AsReadOnlySpan();
     }
 
     // IMPROVEMENT: In C++17 this could be a constexpr since array .data() becomes a constexpr

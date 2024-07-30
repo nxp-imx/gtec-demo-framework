@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Color.hpp>
+#include <FslSimpleUI/Base/UIColor.hpp>
 #include <string>
 
 namespace Fsl::UI
@@ -39,10 +39,10 @@ namespace Fsl::UI
   struct ChartChannelMetaData
   {
     std::string Label;
-    Color PrimaryColor;
+    UIColor PrimaryColor;
 
     ChartChannelMetaData() = default;
-    ChartChannelMetaData(std::string label, Color PrimaryColor);
+    ChartChannelMetaData(std::string label, UIColor primaryColor);
 
     bool operator==(const ChartChannelMetaData& rhs) const
     {

@@ -1,323 +1,1011 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:annotation>
-    <xs:documentation>
-      Describes the Fsl.gen format
-    </xs:documentation>
-  </xs:annotation>
-
-  <xs:simpleType name="_TP_LayoutOrientation">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="Horizontal" />
-      <xs:enumeration value="Vertical" />
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:simpleType name="_TP_ItemAlignment">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="Near" />
-      <xs:enumeration value="Center" />
-      <xs:enumeration value="Far" />
-      <xs:enumeration value="Stretch" />
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:complexType name="_T_GridColumnDefinition">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:attribute name="Width" type="xs:string" use="required"/>
-  </xs:complexType>
-
-  <xs:complexType name="_T_GridRowDefinition">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:attribute name="Height" type="xs:string" use="required"/>
-  </xs:complexType>
-
-  <xs:group name="_G_GridColumnDefinition">
-    <xs:choice>
-      <xs:element name="GridColumnDefinition" type="_T_GridColumnDefinition"/>
-    </xs:choice>
-  </xs:group>
-
-  <xs:group name="_G_GridRowDefinition">
-    <xs:choice>
-      <xs:element name="GridRowDefinition" type="_T_GridRowDefinition"/>
-    </xs:choice>
-  </xs:group>
-
-
-  <xs:group name="_G_GridColumnDefinitionList">
-    <xs:sequence>
-      <xs:group ref="_G_GridColumnDefinition" minOccurs="0" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:group>
-
-  <xs:group name="_G_GridRowDefinitionList">
-    <xs:sequence>
-      <xs:group ref="_G_GridRowDefinition" minOccurs="0" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:group>
-
-
-  <xs:complexType name="_T_GridLayoutColumnDefinitions">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:group ref="_G_GridColumnDefinitionList"/>
-  </xs:complexType>
-
-  <xs:complexType name="_T_GridLayoutRowDefinitions">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:group ref="_G_GridRowDefinitionList"/>
-  </xs:complexType>
-
-
-  <xs:group name="_G_GridColumnDefinitions">
-    <xs:choice>
-      <xs:element name="GridLayout.ColumnDefinitions" type="_T_GridLayoutColumnDefinitions"/>
-    </xs:choice>
-  </xs:group>
-
-  <xs:group name="_G_GridRowDefinitions">
-    <xs:choice>
-      <xs:element name="GridLayout.RowDefinitions" type="_T_GridLayoutRowDefinitions"/>
-    </xs:choice>
-  </xs:group>
-
-  <xs:group name="_G_GridLayoutColumnDefinitions">
-    <xs:sequence>
-      <xs:group ref="_G_GridColumnDefinitions" minOccurs="0" maxOccurs="1"/>
-    </xs:sequence>
-  </xs:group>
-
-  <xs:group name="_G_GridLayoutRowDefinitions">
-    <xs:sequence>
-      <xs:group ref="_G_GridRowDefinitions" minOccurs="0" maxOccurs="1"/>
-    </xs:sequence>
-  </xs:group>
-
-  <xs:group name="_G_GridContentList">
-    <xs:sequence>
-      <xs:group ref="_G_GridLayoutColumnDefinitions" minOccurs="0" maxOccurs="1"/>
-      <xs:group ref="_G_GridLayoutRowDefinitions" minOccurs="0" maxOccurs="1"/>
-      <xs:group ref="_G_WindowElement" minOccurs="0" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:group>
-
-
-  <xs:complexType name="_T_GridLayout">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:group ref="_G_GridContentList"/>
-    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="Name" type="xs:string" use="optional"/>
-  </xs:complexType>
-
-  <xs:complexType name="_T_FillLayout">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:group ref="_G_WindowList"/>
-    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="Name" type="xs:string" use="optional"/>
-  </xs:complexType>
-
-  <xs:complexType name="_T_StackLayout">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:group ref="_G_WindowList"/>
-    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="Orientation" type="_TP_LayoutOrientation" use="optional"/>
-    <xs:attribute name="Name" type="xs:string" use="optional"/>
-    <xs:attribute name="Spacing" type="xs:string" use="optional"/>
-  </xs:complexType>
-
-  <xs:complexType name="_T_UniformStackLayout">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:group ref="_G_WindowList"/>
-    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="Orientation" type="_TP_LayoutOrientation" use="optional"/>
-    <xs:attribute name="Name" type="xs:string" use="optional"/>
-    <xs:attribute name="Spacing" type="xs:string" use="optional"/>
-  </xs:complexType>
-
-  <xs:complexType name="_T_UniformWrapLayout">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:group ref="_G_WindowList"/>
-    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="Orientation" type="_TP_LayoutOrientation" use="optional"/>
-    <xs:attribute name="Name" type="xs:string" use="optional"/>
-    <!--<xs:attribute name="Spacing" type="xs:string" use="optional"/>-->
-  </xs:complexType>
-
-  <xs:complexType name="_T_WrapLayout">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:group ref="_G_WindowList"/>
-    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="Orientation" type="_TP_LayoutOrientation" use="optional"/>
-    <xs:attribute name="Name" type="xs:string" use="optional"/>
-    <!--<xs:attribute name="Spacing" type="xs:string" use="optional"/>-->
-  </xs:complexType>
-
-  <xs:complexType name="_T_BackgroundWindow">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:group ref="_G_WindowElement"/>
-    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="Name" type="xs:string" use="optional"/>
-  </xs:complexType>
-
-  <xs:complexType name="_T_LeftBar">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:group ref="_G_WindowElement"/>
-    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
-  </xs:complexType>
-
-  <xs:complexType name="_T_TopBar">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:group ref="_G_WindowElement"/>
-    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
-  </xs:complexType>
-
-  <xs:complexType name="_T_RightBar">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:group ref="_G_WindowElement"/>
-    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
-  </xs:complexType>
-
-  <xs:complexType name="_T_BottomBar">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:group ref="_G_WindowElement"/>
-    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
-  </xs:complexType>
-
-  <xs:complexType name="_T_Label">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="ContentAlignmentX" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="ContentAlignmentY" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="Content" type="xs:string" use="optional"/>
-
-    <xs:attribute name="GridLayout.Column" type="xs:string" use="optional"/>
-    <xs:attribute name="GridLayout.Row" type="xs:string" use="optional"/>
-    <xs:attribute name="Name" type="xs:string" use="optional"/>
-  </xs:complexType>
-
-  <xs:complexType name="_T_SliderUInt8">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="Value" type="xs:string" use="optional"/>
-    <xs:attribute name="Constraint" type="xs:string" use="optional"/>
-    <xs:attribute name="Orientation" type="_TP_LayoutOrientation" use="optional"/>
-
-    <xs:attribute name="GridLayout.Column" type="xs:string" use="optional"/>
-    <xs:attribute name="GridLayout.Row" type="xs:string" use="optional"/>
-    <xs:attribute name="Name" type="xs:string" use="optional"/>
-  </xs:complexType>
-
-  <xs:complexType name="_T_FmtValueLabelUInt8">
-    <xs:annotation>
-      <xs:documentation></xs:documentation>
-    </xs:annotation>
-    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="ContentAlignmentX" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="ContentAlignmentY" type="_TP_ItemAlignment" use="optional"/>
-    <xs:attribute name="Content" type="xs:string" use="optional"/>
-    <xs:attribute name="Orientation" type="_TP_LayoutOrientation" use="optional"/>
-
-    <xs:attribute name="GridLayout.Column" type="xs:string" use="optional"/>
-    <xs:attribute name="GridLayout.Row" type="xs:string" use="optional"/>
-    <xs:attribute name="Name" type="xs:string" use="optional"/>
-  </xs:complexType>
-
-  <xs:group name="_G_WindowElement">
-    <xs:choice>
-      <xs:element name="BackgroundWindow" type="_T_BackgroundWindow"/>
-      <xs:element name="LeftBar" type="_T_LeftBar"/>
-      <xs:element name="TopBar" type="_T_TopBar"/>
-      <xs:element name="BottomBar" type="_T_BottomBar"/>
-      <xs:element name="RightBar" type="_T_RightBar"/>
-      <xs:element name="FillLayout" type="_T_FillLayout"/>
-      <xs:element name="GridLayout" type="_T_GridLayout"/>
-      <xs:element name="StackLayout" type="_T_StackLayout"/>
-      <xs:element name="UniformStackLayout" type="_T_UniformStackLayout"/>
-      <xs:element name="UniformWrapLayout" type="_T_UniformWrapLayout"/>
-      <xs:element name="WrapLayout" type="_T_WrapLayout"/>
-      <xs:element name="Label" type="_T_Label"/>
-      <xs:element name="SliderUInt8" type="_T_SliderUInt8"/>
-      <xs:element name="FmtValueLabelUInt8" type="_T_FmtValueLabelUInt8"/>
-    </xs:choice>
-  </xs:group>
-
-
-  <xs:group name="_G_WindowList">
-    <xs:sequence>
-      <xs:group ref="_G_WindowElement" minOccurs="0" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:group>
-
-
-  <xs:group name="_G_BaseWindowElement">
-    <xs:choice>
-      <xs:element name="FillLayout" type="_T_FillLayout"/>
-    </xs:choice>
-  </xs:group>
-
-  <xs:complexType name="_T_BaseWindow">
-    <xs:annotation>
-    </xs:annotation>
-    <xs:group ref="_G_BaseWindowElement"/>
-  </xs:complexType>
-
-  <xs:group name="_G_RootElement">
-    <xs:choice>
-      <xs:element name="FillLayout" type="_T_FillLayout"/>
-    </xs:choice>
-  </xs:group>
-
-  <xs:complexType name="_T_DeclarativeUITest">
-    <xs:group ref="_G_RootElement"/>
-  </xs:complexType>
-
-  <xs:element name="DeclarativeUITest" type="_T_DeclarativeUITest"/>
+	<xs:annotation>
+		<xs:documentation />
+	</xs:annotation>
+	<xs:simpleType name="_TP_Fsl.ConstrainedValue-int8_t-">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.ConstrainedValue-uint8_t-">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.ConstrainedValue-int16_t-">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.ConstrainedValue-uint16_t-">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.ConstrainedValue-int32_t-">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.ConstrainedValue-uint32_t-">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.ConstrainedValue-float-">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.ConstrainedValue-double-">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.ConstrainedValue-int64_t-">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.ConstrainedValue-uint64_t-">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.UI.DpLayoutSize1D">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.DpSize1DF">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.DpSize2DF">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.DpThicknessF">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.TimeSpan">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.UI.UIColor">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.StringViewLite">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.UI.Theme.BarType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Normal" />
+			<xs:enumeration value="Transparent" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.UI.Theme.FloatingButtonType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Back" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.UI.ItemAlignment">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Near" />
+			<xs:enumeration value="Center" />
+			<xs:enumeration value="Far" />
+			<xs:enumeration value="Stretch" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.UI.ItemScalePolicy">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="NoScaling" />
+			<xs:enumeration value="Fit" />
+			<xs:enumeration value="FitKeepAR" />
+			<xs:enumeration value="Downscale" />
+			<xs:enumeration value="DownscaleKeepAR" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.UI.LayoutDirection">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="NearToFar" />
+			<xs:enumeration value="FarToNear" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.UI.LayoutOrientation">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Vertical" />
+			<xs:enumeration value="Horizontal" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.UI.ScrollModeFlags">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="TranslateX" />
+			<xs:enumeration value="TranslateY" />
+			<xs:enumeration value="Translate" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.TransitionType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Linear" />
+			<xs:enumeration value="EaseInSine" />
+			<xs:enumeration value="EaseOutSine" />
+			<xs:enumeration value="EaseInOutSine" />
+			<xs:enumeration value="EaseInQuad" />
+			<xs:enumeration value="EaseOutQuad" />
+			<xs:enumeration value="EaseInOutQuad" />
+			<xs:enumeration value="EaseInCubic" />
+			<xs:enumeration value="EaseOutCubic" />
+			<xs:enumeration value="EaseInOutCubic" />
+			<xs:enumeration value="EaseInQuart" />
+			<xs:enumeration value="EaseOutQuart" />
+			<xs:enumeration value="EaseInOutQuart" />
+			<xs:enumeration value="EaseInQuint" />
+			<xs:enumeration value="EaseOutQuint" />
+			<xs:enumeration value="EaseInOutQuint" />
+			<xs:enumeration value="EaseInExpo" />
+			<xs:enumeration value="EaseOutExpo" />
+			<xs:enumeration value="EaseInOutExpo" />
+			<xs:enumeration value="EaseInCirc" />
+			<xs:enumeration value="EaseOutCirc" />
+			<xs:enumeration value="EaseInOutCirc" />
+			<xs:enumeration value="EaseInBack" />
+			<xs:enumeration value="EaseOutBack" />
+			<xs:enumeration value="EaseInOutBack" />
+			<xs:enumeration value="EaseInElastic" />
+			<xs:enumeration value="EaseOutElastic" />
+			<xs:enumeration value="EaseInOutElastic" />
+			<xs:enumeration value="EaseInBounce" />
+			<xs:enumeration value="EaseOutBounce" />
+			<xs:enumeration value="EaseInOutBounce" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="_TP_Fsl.UI.Theme.WindowType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Normal" />
+			<xs:enumeration value="Transparent" />
+			<xs:enumeration value="DialogNormal" />
+			<xs:enumeration value="DialogTransparent" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="_TP_int8_t">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_uint8_t">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_int16_t">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_uint16_t">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_int32_t">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_uint32_t">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_float">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_double">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_int64_t">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_uint64_t">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:simpleType name="_TP_bool">
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
+	<xs:complexType name="_T_GridColumnDefinition">
+		<xs:attribute name="Width" type="xs:string" use="required" />
+	</xs:complexType>
+	<xs:complexType name="_T_GridRowDefinition">
+		<xs:attribute name="Height" type="xs:string" use="required" />
+	</xs:complexType>
+	<xs:group name="_G_GridColumnDefinition">
+		<xs:choice>
+			<xs:element name="GridColumnDefinition" type="_T_GridColumnDefinition" />
+		</xs:choice>
+	</xs:group>
+	<xs:group name="_G_GridRowDefinition">
+		<xs:choice>
+			<xs:element name="GridRowDefinition" type="_T_GridRowDefinition" />
+		</xs:choice>
+	</xs:group>
+	<xs:group name="_G_GridColumnDefinitionList">
+		<xs:sequence>
+			<xs:group ref="_G_GridColumnDefinition" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="_G_GridRowDefinitionList">
+		<xs:sequence>
+			<xs:group ref="_G_GridRowDefinition" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:group>
+	<xs:complexType name="_T_GridLayoutColumnDefinitions">
+		<xs:group ref="_G_GridColumnDefinitionList" />
+	</xs:complexType>
+	<xs:complexType name="_T_GridLayoutRowDefinitions">
+		<xs:group ref="_G_GridRowDefinitionList" />
+	</xs:complexType>
+	<xs:group name="_G_GridColumnDefinitions">
+		<xs:choice>
+			<xs:element name="GridLayout.ColumnDefinitions" type="_T_GridLayoutColumnDefinitions" />
+		</xs:choice>
+	</xs:group>
+	<xs:group name="_G_GridRowDefinitions">
+		<xs:choice>
+			<xs:element name="GridLayout.RowDefinitions" type="_T_GridLayoutRowDefinitions" />
+		</xs:choice>
+	</xs:group>
+	<xs:group name="_G_GridLayoutColumnDefinitions">
+		<xs:sequence>
+			<xs:group ref="_G_GridColumnDefinitions" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="_G_GridLayoutRowDefinitions">
+		<xs:sequence>
+			<xs:group ref="_G_GridRowDefinitions" minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+	</xs:group>
+	<xs:group name="_G_GridContentList">
+		<xs:sequence>
+			<xs:group ref="_G_GridLayoutColumnDefinitions" minOccurs="0" maxOccurs="1" />
+			<xs:group ref="_G_GridLayoutRowDefinitions" minOccurs="0" maxOccurs="1" />
+			<xs:group ref="_G_WindowElement" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:group>
+	<xs:complexType name="_T_BackgroundWindow">
+		<xs:group ref="_G_WindowElement" />
+		<xs:attribute name="theme_Type" type="_TP_Fsl.UI.Theme.WindowType" use="required" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Padding" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="BackgroundColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_BottomBar">
+		<xs:group ref="_G_WindowElement" />
+		<xs:attribute name="theme_Type" type="_TP_Fsl.UI.Theme.BarType" use="optional" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Padding" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="BackgroundColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_CanvasLayout">
+		<xs:group ref="_G_WindowList" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_CheckBox">
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorChecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorUnchecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="CursorColorChecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="CursorColorUnchecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="CursorColorCheckedDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="CursorColorUncheckedDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorChecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorUnchecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorCheckedDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorUncheckedDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="HoverOverlayCheckedColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="HoverOverlayUncheckedColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="ImageAlignment" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="Checked" type="_TP_bool" use="optional" />
+		<xs:attribute name="Enabled" type="_TP_bool" use="optional" />
+		<xs:attribute name="Text" type="_TP_Fsl.StringViewLite" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_ComplexStackLayout">
+		<xs:group ref="_G_WindowList" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="Spacing" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_ContainedTextButton">
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundHoverOverlayColorUp" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundHoverOverlayColorDown" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorHoverUp" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorUp" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorDown" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorUp" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorDown" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Padding" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="ContentAlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="ContentAlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="Content" type="_TP_Fsl.StringViewLite" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_Divider">
+		<xs:attribute name="theme_Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Color" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="ScalePolicy" type="_TP_Fsl.UI.ItemScalePolicy" use="optional" />
+		<xs:attribute name="RotateImageCW" type="_TP_bool" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_FillLayout">
+		<xs:group ref="_G_WindowList" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_FloatingButton">
+		<xs:attribute name="theme_Type" type="_TP_Fsl.UI.Theme.FloatingButtonType" use="required" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorHoverUp" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorUp" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorDown" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundScalePolicy" type="_TP_Fsl.UI.ItemScalePolicy" use="optional" />
+		<xs:attribute name="ScalePolicy" type="_TP_Fsl.UI.ItemScalePolicy" use="optional" />
+		<xs:attribute name="ColorUp" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="ColorDown" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="ColorDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_FmtValueLabelFloat">
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Enabled" type="_TP_bool" use="optional" />
+		<xs:attribute name="FontColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontDisabledColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="ContentAlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="ContentAlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="Content" type="_TP_float" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_FmtValueLabelInt32">
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Enabled" type="_TP_bool" use="optional" />
+		<xs:attribute name="FontColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontDisabledColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="ContentAlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="ContentAlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="Content" type="_TP_int32_t" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_FmtValueLabelUInt32">
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Enabled" type="_TP_bool" use="optional" />
+		<xs:attribute name="FontColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontDisabledColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="ContentAlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="ContentAlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="Content" type="_TP_uint32_t" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_FmtValueLabelUInt8">
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Enabled" type="_TP_bool" use="optional" />
+		<xs:attribute name="FontColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontDisabledColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="ContentAlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="ContentAlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="Content" type="_TP_uint8_t" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_GridLayout">
+		<xs:group ref="_G_GridContentList" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_Label">
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Enabled" type="_TP_bool" use="optional" />
+		<xs:attribute name="FontColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontDisabledColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="ContentAlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="ContentAlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="Content" type="_TP_Fsl.StringViewLite" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_LeftBar">
+		<xs:group ref="_G_WindowElement" />
+		<xs:attribute name="theme_Type" type="_TP_Fsl.UI.Theme.BarType" use="optional" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Padding" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="BackgroundColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_OutlinedTextButton">
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundHoverOverlayColorUp" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundHoverOverlayColorDown" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorHoverUp" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorUp" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorDown" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorUp" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorDown" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Padding" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="ContentAlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="ContentAlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="Content" type="_TP_Fsl.StringViewLite" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_RadioButton">
+		<xs:attribute name="GroupName" type="_TP_Fsl.StringViewLite" use="required" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorChecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorUnchecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="CursorColorChecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="CursorColorUnchecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="CursorColorCheckedDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="CursorColorUncheckedDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorChecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorUnchecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorCheckedDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorUncheckedDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="HoverOverlayCheckedColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="HoverOverlayUncheckedColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="ImageAlignment" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="Checked" type="_TP_bool" use="optional" />
+		<xs:attribute name="Enabled" type="_TP_bool" use="optional" />
+		<xs:attribute name="Text" type="_TP_Fsl.StringViewLite" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_RightBar">
+		<xs:group ref="_G_WindowElement" />
+		<xs:attribute name="theme_Type" type="_TP_Fsl.UI.Theme.BarType" use="optional" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Padding" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="BackgroundColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_ScrollViewer">
+		<xs:group ref="_G_WindowElement" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Padding" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="ScrollMode" type="_TP_Fsl.UI.ScrollModeFlags" use="optional" />
+		<xs:attribute name="DragFlickDeceleration" type="_TP_float" use="optional" />
+		<xs:attribute name="DragFlickTransitionType" type="_TP_Fsl.TransitionType" use="optional" />
+		<xs:attribute name="DragEndAnimTimeMultiplier" type="_TP_float" use="optional" />
+		<xs:attribute name="BounceSpringStiffness" type="_TP_float" use="optional" />
+		<xs:attribute name="BounceAnimationTime" type="_TP_Fsl.TimeSpan" use="optional" />
+		<xs:attribute name="BounceTransitionType" type="_TP_Fsl.TransitionType" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_SliderFloat">
+		<xs:attribute name="theme_Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="theme_Constraint" type="_TP_Fsl.ConstrainedValue-float-" use="optional" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="Direction" type="_TP_Fsl.UI.LayoutDirection" use="optional" />
+		<xs:attribute name="Value" type="_TP_float" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_SliderFmtValueFloat">
+		<xs:attribute name="theme_Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="theme_Constraint" type="_TP_Fsl.ConstrainedValue-float-" use="optional" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Padding" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="Value" type="_TP_float" use="optional" />
+		<xs:attribute name="Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="Direction" type="_TP_Fsl.UI.LayoutDirection" use="optional" />
+		<xs:attribute name="FontColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontDisabledColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_SliderFmtValueInt32">
+		<xs:attribute name="theme_Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="theme_Constraint" type="_TP_Fsl.ConstrainedValue-int32_t-" use="optional" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Padding" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="Value" type="_TP_int32_t" use="optional" />
+		<xs:attribute name="Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="Direction" type="_TP_Fsl.UI.LayoutDirection" use="optional" />
+		<xs:attribute name="FontColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontDisabledColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_SliderFmtValueUInt32">
+		<xs:attribute name="theme_Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="theme_Constraint" type="_TP_Fsl.ConstrainedValue-uint32_t-" use="optional" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Padding" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="Value" type="_TP_uint32_t" use="optional" />
+		<xs:attribute name="Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="Direction" type="_TP_Fsl.UI.LayoutDirection" use="optional" />
+		<xs:attribute name="FontColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontDisabledColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_SliderFmtValueUInt8">
+		<xs:attribute name="theme_Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="theme_Constraint" type="_TP_Fsl.ConstrainedValue-uint8_t-" use="optional" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Padding" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="Value" type="_TP_uint8_t" use="optional" />
+		<xs:attribute name="Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="Direction" type="_TP_Fsl.UI.LayoutDirection" use="optional" />
+		<xs:attribute name="FontColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontDisabledColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_SliderInt32">
+		<xs:attribute name="theme_Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="theme_Constraint" type="_TP_Fsl.ConstrainedValue-int32_t-" use="optional" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="Direction" type="_TP_Fsl.UI.LayoutDirection" use="optional" />
+		<xs:attribute name="Value" type="_TP_int32_t" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_SliderUInt32">
+		<xs:attribute name="theme_Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="theme_Constraint" type="_TP_Fsl.ConstrainedValue-uint32_t-" use="optional" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="Direction" type="_TP_Fsl.UI.LayoutDirection" use="optional" />
+		<xs:attribute name="Value" type="_TP_uint32_t" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_SliderUInt8">
+		<xs:attribute name="theme_Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="theme_Constraint" type="_TP_Fsl.ConstrainedValue-uint8_t-" use="optional" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="Direction" type="_TP_Fsl.UI.LayoutDirection" use="optional" />
+		<xs:attribute name="Value" type="_TP_uint8_t" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_StackLayout">
+		<xs:group ref="_G_WindowList" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="Spacing" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_Switch">
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorChecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorUnchecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="CursorColorChecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="CursorColorUnchecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="CursorColorCheckedDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="CursorColorUncheckedDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorChecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorUnchecked" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorCheckedDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorUncheckedDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="HoverOverlayCheckedColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="HoverOverlayUncheckedColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="ImageAlignment" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="Checked" type="_TP_bool" use="optional" />
+		<xs:attribute name="Enabled" type="_TP_bool" use="optional" />
+		<xs:attribute name="Text" type="_TP_Fsl.StringViewLite" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_TextButton">
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundHoverOverlayColorUp" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundHoverOverlayColorDown" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorHoverUp" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorUp" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorDown" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="BackgroundColorDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorUp" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorDown" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="FontColorDisabled" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Padding" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="ContentAlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="ContentAlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="Content" type="_TP_Fsl.StringViewLite" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_TopBar">
+		<xs:group ref="_G_WindowElement" />
+		<xs:attribute name="theme_Type" type="_TP_Fsl.UI.Theme.BarType" use="optional" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Padding" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="BackgroundColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_UniformStackLayout">
+		<xs:group ref="_G_WindowList" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="Spacing" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_UniformWrapLayout">
+		<xs:group ref="_G_WindowList" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="Spacing" type="_TP_Fsl.DpSize2DF" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:complexType name="_T_WrapLayout">
+		<xs:group ref="_G_WindowList" />
+		<xs:attribute name="Width" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Height" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MinWidth" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MinHeight" type="_TP_Fsl.DpSize1DF" use="optional" />
+		<xs:attribute name="MaxWidth" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="MaxHeight" type="_TP_Fsl.UI.DpLayoutSize1D" use="optional" />
+		<xs:attribute name="Margin" type="_TP_Fsl.DpThicknessF" use="optional" />
+		<xs:attribute name="AlignmentX" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="AlignmentY" type="_TP_Fsl.UI.ItemAlignment" use="optional" />
+		<xs:attribute name="BaseColor" type="_TP_Fsl.UI.UIColor" use="optional" />
+		<xs:attribute name="Orientation" type="_TP_Fsl.UI.LayoutOrientation" use="optional" />
+		<xs:attribute name="Spacing" type="_TP_Fsl.DpSize2DF" use="optional" />
+		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
+		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
+	</xs:complexType>
+	<xs:group name="_G_WindowElement">
+		<xs:choice>
+			<xs:element name="BackgroundWindow" type="_T_BackgroundWindow" />
+			<xs:element name="BottomBar" type="_T_BottomBar" />
+			<xs:element name="CanvasLayout" type="_T_CanvasLayout" />
+			<xs:element name="CheckBox" type="_T_CheckBox" />
+			<xs:element name="ComplexStackLayout" type="_T_ComplexStackLayout" />
+			<xs:element name="ContainedTextButton" type="_T_ContainedTextButton" />
+			<xs:element name="Divider" type="_T_Divider" />
+			<xs:element name="FillLayout" type="_T_FillLayout" />
+			<xs:element name="FloatingButton" type="_T_FloatingButton" />
+			<xs:element name="FmtValueLabelFloat" type="_T_FmtValueLabelFloat" />
+			<xs:element name="FmtValueLabelInt32" type="_T_FmtValueLabelInt32" />
+			<xs:element name="FmtValueLabelUInt32" type="_T_FmtValueLabelUInt32" />
+			<xs:element name="FmtValueLabelUInt8" type="_T_FmtValueLabelUInt8" />
+			<xs:element name="GridLayout" type="_T_GridLayout" />
+			<xs:element name="Label" type="_T_Label" />
+			<xs:element name="LeftBar" type="_T_LeftBar" />
+			<xs:element name="OutlinedTextButton" type="_T_OutlinedTextButton" />
+			<xs:element name="RadioButton" type="_T_RadioButton" />
+			<xs:element name="RightBar" type="_T_RightBar" />
+			<xs:element name="ScrollViewer" type="_T_ScrollViewer" />
+			<xs:element name="SliderFloat" type="_T_SliderFloat" />
+			<xs:element name="SliderFmtValueFloat" type="_T_SliderFmtValueFloat" />
+			<xs:element name="SliderFmtValueInt32" type="_T_SliderFmtValueInt32" />
+			<xs:element name="SliderFmtValueUInt32" type="_T_SliderFmtValueUInt32" />
+			<xs:element name="SliderFmtValueUInt8" type="_T_SliderFmtValueUInt8" />
+			<xs:element name="SliderInt32" type="_T_SliderInt32" />
+			<xs:element name="SliderUInt32" type="_T_SliderUInt32" />
+			<xs:element name="SliderUInt8" type="_T_SliderUInt8" />
+			<xs:element name="StackLayout" type="_T_StackLayout" />
+			<xs:element name="Switch" type="_T_Switch" />
+			<xs:element name="TextButton" type="_T_TextButton" />
+			<xs:element name="TopBar" type="_T_TopBar" />
+			<xs:element name="UniformStackLayout" type="_T_UniformStackLayout" />
+			<xs:element name="UniformWrapLayout" type="_T_UniformWrapLayout" />
+			<xs:element name="WrapLayout" type="_T_WrapLayout" />
+		</xs:choice>
+	</xs:group>
+	<xs:group name="_G_WindowList">
+		<xs:sequence>
+			<xs:group ref="_G_WindowElement" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:group>
+	<xs:complexType name="_T_FslSimpleUIRoot">
+		<xs:group ref="_G_WindowElement" />
+	</xs:complexType>
+	<xs:element name="DeclarativeUITest" type="_T_FslSimpleUIRoot" />
 </xs:schema>

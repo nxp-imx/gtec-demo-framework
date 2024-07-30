@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -86,7 +86,20 @@ namespace Fsl
 
   bool CpuStatsService::TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex) const
   {
+    CpuUsageRecord record;
+    if (TryGetCpuUsage(record, cpuIndex))
+    {
+      rUsagePercentage = record.UsagePercentage;
+      return true;
+    }
     rUsagePercentage = 0.0f;
+    return false;
+  }
+
+
+  bool CpuStatsService::TryGetCpuUsage(CpuUsageRecord& rUsageRecord, const uint32_t cpuIndex) const
+  {
+    rUsageRecord = {};
     if (!m_adapter)
     {
       FSLLOG3_DEBUG_VERBOSE6("not available");
@@ -97,7 +110,7 @@ namespace Fsl
       FSLLOG3_DEBUG_INFO("cpuIndex out of bounds");
       return false;
     }
-    return m_adapter->TryGetCpuUsage(rUsagePercentage, cpuIndex);
+    return m_adapter->TryGetCpuUsage(rUsageRecord, cpuIndex);
     //{
     //  return false;
     //}
@@ -108,13 +121,26 @@ namespace Fsl
 
   bool CpuStatsService::TryGetApplicationCpuUsage(float& rUsagePercentage) const
   {
+    CpuUsageRecord record;
+    if (TryGetApplicationCpuUsage(record))
+    {
+      rUsagePercentage = record.UsagePercentage;
+      return true;
+    }
     rUsagePercentage = 0.0f;
+    return false;
+  }
+
+
+  bool CpuStatsService::TryGetApplicationCpuUsage(CpuUsageRecord& rUsageRecord) const
+  {
+    rUsageRecord = {};
     if (!m_adapter)
     {
       FSLLOG3_DEBUG_VERBOSE6("not available");
       return false;
     }
-    return m_adapter->TryGetApplicationCpuUsage(rUsagePercentage);
+    return m_adapter->TryGetApplicationCpuUsage(rUsageRecord);
     //{
     //  return false;
     //}

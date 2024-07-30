@@ -33,7 +33,7 @@
 #endif
 
 #include "DeBayer.hpp"
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <GLES2/gl2.h>
@@ -222,7 +222,7 @@ namespace Fsl
     , m_locFirstRed(0)
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
-    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray));
+    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), SpanUtil::AsReadOnlySpan(g_shaderAttributeArray));
     const GLuint hProgram = m_program.Get();
     // Grab location of shader attributes.
     GL_CHECK(m_locVertices = glGetAttribLocation(hProgram, "vPosition"));

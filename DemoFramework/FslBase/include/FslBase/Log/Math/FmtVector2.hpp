@@ -1,7 +1,7 @@
 #ifndef FSLBASE_LOG_MATH_FMTVECTOR2_HPP
 #define FSLBASE_LOG_MATH_FMTVECTOR2_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,24 +34,23 @@
 #include <FslBase/Math/Vector2.hpp>
 #include <fmt/format.h>
 
-namespace fmt
+template <>
+struct fmt::formatter<Fsl::Vector2>
 {
-  template <>
-  struct formatter<Fsl::Vector2>
+  template <typename ParseContext>
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  constexpr auto parse(ParseContext& ctx)
   {
-    template <typename ParseContext>
-    constexpr auto parse(ParseContext& ctx)
-    {
-      return ctx.begin();
-    }
+    return ctx.begin();
+  }
 
-    template <typename FormatContext>
-    auto format(const Fsl::Vector2& value, FormatContext& ctx)
-    {
-      return format_to(ctx.out(), "{{X={} Y={}}}", value.X, value.Y);
-    }
-  };
-}
+  template <typename FormatContext>
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  auto format(const Fsl::Vector2& value, FormatContext& ctx)
+  {
+    return fmt::format_to(ctx.out(), "{{X={} Y={}}}", value.X, value.Y);
+  }
+};
 
 
 #endif

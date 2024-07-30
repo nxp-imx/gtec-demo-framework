@@ -40,16 +40,18 @@ namespace fmt
   struct formatter<Fsl::UI::BoxPlotData>
   {
     template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr auto parse(ParseContext& ctx)
     {
       return ctx.begin();
     }
 
     template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const Fsl::UI::BoxPlotData& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{OutlierMin={} Min={} Q1={} Q2={} Q3={} Max={} OutlierMax={}}}", value.OutlierMin, value.Min, value.Q1, value.Q2,
-                       value.Q3, value.Max, value.OutlierMax);
+      return fmt::format_to(ctx.out(), "{{OutlierMin={} Min={} Q1={} Q2={} Q3={} Max={} OutlierMax={}}}", value.OutlierMin, value.Min, value.Q1,
+                            value.Q2, value.Q3, value.Max, value.OutlierMax);
     }
   };
 }

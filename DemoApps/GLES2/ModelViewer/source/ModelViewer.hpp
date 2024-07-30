@@ -64,18 +64,18 @@ namespace Fsl
       GLES2::GLIndexBufferArray IndexBuffers;
       GLES2::GLVertexBufferArray VertexBuffers;
 
-      GLint LocWorld = GLES2::GLValues::INVALID_LOCATION;
-      GLint LocWorldView = GLES2::GLValues::INVALID_LOCATION;
-      GLint LocWorldViewProjection = GLES2::GLValues::INVALID_LOCATION;
-      GLint LocNormalMatrix = GLES2::GLValues::INVALID_LOCATION;
-      GLint LocTexture0 = GLES2::GLValues::INVALID_LOCATION;
-      GLint LocTextureSpecular = GLES2::GLValues::INVALID_LOCATION;
-      GLint LocTextureNormal = GLES2::GLValues::INVALID_LOCATION;
-      GLint LocLightDirection = GLES2::GLValues::INVALID_LOCATION;
-      GLint LocLightColor = GLES2::GLValues::INVALID_LOCATION;
-      GLint LocMatAmbient = GLES2::GLValues::INVALID_LOCATION;
-      GLint LocMatSpecular = GLES2::GLValues::INVALID_LOCATION;
-      GLint LocMatShininess = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocWorld = GLES2::GLValues::InvalidLocation;
+      GLint LocWorldView = GLES2::GLValues::InvalidLocation;
+      GLint LocWorldViewProjection = GLES2::GLValues::InvalidLocation;
+      GLint LocNormalMatrix = GLES2::GLValues::InvalidLocation;
+      GLint LocTexture0 = GLES2::GLValues::InvalidLocation;
+      GLint LocTextureSpecular = GLES2::GLValues::InvalidLocation;
+      GLint LocTextureNormal = GLES2::GLValues::InvalidLocation;
+      GLint LocLightDirection = GLES2::GLValues::InvalidLocation;
+      GLint LocLightColor = GLES2::GLValues::InvalidLocation;
+      GLint LocMatAmbient = GLES2::GLValues::InvalidLocation;
+      GLint LocMatSpecular = GLES2::GLValues::InvalidLocation;
+      GLint LocMatShininess = GLES2::GLValues::InvalidLocation;
 
       std::array<GLES2::GLVertexAttribLink, 5> AttribLink;
     };

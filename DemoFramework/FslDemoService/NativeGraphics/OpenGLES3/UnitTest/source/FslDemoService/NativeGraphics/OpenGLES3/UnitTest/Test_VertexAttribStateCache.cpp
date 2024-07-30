@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,19 +102,19 @@ namespace
     }
   }
 
-  class Test_VertexAttribStateCache : public TestFixtureFslBase
+  class TestVertexAttribStateCache : public TestFixtureFslBase
   {
   protected:
     std::array<GLES3::VertexAttribState, 32> m_initialState;
 
   public:
-    Test_VertexAttribStateCache()
+    TestVertexAttribStateCache()
     {
       TestFunctor::Populate();
       m_initialState = TestFunctor::GlobalState;
     }
 
-    ~Test_VertexAttribStateCache() override
+    ~TestVertexAttribStateCache() override
     {
       ValidateState(m_initialState, TestFunctor::GlobalState);
     }
@@ -130,12 +130,12 @@ namespace
     };
     const uint32_t vertexStride = (1 + 2 + 3) * 4;
 
-    return {ReadOnlySpanUtil::AsSpan(vertexElementAttribConfigs), vertexStride};
+    return {SpanUtil::AsReadOnlySpan(vertexElementAttribConfigs), vertexStride};
   }
 
 
   // update first, greater, greater
-  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateFirst_GG()
+  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateFirstGg()
   {
     std::array<GLES3::GLVertexElementAttribConfig, 3> vertexElementAttribConfigs = {
       GLES3::GLVertexElementAttribConfig(10, 4, GL_FLOAT, GL_FALSE, reinterpret_cast<const GLvoid*>(210)),
@@ -144,11 +144,11 @@ namespace
     };
     const uint32_t vertexStride = (1 + 2 + 3) * 4;
 
-    return {ReadOnlySpanUtil::AsSpan(vertexElementAttribConfigs), vertexStride};
+    return {SpanUtil::AsReadOnlySpan(vertexElementAttribConfigs), vertexStride};
   }
 
   // update second, greater, greater
-  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateSecond_GG()
+  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateSecondGg()
   {
     std::array<GLES3::GLVertexElementAttribConfig, 3> vertexElementAttribConfigs = {
       GLES3::GLVertexElementAttribConfig(11, 4, GL_FLOAT, GL_FALSE, reinterpret_cast<const GLvoid*>(210)),
@@ -157,11 +157,11 @@ namespace
     };
     const uint32_t vertexStride = (1 + 2 + 3) * 4;
 
-    return {ReadOnlySpanUtil::AsSpan(vertexElementAttribConfigs), vertexStride};
+    return {SpanUtil::AsReadOnlySpan(vertexElementAttribConfigs), vertexStride};
   }
 
   // update third, greater, greater
-  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateThird_GG()
+  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateThirdGg()
   {
     std::array<GLES3::GLVertexElementAttribConfig, 3> vertexElementAttribConfigs = {
       GLES3::GLVertexElementAttribConfig(12, 4, GL_FLOAT, GL_FALSE, reinterpret_cast<const GLvoid*>(210)),
@@ -170,11 +170,11 @@ namespace
     };
     const uint32_t vertexStride = (1 + 2 + 3) * 4;
 
-    return {ReadOnlySpanUtil::AsSpan(vertexElementAttribConfigs), vertexStride};
+    return {SpanUtil::AsReadOnlySpan(vertexElementAttribConfigs), vertexStride};
   }
 
   // update first, less-than, less-than
-  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateFirst_LL()
+  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateFirstLl()
   {
     std::array<GLES3::GLVertexElementAttribConfig, 3> vertexElementAttribConfigs = {
       GLES3::GLVertexElementAttribConfig(4, 4, GL_FLOAT, GL_FALSE, reinterpret_cast<const GLvoid*>(210)),
@@ -183,11 +183,11 @@ namespace
     };
     const uint32_t vertexStride = (1 + 2 + 3) * 4;
 
-    return {ReadOnlySpanUtil::AsSpan(vertexElementAttribConfigs), vertexStride};
+    return {SpanUtil::AsReadOnlySpan(vertexElementAttribConfigs), vertexStride};
   }
 
   // update second, less-than, less-than
-  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateSecond_LL()
+  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateSecondLl()
   {
     std::array<GLES3::GLVertexElementAttribConfig, 3> vertexElementAttribConfigs = {
       GLES3::GLVertexElementAttribConfig(4, 4, GL_FLOAT, GL_FALSE, reinterpret_cast<const GLvoid*>(210)),
@@ -196,11 +196,11 @@ namespace
     };
     const uint32_t vertexStride = (1 + 2 + 3) * 4;
 
-    return {ReadOnlySpanUtil::AsSpan(vertexElementAttribConfigs), vertexStride};
+    return {SpanUtil::AsReadOnlySpan(vertexElementAttribConfigs), vertexStride};
   }
 
   // update third, less-than, less-than
-  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateThird_LL()
+  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateThirdLl()
   {
     std::array<GLES3::GLVertexElementAttribConfig, 3> vertexElementAttribConfigs = {
       GLES3::GLVertexElementAttribConfig(4, 4, GL_FLOAT, GL_FALSE, reinterpret_cast<const GLvoid*>(210)),
@@ -209,11 +209,11 @@ namespace
     };
     const uint32_t vertexStride = (1 + 2 + 3) * 4;
 
-    return {ReadOnlySpanUtil::AsSpan(vertexElementAttribConfigs), vertexStride};
+    return {SpanUtil::AsReadOnlySpan(vertexElementAttribConfigs), vertexStride};
   }
 
   // update first, less-than, greater-than
-  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateFirst_LG()
+  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateFirstLg()
   {
     std::array<GLES3::GLVertexElementAttribConfig, 3> vertexElementAttribConfigs = {
       GLES3::GLVertexElementAttribConfig(4, 4, GL_FLOAT, GL_FALSE, reinterpret_cast<const GLvoid*>(210)),
@@ -222,11 +222,11 @@ namespace
     };
     const uint32_t vertexStride = (1 + 2 + 3) * 4;
 
-    return {ReadOnlySpanUtil::AsSpan(vertexElementAttribConfigs), vertexStride};
+    return {SpanUtil::AsReadOnlySpan(vertexElementAttribConfigs), vertexStride};
   }
 
   // update second, less-than, greater-than
-  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateSecond_LG()
+  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateSecondLg()
   {
     std::array<GLES3::GLVertexElementAttribConfig, 3> vertexElementAttribConfigs = {
       GLES3::GLVertexElementAttribConfig(4, 4, GL_FLOAT, GL_FALSE, reinterpret_cast<const GLvoid*>(210)),
@@ -235,11 +235,11 @@ namespace
     };
     const uint32_t vertexStride = (1 + 2 + 3) * 4;
 
-    return {ReadOnlySpanUtil::AsSpan(vertexElementAttribConfigs), vertexStride};
+    return {SpanUtil::AsReadOnlySpan(vertexElementAttribConfigs), vertexStride};
   }
 
   // update third, less-than, greater-than
-  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateThird_LG()
+  GLES3::VertexElementAttribLinks CreateAttribLinksWithThreeEntriesUpdateThirdLg()
   {
     std::array<GLES3::GLVertexElementAttribConfig, 3> vertexElementAttribConfigs = {
       GLES3::GLVertexElementAttribConfig(4, 4, GL_FLOAT, GL_FALSE, reinterpret_cast<const GLvoid*>(210)),
@@ -248,7 +248,7 @@ namespace
     };
     const uint32_t vertexStride = (1 + 2 + 3) * 4;
 
-    return {ReadOnlySpanUtil::AsSpan(vertexElementAttribConfigs), vertexStride};
+    return {SpanUtil::AsReadOnlySpan(vertexElementAttribConfigs), vertexStride};
   }
 
 
@@ -261,25 +261,25 @@ namespace
     };
     const uint32_t vertexStride = (1 + 2 + 3) * 4;
 
-    return {ReadOnlySpanUtil::AsSpan(vertexElementAttribConfigs), vertexStride};
+    return {SpanUtil::AsReadOnlySpan(vertexElementAttribConfigs), vertexStride};
   }
 }
 
 
-TEST_F(Test_VertexAttribStateCache, Construct)
+TEST_F(TestVertexAttribStateCache, Construct)
 {
   GLES3::VertexAttribStateCache<TestFunctor> cache;
 }
 
 
-TEST_F(Test_VertexAttribStateCache, ConstructThenMove)
+TEST_F(TestVertexAttribStateCache, ConstructThenMove)
 {
   GLES3::VertexAttribStateCache<TestFunctor> cache;
   GLES3::VertexAttribStateCache<TestFunctor> cache2 = std::move(cache);
 }
 
 
-TEST_F(Test_VertexAttribStateCache, ConstructThenMove2)
+TEST_F(TestVertexAttribStateCache, ConstructThenMove2)
 {
   GLES3::VertexAttribStateCache<TestFunctor> cache;
   GLES3::VertexAttribStateCache<TestFunctor> cache2;
@@ -287,7 +287,7 @@ TEST_F(Test_VertexAttribStateCache, ConstructThenMove2)
 }
 
 
-TEST_F(Test_VertexAttribStateCache, ConstructFillWithOne)
+TEST_F(TestVertexAttribStateCache, ConstructFillWithOne)
 {
   GLES3::VertexAttribStateCache<TestFunctor> cache;
   const auto links0 = CreateAttribLinksWithThreeEntries();
@@ -296,7 +296,7 @@ TEST_F(Test_VertexAttribStateCache, ConstructFillWithOne)
   ValidateState(m_initialState, TestFunctor::GlobalState, links0);
 }
 
-TEST_F(Test_VertexAttribStateCache, ConstructFillWithSame)
+TEST_F(TestVertexAttribStateCache, ConstructFillWithSame)
 {
   GLES3::VertexAttribStateCache<TestFunctor> cache;
   const auto links0 = CreateAttribLinksWithThreeEntries();
@@ -308,7 +308,7 @@ TEST_F(Test_VertexAttribStateCache, ConstructFillWithSame)
   ValidateState(m_initialState, TestFunctor::GlobalState, links0);
 }
 
-TEST_F(Test_VertexAttribStateCache, SwitchBetweenTwo_NoMatch)
+TEST_F(TestVertexAttribStateCache, SwitchBetweenTwo_NoMatch)
 {
   GLES3::VertexAttribStateCache<TestFunctor> cache;
   const auto links0 = CreateAttribLinksWithThreeEntries();
@@ -319,99 +319,99 @@ TEST_F(Test_VertexAttribStateCache, SwitchBetweenTwo_NoMatch)
   ValidateState(m_initialState, TestFunctor::GlobalState, links1);
 }
 
-TEST_F(Test_VertexAttribStateCache, SwitchBetweenTwo_UpdateFirstGG)
+TEST_F(TestVertexAttribStateCache, SwitchBetweenTwo_UpdateFirstGG)
 {
   GLES3::VertexAttribStateCache<TestFunctor> cache;
   const auto links0 = CreateAttribLinksWithThreeEntries();
-  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateFirst_GG();
+  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateFirstGg();
   cache.ChangeAttribs(links0);
   ValidateState(m_initialState, TestFunctor::GlobalState, links0);
   cache.ChangeAttribs(links1);
   ValidateState(m_initialState, TestFunctor::GlobalState, links1);
 }
 
-TEST_F(Test_VertexAttribStateCache, SwitchBetweenTwo_UpdateSecondGG)
+TEST_F(TestVertexAttribStateCache, SwitchBetweenTwo_UpdateSecondGG)
 {
   GLES3::VertexAttribStateCache<TestFunctor> cache;
   const auto links0 = CreateAttribLinksWithThreeEntries();
-  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateSecond_GG();
+  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateSecondGg();
   cache.ChangeAttribs(links0);
   ValidateState(m_initialState, TestFunctor::GlobalState, links0);
   cache.ChangeAttribs(links1);
   ValidateState(m_initialState, TestFunctor::GlobalState, links1);
 }
 
-TEST_F(Test_VertexAttribStateCache, SwitchBetweenTwo_UpdateThirdGG)
+TEST_F(TestVertexAttribStateCache, SwitchBetweenTwo_UpdateThirdGG)
 {
   GLES3::VertexAttribStateCache<TestFunctor> cache;
   const auto links0 = CreateAttribLinksWithThreeEntries();
-  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateThird_GG();
+  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateThirdGg();
   cache.ChangeAttribs(links0);
   ValidateState(m_initialState, TestFunctor::GlobalState, links0);
   cache.ChangeAttribs(links1);
   ValidateState(m_initialState, TestFunctor::GlobalState, links1);
 }
 
-TEST_F(Test_VertexAttribStateCache, SwitchBetweenTwo_UpdateFirstLL)
+TEST_F(TestVertexAttribStateCache, SwitchBetweenTwo_UpdateFirstLL)
 {
   GLES3::VertexAttribStateCache<TestFunctor> cache;
   const auto links0 = CreateAttribLinksWithThreeEntries();
-  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateFirst_LL();
+  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateFirstLl();
   cache.ChangeAttribs(links0);
   ValidateState(m_initialState, TestFunctor::GlobalState, links0);
   cache.ChangeAttribs(links1);
   ValidateState(m_initialState, TestFunctor::GlobalState, links1);
 }
 
-TEST_F(Test_VertexAttribStateCache, SwitchBetweenTwo_UpdateSecondLL)
+TEST_F(TestVertexAttribStateCache, SwitchBetweenTwo_UpdateSecondLL)
 {
   GLES3::VertexAttribStateCache<TestFunctor> cache;
   const auto links0 = CreateAttribLinksWithThreeEntries();
-  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateSecond_LL();
+  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateSecondLl();
   cache.ChangeAttribs(links0);
   ValidateState(m_initialState, TestFunctor::GlobalState, links0);
   cache.ChangeAttribs(links1);
   ValidateState(m_initialState, TestFunctor::GlobalState, links1);
 }
 
-TEST_F(Test_VertexAttribStateCache, SwitchBetweenTwo_UpdateThirdLL)
+TEST_F(TestVertexAttribStateCache, SwitchBetweenTwo_UpdateThirdLL)
 {
   GLES3::VertexAttribStateCache<TestFunctor> cache;
   const auto links0 = CreateAttribLinksWithThreeEntries();
-  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateThird_LL();
+  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateThirdLl();
   cache.ChangeAttribs(links0);
   ValidateState(m_initialState, TestFunctor::GlobalState, links0);
   cache.ChangeAttribs(links1);
   ValidateState(m_initialState, TestFunctor::GlobalState, links1);
 }
 
-TEST_F(Test_VertexAttribStateCache, SwitchBetweenTwo_UpdateFirstLG)
+TEST_F(TestVertexAttribStateCache, SwitchBetweenTwo_UpdateFirstLG)
 {
   GLES3::VertexAttribStateCache<TestFunctor> cache;
   const auto links0 = CreateAttribLinksWithThreeEntries();
-  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateFirst_LG();
+  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateFirstLg();
   cache.ChangeAttribs(links0);
   ValidateState(m_initialState, TestFunctor::GlobalState, links0);
   cache.ChangeAttribs(links1);
   ValidateState(m_initialState, TestFunctor::GlobalState, links1);
 }
 
-TEST_F(Test_VertexAttribStateCache, SwitchBetweenTwo_UpdateSecondLG)
+TEST_F(TestVertexAttribStateCache, SwitchBetweenTwo_UpdateSecondLG)
 {
   GLES3::VertexAttribStateCache<TestFunctor> cache;
   const auto links0 = CreateAttribLinksWithThreeEntries();
-  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateSecond_LG();
+  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateSecondLg();
   cache.ChangeAttribs(links0);
   ValidateState(m_initialState, TestFunctor::GlobalState, links0);
   cache.ChangeAttribs(links1);
   ValidateState(m_initialState, TestFunctor::GlobalState, links1);
 }
 
-TEST_F(Test_VertexAttribStateCache, SwitchBetweenTwo_UpdateThirdLG)
+TEST_F(TestVertexAttribStateCache, SwitchBetweenTwo_UpdateThirdLG)
 {
   GLES3::VertexAttribStateCache<TestFunctor> cache;
   const auto links0 = CreateAttribLinksWithThreeEntries();
-  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateThird_LG();
+  const auto links1 = CreateAttribLinksWithThreeEntriesUpdateThirdLg();
   cache.ChangeAttribs(links0);
   ValidateState(m_initialState, TestFunctor::GlobalState, links0);
   cache.ChangeAttribs(links1);

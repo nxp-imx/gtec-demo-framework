@@ -30,10 +30,11 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Bitmap/Converter/RawBitmapConverter.hpp>
-#include <FslGraphics/Bitmap/RawBitmap.hpp>
 #include <FslGraphics/Bitmap/RawBitmapEx.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
+#include <FslGraphics/Bitmap/ReadOnlyRawBitmap.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Texture/CubeMapFace.hpp>
@@ -70,24 +71,25 @@ namespace Fsl
       const uint32_t levels = rTexture.GetLevels();
 
       // So we have a uncompressed texture at this point in time
-      // So we just need to flip all the faces, mip levels and layers one by one using the RawBitmap conversion capabilities
+      // So we just need to flip all the faces, mip levels and layers one by one using the ReadOnlyRawBitmap conversion capabilities
       {
-        RawTextureEx rawTexture;
-        Texture::ScopedDirectAccess directAccessSrc(rTexture, rawTexture);
+        Texture::ScopedDirectReadWriteAccess directAccessSrc(rTexture);
+        auto rawTexture = directAccessSrc.AsRawTexture();
 
         assert(layers == rawTexture.GetLayers());
         assert(faces == rawTexture.GetFaces());
         assert(levels == rawTexture.GetLevels());
 
         const auto srcBytesPerPixel = PixelFormatUtil::GetBytesPerPixel(srcPixelFormat);
-        auto* const pContent = static_cast<uint8_t*>(rawTexture.GetContentWriteAccess());
+        auto* const pContent = static_cast<uint8_t*>(rawTexture.GetContent());
         const auto srcOrigin = rawTexture.GetBitmapOrigin();
 
         for (uint32_t level = 0; level < levels; ++level)
         {
           const auto extent = rawTexture.GetExtent(level);
-          const auto srcStride = PixelFormatLayoutUtil::CalcMinimumStride(extent.Width.Value, srcBytesPerPixel);
+          const auto srcStride = PixelFormatLayoutUtil::CalcMinimumStride(extent.Width, srcBytesPerPixel);
           const auto fullTextureStride = srcStride * extent.Height.Value;
+          const PxSize2D sizePx(TypeConverter::To<PxSize2D>(PxExtent2D(extent.Width, extent.Height)));
 
           for (uint32_t layer = 0; layer < layers; ++layer)
           {
@@ -96,8 +98,8 @@ namespace Fsl
               const auto rawBlob = rawTexture.GetTextureBlob(level, face, layer);
               for (uint32_t z = 0; z < extent.Depth.Value; ++z)
               {
-                RawBitmapEx rawSrcBitmap(pContent + rawBlob.Offset + (z * fullTextureStride), extent.Width.Value, extent.Height.Value, srcPixelFormat,
-                                         srcStride, srcOrigin);
+                auto rawSrcBitmap = RawBitmapEx::UncheckedCreate(pContent + rawBlob.Offset + (z * fullTextureStride), extent.Height.Value * srcStride,
+                                                                 sizePx, srcPixelFormat, srcStride, srcOrigin);
 
                 // TODO: use a more generic converter, this relies on the fact we know that there is only two origins
                 try
@@ -141,14 +143,14 @@ namespace Fsl
       assert(!PixelFormatUtil::IsCompressed(srcPixelFormat));
 
       // So we have a uncompressed texture at this point in time
-      // So we just need to convert all the faces, mip levels and layers one by one using the RawBitmap conversion capabilities
+      // So we just need to convert all the faces, mip levels and layers one by one using the ReadOnlyRawBitmap conversion capabilities
       {
-        RawTextureEx rawTexture;
-        Texture::ScopedDirectAccess directAccessSrc(rTexture, rawTexture);
+        Texture::ScopedDirectReadWriteAccess directAccessSrc(rTexture);
+        RawTextureEx rawTexture = directAccessSrc.AsRawTexture();
 
         const uint32_t srcBytesPerPixel = PixelFormatUtil::GetBytesPerPixel(srcPixelFormat);
 
-        auto* const pContent = static_cast<uint8_t*>(rawTexture.GetContentWriteAccess());
+        auto* const pContent = static_cast<uint8_t*>(rawTexture.GetContent());
 
         const auto srcOrigin = rawTexture.GetBitmapOrigin();
         const uint32_t layers = rawTexture.GetLayers();
@@ -158,7 +160,7 @@ namespace Fsl
         for (uint32_t level = 0; level < levels; ++level)
         {
           const auto extent = rawTexture.GetExtent(level);
-          const uint32_t srcStride = PixelFormatLayoutUtil::CalcMinimumStride(extent.Width.Value, srcBytesPerPixel);
+          const uint32_t srcStride = PixelFormatLayoutUtil::CalcMinimumStride(extent.Width, srcBytesPerPixel);
           const auto fullTextureStride = srcStride * extent.Height.Value;
 
           for (uint32_t layer = 0; layer < layers; ++layer)
@@ -168,8 +170,9 @@ namespace Fsl
               const auto rawBlob = rawTexture.GetTextureBlob(level, face, layer);
               for (uint32_t z = 0; z < extent.Depth.Value; ++z)
               {
-                RawBitmapEx rawSrcBitmap(pContent + rawBlob.Offset + (z * fullTextureStride), extent.Width.Value, extent.Height.Value, srcPixelFormat,
-                                         srcStride, srcOrigin);
+                RawBitmapEx rawSrcBitmap(RawBitmapEx::UncheckedCreate(pContent + rawBlob.Offset + (z * fullTextureStride),
+                                                                      extent.Height.Value * srcStride, PxExtent2D(extent.Width, extent.Height),
+                                                                      srcPixelFormat, srcStride, srcOrigin));
 
                 if (!RawBitmapConverter::TryConvert(rawSrcBitmap, desiredPixelFormat))
                 {
@@ -196,12 +199,12 @@ namespace Fsl
       auto targetTexture = CreateTargetTexture(rTexture, desiredPixelFormat);
 
       // So we have a uncompressed texture at this point in time
-      // So we just need to convert all the faces, mip levels and layers one by one using the RawBitmap conversion capabilities
+      // So we just need to convert all the faces, mip levels and layers one by one using the ReadOnlyRawBitmap conversion capabilities
       {
-        RawTexture rawSrcTexture;
-        RawTextureEx rawDstTexture;
-        Texture::ScopedDirectAccess directAccessSrc(rTexture, rawSrcTexture);
-        Texture::ScopedDirectAccess directAccessDst(targetTexture, rawDstTexture);
+        Texture::ScopedDirectReadAccess directAccessSrc(rTexture);
+        Texture::ScopedDirectReadWriteAccess directAccessDst(targetTexture);
+        const ReadOnlyRawTexture rawSrcTexture = directAccessSrc.AsRawTexture();
+        RawTextureEx rawDstTexture = directAccessDst.AsRawTexture();
 
         assert(rawSrcTexture.GetBitmapOrigin() == rawDstTexture.GetBitmapOrigin());
         assert(rawSrcTexture.GetTextureInfo() == rawDstTexture.GetTextureInfo());
@@ -210,7 +213,7 @@ namespace Fsl
         const uint32_t dstBytesPerPixel = PixelFormatUtil::GetBytesPerPixel(desiredPixelFormat);
 
         const auto* const pSrcContent = static_cast<const uint8_t*>(rawSrcTexture.GetContent());
-        auto* const pDstContent = static_cast<uint8_t*>(rawDstTexture.GetContentWriteAccess());
+        auto* const pDstContent = static_cast<uint8_t*>(rawDstTexture.GetContent());
 
         const auto srcOrigin = rawSrcTexture.GetBitmapOrigin();
         const uint32_t layers = rawSrcTexture.GetLayers();
@@ -220,8 +223,8 @@ namespace Fsl
         for (uint32_t level = 0; level < levels; ++level)
         {
           const auto srcExtent = rawSrcTexture.GetExtent(level);
-          const uint32_t srcStride = PixelFormatLayoutUtil::CalcMinimumStride(srcExtent.Width.Value, srcBytesPerPixel);
-          const uint32_t dstStride = PixelFormatLayoutUtil::CalcMinimumStride(srcExtent.Width.Value, dstBytesPerPixel);
+          const uint32_t srcStride = PixelFormatLayoutUtil::CalcMinimumStride(srcExtent.Width, srcBytesPerPixel);
+          const uint32_t dstStride = PixelFormatLayoutUtil::CalcMinimumStride(srcExtent.Width, dstBytesPerPixel);
           const uint32_t srcFullTextureStride = srcStride * srcExtent.Height.Value;
           const uint32_t dstFullTextureStride = dstStride * srcExtent.Height.Value;
 
@@ -233,10 +236,12 @@ namespace Fsl
               const auto rawDstBlob = rawDstTexture.GetTextureBlob(level, face, layer);
               for (uint32_t z = 0; z < srcExtent.Depth.Value; ++z)
               {
-                RawBitmap rawSrcBitmap(pSrcContent + rawSrcBlob.Offset + (z * srcFullTextureStride), srcExtent.Width.Value, srcExtent.Height.Value,
-                                       srcPixelFormat, srcStride, srcOrigin);
-                RawBitmapEx rawDstBitmap(pDstContent + rawDstBlob.Offset + (z * dstFullTextureStride), srcExtent.Width.Value, srcExtent.Height.Value,
-                                         desiredPixelFormat, dstStride, srcOrigin);
+                ReadOnlyRawBitmap rawSrcBitmap(
+                  ReadOnlyRawBitmap::UncheckedCreate(pSrcContent + rawSrcBlob.Offset + (z * srcFullTextureStride), srcExtent.Height.Value * srcStride,
+                                                     PxExtent2D(srcExtent.Width, srcExtent.Height), srcPixelFormat, srcStride, srcOrigin));
+                RawBitmapEx rawDstBitmap(
+                  RawBitmapEx::UncheckedCreate(pDstContent + rawDstBlob.Offset + (z * dstFullTextureStride), srcExtent.Height.Value * dstStride,
+                                               PxExtent2D(srcExtent.Width, srcExtent.Height), desiredPixelFormat, dstStride, srcOrigin));
 
                 // Try the raw bitmap converter
                 if (!RawBitmapConverter::TryConvert(rawDstBitmap, rawSrcBitmap))
@@ -291,6 +296,11 @@ namespace Fsl
       // Last chance, try to see if we can get it done using a temporary texture as a intermediary
       return TryDoConvertUncompressedUsingTemporaryTexture(rTexture, desiredPixelFormat);
     }
+  }
+
+  ReadOnlySpan<SupportedConversion> TextureUtil::GetSupportedConversions() noexcept
+  {
+    return RawBitmapConverter::GetSupportedConversionsNonOverlapping();
   }
 
 

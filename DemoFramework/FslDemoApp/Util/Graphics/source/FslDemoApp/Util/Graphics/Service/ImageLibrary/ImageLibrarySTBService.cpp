@@ -1,6 +1,6 @@
 #ifdef FSL_FEATURE_STB
 /****************************************************************************************************************************************************
- * Copyright 2017, 2022 NXP
+ * Copyright 2017, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,11 @@
 
 #include <FslBase/IO/File.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <FslDemoApp/Base/Service/BitmapConverter/IBitmapConverter.hpp>
+#include <FslBase/NumericCast.hpp>
+#include <FslBase/Span/SpanUtil_Create.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Util/Graphics/Service/ImageLibrary/ImageLibrarySTBService.hpp>
+#include <FslDemoService/BitmapConverter/IBitmapConverter.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/ImageFormatUtil.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
@@ -46,9 +49,12 @@ namespace Fsl
 {
   namespace
   {
-    const int DEFAULT_JPG_QUALITY = 85;
-    const int MIN_COMP = 1;
-    const int MAX_COMP = 4;
+    namespace LocalConfig
+    {
+      constexpr int DefaultJpgQuality = 85;
+      constexpr int MinComp = 1;
+      constexpr int MaxComp = 4;
+    }
 
 
     // STB pixel formats: 1=Y, 2=YA, 3=RGB, 4=RGBA. (Y is monochrome color)
@@ -61,30 +67,45 @@ namespace Fsl
     // - JPEG does ignore alpha channels in input data; quality is between 1 and 100. Higher quality looks better but results in a bigger image.
     //   JPEG baseline(no JPEG progressive).
 
-    bool TryConvert(int& rComp, const PixelFormat pixelFormat)
+    constexpr bool IsSupported(const PixelFormat pixelFormat, const ImageFormat imageFormat) noexcept
     {
-      switch (PixelFormatUtil::GetPixelFormatLayout(pixelFormat))
+      if (imageFormat != ImageFormat::Hdr)
       {
-      case PixelFormatLayout::R8:
-        rComp = 1;
-        return true;
-      case PixelFormatLayout::R8G8:
-        rComp = 2;
-        return true;
-      case PixelFormatLayout::R8G8B8:
-        rComp = 3;
-        return true;
-      case PixelFormatLayout::R8G8B8A8:
-        rComp = 4;
+        switch (pixelFormat)
+        {
+        case PixelFormat::R8_UNORM:
+        case PixelFormat::R8_UINT:
+        case PixelFormat::R8_SRGB:
+        case PixelFormat::R8G8_UNORM:
+        case PixelFormat::R8G8_UINT:
+        case PixelFormat::R8G8_SRGB:
+        case PixelFormat::R8G8B8_UNORM:
+        case PixelFormat::R8G8B8_UINT:
+        case PixelFormat::R8G8B8_SRGB:
+        case PixelFormat::R8G8B8A8_UNORM:
+        case PixelFormat::R8G8B8A8_UINT:
+        case PixelFormat::R8G8B8A8_SRGB:
+          return true;
+        default:
+          return false;
+        }
+      }
+
+      // HDR
+      switch (pixelFormat)
+      {
+      case PixelFormat::R32_SFLOAT:
+      case PixelFormat::R32G32_SFLOAT:
+      case PixelFormat::R32G32B32_SFLOAT:
+      case PixelFormat::R32G32B32A32_SFLOAT:
         return true;
       default:
-        rComp = 0;
         return false;
       }
     }
 
 
-    PixelFormat TryFindCompatiblePixelFormat(const PixelFormat pixelFormat)
+    constexpr PixelFormat TryFindCompatiblePixelFormat(const PixelFormat pixelFormat) noexcept
     {
       switch (pixelFormat)
       {
@@ -130,6 +151,10 @@ namespace Fsl
       case PixelFormat::B8G8R8A8_SRGB:
       case PixelFormat::R8G8B8A8_SRGB:
         return PixelFormat::R8G8B8A8_SRGB;
+      case PixelFormat::R16G16B16_SFLOAT:
+        return PixelFormat::R32G32B32_SFLOAT;
+      case PixelFormat::R16G16B16A16_SFLOAT:
+        return PixelFormat::R32G32B32A32_SFLOAT;
       default:
         return PixelFormat::Undefined;
       }
@@ -142,6 +167,7 @@ namespace Fsl
       ScopedSTBImage(const ScopedSTBImage&) = delete;
       ScopedSTBImage& operator=(const ScopedSTBImage&) = delete;
 
+      // NOLINTNEXTLINE(readability-identifier-naming)
       T* pContent;
 
       explicit ScopedSTBImage(T* pImageData)
@@ -179,10 +205,10 @@ namespace Fsl
       try
       {
         const PixelFormat pixelFormat = (channels == 3 ? PixelFormat::R32G32B32_SFLOAT : PixelFormat::R32G32B32A32_SFLOAT);
-        auto extent = PxExtent2D::Create(width, height);
-        const std::size_t cbContent = (sizeof(float) * channels) * extent.Width.Value * extent.Height.Value;
+        auto sizePx = PxSize2D::Create(width, height);
+        const std::size_t cbContent = (sizeof(float) * channels) * sizePx.RawUnsignedWidth() * sizePx.RawUnsignedHeight();
 
-        rBitmap.Reset(imageData.pContent, cbContent, extent, pixelFormat);
+        rBitmap.Reset(SpanUtil::CreateReadOnly(reinterpret_cast<const uint8_t*>(imageData.pContent), cbContent), sizePx, pixelFormat);
         return true;
       }
       catch (const std::exception&)
@@ -212,10 +238,10 @@ namespace Fsl
       try
       {
         const PixelFormat pixelFormat = (channels == 3 ? PixelFormat::R8G8B8_UINT : PixelFormat::R8G8B8A8_UINT);
-        auto extent = PxExtent2D::Create(width, height);
-        const std::size_t cbContent = channels * extent.Width.Value * extent.Height.Value;
+        auto sizePx = PxSize2D::Create(width, height);
+        const std::size_t cbContent = channels * sizePx.RawUnsignedWidth() * sizePx.RawUnsignedHeight();
 
-        rBitmap.Reset(imageData.pContent, cbContent, extent, pixelFormat);
+        rBitmap.Reset(SpanUtil::CreateReadOnly(imageData.pContent, cbContent), sizePx, pixelFormat);
         return true;
       }
       catch (const std::exception&)
@@ -294,14 +320,13 @@ namespace Fsl
       return false;
     }
 
-    int comp = 0;
-    if (bitmap.GetOrigin() == BitmapOrigin::UpperLeft && TryConvert(comp, bitmap.GetPixelFormat()))
+    if (bitmap.GetOrigin() == BitmapOrigin::UpperLeft && IsSupported(bitmap.GetPixelFormat(), imageFormat))
     {
-      return TryWrite(absolutePath, bitmap, comp, imageFormat);
+      return TryWriteNow(absolutePath, bitmap, imageFormat);
     }
 
     // Try to see if there is a directly compatible format we can try instead
-    // The fallback mode here is necesssary to improve compatibility until we add better 'write' support where
+    // The fallback mode here is necessary to improve compatibility until we add better 'write' support where
     // a lib can list the image formats and which pixel formats+origins it supports.
     const auto compatiblePixelFormat = TryFindCompatiblePixelFormat(bitmap.GetPixelFormat());
     if (compatiblePixelFormat == PixelFormat::Undefined)
@@ -316,55 +341,57 @@ namespace Fsl
       return false;
     }
 
-    if (!TryConvert(comp, bitmapClone.GetPixelFormat()))
+    if (!IsSupported(bitmapClone.GetPixelFormat(), imageFormat))
     {
       return false;
     }
-    return TryWrite(absolutePath, bitmapClone, comp, imageFormat);
+    return TryWriteNow(absolutePath, bitmapClone, imageFormat);
   }
 
 
-  bool ImageLibrarySTBService::TryWrite(const IO::Path& dstName, const Bitmap& bitmap, const int comp, const ImageFormat imageFormat)
+  bool ImageLibrarySTBService::TryWriteNow(const IO::Path& dstName, const Bitmap& bitmap, const ImageFormat imageFormat)
   {
+    assert(IsSupported(bitmap.GetPixelFormat(), imageFormat));
     assert(IO::Path::IsPathRooted(dstName));
-    assert(comp >= MIN_COMP && comp <= MAX_COMP);
-    if (comp < MIN_COMP || comp > MAX_COMP)
+    int comp = NumericCast<int32_t>(PixelFormatUtil::GetChannelCount(bitmap.GetPixelFormat()));
+    if (comp < LocalConfig::MinComp || comp > LocalConfig::MaxComp)
     {
       return false;
     }
     const auto& dstPathNameString = dstName.ToUTF8String();
 
-    RawBitmap rawBitmap;
-    Bitmap::ScopedDirectAccess directAccess(bitmap, rawBitmap);
+    const Bitmap::ScopedDirectReadAccess directAccess(bitmap);
 
-    const auto minimumStride = PixelFormatUtil::CalcMinimumStride(rawBitmap.Width(), rawBitmap.GetPixelFormat());
-    if (imageFormat != ImageFormat::Png && rawBitmap.Stride() != minimumStride)
+    const auto minimumStride = PixelFormatUtil::CalcMinimumStride(directAccess.AsRawBitmap().Width(), directAccess.AsRawBitmap().GetPixelFormat());
+    if (imageFormat != ImageFormat::Png && directAccess.AsRawBitmap().Stride() != minimumStride)
     {
       return false;
     }
 
-    const auto rawBitmapWidth = UncheckedNumericCast<int>(rawBitmap.Width());
-    const auto rawBitmapHeight = UncheckedNumericCast<int>(rawBitmap.Height());
+    const auto rawBitmapWidth = directAccess.AsRawBitmap().RawWidth();
+    const auto rawBitmapHeight = directAccess.AsRawBitmap().RawHeight();
 
     switch (imageFormat)
     {
     case ImageFormat::Bmp:
-      return stbi_write_bmp(dstPathNameString.c_str(), rawBitmapWidth, rawBitmapHeight, comp, rawBitmap.Content()) != 0;
-    // case ImageFormat::Hdr:
-    //  return stbi_write_hdr(dstName.c_str(), rawBitmapWidth, rawBitmapHeight, comp, rawBitmap.Content()) != 0;
+      return stbi_write_bmp(dstPathNameString.c_str(), rawBitmapWidth, rawBitmapHeight, comp, directAccess.AsRawBitmap().Content()) != 0;
+    case ImageFormat::Hdr:
+      return stbi_write_hdr(dstPathNameString.c_str(), rawBitmapWidth, rawBitmapHeight, comp,
+                            static_cast<const float*>(directAccess.AsRawBitmap().Content())) != 0;
     case ImageFormat::Jpeg:
-      return stbi_write_jpg(dstPathNameString.c_str(), rawBitmapWidth, rawBitmapHeight, comp, rawBitmap.Content(), DEFAULT_JPG_QUALITY) != 0;
+      return stbi_write_jpg(dstPathNameString.c_str(), rawBitmapWidth, rawBitmapHeight, comp, directAccess.AsRawBitmap().Content(),
+                            LocalConfig::DefaultJpgQuality) != 0;
     case ImageFormat::Png:
       // NOLINTNEXTLINE(misc-redundant-expression)
       static_assert(std::numeric_limits<int>::max() >= std::numeric_limits<int32_t>::max(), "We expect int to be at least 32bit");
-      if (rawBitmap.Stride() >= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()))
+      if (directAccess.AsRawBitmap().Stride() >= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()))
       {
         return false;
       }
-      return stbi_write_png(dstPathNameString.c_str(), rawBitmapWidth, rawBitmapHeight, comp, rawBitmap.Content(),
-                            UncheckedNumericCast<int>(rawBitmap.Stride())) != 0;
+      return stbi_write_png(dstPathNameString.c_str(), rawBitmapWidth, rawBitmapHeight, comp, directAccess.AsRawBitmap().Content(),
+                            UncheckedNumericCast<int>(directAccess.AsRawBitmap().Stride())) != 0;
     case ImageFormat::Tga:
-      return stbi_write_tga(dstPathNameString.c_str(), rawBitmapWidth, rawBitmapHeight, comp, rawBitmap.Content()) != 0;
+      return stbi_write_tga(dstPathNameString.c_str(), rawBitmapWidth, rawBitmapHeight, comp, directAccess.AsRawBitmap().Content()) != 0;
     default:
       return false;
     }

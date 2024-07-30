@@ -38,8 +38,10 @@ namespace Fsl
   {
     constexpr float PI = 3.1415926535897932384626433832795028841971693f;
     //! PI / 180.0f
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr float TO_RADS = 0.017453292519943295769236907684886f;
     //! 1.0f / (PI / 180.0f)
+    // NOLINTNEXTLINE(readability-identifier-naming)
     constexpr float TO_DEGREES = 57.295779513082320876798154814105f;
 
     //! @brief Represents the log base ten of e(0.4342945).
