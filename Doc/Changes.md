@@ -1,5 +1,11 @@
 # Latest version
 
+## Release 6.4.1
+
+* The Vulkan swapchain creation now use more sensible defaults when the app has no preferences.
+* Upgraded to FslBuild 3.7.0.1
+* Updated the way we build zlib on ubuntu.
+
 ## Release 6.4.0
 
 * **Breaking change** Now requires C++20.
@@ -11,6 +17,11 @@
 * **Breaking change** RawBitmap renamed to ReadOnlyRawBitmap
 * **Breaking change** RawTexture renamed to ReadOnlyRawTexture
 * **Breaking change** WindowSystem Wayland_XDG was renamed to Wayland.
+
+## Release 6.3.2
+
+* Upgraded to FslBuild 3.6.3.4
+* Updated the way we build zlib on ubuntu.
 
 ## Release 6.3.1
 

@@ -106,8 +106,8 @@ namespace Fsl
     {
       if (pVal != nullptr)
       {
-        wl_keyboard_release(pVal);
-        // wl_keyboard_destroy(pVal);
+        // wl_keyboard_release(pVal);
+        wl_keyboard_destroy(pVal);
       }
     }
   };
@@ -131,8 +131,8 @@ namespace Fsl
     {
       if (pVal != nullptr)
       {
-        wl_pointer_release(pVal);
-        // wl_pointer_destroy(pVal);
+        // wl_pointer_release(pVal);
+        wl_pointer_destroy(pVal);
       }
     }
   };

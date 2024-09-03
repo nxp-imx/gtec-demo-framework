@@ -1,5 +1,11 @@
 # Releases
 
+## Release 6.4.1 (September 3, 2024)
+
+* The Vulkan swapchain creation now use more sensible defaults when the app has no preferences.
+* Upgraded to FslBuild 3.7.0.1
+* Updated the way we build zlib on ubuntu.
+
 ## Release 6.4.0 (July 30, 2024)
 
 * Now require a compiler with [C++20](https://en.cppreference.com/w/cpp/compiler_support/20) support.

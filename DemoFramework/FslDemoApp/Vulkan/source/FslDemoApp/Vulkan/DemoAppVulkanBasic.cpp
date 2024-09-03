@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 #include <FslBase/Bits/BitsUtil.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslDemoApp/Base/FrameInfo.hpp>
 #include <FslDemoApp/Base/Overlay/DemoAppProfilerOverlay.hpp>
 #include <FslDemoApp/Base/Service/Host/IHostInfo.hpp>
@@ -48,6 +49,7 @@
 #include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/SurfaceFormatUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
 #include <RapidVulkan/CommandBuffer.hpp>
 #include <RapidVulkan/Debug/Strings/VkImageUsageFlagBits.hpp>
@@ -107,18 +109,16 @@ namespace Fsl::VulkanBasic
     Vulkan::SurfaceFormatInfo FindPreferredSurfaceInfo(VkPhysicalDevice physicalDevice, const VkSurfaceKHR surface,
                                                        const std::deque<Vulkan::SurfaceFormatInfo>& preferredFormats)
     {
+      std::vector<Vulkan::SurfaceFormatInfo> finalPreferredFormats(preferredFormats.begin(), preferredFormats.end());
+
       auto supportedFormats = Vulkan::PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface);
       if (!preferredFormats.empty())
       {
-        for (auto entry : preferredFormats)
+        auto res = Vulkan::SurfaceFormatUtil::TryFindPreferredFormat(SpanUtil::AsReadOnlySpan(supportedFormats),
+                                                                     SpanUtil::AsReadOnlySpan(finalPreferredFormats));
+        if (res.Format != VK_FORMAT_UNDEFINED)
         {
-          for (auto candidate : supportedFormats)
-          {
-            if (entry.Format == candidate.format && entry.ColorSpace == candidate.colorSpace)
-            {
-              return entry;
-            }
-          }
+          return res;
         }
         FSLLOG3_VERBOSE("None of the preferred surface formats found, using default");
       }
@@ -126,8 +126,18 @@ namespace Fsl::VulkanBasic
       {
         throw NotSupportedException("No surface formats found");
       }
-      // Default to the first supported format (not optimal but at least its something)
-      return {supportedFormats[0].format, supportedFormats[0].colorSpace};
+
+      // Try to locate a format
+      {    // Add the suggested defaults
+        const ReadOnlySpan<Vulkan::SurfaceFormatInfo> suggestedEntries = Vulkan::SurfaceFormatUtil::GetSuggestedDefaultPreferredSurfaceFormats();
+        finalPreferredFormats.reserve(finalPreferredFormats.size() + suggestedEntries.size());
+        for (const auto& suggested : suggestedEntries)
+        {
+          finalPreferredFormats.push_back(suggested);
+        }
+      }
+      return Vulkan::SurfaceFormatUtil::TryFindSurfaceFormat(SpanUtil::AsReadOnlySpan(supportedFormats),
+                                                             SpanUtil::AsReadOnlySpan(finalPreferredFormats), VK_COLOR_SPACE_SRGB_NONLINEAR_KHR);
     }
 
     AppDrawResult WaitForFenceAndResetIt(const VkDevice device, const VkFence fence)

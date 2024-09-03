@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/EncodedVulkanVersion.hpp>
+#include <RapidVulkan/Debug/Strings/VkColorSpaceKHR.hpp>
 #include <RapidVulkan/Debug/Strings/VkFormat.hpp>
 #include <fmt/format.h>
 #include <vulkan/vulkan.h>
@@ -114,6 +115,29 @@ namespace fmt
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
     auto format(const VkFormat& value, FormatContext& ctx)
+    {
+      const auto* psz = RapidVulkan::Debug::TryToString(value);
+      if (psz != nullptr)
+      {
+        return fmt::format_to(ctx.out(), "{}", psz);
+      }
+      return fmt::format_to(ctx.out(), "0x{:x}", static_cast<uint32_t>(value));
+    }
+  };
+
+  template <>
+  struct formatter<VkColorSpaceKHR>
+  {
+    template <typename ParseContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    constexpr auto parse(ParseContext& ctx)
+    {
+      return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    auto format(const VkColorSpaceKHR& value, FormatContext& ctx)
     {
       const auto* psz = RapidVulkan::Debug::TryToString(value);
       if (psz != nullptr)

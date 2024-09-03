@@ -384,11 +384,13 @@ namespace Fsl
       wl_cursor_image* image = nullptr;
 
 
-      if (pContext->Window->Fullscreen)
-      {
-        wl_pointer_set_cursor(pointer, serial, nullptr, 0, 0);
-      }
-      else if (cursor != nullptr)
+      // Disabled the cursor hiding as this should really be requested by the app if it needs it.
+      // if (pContext->Window->Fullscreen)
+      // {
+      // // Hide the cursor
+      // // wl_pointer_set_cursor(pointer, serial, nullptr, 0, 0);
+      // } else
+      if (cursor != nullptr)
       {
         image = pContext->Handles.DefaultCursor->images[0];
         buffer = wl_cursor_image_get_buffer(image);

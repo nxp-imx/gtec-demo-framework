@@ -69,7 +69,7 @@ FslBuild.py --ForAllExe "(EXE) --Window [0,0,1920,1080] --ScreenshotFrequency 5 
 Build and run all Vulkan apps, screenshots are not supported at this time.
 
 ```bash
-FslBuild.py --ForAllExe "(EXE) --Window [0,0,1920,1080] --ExitAfterFrame 5 --ForceUpdateTime 16666" -t sdk -r [Vulkan] --BuildTime
+FslBuild.py --ForAllExe "(EXE) --Window [0,0,1920,1080] --ExitAfterFrame 5 --ForceUpdateTime 16666" -t sdk -r --RequireFeatures [Vulkan] --BuildTime
 ```
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------

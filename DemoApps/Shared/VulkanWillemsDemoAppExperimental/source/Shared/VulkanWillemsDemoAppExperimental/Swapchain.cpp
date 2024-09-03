@@ -13,9 +13,11 @@
 // to port samples.
 
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslUtil/Vulkan1_0/DebugStrings.hpp>
 #include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/SurfaceFormatUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/Swapchain.hpp>
@@ -152,23 +154,24 @@ namespace Fsl::Willems
         preTransform = surfCaps.currentTransform;
       }
 
-      const auto surfaceFormats = Vulkan::PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface);
+      const auto availableSurfaceFormats = Vulkan::PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface);
+      if (availableSurfaceFormats.empty())
+      {
+        throw RapidVulkan::VulkanException("GetPhysicalDeviceSurfaceFormatsKHR returned no formats");
+      }
       VkFormat colorFormat = VK_FORMAT_UNDEFINED;
-      // If the surface format list only includes one entry with VK_FORMAT_UNDEFINED,
-      // there is no preferred format, so we assume VK_FORMAT_B8G8R8A8_UNORM
-      if ((surfaceFormats.size() == 1) && (surfaceFormats[0].format == VK_FORMAT_UNDEFINED))
-      {
-        colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
+      VkColorSpaceKHR colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+      {    // Format selection
+        // We want to get a format that best suits our needs, so we try to get one from a set of preferred formats
+        // Initialize the format to the first one returned by the implementation in case we can't find one of the preferred formats
+        Vulkan::SurfaceFormatInfo selectedFormat = Vulkan::SurfaceFormatUtil::TryFindSurfaceFormat(SpanUtil::AsReadOnlySpan(availableSurfaceFormats));
+        if (selectedFormat.Format == VK_FORMAT_UNDEFINED)
+        {
+          throw RapidVulkan::VulkanException("TryFindSurfaceFormat failed to locate a suitable surface format");
+        }
+        colorFormat = selectedFormat.Format;
+        colorSpace = selectedFormat.ColorSpace;
       }
-      else
-      {
-        // For now always select the first available color format
-        // If you need a specific format (e.g. SRGB) you'd need to
-        // iterate over the list of available surface format and
-        // check for it's presence
-        colorFormat = surfaceFormats[0].format;
-      }
-      const auto colorSpace = surfaceFormats[0].colorSpace;
 
       FSLLOG3_INFO("Swapchain present mode: {}", Vulkan::Debug::ToString(swapchainPresentMode));
 

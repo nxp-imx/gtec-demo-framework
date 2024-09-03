@@ -41,17 +41,17 @@ namespace Fsl::Vulkan
     VkFormat Format;
     VkColorSpaceKHR ColorSpace;
 
-    constexpr SurfaceFormatInfo()
+    constexpr SurfaceFormatInfo() noexcept
       : SurfaceFormatInfo(VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
     {
     }
 
-    explicit constexpr SurfaceFormatInfo(const VkFormat format)
+    explicit constexpr SurfaceFormatInfo(const VkFormat format) noexcept
       : SurfaceFormatInfo(format, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
     {
     }
 
-    constexpr SurfaceFormatInfo(const VkFormat format, const VkColorSpaceKHR colorSpace)
+    constexpr SurfaceFormatInfo(const VkFormat format, const VkColorSpaceKHR colorSpace) noexcept
       : Format(format)
       , ColorSpace(colorSpace)
     {

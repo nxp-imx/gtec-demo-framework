@@ -1,11 +1,11 @@
 Package:                      gtec-demo-framework.git
-Version:                      6.4.0
+Version:                      6.4.1
 Outgoing License:             BSD-3-Clause 
 License File:                 License.md
 Package Category:             Graphics
 Type of Content:              source
 Description and comments:     Graphics sample applications
-Release Location:             https://github.com/NXPmicro/gtec-demo-framework -b 6.4.0
+Release Location:             https://github.com/NXPmicro/gtec-demo-framework -b 6.4.1
 Origin:                       NXP (BSD-3-clause)
                               Demo Framework
                                 Sascha Willems - Vulkan demo (MIT) - https://github.com/SaschaWillems/Vulkan
@@ -25,13 +25,12 @@ Origin:                       NXP (BSD-3-clause)
                                 Questquest Game icons - Justin Nichol (CC-BY-SA-4.0) - http://freeforall.cc/works/questquest-game-icons/
                                 piacenti (CC-BY-3.0) - http://opengameart.org/content/knight-2
                               Third Party Apps Included:
-                                Open Asset Import Library [assimp] (BSD-3-Clause) - https://sourceforge.net/projects/assimp/
-                                DevIL (LGPL-2.1+) - https://sourceforge.net/projects/openil/
-                                G-Truc Creation [GLI] (MIT) - https://www.g-truc.net/
-                                Khronos Group OpenVG (MIT) - https://www.khronos.org/openvg/
+                                Open Asset Import Library 5.4.2 [assimp] (BSD-3-Clause) - https://sourceforge.net/projects/assimp/
+                                DevIL 1.8.0 (LGPL-2.1+) - https://sourceforge.net/projects/openil/
+                                G-Truc Creation 0.8.2.0 [GLI] (MIT) - https://www.g-truc.net/
+                                Khronos Group OpenVG 952aaf2699729203731e8a28eefacd2d47366d50 (MIT) - https://www.khronos.org/openvg/
                                 libpng (libpng) - https://sourceforge.net/projects/libpng/
                                 libjpeg (IJG) - http://www.ijg.org/
-                                OpenGL Mathematics [GLM] (MIT) - https://sourceforge.net/projects/ogl-math/
-                                RapidJSON (MIT) - https://github.com/miloyip/rapidjson/
+                                OpenGL Mathematics 0.9.9.8 [GLM] (MIT) - https://sourceforge.net/projects/ogl-math/
                                 SRA/SKC gettimeofday (MIT) - https://doxygen.postgresql.org/gettimeofday_8c_source.htm
-                                zlib (zlib) - http://www.zlib.net/
+                                zlib 1.3.1 (zlib) - http://www.zlib.net/

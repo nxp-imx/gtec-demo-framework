@@ -740,12 +740,15 @@ namespace Fsl::UI::RenderIMBatch
           pPerformanceCapture->EndThenBegin(RenderPerformanceCaptureId::UpdateBuffers, RenderPerformanceCaptureId::ScheduleDraw);
         }
       }
-      else if (pPerformanceCapture != nullptr)
+      else
       {
         // Calculate the stats so they can be shown correctly
         uploadStats = CalcUploadStats(batcher);
-        pPerformanceCapture->Begin(RenderPerformanceCaptureId::UpdateBuffers);
-        pPerformanceCapture->EndThenBegin(RenderPerformanceCaptureId::UpdateBuffers, RenderPerformanceCaptureId::ScheduleDraw);
+        if (pPerformanceCapture != nullptr)
+        {
+          pPerformanceCapture->Begin(RenderPerformanceCaptureId::UpdateBuffers);
+          pPerformanceCapture->EndThenBegin(RenderPerformanceCaptureId::UpdateBuffers, RenderPerformanceCaptureId::ScheduleDraw);
+        }
       }
 
       DrawStats drawStats;

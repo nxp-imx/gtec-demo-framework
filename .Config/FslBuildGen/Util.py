@@ -421,9 +421,16 @@ def ChangeToDosEnvironmentVariables(path: str) -> str:
 
 def ParseVersionString(version: str, splitChar: str = '.', maxValues: int = 4) -> List[int]:
     valueStrings = version.split(splitChar)
+
+    if len(valueStrings) > 0 and len(valueStrings[len(valueStrings)-1]) == 0:
+        valueStrings.pop()
     if len(valueStrings) > maxValues:
         raise Exception("Version string contained more values than allowed '{0}'".format(version))
-    return [int(value) for value in valueStrings]
+    try:
+        return [int(value) for value in valueStrings]
+    except ValueError as exc:
+        print("ERROR: Failed to parse version string: '{0}' split into {1}".format(version, valueStrings))
+        raise
 
 def GetPackageNames(name: str) -> Tuple[str, str]:
     """
