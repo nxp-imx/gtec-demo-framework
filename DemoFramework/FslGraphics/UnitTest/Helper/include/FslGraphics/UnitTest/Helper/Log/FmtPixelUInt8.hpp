@@ -49,7 +49,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::PixelTestUtil::R8G8B8::PixelUInt8& value, FormatContext& ctx)
+    auto format(const Fsl::PixelTestUtil::R8G8B8::PixelUInt8& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{R={} G={} B={}}}", value.R, value.G, value.B);
     }
@@ -67,7 +67,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::PixelTestUtil::R8G8B8A8::PixelUInt8& value, FormatContext& ctx)
+    auto format(const Fsl::PixelTestUtil::R8G8B8A8::PixelUInt8& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{R={} G={} B={} A={}}}", value.R, value.G, value.B, value.A);
     }

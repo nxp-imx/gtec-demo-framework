@@ -46,7 +46,7 @@ struct fmt::formatter<Fsl::MillisecondTickCount32>
 
   template <typename FormatContext>
   // NOLINTNEXTLINE(readability-identifier-naming)
-  auto format(const Fsl::MillisecondTickCount32& value, FormatContext& ctx)
+  auto format(const Fsl::MillisecondTickCount32& value, FormatContext& ctx) const
   {
     return fmt::format_to(ctx.out(), "{}ms", value.Ticks());
   }

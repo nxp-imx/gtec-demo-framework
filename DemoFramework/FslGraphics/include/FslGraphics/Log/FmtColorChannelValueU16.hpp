@@ -48,7 +48,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::ColorChannelValueU16& value, FormatContext& ctx)
+    auto format(const Fsl::ColorChannelValueU16& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{}", static_cast<uint32_t>(value.RawValue));
     }

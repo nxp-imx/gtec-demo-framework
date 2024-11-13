@@ -48,7 +48,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::UI::BoxPlotData& value, FormatContext& ctx)
+    auto format(const Fsl::UI::BoxPlotData& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{OutlierMin={} Min={} Q1={} Q2={} Q3={} Max={} OutlierMax={}}}", value.OutlierMin, value.Min, value.Q1,
                             value.Q2, value.Q3, value.Max, value.OutlierMax);

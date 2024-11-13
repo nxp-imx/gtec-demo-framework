@@ -48,7 +48,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::DataBinding::Internal::PropertySetResult& value, FormatContext& ctx)
+    auto format(const Fsl::DataBinding::Internal::PropertySetResult& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{} ({})", Fsl::DataBinding::Debug::ToString(value), static_cast<uint32_t>(value));
     }

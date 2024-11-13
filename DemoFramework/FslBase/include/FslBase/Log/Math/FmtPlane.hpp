@@ -49,7 +49,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::Plane& value, FormatContext& ctx)
+    auto format(const Fsl::Plane& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{Normal={} D={}}}", value.Normal, value.D);
     }

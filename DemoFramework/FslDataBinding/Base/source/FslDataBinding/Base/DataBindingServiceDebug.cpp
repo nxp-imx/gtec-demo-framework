@@ -37,6 +37,7 @@
 #include <FslDataBinding/Base/DataBindingServiceDebug.hpp>
 #include <FslDataBinding/Base/IObservableObject.hpp>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <memory>
 #include <vector>
 

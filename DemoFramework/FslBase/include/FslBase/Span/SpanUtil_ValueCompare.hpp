@@ -568,7 +568,7 @@ namespace Fsl::SpanUtil
     if (!srcSpan.empty())
     {
       const auto* const pSrcData = srcSpan.data();
-      const auto* pCurrent = pos <= srcSpan.size() ? (pSrcData + pos) : ((pSrcData + srcSpan.size()) - 1u);
+      const auto* pCurrent = pos < srcSpan.size() ? (pSrcData + pos) : ((pSrcData + srcSpan.size()) - 1u);
       while (pCurrent >= pSrcData && *pCurrent != value)
       {
         --pCurrent;

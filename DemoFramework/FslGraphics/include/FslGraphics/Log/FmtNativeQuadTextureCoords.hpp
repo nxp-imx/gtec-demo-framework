@@ -49,7 +49,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::NativeQuadTextureCoords& value, FormatContext& ctx)
+    auto format(const Fsl::NativeQuadTextureCoords& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{TopLeft={} TopRight={} BottomLeft={} BottomRight={}}}", value.TopLeft, value.TopRight, value.BottomLeft,
                             value.BottomRight);

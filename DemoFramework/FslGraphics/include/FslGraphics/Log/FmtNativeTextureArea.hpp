@@ -48,7 +48,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::NativeTextureArea& value, FormatContext& ctx)
+    auto format(const Fsl::NativeTextureArea& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{X0={} Y0={} X1={} Y1={}}}", value.X0, value.Y0, value.X1, value.Y1);
     }

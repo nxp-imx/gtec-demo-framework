@@ -37,6 +37,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
+#include <iterator>
 #include <limits>
 
 namespace Fsl

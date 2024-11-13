@@ -48,7 +48,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::TimeSpan& value, FormatContext& ctx)
+    auto format(const Fsl::TimeSpan& value, FormatContext& ctx) const
     {
       const int64_t ticksLessThanSeconds = (value.Ticks() % Fsl::TimeSpan::TicksPerSecond);
       if (value.Days() > 0)

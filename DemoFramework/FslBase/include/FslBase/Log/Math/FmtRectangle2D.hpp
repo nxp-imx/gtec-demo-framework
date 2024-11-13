@@ -50,7 +50,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::Rectangle2D& value, FormatContext& ctx)
+    auto format(const Fsl::Rectangle2D& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{Offset={} Extent={}}}", value.Offset, value.Extent);
     }

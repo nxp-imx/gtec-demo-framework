@@ -48,7 +48,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::GLES2::BasicVertexAttribState& value, FormatContext& ctx)
+    auto format(const Fsl::GLES2::BasicVertexAttribState& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "Size={}, Type={}, Normalized={}, Stride={}, Pointer={}", value.Size, value.Type, value.Normalized,
                             value.Stride, value.Pointer);

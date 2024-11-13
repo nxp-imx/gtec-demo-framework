@@ -50,7 +50,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::BasicWindowMetrics& value, FormatContext& ctx)
+    auto format(const Fsl::BasicWindowMetrics& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{PxExtent={} DpSize2D={} ExactDpi={} DensityDpi={} DensityScaleFactor={}}}", value.ExtentPx, value.SizeDp,
                             value.ExactDpi, value.DensityDpi, value.DensityScaleFactor);

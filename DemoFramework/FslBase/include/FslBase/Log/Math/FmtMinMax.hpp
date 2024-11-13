@@ -48,7 +48,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::MinMax<T>& value, FormatContext& ctx)
+    auto format(const Fsl::MinMax<T>& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{Min={} Max={}}}", value.Min(), value.Max());
     }

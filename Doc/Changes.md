@@ -1,5 +1,11 @@
 # Latest version
 
+## Release 6.4.2
+
+* GCC 14 compatibilty
+* Upgraded to [fmt](https://github.com/fmtlib/fmt/releases/tag/11.0.2) 11.
+* Upgraded to [assimp](https://github.com/assimp/assimp/releases/tag/v5.4.3) 5.4.3.
+
 ## Release 6.4.1
 
 * The Vulkan swapchain creation now use more sensible defaults when the app has no preferences.

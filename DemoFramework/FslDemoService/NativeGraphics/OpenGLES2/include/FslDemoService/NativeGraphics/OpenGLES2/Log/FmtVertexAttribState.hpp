@@ -49,7 +49,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::GLES2::VertexAttribState& value, FormatContext& ctx)
+    auto format(const Fsl::GLES2::VertexAttribState& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "Enabled={}, Basic={{{}}}", value.Enabled, value.Basic);
     }

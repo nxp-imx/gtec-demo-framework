@@ -57,7 +57,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::Vulkan::EncodedVulkanVersion& value, FormatContext& ctx)
+    auto format(const Fsl::Vulkan::EncodedVulkanVersion& value, FormatContext& ctx) const
     {
       uint32_t major = (value.Value >> 22) & ((1 << 10) - 1);
       uint32_t minor = (value.Value >> 12) & ((1 << 10) - 1);
@@ -78,7 +78,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const VkExtent2D& value, FormatContext& ctx)
+    auto format(const VkExtent2D& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{width={} height={}}}", value.width, value.height);
     }
@@ -96,7 +96,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const VkExtent3D& value, FormatContext& ctx)
+    auto format(const VkExtent3D& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{width={} height={} depth={}}}", value.width, value.height, value.depth);
     }
@@ -114,7 +114,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const VkFormat& value, FormatContext& ctx)
+    auto format(const VkFormat& value, FormatContext& ctx) const
     {
       const auto* psz = RapidVulkan::Debug::TryToString(value);
       if (psz != nullptr)
@@ -137,7 +137,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const VkColorSpaceKHR& value, FormatContext& ctx)
+    auto format(const VkColorSpaceKHR& value, FormatContext& ctx) const
     {
       const auto* psz = RapidVulkan::Debug::TryToString(value);
       if (psz != nullptr)

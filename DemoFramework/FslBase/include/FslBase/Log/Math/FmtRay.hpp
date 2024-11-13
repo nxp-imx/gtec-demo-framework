@@ -49,7 +49,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::Ray& value, FormatContext& ctx)
+    auto format(const Fsl::Ray& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{Position={} Direction={}}}", value.Position, value.Direction);
     }

@@ -34,6 +34,7 @@
 #include <FslDemoPlatform/Setup/DemoHostRegistry.hpp>
 #include <fmt/format.h>
 #include <algorithm>
+#include <iterator>
 #include <utility>
 
 namespace Fsl

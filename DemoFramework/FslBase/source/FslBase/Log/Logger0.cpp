@@ -35,6 +35,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Log/Logger0.hpp>
 #include <exception>
+#include <iterator>
 
 #ifdef __ANDROID__
 #include <android/log.h>

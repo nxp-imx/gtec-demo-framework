@@ -33,6 +33,7 @@
 #include <FslDataBinding/Base/DataBindingService.hpp>
 #include <FslDataBinding/Base/Exceptions.hpp>
 #include <fmt/format.h>
+#include <algorithm>
 #include <memory>
 #include "UTDependencyObject.hpp"
 #include "UTDependencyObject2.hpp"

@@ -169,7 +169,7 @@ namespace Fsl::DataBinding
   public:
     TypedDependencyProperty() = default;
 
-    explicit TypedDependencyProperty<StringViewLite>(const StringViewLite value)
+    explicit TypedDependencyProperty(const StringViewLite value)
       : m_value(value)
     {
     }

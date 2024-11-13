@@ -48,7 +48,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::UI::DrawCommandType& value, FormatContext& ctx)
+    auto format(const Fsl::UI::DrawCommandType& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{} ({})", Fsl::UI::Debug::ToString(value), static_cast<uint32_t>(value));
     }

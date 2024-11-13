@@ -41,6 +41,7 @@
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <fmt/format.h>
 #include <cstring>
+#include <iterator>
 #include <string>
 #include <type_traits>
 

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <ExternalLibrary Name="Recipe.fmt_10_2" CreationYear="2023">
+  <ExternalLibrary Name="Recipe.fmt_11_0" CreationYear="2023">
     <Default.Platform.Supported Value="false"/>
 
     <Platform Name="Android;Ubuntu;QNX;Emscripten" Supported="true">
-      <ExperimentalRecipe Name="fmt" Version="10.2.1" Find="false">
+      <ExperimentalRecipe Name="fmt" Version="11.0.2" Find="false">
         <Pipeline>
-          <Download URL="https://github.com/fmtlib/fmt/releases/download/10.2.1/fmt-10.2.1.zip" To="fmt-10.2.1.zip" Hash="312151a2d13c8327f5c9c586ac6cf7cddc1658e8f53edae0ec56509c8fa516c9"/> 
-          <Unpack File="fmt-10.2.1.zip" OutputPath="fmt-10.2.1"/>
+          <Download URL="https://github.com/fmtlib/fmt/releases/download/11.0.2/fmt-11.0.2.zip" To="fmt-11.0.2.zip" Hash="40fc58bebcf38c759e11a7bd8fdc163507d2423ef5058bba7f26280c5b9c5465"/> 
+          <Unpack File="fmt-11.0.2.zip" OutputPath="fmt-11.0.2"/>
           <CMakeBuild Project="fmt" Target="install" Configuration="release" Options="-DFMT_DOC=OFF -DFMT_TEST=OFF" OutputPath="_Install"/>
         </Pipeline>
         <Installation>
@@ -21,10 +21,10 @@
     
     <Platform Name="Windows" Supported="true">
       <!-- Disabled find as clang tidy fails to locate headers-->
-      <ExperimentalRecipe Name="fmt" Version="10.2.1" Find="false">
+      <ExperimentalRecipe Name="fmt" Version="11.0.2" Find="false">
         <Pipeline>
-          <Download URL="https://github.com/fmtlib/fmt/releases/download/10.2.1/fmt-10.2.1.zip" To="fmt-10.2.1.zip" Hash="312151a2d13c8327f5c9c586ac6cf7cddc1658e8f53edae0ec56509c8fa516c9"/> 
-          <Unpack File="fmt-10.2.1.zip" OutputPath="fmt-10.2.1"/>
+          <Download URL="https://github.com/fmtlib/fmt/releases/download/11.0.2/fmt-11.0.2.zip" To="fmt-11.0.2.zip" Hash="40fc58bebcf38c759e11a7bd8fdc163507d2423ef5058bba7f26280c5b9c5465"/> 
+          <Unpack File="fmt-11.0.2.zip" OutputPath="fmt-11.0.2"/>
           <CMakeBuild Project="fmt" Target="install" Configuration="debug;release" Options="-DFMT_DOC=OFF -DFMT_TEST=OFF" OutputPath="_Install"/>
         </Pipeline>
         <Installation>

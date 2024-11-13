@@ -60,7 +60,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const VkMemoryType& value, FormatContext& ctx)
+    auto format(const VkMemoryType& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{propertyFlags: {}, heapIndex: {}}}",
                             Fsl::Vulkan::Debug::GetBitflagsString(static_cast<VkMemoryPropertyFlagBits>(value.propertyFlags)), value.heapIndex);
@@ -80,7 +80,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const VkMemoryHeap& value, FormatContext& ctx)
+    auto format(const VkMemoryHeap& value, FormatContext& ctx) const
     {
       return format_to(ctx.out(), "{{size: {}, flags: {}}}", value.size,
                        Fsl::Vulkan::Debug::GetBitflagsString(static_cast<VkMemoryHeapFlagBits>(value.flags)));

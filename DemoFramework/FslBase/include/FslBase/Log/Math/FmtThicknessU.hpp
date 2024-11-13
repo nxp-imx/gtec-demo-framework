@@ -48,7 +48,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::ThicknessU& value, FormatContext& ctx)
+    auto format(const Fsl::ThicknessU& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{Left={} Top={} Right={} Bottom={}}}", value.Left, value.Top, value.Right, value.Bottom);
     }

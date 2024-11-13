@@ -49,7 +49,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::Color& value, FormatContext& ctx)
+    auto format(const Fsl::Color& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{R={} G={} B={} A={}}}", value.R(), value.G(), value.B(), value.A());
     }

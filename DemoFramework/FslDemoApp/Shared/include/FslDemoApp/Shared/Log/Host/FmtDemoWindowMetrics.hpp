@@ -48,7 +48,7 @@ struct fmt::formatter<Fsl::DemoWindowMetrics>
 
   template <typename FormatContext>
   // NOLINTNEXTLINE(readability-identifier-naming)
-  auto format(const Fsl::DemoWindowMetrics& value, FormatContext& ctx)
+  auto format(const Fsl::DemoWindowMetrics& value, FormatContext& ctx) const
   {
     return fmt::format_to(ctx.out(), "{{PxExtent={} SizeDp={} ExactDpi={} DensityDpi={} DensityScaleFactor={}}}", value.ExtentPx, value.SizeDp,
                           value.ExactDpi, value.DensityDpi, value.DensityScaleFactor);

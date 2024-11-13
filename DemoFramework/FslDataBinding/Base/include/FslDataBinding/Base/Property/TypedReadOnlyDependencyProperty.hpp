@@ -219,7 +219,7 @@ namespace Fsl::DataBinding
   public:
     TypedReadOnlyDependencyProperty() = default;
 
-    explicit TypedReadOnlyDependencyProperty<StringViewLite>(const StringViewLite value)
+    explicit TypedReadOnlyDependencyProperty(const StringViewLite value)
       : m_value(value)
     {
     }

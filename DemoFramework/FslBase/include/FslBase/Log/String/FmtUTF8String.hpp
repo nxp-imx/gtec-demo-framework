@@ -46,7 +46,7 @@ struct fmt::formatter<Fsl::UTF8String>
 
   template <typename FormatContext>
   // NOLINTNEXTLINE(readability-identifier-naming)
-  auto format(const Fsl::UTF8String& value, FormatContext& ctx)
+  auto format(const Fsl::UTF8String& value, FormatContext& ctx) const
   {
     return fmt::format_to(ctx.out(), "{}", value.AsStringView());
   }

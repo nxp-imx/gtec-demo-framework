@@ -108,7 +108,7 @@ TEST(TestString_StringView, SubStr_InvalidPos)
 {
   std::string_view strView("0123456789");
 
-  EXPECT_THROW(auto res = strView.substr(11u), std::out_of_range);
+  EXPECT_THROW([[maybe_unused]] auto res = strView.substr(11u), std::out_of_range);
 }
 
 
@@ -159,7 +159,7 @@ TEST(TestString_StringView, At_OutOfBounds)
   std::string str("Hello world");
   std::string_view strView = Convert(str);
 
-  EXPECT_THROW(auto res = strView.at(str.size()), std::out_of_range);
+  EXPECT_THROW([[maybe_unused]] auto res = strView.at(str.size()), std::out_of_range);
 }
 
 
@@ -168,7 +168,7 @@ TEST(TestString_StringView, At_Empty_OutOfBounds)
   std::string str;
   std::string_view strView = Convert(str);
 
-  EXPECT_THROW(auto res = strView.at(str.size()), std::out_of_range);
+  EXPECT_THROW([[maybe_unused]] auto res = strView.at(str.size()), std::out_of_range);
 }
 
 

@@ -1,5 +1,11 @@
 # Releases
 
+## Release 6.4.2
+
+* GCC 14 compatibilty
+* Upgraded to fmt 11.
+* Upgraded to assimp 5.4.3.
+
 ## Release 6.4.1 (September 3, 2024)
 
 * The Vulkan swapchain creation now use more sensible defaults when the app has no preferences.

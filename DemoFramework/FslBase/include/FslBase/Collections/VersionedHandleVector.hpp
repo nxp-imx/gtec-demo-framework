@@ -790,7 +790,7 @@ namespace Fsl
         {
           taken[i] = -1;
         }
-        for (handle_type handle = 0; handle < m_data.size(); ++handle)
+        for (handle_type handle = 0; handle < UncheckedNumericCast<handle_type>(m_data.size()); ++handle)
         {
           const auto index = m_data[HandleIndex(handle)].HandleToIndex;
           if (taken[index] >= 0)

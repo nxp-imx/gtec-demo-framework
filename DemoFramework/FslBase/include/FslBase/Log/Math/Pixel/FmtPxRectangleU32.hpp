@@ -49,7 +49,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::PxRectangleU32& value, FormatContext& ctx)
+    auto format(const Fsl::PxRectangleU32& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{X={} Y={} Width={} Height={}}}", value.X, value.Y, value.Width, value.Height);
     }

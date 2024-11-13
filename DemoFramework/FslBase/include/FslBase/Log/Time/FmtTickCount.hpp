@@ -46,7 +46,7 @@ struct fmt::formatter<Fsl::TickCount>
 
   template <typename FormatContext>
   // NOLINTNEXTLINE(readability-identifier-naming)
-  auto format(const Fsl::TickCount& value, FormatContext& ctx)
+  auto format(const Fsl::TickCount& value, FormatContext& ctx) const
   {
     return fmt::format_to(ctx.out(), "{}0ns", value.Ticks());
   }

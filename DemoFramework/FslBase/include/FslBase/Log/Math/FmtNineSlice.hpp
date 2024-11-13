@@ -48,7 +48,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::NineSlice& value, FormatContext& ctx)
+    auto format(const Fsl::NineSlice& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{TopLeftX={} TopLeftY={} BottomRightX={} BottomRightY={}}}", value.SliceFromTopLeftX(),
                             value.SliceFromTopLeftY(), value.SliceFromBottomRightX(), value.SliceFromBottomRightY());

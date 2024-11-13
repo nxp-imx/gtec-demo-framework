@@ -51,7 +51,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::PxTrimmedImage& value, FormatContext& ctx)
+    auto format(const Fsl::PxTrimmedImage& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{SizePx={} TrimMarginPxf={} TrimmedSizePxf={}}}", value.SizePx, value.TrimMarginPxf, value.TrimmedSizePxf);
     }

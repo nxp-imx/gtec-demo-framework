@@ -35,8 +35,8 @@
 #include <FslBase/Log/Logger1.hpp>
 #include <fmt/format.h>
 #include <exception>
+#include <iterator>
 #include <string_view>
-
 
 namespace Fsl::Logger
 {

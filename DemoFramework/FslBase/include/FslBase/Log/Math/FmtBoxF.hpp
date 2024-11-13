@@ -48,7 +48,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::BoxF& value, FormatContext& ctx)
+    auto format(const Fsl::BoxF& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{X1={} Y1={} X2={} Y2={}}}", value.X1, value.Y1, value.X2, value.Y2);
     }

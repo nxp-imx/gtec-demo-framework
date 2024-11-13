@@ -734,7 +734,7 @@ namespace Fsl
         {
           taken[i] = -1;
         }
-        for (int i = 0; i < m_data.size(); ++i)
+        for (handle_type i = 0; i < UncheckedNumericCast<handle_type>(m_data.size()); ++i)
         {
           const auto handle = m_data[i].Handle;
           if (taken[handle] >= 0)
@@ -750,7 +750,7 @@ namespace Fsl
         {
           taken[i] = -1;
         }
-        for (handle_type handle = 0; handle < m_data.size(); ++handle)
+        for (handle_type handle = 0; handle < UncheckedNumericCast<handle_type>(m_data.size()); ++handle)
         {
           const auto index = m_data[handle].HandleToIndex;
           if (taken[index] >= 0)

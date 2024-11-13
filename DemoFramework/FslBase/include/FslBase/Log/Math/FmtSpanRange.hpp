@@ -48,7 +48,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::SpanRange<T>& value, FormatContext& ctx)
+    auto format(const Fsl::SpanRange<T>& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{Start={} Length={}}}", value.Start, value.Length);
     }

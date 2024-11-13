@@ -48,7 +48,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::Matrix3& value, FormatContext& ctx)
+    auto format(const Fsl::Matrix3& value, FormatContext& ctx) const
     {
       const auto* pMatrix = value.DirectAccess();
       return fmt::format_to(ctx.out(), "{{{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}}}", pMatrix[0], pMatrix[1], pMatrix[2], pMatrix[3], pMatrix[4],

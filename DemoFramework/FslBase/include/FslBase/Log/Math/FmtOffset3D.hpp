@@ -48,7 +48,7 @@ namespace fmt
 
     template <typename FormatContext>
     // NOLINTNEXTLINE(readability-identifier-naming)
-    auto format(const Fsl::Offset3D& value, FormatContext& ctx)
+    auto format(const Fsl::Offset3D& value, FormatContext& ctx) const
     {
       return fmt::format_to(ctx.out(), "{{X={} Y={} Z={}}}", value.X, value.Y, value.Z);
     }
