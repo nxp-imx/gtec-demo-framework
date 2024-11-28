@@ -32,12 +32,14 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Sprite/ISizedSprite.hpp>
+#include <FslGraphics/Sprite/Info/Core/RenderImageInfo.hpp>
 
 namespace Fsl
 {
   class IImageSprite : public ISizedSprite
   {
   public:
+    virtual RenderImageInfo GetImageRenderInfo() const noexcept = 0;
   };
 }
 

@@ -54,7 +54,7 @@ namespace
       TestDensityDpi = densityDpi;
     }
 
-    uint32_t GetMaterialCount() const final
+    uint32_t GetMaterialCount() const noexcept final
     {
       return 1u;
     }

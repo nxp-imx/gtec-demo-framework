@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/Event/EventDescription.hpp>
+#include <FslSimpleUI/Base/Event/EventHandlingStatus.hpp>
 #include <FslSimpleUI/Base/Event/EventTypeId.hpp>
 #include <memory>
 
@@ -48,7 +49,7 @@ namespace Fsl::UI
 
     std::shared_ptr<IWindowId> m_originalSource;
     std::shared_ptr<IWindowId> m_source;
-    bool m_isHandled;
+    EventHandlingStatus m_status{EventHandlingStatus::Unhandled};
     bool m_isInitialized;
 
   public:
@@ -67,10 +68,16 @@ namespace Fsl::UI
     const std::shared_ptr<IWindowId>& GetSource() const noexcept;
 
     //! @brief Check if this event has been handled.
+    EventHandlingStatus GetHandlingStatus() const noexcept;
+
+    //! @brief Check if this event has been handled.
     bool IsHandled() const noexcept;
 
     //! @brief mark the event as handled.
     void Handled() noexcept;
+
+    //! @brief This marked the element as handled and claimed
+    void Claimed();
 
     //! @brief Get the event type id
     EventTypeId GetEventTypeId() const noexcept
@@ -102,6 +109,18 @@ namespace Fsl::UI
     bool IsDisposed() const noexcept
     {
       return !m_isInitialized;
+    }
+
+    //! @brief Only intended for complex events that can be intercepted like the WindowTransactionEvent
+    void ClearStatus()
+    {
+      m_status = EventHandlingStatus::Unhandled;
+    }
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    void SYS_DoPatchInternals(EventHandlingStatus handlingStatus)
+    {
+      m_status = handlingStatus;
     }
   };
 }

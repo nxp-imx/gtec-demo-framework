@@ -65,12 +65,15 @@ namespace Fsl::UI
       DrawEnabled = 0x10,
       ClickInput = 0x20,
       MouseOver = 0x40,
+      //! If this is set this window and all it children should be clipped to this window
+      ClipEnabled = 0x80,
       //! enable the WinResolve callback (called before the window layout cycle is started to help resolve complex state issues)
       ResolveEnabled = 0x100,
       //! enable the WinPostLayout callback (called after layout has been resolved)
       PostLayoutEnabled = 0x200,
 
-      All = WinInit | LayoutDirty | UpdateEnabled | DrawEnabled | ClickInput | MouseOver | ResolveEnabled | PostLayoutEnabled | ContentRenderingDirty,
+      All = WinInit | LayoutDirty | UpdateEnabled | DrawEnabled | ClickInput | MouseOver | ClipEnabled | ResolveEnabled | PostLayoutEnabled |
+            ContentRenderingDirty,
       InputAll = ClickInput | MouseOver
     };
 

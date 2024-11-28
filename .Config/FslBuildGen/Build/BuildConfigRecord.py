@@ -36,6 +36,7 @@ from typing import List
 from typing import Optional
 #from typing import Union
 from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
+from FslBuildGen.Build.ForAllConfig import ForAllConfig
 from FslBuildGen.BuildConfig.UserSetVariables import UserSetVariables
 from FslBuildGen.Build.DataTypes import CommandType
 from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
@@ -56,7 +57,7 @@ class BuildConfigRecord(object):
                  buildCommand: CommandType,
                  buildCommandArgs: List[str],
                  buildArgs: List[str],
-                 runCommand: Optional[str],
+                 forAllConfig: Optional[ForAllConfig],
                  generator: Optional[GeneratorPluginBase2],
                  buildThreads: int) -> None:
         super().__init__()
@@ -67,7 +68,7 @@ class BuildConfigRecord(object):
         self.BuildCommand = buildCommand
         self.BuildCommandArgs = buildCommandArgs
         self.BuildArgs = buildArgs
-        self.RunCommand = runCommand
+        self.ForAllConfig = forAllConfig
         self.Generator = generator
         self.BuildThreads = buildThreads
         self.ActiveBuildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(externalVariantConstraints)

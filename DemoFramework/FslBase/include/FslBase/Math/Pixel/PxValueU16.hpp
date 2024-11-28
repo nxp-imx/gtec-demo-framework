@@ -43,7 +43,7 @@ namespace Fsl
     using value_type = uint16_t;
     using raw_value_type = uint16_t;
 
-    value_type Value{0};
+    uint16_t Value{0};
 
     inline constexpr PxValueU16() noexcept = default;
 

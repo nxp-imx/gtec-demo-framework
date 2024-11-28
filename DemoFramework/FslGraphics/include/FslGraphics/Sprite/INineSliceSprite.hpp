@@ -32,12 +32,14 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Sprite/IContentSprite.hpp>
+#include <FslGraphics/Sprite/Info/Core/RenderOptimizedNineSliceInfo.hpp>
 
 namespace Fsl
 {
   class INineSliceSprite : public IContentSprite
   {
   public:
+    virtual RenderOptimizedNineSliceInfo GetNineSliceRenderInfo() const noexcept = 0;
   };
 }
 

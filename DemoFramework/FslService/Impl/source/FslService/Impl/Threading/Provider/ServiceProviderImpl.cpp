@@ -85,7 +85,7 @@ namespace Fsl
     case ServiceLaunchType::MultipleProviderTag:
       throw ServiceInterfaceHasMultipleProvidersException(fmt::format("Multiple providers available for interface: {}", serviceId.Get().name()));
     case ServiceLaunchType::Invalid:
-      throw UnknownServiceException(serviceId.Get().name());
+      throw UnknownServiceException(fmt::format("Unknown service: {}", serviceId.Get().name()));
     case ServiceLaunchType::InstanceAllocator:
       assert(res.InstanceFactory);
       return res.InstanceFactory->Allocate();

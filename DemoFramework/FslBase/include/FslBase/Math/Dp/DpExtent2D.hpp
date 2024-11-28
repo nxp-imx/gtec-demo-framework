@@ -44,8 +44,8 @@ namespace Fsl
     using value_type = DpValueU;
     using raw_value_type = value_type::raw_value_type;
 
-    value_type Width{0};
-    value_type Height{0};
+    DpValueU Width{0};
+    DpValueU Height{0};
 
     constexpr DpExtent2D() noexcept = default;
 

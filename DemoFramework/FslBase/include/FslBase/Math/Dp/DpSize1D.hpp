@@ -46,7 +46,7 @@ namespace Fsl
     using raw_value_type = int32_t;
 
   private:
-    value_type m_value;
+    DpValue m_value;
 
     explicit constexpr DpSize1D(const value_type::value_type value) noexcept
       : m_value(value >= 0 ? value : 0)

@@ -84,12 +84,14 @@ namespace Fsl
   {
     Vulkan::VMVertexBuffer VertexBuffer;
     Vulkan::VMIndexBuffer IndexBuffer;
-    std::array<VkVertexInputAttributeDescription, 5> VertexAttributeDescription;
+    std::array<VkVertexInputAttributeDescription, 5> VertexAttributeDescription{};
     VkVertexInputBindingDescription VertexInputBindingDescription{};
   };
 
-  class ModelViewer : public VulkanBasic::DemoAppVulkanBasic
+  class ModelViewer final : public VulkanBasic::DemoAppVulkanBasic
   {
+    using base_type = VulkanBasic::DemoAppVulkanBasic;
+
     //! Resources that are duplicated per command buffer to ensure that it wont be 'in-use' while we update it
     struct FrameResources
     {
@@ -185,15 +187,16 @@ namespace Fsl
     explicit ModelViewer(const DemoAppConfig& config);
 
   protected:
-    void OnKeyEvent(const KeyEvent& event) override;
-    void OnMouseButtonEvent(const MouseButtonEvent& event) override;
-    void OnMouseMoveEvent(const MouseMoveEvent& event) override;
-    void OnMouseWheelEvent(const MouseWheelEvent& event) override;
-    void Update(const DemoTime& demoTime) override;
-    void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) override;
+    void OnKeyEvent(const KeyEvent& event) final;
+    void OnMouseButtonEvent(const MouseButtonEvent& event) final;
+    void OnMouseMoveEvent(const MouseMoveEvent& event) final;
+    void OnMouseWheelEvent(const MouseWheelEvent& event) final;
+    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;
+    void Update(const DemoTime& demoTime) final;
+    void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) final;
 
-    VkRenderPass OnBuildResources(const VulkanBasic::BuildResourcesContext& context) override;
-    void OnFreeResources() override;
+    VkRenderPass OnBuildResources(const VulkanBasic::BuildResourcesContext& context) final;
+    void OnFreeResources() final;
 
   private:
     void DrawMeshes(const FrameResources& frame, const VkCommandBuffer hCmdBuffer);

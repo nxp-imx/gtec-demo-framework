@@ -42,6 +42,10 @@ namespace Fsl
     : ADemoApp(demoAppConfig)
     , m_graphicsServiceHost(demoAppConfig.DemoServiceProvider.Get<IGraphicsServiceHost>())
   {
+    {    // Adjust the default viewport to fix apps that forget to handle it
+      const PxSize2D sizePx = demoAppConfig.WindowMetrics.GetSizePx();
+      glViewport(0, 0, sizePx.RawWidth(), sizePx.RawHeight());
+    }
   }
 
   DemoAppGLES2::~DemoAppGLES2()

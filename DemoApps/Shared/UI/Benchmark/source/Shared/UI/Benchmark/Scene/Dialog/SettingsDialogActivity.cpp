@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,12 +91,16 @@ namespace Fsl::UI
       m_switchNoOpaqueMaterials = themeControlFactory->CreateSwitch(TextConfig::NoOpaqueMaterials, m_settings->NoOpaqueMaterials);
       m_switchStats = themeControlFactory->CreateSwitch("UI stats", m_settings->ShowStats);
       m_switchShowIdle = themeControlFactory->CreateSwitch("Show busy", m_settings->ShowIdle);
+      m_switchEnableClipping = themeControlFactory->CreateSwitch("Enable clipping", m_settings->EnableClipping);
+      m_switchShowClipRectangle = themeControlFactory->CreateSwitch("Show clip rectangle", m_settings->ShowClipRectangle);
 
       auto switchStack = std::make_shared<StackLayout>(context);
       switchStack->SetOrientation(UI::LayoutOrientation::Vertical);
       switchStack->AddChild(m_switchNoOpaqueMaterials);
       switchStack->AddChild(m_switchStats);
       switchStack->AddChild(m_switchShowIdle);
+      switchStack->AddChild(m_switchEnableClipping);
+      switchStack->AddChild(m_switchShowClipRectangle);
 
 
       content->SetSpacing(LocalConfig::SettingsSpacingDp);
@@ -124,6 +128,8 @@ namespace Fsl::UI
       m_settings->NoOpaqueMaterials = m_switchNoOpaqueMaterials->IsChecked();
       m_settings->ShowStats = m_switchStats->IsChecked();
       m_settings->ShowIdle = m_switchShowIdle->IsChecked();
+      m_settings->EnableClipping = m_switchEnableClipping->IsChecked();
+      m_settings->ShowClipRectangle = m_switchShowClipRectangle->IsChecked();
 
       for (std::size_t i = 0; i < m_renderMethodUI.Methods.size(); ++i)
       {

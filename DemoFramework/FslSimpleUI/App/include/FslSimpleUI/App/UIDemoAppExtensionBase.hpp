@@ -41,6 +41,7 @@ namespace Fsl
 {
   class DemoPerformanceCapture;
   class IProfilerService;
+  struct PxRectangle;
   struct PxViewport;
   struct UIDemoAppExtensionCreateInfo;
 
@@ -88,6 +89,8 @@ namespace Fsl
 
     // NOLINTNEXTLINE(readability-identifier-naming)
     virtual void SYS_SetRenderSystemViewport(const PxViewport& viewportPx);
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    void SYS_SetClipRectangle(const bool enabled, const PxRectangle& clipRectanglePx);
 
     void RegisterEventListener(const std::shared_ptr<UI::IEventListener>& eventListener);
     void UnregisterEventListener(const std::shared_ptr<UI::IEventListener>& eventListener);

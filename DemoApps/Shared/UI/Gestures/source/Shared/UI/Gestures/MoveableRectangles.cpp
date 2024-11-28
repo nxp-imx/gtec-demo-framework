@@ -72,13 +72,15 @@ namespace Fsl::UI
     }
   }
 
-
   MoveableRectangles::MoveableRectangles(const std::shared_ptr<BaseWindowContext>& context)
     : BaseWindow(context)
-    , m_gestureManager(UI::GestureFlags::Drag | UI::GestureFlags::Tap, UI::GestureDetector(), context->UnitConverter.GetDensityDpi())
+    , m_gestureManager(UI::GestureFlags::Drag | UI::GestureFlags::Tap, UI::GestureDetector(UI::GestureFlags::Everything),
+                       context->UnitConverter.GetDensityDpi())
     , m_moveableRectangleManager(context->ColorConverter.GetColorSpace(), PxSize2D::Create(1, 1), context->UnitConverter.GetDensityDpi())
     , m_meshes(CreateMeshes(context->TheUIContext.Get()->MeshManager))
   {
+    m_gestureManager.SetEnabled(true);
+
     SetAlignmentX(UI::ItemAlignment::Stretch);
     SetAlignmentY(UI::ItemAlignment::Stretch);
 
@@ -111,20 +113,20 @@ namespace Fsl::UI
     {
       return;
     }
+
     const auto localPositionPx = PointFromScreen(theEvent->GetScreenPosition());
 
     if (theEvent->IsBegin())
     {
       m_isDown = true;
-      m_gestureManager.AddMovement(theEvent->GetTimestamp(), localPositionPx, true);
-      theEvent->Handled();
     }
     else if (m_isDown)
     {
-      m_gestureManager.AddMovement(theEvent->GetTimestamp(), localPositionPx, false);
       m_isDown = false;
-      theEvent->Handled();
     }
+
+    m_gestureManager.AddMovement(theEvent->GetTimestamp(), localPositionPx, theEvent->GetState(), theEvent->IsRepeat(), MovementOwnership::Unhandled);
+    theEvent->Handled();
   }
 
 
@@ -139,7 +141,8 @@ namespace Fsl::UI
       {
         const auto& entry = span[i];
         const PxVector2 dstPositionPxf = context.TargetRect.Location() + entry.RectanglePxf.Offset;
-        context.CommandBuffer.Draw(m_meshes[i].Get(), dstPositionPxf, entry.RectanglePxf.Size, GetFinalBaseColor() * entry.RenderColor);
+        context.CommandBuffer.Draw(m_meshes[i].Get(), dstPositionPxf, entry.RectanglePxf.Size, GetFinalBaseColor() * entry.RenderColor,
+                                   context.ClipContext);
       }
     }
   }

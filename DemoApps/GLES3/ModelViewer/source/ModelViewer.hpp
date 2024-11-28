@@ -53,8 +53,10 @@ namespace Fsl
     class SceneNode;
   }
 
-  class ModelViewer : public DemoAppGLES3
+  class ModelViewer final : public DemoAppGLES3
   {
+    using base_type = DemoAppGLES3;
+
     struct Resources
     {
       GLES3::GLProgram Program;
@@ -131,15 +133,16 @@ namespace Fsl
 
   public:
     explicit ModelViewer(const DemoAppConfig& config);
-    ~ModelViewer() override;
+    ~ModelViewer() final;
 
   protected:
-    void OnKeyEvent(const KeyEvent& event) override;
-    void OnMouseButtonEvent(const MouseButtonEvent& event) override;
-    void OnMouseMoveEvent(const MouseMoveEvent& event) override;
-    void OnMouseWheelEvent(const MouseWheelEvent& event) override;
-    void Update(const DemoTime& demoTime) override;
-    void Draw(const FrameInfo& frameInfo) override;
+    void OnKeyEvent(const KeyEvent& event) final;
+    void OnMouseButtonEvent(const MouseButtonEvent& event) final;
+    void OnMouseMoveEvent(const MouseMoveEvent& event) final;
+    void OnMouseWheelEvent(const MouseWheelEvent& event) final;
+    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;
+    void Update(const DemoTime& demoTime) final;
+    void Draw(const FrameInfo& frameInfo) final;
 
   private:
     void DrawMeshes();

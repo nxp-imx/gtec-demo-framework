@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_SCENE_DIALOG_SETTINGSDIALOGACTIVITY_HPP
 #define SHARED_UI_BENCHMARK_SCENE_DIALOG_SETTINGSDIALOGACTIVITY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslSimpleUI/Theme/Base/WindowType.hpp>
 #include <Shared/UI/Benchmark/Activity/DialogActivity.hpp>
-#include <Shared/UI/Benchmark/Persistence/AppSettings.hpp>
+#include <Shared/UI/Benchmark/Persistence/AppTestSettings.hpp>
 #include <Shared/UI/Benchmark/RenderMethodInfo.hpp>
 #include <memory>
 #include <vector>
@@ -66,6 +66,8 @@ namespace Fsl::UI
     std::shared_ptr<Switch> m_switchNoOpaqueMaterials;
     std::shared_ptr<Switch> m_switchStats;
     std::shared_ptr<Switch> m_switchShowIdle;
+    std::shared_ptr<Switch> m_switchEnableClipping;
+    std::shared_ptr<Switch> m_switchShowClipRectangle;
     std::shared_ptr<AppTestSettings> m_settings;
 
   public:

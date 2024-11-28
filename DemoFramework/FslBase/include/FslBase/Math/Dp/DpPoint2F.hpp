@@ -44,8 +44,8 @@ namespace Fsl
     using value_type = DpValueF;
     using raw_value_type = value_type::raw_value_type;
 
-    value_type X{0};
-    value_type Y{0};
+    DpValueF X{0};
+    DpValueF Y{0};
 
     constexpr DpPoint2F() noexcept = default;
 

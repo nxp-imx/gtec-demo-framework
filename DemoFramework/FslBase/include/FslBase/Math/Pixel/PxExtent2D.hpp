@@ -44,8 +44,8 @@ namespace Fsl
     using value_type = PxValueU;
     using raw_value_type = value_type::raw_value_type;
 
-    value_type Width{0};
-    value_type Height{0};
+    PxValueU Width{0};
+    PxValueU Height{0};
 
     constexpr PxExtent2D() noexcept = default;
 

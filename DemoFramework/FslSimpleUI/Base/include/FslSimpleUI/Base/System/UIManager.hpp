@@ -42,6 +42,7 @@
 namespace Fsl
 {
   struct PxPoint2;
+  struct PxRectangle;
   struct TimeSpan;
 
   namespace DataBinding
@@ -104,6 +105,7 @@ namespace Fsl
       ~UIManager();
 
       void SetUseDrawCache(const bool useDrawCache);
+      void SetClipRectangle(const bool enabled, const PxRectangle& clipRectanglePx);
 
       std::shared_ptr<AExternalModule> GetExternalModule(const ExternalModuleId& moduleId) const;
 

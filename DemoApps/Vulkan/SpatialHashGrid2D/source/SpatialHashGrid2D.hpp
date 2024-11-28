@@ -41,6 +41,8 @@ namespace Fsl
 {
   class SpatialHashGrid2D final : public VulkanBasic::DemoAppVulkanBasic
   {
+    using base_type = VulkanBasic::DemoAppVulkanBasic;
+
     struct VertexUBOData
     {
       Matrix MatViewProjection;

@@ -35,6 +35,7 @@
 #include <FslBase/Log/Math/Pixel/FmtPxVector2.hpp>
 #include <FslSimpleUI/Base/Gesture/Event/GestureDragBasicEvent.hpp>
 #include <FslSimpleUI/Base/Gesture/Event/GestureDragBeginBasicEvent.hpp>
+#include <FslSimpleUI/Base/Gesture/Event/GestureDragCancelBasicEvent.hpp>
 #include <FslSimpleUI/Base/Gesture/Event/GestureDragEndBasicEvent.hpp>
 #include <FslSimpleUI/Base/Gesture/Event/GestureFlickBasicEvent.hpp>
 #include <FslSimpleUI/Base/Gesture/Event/GestureTapBasicEvent.hpp>
@@ -48,6 +49,36 @@ namespace Fsl::UI
     , m_gestureDetection(std::move(gestureDetection))
     , m_unitConverter(densityDpi)
   {
+  }
+
+
+  bool GestureManager::IsEnabled() const noexcept
+  {
+    return m_enabled;
+  }
+
+  void GestureManager::SetEnabled(const bool value)
+  {
+    if (value != m_enabled)
+    {
+      m_enabled = value;
+      if (!m_enabled)
+      {
+        // Cancel all gesture tracking
+        Clear();
+      }
+    }
+  }
+
+
+  GestureAxis GestureManager::GetGestureAxis() const noexcept
+  {
+    return m_gestureDetection.GetGestureAxis();
+  }
+
+  void GestureManager::SetGestureAxis(const GestureAxis value)
+  {
+    m_gestureDetection.SetGestureAxis(value);
   }
 
 
@@ -79,10 +110,18 @@ namespace Fsl::UI
     return true;
   }
 
-  void GestureManager::AddMovement(const MillisecondTickCount32 timestamp, const PxPoint2 screenPositionPx, const bool isPressed)
+
+  MovementTransactionAction GestureManager::AddMovement(const MillisecondTickCount32 timestamp, const PxPoint2 screenPositionPx,
+                                                        const EventTransactionState state, const bool isRepeat,
+                                                        const MovementOwnership movementOwnership)
   {
+    if (!m_enabled)
+    {
+      return MovementTransactionAction::NotInterested;
+    }
+
     const DpPoint2F screenPositionDpf = m_unitConverter.ToDpPoint2F(screenPositionPx);
-    m_gestureDetection.AddMovement(timestamp, screenPositionDpf, isPressed);
+    return m_gestureDetection.AddMovement(timestamp, screenPositionDpf, state, isRepeat, movementOwnership);
   }
 
 
@@ -127,6 +166,12 @@ namespace Fsl::UI
           {
             Drag(gs.PositionDpf);
           }
+        }
+        break;
+      case GestureType::DragCanceled:
+        if (m_dragInfo.IsDragging)
+        {
+          CancelDrag(gs.PositionDpf);
         }
         break;
       case GestureType::DragComplete:
@@ -184,6 +229,23 @@ namespace Fsl::UI
   }
 
 
+  void GestureManager::CancelDrag(const DpPoint2F positionDpf)
+  {
+    if (!m_dragInfo.IsDragging)
+    {
+      return;
+    }
+
+    auto deltaPositionPx = m_unitConverter.ToPxPoint2(positionDpf) - m_dragInfo.StartPositionPx;
+
+    FSLLOG3_VERBOSE5("CancelDrag position: {} DensityDpi: {}", positionDpf, m_unitConverter.GetDensityDpi());
+
+    m_dragInfo.Clear();
+
+    m_eventQueue.push_back(GestureDragCancelBasicEvent(deltaPositionPx));
+  }
+
+
   void GestureManager::EndDrag(const DpPoint2F positionDpf, const DpPoint2F velocityDpf)
   {
     if (!m_dragInfo.IsDragging)
@@ -191,12 +253,13 @@ namespace Fsl::UI
       return;
     }
 
-    m_dragInfo.Clear();
-    const auto positionPx = m_unitConverter.ToPxPoint2(positionDpf);
+    const auto deltaPositionPx = m_unitConverter.ToPxPoint2(positionDpf) - m_dragInfo.StartPositionPx;
 
     FSLLOG3_VERBOSE5("EndDrag position: {} velocity: {} DensityDpi: {}", positionDpf, velocityDpf, m_unitConverter.GetDensityDpi());
 
-    m_eventQueue.push_back(GestureDragEndBasicEvent(positionPx, velocityDpf));
+    m_dragInfo.Clear();
+
+    m_eventQueue.push_back(GestureDragEndBasicEvent(deltaPositionPx, velocityDpf));
   }
 
 

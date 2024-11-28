@@ -33,6 +33,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
+#include <FslSimpleUI/Render/Base/DrawClipContext.hpp>
 
 namespace Fsl::UI
 {
@@ -42,12 +43,10 @@ namespace Fsl::UI
   {
     UIDrawContext() noexcept = delete;
 
-    constexpr UIDrawContext(DrawCommandBuffer& drawCommandBuffer, const PxAreaRectangleF& targetRect, const PxAreaRectangleF& clippedTargetRect,
-                            const bool clipToParentEnabled) noexcept
+    constexpr UIDrawContext(DrawCommandBuffer& drawCommandBuffer, const PxAreaRectangleF& targetRect, const DrawClipContext& clipContext) noexcept
       : CommandBuffer(drawCommandBuffer)
       , TargetRect(targetRect)
-      , ClippedTargetRect(clippedTargetRect)
-      , ClipToParentEnabled(clipToParentEnabled)
+      , ClipContext(clipContext)
     {
     }
 
@@ -56,11 +55,7 @@ namespace Fsl::UI
     //! @brief The target rect that the draw should occur to
     const PxAreaRectangleF TargetRect;
 
-    //! @brief The target rect clipped against the parent
-    const PxAreaRectangleF ClippedTargetRect;
-
-    //! @brief If clip to parent is enabled
-    const bool ClipToParentEnabled{false};
+    const DrawClipContext ClipContext;
   };
 }
 

@@ -92,6 +92,7 @@ namespace Fsl
 
   void ParticleSystem::OnKeyEvent(const KeyEvent& event)
   {
+    base_type::OnKeyEvent(event);
     if (m_scene)
     {
       m_scene->OnKeyEvent(event);
@@ -101,6 +102,7 @@ namespace Fsl
 
   void ParticleSystem::OnMouseButtonEvent(const MouseButtonEvent& event)
   {
+    base_type::OnMouseButtonEvent(event);
     if (m_scene)
     {
       m_scene->OnMouseButtonEvent(event);
@@ -110,6 +112,7 @@ namespace Fsl
 
   void ParticleSystem::OnMouseMoveEvent(const MouseMoveEvent& event)
   {
+    base_type::OnMouseMoveEvent(event);
     if (m_scene)
     {
       m_scene->OnMouseMoveEvent(event);
@@ -119,6 +122,7 @@ namespace Fsl
 
   void ParticleSystem::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
+    base_type::OnMouseWheelEvent(event);
     if (m_scene)
     {
       m_scene->OnMouseWheelEvent(event);
@@ -126,8 +130,19 @@ namespace Fsl
   }
 
 
+  void ParticleSystem::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
+  {
+    base_type::ConfigurationChanged(windowMetrics);
+    if (m_scene)
+    {
+      m_scene->ConfigurationChanged(windowMetrics);
+    }
+  }
+
+
   void ParticleSystem::Update(const DemoTime& demoTime)
   {
+    base_type::Update(demoTime);
     if (m_scene)
     {
       m_scene->Update(demoTime);
@@ -137,7 +152,7 @@ namespace Fsl
 
   void ParticleSystem::Draw(const FrameInfo& frameInfo)
   {
-    FSL_PARAM_NOT_USED(frameInfo);
+    base_type::Draw(frameInfo);
 
     if (!m_scene)
     {

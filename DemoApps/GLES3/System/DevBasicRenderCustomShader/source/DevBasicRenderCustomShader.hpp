@@ -38,6 +38,7 @@ namespace Fsl
 {
   class DevBasicRenderCustomShader final : public DemoAppGLES3
   {
+    using base_type = DemoAppGLES3;
     DevBasicRenderCustomShaderShared m_shared;
 
   public:

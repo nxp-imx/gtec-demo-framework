@@ -96,6 +96,7 @@ namespace Fsl
     void OnMouseButtonEvent(const MouseButtonEvent& event) override;
     void OnMouseMoveEvent(const MouseMoveEvent& event) override;
     void OnMouseWheelEvent(const MouseWheelEvent& event) override;
+    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
     void Update(const DemoTime& demoTime) override;
     void Draw() override;
 

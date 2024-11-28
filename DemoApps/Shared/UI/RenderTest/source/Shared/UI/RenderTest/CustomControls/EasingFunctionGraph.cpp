@@ -61,7 +61,7 @@ namespace Fsl::UI::Custom
     }
 
     void DrawCustomLineStrip(UIRawBasicMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx,
-                             const RenderBasicImageInfo& renderInfo, const ICustomDrawData* const pCustomDrawData)
+                             const DrawClipContext& clipContext, const RenderBasicImageInfo& renderInfo, const ICustomDrawData* const pCustomDrawData)
     {
       const int32_t widthPx = dstSizePx.RawWidth();
       const auto heightPxf = static_cast<float>(dstSizePx.RawHeight());
@@ -206,8 +206,8 @@ namespace Fsl::UI::Custom
     if (m_content.IsValid() && m_contentPrimitiveTopology == BasicPrimitiveTopology::LineList)
     {
       const auto finalContentColor = finalBaseColor * m_propertyContentColor.InternalColor;
-      context.CommandBuffer.DrawCustom(m_content.Get(), context.TargetRect.Location(), RenderSizePx(), finalContentColor, DrawCustomLineStrip,
-                                       m_drawInfo);
+      context.CommandBuffer.DrawCustom(m_content.Get(), context.TargetRect.Location(), RenderSizePx(), finalContentColor, context.ClipContext,
+                                       DrawCustomLineStrip, m_drawInfo);
     }
   }
 

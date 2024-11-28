@@ -3,68 +3,152 @@
   <AtlasConfig TransparencyMode="premultiply"/>
   <AtlasFlavors Name="Gen/NonLinear/UIAtlas/UIAtlas">
     <CreateAtlas Name="Gen/NonLinear/UIAtlas/UIAtlas_80dpi">
-      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}">
+        <File Path="Control/White/ScrollbarH.png">
+          <AddNineSlice NineSlice="3,1,3,1" ContentMargin="3,1,3,1"/>
+        </File>
+        <File Path="Control/White/ScrollbarV.png">
+          <AddNineSlice NineSlice="1,3,1,3" ContentMargin="1,3,1,3"/>
+        </File>
+      </AddFolder>
       <AddBitmapFont Path="Font2/Font12/Font.fnt" BaseLinePx="9" LineSpacingPx="12" MeasureChar="B" MeasureHeightPx="7"/>
     </CreateAtlas>
     <CreateAtlas Name="Gen/NonLinear/UIAtlas/UIAtlas_96dpi">
-      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}">
+        <File Path="Control/White/ScrollbarH.png">
+          <AddNineSlice NineSlice="3,1,3,1" ContentMargin="3,1,3,1"/>
+        </File>
+        <File Path="Control/White/ScrollbarV.png">
+          <AddNineSlice NineSlice="1,3,1,3" ContentMargin="1,3,1,3"/>
+        </File>
+      </AddFolder>
       <AddBitmapFont Path="Font2/Font16/Font.fnt" BaseLinePx="12" LineSpacingPx="16" MeasureChar="B" MeasureHeightPx="9"/>
     </CreateAtlas>
     <CreateAtlas Name="Gen/NonLinear/UIAtlas/UIAtlas_160dpi">
-      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}">
+        <File Path="Control/White/ScrollbarH.png">
+          <AddNineSlice NineSlice="3,1,3,1" ContentMargin="3,1,3,1"/>
+        </File>
+        <File Path="Control/White/ScrollbarV.png">
+          <AddNineSlice NineSlice="1,3,1,3" ContentMargin="1,3,1,3"/>
+        </File>
+      </AddFolder>
       <AddBitmapFont Path="Font2/Font28/Font.fnt" BaseLinePx="20" LineSpacingPx="26" MeasureChar="B" MeasureHeightPx="14"/>
     </CreateAtlas>
     <CreateAtlas Name="Gen/NonLinear/UIAtlas/UIAtlas_320dpi">
-      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}">
+        <File Path="Control/White/ScrollbarH.png">
+          <AddNineSlice NineSlice="4,1,4,1" ContentMargin="4,1,4,1"/>
+        </File>
+        <File Path="Control/White/ScrollbarV.png">
+          <AddNineSlice NineSlice="1,4,1,4" ContentMargin="1,4,1,4"/>
+        </File>
+      </AddFolder>
       <AddBitmapFont Path="Font2/Font54/Font.fnt" BaseLinePx="40" LineSpacingPx="52" MeasureChar="B" MeasureHeightPx="28"/>
     </CreateAtlas>
     <CreateAtlas Name="Gen/NonLinear/UIAtlas/UIAtlas_480dpi">
-      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}">
+        <File Path="Control/White/ScrollbarH.png">
+          <AddNineSlice NineSlice="5,2,5,2" ContentMargin="5,2,5,2"/>
+        </File>
+        <File Path="Control/White/ScrollbarV.png">
+          <AddNineSlice NineSlice="2,5,2,5" ContentMargin="2,5,2,5"/>
+        </File>
+      </AddFolder>
       <AddBitmapFont Path="Font2/Font81/Font.fnt" BaseLinePx="60" LineSpacingPx="78" MeasureChar="B" MeasureHeightPx="42"/>
     </CreateAtlas>
     <CreateAtlas Name="Gen/NonLinear/UIAtlas/UIAtlas_640dpi">
-      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}">
+        <File Path="Control/White/ScrollbarH.png">
+          <AddNineSlice NineSlice="5,2,5,2" ContentMargin="5,2,5,2"/>
+        </File>
+        <File Path="Control/White/ScrollbarV.png">
+          <AddNineSlice NineSlice="2,5,2,5" ContentMargin="2,5,2,5"/>
+        </File>
+      </AddFolder>
       <AddBitmapFont Path="Font2/Font106/Font.fnt" BaseLinePx="80" LineSpacingPx="104" MeasureChar="B" MeasureHeightPx="56"/>
     </CreateAtlas>
   </AtlasFlavors>
   <AtlasFlavors Name="Gen/NonLinear/UIAtlasBig/UIAtlas">
     <CreateAtlas Name="Gen/NonLinear/UIAtlasBig/UIAtlas_80dpi">
-      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}">
+        <File Path="Control/White/ScrollbarH.png">
+          <AddNineSlice NineSlice="3,1,3,1" ContentMargin="3,1,3,1"/>
+        </File>
+        <File Path="Control/White/ScrollbarV.png">
+          <AddNineSlice NineSlice="1,3,1,3" ContentMargin="1,3,1,3"/>
+        </File>
+      </AddFolder>
       <AddBitmapFont Path="Font2/Font12/Font.fnt" BaseLinePx="9" LineSpacingPx="12" MeasureChar="B" MeasureHeightPx="7"/>
       <AddBitmapFont Path="Font2/Header16/Header.fnt" BaseLinePx="12" LineSpacingPx="16" MeasureChar="B" MeasureHeightPx="9"/>
       <AddBitmapFont Path="Font2/Sdf/Font37/SdfFont.fnt" BaseLinePx="37" LineSpacingPx="48" Type="sdf" SdfSpread="2" SdfDesiredBaseLinePx="9"/>
       <AddBitmapFont Path="Font2/Sdf/Header37/SdfHeader.fnt" BaseLinePx="38" LineSpacingPx="50" Type="sdf" SdfSpread="3" SdfDesiredBaseLinePx="12"/>
     </CreateAtlas>
     <CreateAtlas Name="Gen/NonLinear/UIAtlasBig/UIAtlas_96dpi">
-      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}">
+        <File Path="Control/White/ScrollbarH.png">
+          <AddNineSlice NineSlice="3,1,3,1" ContentMargin="3,1,3,1"/>
+        </File>
+        <File Path="Control/White/ScrollbarV.png">
+          <AddNineSlice NineSlice="1,3,1,3" ContentMargin="1,3,1,3"/>
+        </File>
+      </AddFolder>
       <AddBitmapFont Path="Font2/Font16/Font.fnt" BaseLinePx="12" LineSpacingPx="16" MeasureChar="B" MeasureHeightPx="9"/>
       <AddBitmapFont Path="Font2/Header19/Header.fnt" BaseLinePx="14" LineSpacingPx="19" MeasureChar="B" MeasureHeightPx="10"/>
       <AddBitmapFont Path="Font2/Sdf/Font37/SdfFont.fnt" BaseLinePx="37" LineSpacingPx="48" Type="sdf" SdfSpread="2" SdfDesiredBaseLinePx="12"/>
       <AddBitmapFont Path="Font2/Sdf/Header37/SdfHeader.fnt" BaseLinePx="38" LineSpacingPx="50" Type="sdf" SdfSpread="3" SdfDesiredBaseLinePx="14"/>
     </CreateAtlas>
     <CreateAtlas Name="Gen/NonLinear/UIAtlasBig/UIAtlas_160dpi">
-      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}">
+        <File Path="Control/White/ScrollbarH.png">
+          <AddNineSlice NineSlice="3,1,3,1" ContentMargin="3,1,3,1"/>
+        </File>
+        <File Path="Control/White/ScrollbarV.png">
+          <AddNineSlice NineSlice="1,3,1,3" ContentMargin="1,3,1,3"/>
+        </File>
+      </AddFolder>
       <AddBitmapFont Path="Font2/Font28/Font.fnt" BaseLinePx="20" LineSpacingPx="26" MeasureChar="B" MeasureHeightPx="14"/>
       <AddBitmapFont Path="Font2/Header31/Header.fnt" BaseLinePx="24" LineSpacingPx="32" MeasureChar="B" MeasureHeightPx="16"/>
       <AddBitmapFont Path="Font2/Sdf/Font37/SdfFont.fnt" BaseLinePx="37" LineSpacingPx="48" Type="sdf" SdfSpread="2" SdfDesiredBaseLinePx="20"/>
       <AddBitmapFont Path="Font2/Sdf/Header37/SdfHeader.fnt" BaseLinePx="38" LineSpacingPx="50" Type="sdf" SdfSpread="3" SdfDesiredBaseLinePx="24"/>
     </CreateAtlas>
     <CreateAtlas Name="Gen/NonLinear/UIAtlasBig/UIAtlas_320dpi">
-      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}">
+        <File Path="Control/White/ScrollbarH.png">
+          <AddNineSlice NineSlice="4,1,4,1" ContentMargin="4,1,4,1"/>
+        </File>
+        <File Path="Control/White/ScrollbarV.png">
+          <AddNineSlice NineSlice="1,4,1,4" ContentMargin="1,4,1,4"/>
+        </File>
+      </AddFolder>
       <AddBitmapFont Path="Font2/Font54/Font.fnt" BaseLinePx="40" LineSpacingPx="52" MeasureChar="B" MeasureHeightPx="28"/>
       <AddBitmapFont Path="Font2/Header61/Header.fnt" BaseLinePx="48" LineSpacingPx="64" MeasureChar="B" MeasureHeightPx="32"/>
       <AddBitmapFont Path="Font2/Sdf/Font37/SdfFont.fnt" BaseLinePx="37" LineSpacingPx="48" Type="sdf" SdfSpread="2" SdfDesiredBaseLinePx="40"/>
       <AddBitmapFont Path="Font2/Sdf/Header37/SdfHeader.fnt" BaseLinePx="38" LineSpacingPx="50" Type="sdf" SdfSpread="3" SdfDesiredBaseLinePx="48"/>
     </CreateAtlas>
     <CreateAtlas Name="Gen/NonLinear/UIAtlasBig/UIAtlas_480dpi">
-      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}">
+        <File Path="Control/White/ScrollbarH.png">
+          <AddNineSlice NineSlice="5,2,5,2" ContentMargin="5,2,5,2"/>
+        </File>
+        <File Path="Control/White/ScrollbarV.png">
+          <AddNineSlice NineSlice="2,5,2,5" ContentMargin="2,5,2,5"/>
+        </File>
+      </AddFolder>
       <AddBitmapFont Path="Font2/Font81/Font.fnt" BaseLinePx="60" LineSpacingPx="78" MeasureChar="B" MeasureHeightPx="42"/>
       <AddBitmapFont Path="Font2/Header92/Header.fnt" BaseLinePx="72" LineSpacingPx="96" MeasureChar="B" MeasureHeightPx="48"/>
       <AddBitmapFont Path="Font2/Sdf/Font37/SdfFont.fnt" BaseLinePx="37" LineSpacingPx="48" Type="sdf" SdfSpread="2" SdfDesiredBaseLinePx="60"/>
       <AddBitmapFont Path="Font2/Sdf/Header37/SdfHeader.fnt" BaseLinePx="38" LineSpacingPx="50" Type="sdf" SdfSpread="3" SdfDesiredBaseLinePx="72"/>
     </CreateAtlas>
     <CreateAtlas Name="Gen/NonLinear/UIAtlasBig/UIAtlas_640dpi">
-      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}"/>
+      <AddFolder Path="UIAtlas/${Atlas.DefaultDpi}">
+        <File Path="Control/White/ScrollbarH.png">
+          <AddNineSlice NineSlice="5,2,5,2" ContentMargin="5,2,5,2"/>
+        </File>
+        <File Path="Control/White/ScrollbarV.png">
+          <AddNineSlice NineSlice="2,5,2,5" ContentMargin="2,5,2,5"/>
+        </File>
+      </AddFolder>
       <AddBitmapFont Path="Font2/Font106/Font.fnt" BaseLinePx="80" LineSpacingPx="104" MeasureChar="B" MeasureHeightPx="56"/>
       <AddBitmapFont Path="Font2/Header122/Header.fnt" BaseLinePx="96" LineSpacingPx="128" MeasureChar="B" MeasureHeightPx="64"/>
       <AddBitmapFont Path="Font2/Sdf/Font37/SdfFont.fnt" BaseLinePx="37" LineSpacingPx="48" Type="sdf" SdfSpread="2" SdfDesiredBaseLinePx="80"/>

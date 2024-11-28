@@ -47,8 +47,10 @@ namespace Fsl::UI
     ScalePolicy = 0x10,
     //! BaseColor does not modify layout calculations
     BaseColor = 0x20,
+    //! Clipping does not modify layout calculations
+    Clipping = 0x40,
     //! Other does not modify layout calculations
-    Other = 0x40,
+    Other = 0x80,
   };
 }
 

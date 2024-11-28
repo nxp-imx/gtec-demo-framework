@@ -41,8 +41,9 @@ namespace Fsl::UI
 {
   class UIRawMeshBuilder2D;
   class ICustomDrawData;
-  using FnDrawCustomBasicImageMesh = void (*)(UIRawMeshBuilder2D&, const PxVector2, const PxSize2D, const RenderBasicImageInfo&,
-                                              const ICustomDrawData* const);
+  struct DrawClipContext;
+  using FnDrawCustomBasicImageMesh = void (*)(UIRawMeshBuilder2D&, const PxVector2, const PxSize2D, const DrawClipContext&,
+                                              const RenderBasicImageInfo&, const ICustomDrawData* const);
 
   struct CustomDrawBasicImageInfo
   {

@@ -761,6 +761,29 @@ namespace Fsl::IO
   {
     return lhs.AsStringViewLite() >= rhs.AsPathView();
   }
+
+  // Operator +
+
+  inline Path operator+(const PathView lhs, const PathView rhs)
+  {
+    IO::Path lhsPath(lhs);
+    lhsPath.Append(rhs);
+    return lhsPath;
+  }
+
+  inline Path operator+(const PathView lhs, const StringViewLite rhs)
+  {
+    IO::Path lhsPath(lhs);
+    lhsPath.Append(rhs);
+    return lhsPath;
+  }
+
+  inline Path operator+(const PathView lhs, const char* const pszRhs)
+  {
+    IO::Path lhsPath(lhs);
+    lhsPath.Append(pszRhs);
+    return lhsPath;
+  }
 }
 
 #endif

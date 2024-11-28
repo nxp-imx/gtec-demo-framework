@@ -36,12 +36,14 @@
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslBase/Span/SpanUtil_Create.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/NativeNineSliceTextureArea.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
 #include <FslGraphics/TextureAtlas/AtlasNineSliceFlags.hpp>
 #include <FslGraphics2D/Procedural/Builder/Clip2DUtil.hpp>
+#include <array>
 #include <cassert>
 #include <type_traits>
 
@@ -55,6 +57,12 @@ namespace Fsl
   template <typename TVertex, typename TIndex>
   class InlineRawMeshBuilder2D
   {
+  private:
+    static constexpr std::array<AtlasNineSliceFlags, 9> NineSliceFlags = {
+      AtlasNineSliceFlags::Slice0Transparent, AtlasNineSliceFlags::Slice1Transparent, AtlasNineSliceFlags::Slice2Transparent,
+      AtlasNineSliceFlags::Slice3Transparent, AtlasNineSliceFlags::Slice4Transparent, AtlasNineSliceFlags::Slice5Transparent,
+      AtlasNineSliceFlags::Slice6Transparent, AtlasNineSliceFlags::Slice7Transparent, AtlasNineSliceFlags::Slice8Transparent};
+
   public:
     using vertex_element_type = TVertex;
     using vertex_value_type = std::remove_cv_t<TVertex>;
@@ -1467,8 +1475,278 @@ namespace Fsl
         m_indexCount += 6 * (countX - 1) * (countY - 1);
       }
     }
-  };
 
+
+    //! @brief  Add a nine slice
+    //! @note   Mesh example:
+    //!         X X X X
+    //!         0 1 2 3
+    //!
+    //!         A-C-E-G Y0
+    //!         | | | |
+    //!         B-D-F-H Y1
+    //!         | | | |
+    //!         I-K-M-O Y2
+    //!         | | | |
+    //!         J-L-N-P Y3
+    constexpr void AddNineSlice(const float x0, const float y0, const float x1, const float y1, const float x2, const float y2, const float x3,
+                                const float y3, const NativeNineSliceTextureArea& texCoordNineSlice, const PxAreaRectangleF& clippedTargetRectPxf,
+                                const AtlasNineSliceFlags flags, const bool drawOpaque) noexcept
+    {
+      assert((m_vertexCount + 16) <= m_vertexCapacity);
+      assert((m_indexCount + 54) <= m_indexCapacity);
+
+      PxVector2 clipXPxf(clippedTargetRectPxf.Left(), clippedTargetRectPxf.Right());
+      PxVector2 clipYPxf(clippedTargetRectPxf.Top(), clippedTargetRectPxf.Bottom());
+
+      std::array<PxVector2, 4> coordsX = {PxVector2::Create(x0, texCoordNineSlice.X0), PxVector2::Create(x1, texCoordNineSlice.X1),
+                                          PxVector2::Create(x2, texCoordNineSlice.X2), PxVector2::Create(x3, texCoordNineSlice.X3)};
+      std::array<PxVector2, 4> coordsY = {PxVector2::Create(y0, texCoordNineSlice.Y0), PxVector2::Create(y1, texCoordNineSlice.Y1),
+                                          PxVector2::Create(y2, texCoordNineSlice.Y2), PxVector2::Create(y3, texCoordNineSlice.Y3)};
+
+      SpanRange<std::size_t> spanRangeX = Clip2DUtil::ClipToRange(coordsX, clipXPxf);
+      SpanRange<std::size_t> spanRangeY = Clip2DUtil::ClipToRange(coordsY, clipYPxf);
+      ReadOnlySpan<PxVector2> spanX = SpanUtil::UncheckedAsReadOnlySpan(coordsX, spanRangeX.Start, spanRangeX.Length);
+      ReadOnlySpan<PxVector2> spanY = SpanUtil::UncheckedAsReadOnlySpan(coordsY, spanRangeY.Start, spanRangeY.Length);
+      if (spanX.size() >= 2 && spanY.size() >= 2)
+      {
+        const auto countY = static_cast<uint32_t>(spanY.size());
+        const auto countX = static_cast<uint32_t>(spanX.size());
+
+        {    // Generate the vertices
+          vertex_pointer pDst = m_pVertexData + m_vertexCount;
+          for (uint32_t indexY = 0; indexY < countY; ++indexY)
+          {
+            for (uint32_t indexX = 0; indexX < countX; ++indexX)
+            {
+              //*pDst = TVertex(vertex_position_type(spanX[indexX].X, spanY[indexY].X, m_zPos), m_color,
+              //                          vertex_uv_type(spanX[indexX].Y, spanY[indexY].Y));
+              pDst->Position = vertex_position_type(spanX[indexX].X.Value, spanY[indexY].X.Value, m_zPos);
+              pDst->Color = m_color;
+              pDst->TextureCoordinate = vertex_uv_type(spanX[indexX].Y.Value, spanY[indexY].Y.Value);
+              ++pDst;
+            }
+          }
+        }
+        size_type totalIndices = 0;
+        {    // Generate the indices
+             //!  A-B-C-D
+             //!  |\|\|\|
+             //!  E-F-G-H
+          const index_pointer pDstStart = m_pIndexData + m_indexCount;
+          index_pointer pDst = pDstStart;
+          index_value_type indexOffset = m_indexVertexOffset + m_vertexCount;
+          const uint32_t endY = countY - 1;
+          const uint32_t endX = countX - 1;
+          std::size_t lookupY = spanRangeY.Start * 3;
+          for (uint32_t indexY = 0; indexY < endY; ++indexY)
+          {
+            std::size_t lookupX = spanRangeX.Start;
+            for (uint32_t indexX = 0; indexX < endX; ++indexX)
+            {
+              if (AtlasNineSliceFlagsUtil::IsEnabled(flags, NineSliceFlags[lookupY + lookupX]) != drawOpaque)
+              {
+                // ABCD
+                pDst[0] = indexOffset + countX;        // E
+                pDst[1] = indexOffset + 0;             // A
+                pDst[2] = indexOffset + countX + 1;    // F
+
+                pDst[3] = indexOffset + countX + 1;    // F
+                pDst[4] = indexOffset + 0;             // A
+                pDst[5] = indexOffset + 1;             // B
+
+                pDst += 6;
+              }
+              ++indexOffset;
+              ++lookupX;
+            }
+            ++indexOffset;
+            lookupY += 3u;
+          }
+          totalIndices = UncheckedNumericCast<size_type>(pDst - pDstStart);
+        }
+
+        m_vertexCount += totalIndices > 0 ? countX * countY : 0;
+        m_indexCount += totalIndices;
+      }
+    }
+
+    //! @brief  Add a nine slice
+    //! @note   Mesh example:
+    //!         X X X X
+    //!         0 1 2 3
+    //!
+    //!         A-C-E-G Y0
+    //!         | | | |
+    //!         B-D-F-H Y1
+    //!         | | | |
+    //!         I-K-M-O Y2
+    //!         | | | |
+    //!         J-L-N-P Y3
+    constexpr void AddNineSliceUVRotated90CW(const float x0, const float y0, const float x1, const float y1, const float x2, const float y2,
+                                             const float x3, const float y3, const NativeNineSliceTextureArea& texCoordNineSlice,
+                                             const PxAreaRectangleF& clippedTargetRectPxf) noexcept
+    {
+      assert((m_vertexCount + 16) <= m_vertexCapacity);
+      assert((m_indexCount + 54) <= m_indexCapacity);
+
+      PxVector2 clipXPxf(clippedTargetRectPxf.Left(), clippedTargetRectPxf.Right());
+      PxVector2 clipYPxf(clippedTargetRectPxf.Top(), clippedTargetRectPxf.Bottom());
+
+      // Normal                         Rot90CW
+      // u0v0, u1v0, u2v0, u3v0         u0v3, u0v2, u0v1, u0v0,
+
+      std::array<PxVector2, 4> coordsX = {PxVector2::Create(x0, texCoordNineSlice.Y3), PxVector2::Create(x1, texCoordNineSlice.Y2),
+                                          PxVector2::Create(x2, texCoordNineSlice.Y1), PxVector2::Create(x3, texCoordNineSlice.Y0)};
+      std::array<PxVector2, 4> coordsY = {PxVector2::Create(y0, texCoordNineSlice.X0), PxVector2::Create(y1, texCoordNineSlice.X1),
+                                          PxVector2::Create(y2, texCoordNineSlice.X2), PxVector2::Create(y3, texCoordNineSlice.X3)};
+
+      ReadOnlySpan<PxVector2> spanX = Clip2DUtil::Clip(coordsX, clipXPxf);
+      ReadOnlySpan<PxVector2> spanY = Clip2DUtil::Clip(coordsY, clipYPxf);
+      if (spanX.size() >= 2 && spanY.size() >= 2)
+      {
+        const auto countY = static_cast<uint32_t>(spanY.size());
+        const auto countX = static_cast<uint32_t>(spanX.size());
+
+        {    // Generate the vertices
+          vertex_pointer pDst = m_pVertexData + m_vertexCount;
+          for (uint32_t indexY = 0; indexY < countY; ++indexY)
+          {
+            for (uint32_t indexX = 0; indexX < countX; ++indexX)
+            {
+              pDst->Position = vertex_position_type(spanX[indexX].X.Value, spanY[indexY].X.Value, m_zPos);
+              pDst->Color = m_color;
+              pDst->TextureCoordinate = vertex_uv_type(spanY[indexY].Y.Value, spanX[indexX].Y.Value);
+              ++pDst;
+            }
+          }
+        }
+        {    // Generate the indices
+             //!  A-B-C-D
+             //!  |\|\|\|
+             //!  E-F-G-H
+          index_pointer pDst = m_pIndexData + m_indexCount;
+          index_value_type indexOffset = m_indexVertexOffset + m_vertexCount;
+          const uint32_t endY = countY - 1;
+          const uint32_t endX = countX - 1;
+          for (uint32_t indexY = 0; indexY < endY; ++indexY)
+          {
+            for (uint32_t indexX = 0; indexX < endX; ++indexX)
+            {
+              // ABCD
+              pDst[0] = indexOffset + countX;        // E
+              pDst[1] = indexOffset + 0;             // A
+              pDst[2] = indexOffset + countX + 1;    // F
+
+              pDst[3] = indexOffset + countX + 1;    // F
+              pDst[4] = indexOffset + 0;             // A
+              pDst[5] = indexOffset + 1;             // B
+
+              pDst += 6;
+              ++indexOffset;
+            }
+            ++indexOffset;
+          }
+        }
+
+        m_vertexCount += countX * countY;
+        m_indexCount += 6 * (countX - 1) * (countY - 1);
+      }
+    }
+
+    //! @brief  Add a nine slice
+    //! @note   Mesh example:
+    //!         X X X X
+    //!         0 1 2 3
+    //!
+    //!         A-C-E-G Y0
+    //!         | | | |
+    //!         B-D-F-H Y1
+    //!         | | | |
+    //!         I-K-M-O Y2
+    //!         | | | |
+    //!         J-L-N-P Y3
+    constexpr void AddNineSliceUVRotated90CW(const float x0, const float y0, const float x1, const float y1, const float x2, const float y2,
+                                             const float x3, const float y3, const NativeNineSliceTextureArea& texCoordNineSlice,
+                                             const PxAreaRectangleF& clippedTargetRectPxf, const AtlasNineSliceFlags flags,
+                                             const bool drawOpaque) noexcept
+    {
+      assert((m_vertexCount + 16) <= m_vertexCapacity);
+      assert((m_indexCount + 54) <= m_indexCapacity);
+
+      PxVector2 clipXPxf(clippedTargetRectPxf.Left(), clippedTargetRectPxf.Right());
+      PxVector2 clipYPxf(clippedTargetRectPxf.Top(), clippedTargetRectPxf.Bottom());
+
+      std::array<PxVector2, 4> coordsX = {PxVector2::Create(x0, texCoordNineSlice.Y3), PxVector2::Create(x1, texCoordNineSlice.Y2),
+                                          PxVector2::Create(x2, texCoordNineSlice.Y1), PxVector2::Create(x3, texCoordNineSlice.Y0)};
+      std::array<PxVector2, 4> coordsY = {PxVector2::Create(y0, texCoordNineSlice.X0), PxVector2::Create(y1, texCoordNineSlice.X1),
+                                          PxVector2::Create(y2, texCoordNineSlice.X2), PxVector2::Create(y3, texCoordNineSlice.X3)};
+
+      SpanRange<std::size_t> spanRangeX = Clip2DUtil::ClipToRange(coordsX, clipXPxf);
+      SpanRange<std::size_t> spanRangeY = Clip2DUtil::ClipToRange(coordsY, clipYPxf);
+      ReadOnlySpan<PxVector2> spanX = SpanUtil::UncheckedAsReadOnlySpan(coordsX, spanRangeX.Start, spanRangeX.Length);
+      ReadOnlySpan<PxVector2> spanY = SpanUtil::UncheckedAsReadOnlySpan(coordsY, spanRangeY.Start, spanRangeY.Length);
+      if (spanX.size() >= 2 && spanY.size() >= 2)
+      {
+        const auto countY = static_cast<uint32_t>(spanY.size());
+        const auto countX = static_cast<uint32_t>(spanX.size());
+
+        {    // Generate the vertices
+          vertex_pointer pDst = m_pVertexData + m_vertexCount;
+          for (uint32_t indexY = 0; indexY < countY; ++indexY)
+          {
+            for (uint32_t indexX = 0; indexX < countX; ++indexX)
+            {
+              pDst->Position = vertex_position_type(spanX[indexX].X.Value, spanY[indexY].X.Value, m_zPos);
+              pDst->Color = m_color;
+              pDst->TextureCoordinate = vertex_uv_type(spanY[indexY].Y.Value, spanX[indexX].Y.Value);
+              ++pDst;
+            }
+          }
+        }
+        size_type totalIndices = 0;
+        {    // Generate the indices
+             //!  A-B-C-D
+             //!  |\|\|\|
+             //!  E-F-G-H
+          const index_pointer pDstStart = m_pIndexData + m_indexCount;
+          index_pointer pDst = pDstStart;
+          index_value_type indexOffset = m_indexVertexOffset + m_vertexCount;
+          const uint32_t endY = countY - 1;
+          const uint32_t endX = countX - 1;
+          std::size_t lookupY = spanRangeY.Start * 3;
+          for (uint32_t indexY = 0; indexY < endY; ++indexY)
+          {
+            std::size_t lookupX = spanRangeX.Start;
+            for (uint32_t indexX = 0; indexX < endX; ++indexX)
+            {
+              if (AtlasNineSliceFlagsUtil::IsEnabled(flags, NineSliceFlags[lookupY + lookupX]) != drawOpaque)
+              {
+                // ABCD
+                pDst[0] = indexOffset + countX;        // E
+                pDst[1] = indexOffset + 0;             // A
+                pDst[2] = indexOffset + countX + 1;    // F
+
+                pDst[3] = indexOffset + countX + 1;    // F
+                pDst[4] = indexOffset + 0;             // A
+                pDst[5] = indexOffset + 1;             // B
+
+                pDst += 6;
+              }
+              ++indexOffset;
+              ++lookupX;
+            }
+            ++indexOffset;
+            lookupY += 3u;
+          }
+          totalIndices = UncheckedNumericCast<size_type>(pDst - pDstStart);
+        }
+
+        m_vertexCount += totalIndices > 0 ? countX * countY : 0;
+        m_indexCount += totalIndices;
+      }
+    }
+  };
 }
 
 

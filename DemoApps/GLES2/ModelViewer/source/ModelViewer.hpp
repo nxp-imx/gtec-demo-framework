@@ -55,6 +55,8 @@ namespace Fsl
 
   class ModelViewer final : public DemoAppGLES2
   {
+    using base_type = DemoAppGLES2;
+
     struct Resources
     {
       GLES2::GLProgram Program;
@@ -138,6 +140,7 @@ namespace Fsl
     void OnMouseButtonEvent(const MouseButtonEvent& event) final;
     void OnMouseMoveEvent(const MouseMoveEvent& event) final;
     void OnMouseWheelEvent(const MouseWheelEvent& event) final;
+    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;
     void Update(const DemoTime& demoTime) final;
     void Draw(const FrameInfo& frameInfo) final;
 

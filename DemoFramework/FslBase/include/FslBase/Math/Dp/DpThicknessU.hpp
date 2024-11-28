@@ -42,10 +42,10 @@ namespace Fsl
     using value_type = DpValueU;
     using raw_value_type = value_type::raw_value_type;
 
-    value_type Left{0};
-    value_type Top{0};
-    value_type Right{0};
-    value_type Bottom{0};
+    DpValueU Left{0};
+    DpValueU Top{0};
+    DpValueU Right{0};
+    DpValueU Bottom{0};
 
     constexpr DpThicknessU() noexcept = default;
 

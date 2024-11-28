@@ -41,7 +41,7 @@ namespace Fsl
     using value_type = int32_t;
     using raw_value_type = int32_t;
 
-    value_type Value{0};
+    int32_t Value{0};
 
     inline constexpr PxValue() noexcept = default;
 
@@ -149,7 +149,6 @@ namespace Fsl
     {
       return PxValue((value));
     }
-
 
     // op<==>
     constexpr auto operator<=>(const PxValue& other) const noexcept = default;

@@ -139,8 +139,8 @@ namespace Fsl::ModelSceneUtil
       loaderConfig.ModelFileName = "FuturisticCar/Futuristic_Car.3ds";
       loaderConfig.TextureFileName = "FuturisticCar/Futuristic_Car_C.jpg";
       loaderConfig.TextureNormalFileName = "FuturisticCar/Futuristic_Car_N.jpg";
-      // strTextureSpecularFileName = "FuturisticCar/Futuristic_Car_S.jpg";
-      // m_rotation.X = MathHelper::ToRadians(-90.0f);
+      // loaderConfig.TextureSpecularFileName = "FuturisticCar/Futuristic_Car_S.jpg";
+      //  m_rotation.X = MathHelper::ToRadians(-90.0f);
       rRenderConfig.RotationSpeed.X = 0;
       rRenderConfig.RotationSpeed.Z = 0;
       loaderConfig.ScaleMod = 1.75f;

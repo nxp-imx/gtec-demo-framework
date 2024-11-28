@@ -61,7 +61,7 @@ namespace Fsl
     virtual void OnMouseButtonEvent(const MouseButtonEvent& /*event*/) {};
     virtual void OnMouseMoveEvent(const MouseMoveEvent& /*event*/) {};
     virtual void OnMouseWheelEvent(const MouseWheelEvent& /*event*/) {};
-
+    virtual void ConfigurationChanged(const DemoWindowMetrics& windowMetrics);
     virtual void Update(const DemoTime& /*demoTime*/) {};
     virtual void Draw() {};
 

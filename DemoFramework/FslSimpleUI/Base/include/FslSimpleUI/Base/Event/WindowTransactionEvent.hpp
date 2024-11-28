@@ -37,13 +37,20 @@
 
 namespace Fsl::UI
 {
+  namespace Internal
+  {
+    class ScopedWindowTransactionEventPatch;
+  }
+
   class WindowTransactionEvent : public WindowEvent
   {
     MillisecondTickCount32 m_timestamp;
-    int32_t m_sourceId;
-    int32_t m_sourceSubId;
-    EventTransactionState m_state;
-    bool m_isRepeat;
+    int32_t m_sourceId{0};
+    int32_t m_sourceSubId{0};
+    EventTransactionState m_state{EventTransactionState::End};
+    bool m_isRepeat{false};
+    uint32_t m_interceptionCount{0};
+    bool m_allowIntercept{false};
 
   public:
     MillisecondTickCount32 GetTimestamp() const noexcept
@@ -71,11 +78,52 @@ namespace Fsl::UI
       return m_isRepeat;
     }
 
+    bool GetAllowIntercept() const noexcept
+    {
+      return m_allowIntercept;
+    }
+
+    bool Intercepted() const noexcept
+    {
+      return m_interceptionCount > 0;
+    }
+
+    //! @brief Intercept this transaction event, successfully intercepting clears the status (so it goes back to unhandled)
+    //!        This causes all children to receive a 'Cancel event' and the interceptor and its parent will continue the transaction.
+    //!        A good candidate for using this is a scroll view when it detects the view being dragged instead of clicked.
+    bool Intercept();
+
+
+    //! @brief Internal and test use only
+    uint32_t GetInterceptionCount() const noexcept
+    {
+      return m_interceptionCount;
+    }
+
+    //! @brief Internal and test use only
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    bool SYS_SetAllowIntercept(bool allowIntercept)
+    {
+      bool changed = m_allowIntercept != allowIntercept;
+      m_allowIntercept = allowIntercept;
+      return changed;
+    }
+
   protected:
     WindowTransactionEvent(const EventTypeId typeId, const EventDescription& eventDescription) noexcept;
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void SYS_DoConstruct(const MillisecondTickCount32 timestamp, const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state,
                          const bool isRepeat) noexcept;
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
     void SYS_Destruct() noexcept override;
+
+  private:
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    void SYS_PatchInternals(EventTransactionState transactionState, bool isRepeat, EventHandlingStatus handlingStatus, bool allowIntercept);
+
+    friend class Internal::ScopedWindowTransactionEventPatch;
   };
 }
 

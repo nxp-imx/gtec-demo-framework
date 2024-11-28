@@ -123,6 +123,9 @@ namespace Fsl
       const std::shared_ptr<ImageSprite> SliderCursorSprite;
       const std::shared_ptr<ImageSprite> SliderCursorHoverSprite;
       const std::shared_ptr<INineSliceSprite> SliderBGSprite;
+      // Scrollbar
+      const std::shared_ptr<IContentSprite> TexScrollbarH;
+      const std::shared_ptr<IContentSprite> TexScrollbarV;
       // tooltip
       const std::shared_ptr<NineSliceSprite> ToolTipNineSliceSprite;
       // ColorMarker
@@ -151,7 +154,6 @@ namespace Fsl
       const std::shared_ptr<ImageSprite> IconNavigationArrowForward;
       const std::shared_ptr<ImageSprite> IconNavigationArrowUpward;
       const std::shared_ptr<ImageSprite> IconNavigationCancel;
-
 
       // Consts
       const DpSize2D SliderCursorSizeDp;

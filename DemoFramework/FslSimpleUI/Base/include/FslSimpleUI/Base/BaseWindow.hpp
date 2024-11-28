@@ -319,6 +319,9 @@ namespace Fsl
       //! @brief Transform a screen point to be relative to this window
       PxPoint2 PointFromScreen(const PxPoint2& screenPoint) const;
 
+      //! @brief Transform a point relative to this window to screen
+      PxPoint2 PointToScreen(const PxPoint2& windowPointPx) const;
+
       //! @brief Transform a point relative to fromWin window, to be relative to this window
       PxPoint2 PointFrom(const IWindowId* const pFromWin, const PxPoint2& pointPx) const;
 
@@ -456,6 +459,7 @@ namespace Fsl
 
       void Enable(const WindowFlags flags);
       void Disable(const WindowFlags flags);
+      void Set(const WindowFlags flags, bool enabled);
 
       inline void MarkLayoutArrangeBegin()
       {

@@ -40,8 +40,15 @@ namespace Fsl
   {
   }
 
+
   float AScene::GetAspectRatio() const
   {
     return m_sizePx.RawHeight() != 0 ? static_cast<float>(m_sizePx.RawWidth()) / static_cast<float>(m_sizePx.RawHeight()) : 1.0f;
+  }
+
+
+  void AScene::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
+  {
+    m_sizePx = windowMetrics.GetSizePx();
   }
 }

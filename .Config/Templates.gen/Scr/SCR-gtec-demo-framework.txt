@@ -5,7 +5,7 @@ License File:                 License.md
 Package Category:             Graphics
 Type of Content:              source
 Description and comments:     Graphics sample applications
-Release Location:             https://github.com/NXPmicro/gtec-demo-framework -b ##PROJECT_VERSION##
+Release Location:             https://github.com/nxp-imx/gtec-demo-framework -b ##PROJECT_VERSION##
 Origin:                       NXP (BSD-3-clause)
                               Demo Framework
                                 Sascha Willems - Vulkan demo (MIT) - https://github.com/SaschaWillems/Vulkan
@@ -15,10 +15,10 @@ Origin:                       NXP (BSD-3-clause)
                                 Open Sans - Steve Matteson (Apache-2.0) - https://fonts.google.com/specimen/Open+Sans
                               Demo Apps
                                 Vivante Corporation (MIT)
-                                "OpenGL(R) ES 3.0 Programming Guide" book samples (MIT) - http://github.com/zemanel/opengles-book-samples/
+                                "OpenGL(R) ES 3.0 Programming Guide" book samples (MIT) - https://github.com/danginsburg/opengles3-book/
                                 Norbert Nopper VKTS Examples (MIT) - https://github.com/McNopper/Vulkan
                                 Sascha Willems - Vulkan demo (MIT) - https://github.com/SaschaWillems/Vulkan
-                                nehe.gamedev.net by Jeff Molofee - https://nehe.gamedev.net/
+                                nehe.gamedev.net by Jeff Molofee (MIT) - https://github.com/gamedev-net/nehe-opengl or http://nehe.gamedev.net
                               Imagery Sources in Demo Apps:
                                 Emil Persson (CC-BY-3.0) - http://www.humus.name
                                 CDmir (CC0-1.0) - http://opengameart.org/content/old-deer-male
@@ -32,5 +32,5 @@ Origin:                       NXP (BSD-3-clause)
                                 libpng (libpng) - https://sourceforge.net/projects/libpng/
                                 libjpeg (IJG) - http://www.ijg.org/
                                 OpenGL Mathematics 0.9.9.8 [GLM] (MIT) - https://sourceforge.net/projects/ogl-math/
-                                SRA/SKC gettimeofday (MIT) - https://doxygen.postgresql.org/gettimeofday_8c_source.htm
+                                SRA/SKC gettimeofday (MIT) - https://doxygen.postgresql.org/win32gettimeofday_8c_source.html
                                 zlib 1.3.1 (zlib) - http://www.zlib.net/

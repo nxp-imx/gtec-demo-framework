@@ -34,6 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxSize1D.hpp>
 #include <FslBase/Math/Pixel/PxValue.hpp>
+#include <compare>
 
 namespace Fsl
 {
@@ -42,7 +43,7 @@ namespace Fsl
     using value_type = float;
     using raw_value_type = float;
 
-    value_type Value{0};
+    float Value{0};
 
     inline constexpr PxValueF() noexcept = default;
 
@@ -130,49 +131,12 @@ namespace Fsl
     {
       return PxValueF((value));
     }
+
+    // op<==>
+    constexpr auto operator<=>(const PxValueF& other) const noexcept = default;
+    // op==
+    constexpr bool operator==(const PxValueF& other) const noexcept = default;
   };
-
-  // op==
-
-  inline constexpr bool operator==(const PxValueF lhs, const PxValueF rhs) noexcept
-  {
-    return lhs.Value == rhs.Value;
-  }
-
-  // op!=
-
-  inline constexpr bool operator!=(const PxValueF lhs, const PxValueF rhs) noexcept
-  {
-    return lhs.Value != rhs.Value;
-  }
-
-  // op<
-
-  inline constexpr bool operator<(const PxValueF lhs, const PxValueF rhs) noexcept
-  {
-    return lhs.Value < rhs.Value;
-  }
-
-  // op<=
-
-  inline constexpr bool operator<=(const PxValueF lhs, const PxValueF rhs) noexcept
-  {
-    return lhs.Value <= rhs.Value;
-  }
-
-  // op>
-
-  inline constexpr bool operator>(const PxValueF lhs, const PxValueF rhs) noexcept
-  {
-    return lhs.Value > rhs.Value;
-  }
-
-  // op>=
-
-  inline constexpr bool operator>=(const PxValueF lhs, const PxValueF rhs) noexcept
-  {
-    return lhs.Value >= rhs.Value;
-  }
 
   // op add
 

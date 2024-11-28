@@ -43,7 +43,7 @@ namespace Fsl
   BasicTestScene::BasicTestScene(const SceneCreateInfo& createInfo)
     : BasicScene(createInfo)
     , m_forwarder(createInfo.Forwarder)
-    , m_testAppHost(std::make_shared<TestAppHost>(createInfo.DemoServiceProvider, m_windowMetrics, true))
+    , m_testAppHost(std::make_shared<TestAppHost>(createInfo.DemoServiceProvider, m_windowMetrics, createInfo.BenchmarkScene, true))
     , m_testAppHostExtensionProxy(std::make_shared<SceneDemoAppExtensionProxy>(m_testAppHost->GetWindowInfoModule(), m_testAppHost))
   {
     m_forwarder->SetExtension1(m_testAppHostExtensionProxy);

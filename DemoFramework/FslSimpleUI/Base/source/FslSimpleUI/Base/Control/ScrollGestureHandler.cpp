@@ -43,9 +43,11 @@
 #include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
 #include <FslSimpleUI/Base/Gesture/Event/GestureDragBasicEvent.hpp>
 #include <FslSimpleUI/Base/Gesture/Event/GestureDragBeginBasicEvent.hpp>
+#include <FslSimpleUI/Base/Gesture/Event/GestureDragCancelBasicEvent.hpp>
 #include <FslSimpleUI/Base/Gesture/Event/GestureDragEndBasicEvent.hpp>
 #include <FslSimpleUI/Base/Gesture/Event/GestureFlickBasicEvent.hpp>
 #include <FslSimpleUI/Base/Gesture/Event/GestureTapBasicEvent.hpp>
+#include <FslSimpleUI/Base/Log/Gesture/Event/FmtGestureEventType.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <array>
 
@@ -58,6 +60,21 @@ namespace Fsl::UI
       constexpr DpValueF MinimumVelocity(50.0f);
       constexpr TimeSpan MaxFlickAnimationTime(TimeSpan::FromSeconds(5));
     }
+
+    constexpr GestureAxis ToGestureAxis(const ScrollModeFlags scrollMode) noexcept
+    {
+      GestureAxis axisFlags = GestureAxis::NotDefined;
+      if (ScrollModeFlagsUtil::IsEnabled(scrollMode, ScrollModeFlags::TranslateX))
+      {
+        axisFlags |= GestureAxis::X;
+      }
+      if (ScrollModeFlagsUtil::IsEnabled(scrollMode, ScrollModeFlags::TranslateY))
+      {
+        axisFlags |= GestureAxis::Y;
+      }
+      return axisFlags;
+    }
+
 
     constexpr DpValueF CalculateSpringDisplacement(const float force, const float springStiffness) noexcept
     {
@@ -162,8 +179,10 @@ namespace Fsl::UI
 
   ScrollGestureHandler::ScrollGestureHandler(const uint16_t densityDpi)
     : m_unitConverter(densityDpi)
-    , m_gestureManager(UI::GestureFlags::Drag, UI::GestureDetector(), densityDpi)
+    , m_gestureManager(UI::GestureFlags::Drag, UI::GestureDetector(GestureFlags::Drag), densityDpi)
   {
+    m_gestureManager.SetEnabled(false);
+    m_gestureManager.SetGestureAxis(ToGestureAxis(m_scrollMode));
   }
 
 
@@ -176,12 +195,17 @@ namespace Fsl::UI
   }
 
 
-  void ScrollGestureHandler::AddMovement(const MillisecondTickCount32 eventTimestamp, const PxPoint2 screenPositionPx, bool isDown)
+  MovementTransactionAction ScrollGestureHandler::AddMovement(const MillisecondTickCount32 eventTimestamp, const PxPoint2 screenPositionPx,
+                                                              const EventTransactionState state, const bool isRepeat,
+                                                              const MovementOwnership movementOwnership)
   {
-    if (m_scrollEnabled)
-    {
-      m_gestureManager.AddMovement(eventTimestamp, screenPositionPx, isDown);
-    }
+    return m_gestureManager.AddMovement(eventTimestamp, screenPositionPx, state, isRepeat, movementOwnership);
+  }
+
+
+  bool ScrollGestureHandler::IsScrollingEnabled() const noexcept
+  {
+    return m_gestureManager.IsEnabled();
   }
 
 
@@ -198,6 +222,7 @@ namespace Fsl::UI
 
       // Set the scroll mode and apply it to the active scroll offset
       m_scrollMode = value;
+      m_gestureManager.SetGestureAxis(ToGestureAxis(m_scrollMode));
       m_scrollOffsetPx = ApplyScrollMode(m_scrollMode, m_scrollOffsetPx);
     }
   }
@@ -226,7 +251,7 @@ namespace Fsl::UI
   {
     if (!IsScrollingRequired(finalAreaRenderSizePx, contentRenderSizePx))
     {
-      m_scrollEnabled = false;
+      m_gestureManager.SetEnabled(false);
       TryCancelDrag();
       m_animRecord.Status = AnimStatus::Idle;
       m_animRecord.Anim.SetActualValue({});
@@ -235,7 +260,7 @@ namespace Fsl::UI
       m_gestureManager.Clear();
       return {};
     }
-    m_scrollEnabled = true;
+    m_gestureManager.SetEnabled(true);
 
     const PxSize2D scrollSizePx(contentRenderSizePx - finalAreaRenderSizePx);
     PxPoint2 locationPx;
@@ -260,6 +285,12 @@ namespace Fsl::UI
           TryDrag(typedEvent.PositionPx);
           break;
         }
+      case UI::GestureEventType::GestureDragCancel:
+        {
+          // const auto typedEvent = UI::GestureDragCancelBasicEvent::Decode(currentEvent);
+          TryCancelDrag();
+          break;
+        }
       case UI::GestureEventType::GestureDragEnd:
         {
           const auto typedEvent = UI::GestureDragEndBasicEvent::Decode(currentEvent);
@@ -267,7 +298,7 @@ namespace Fsl::UI
           break;
         }
       default:
-        FSLLOG3_WARNING("Unexpected event type: {}", fmt::underlying(currentEvent.Type));
+        FSLLOG3_WARNING("Unexpected event type: {}", currentEvent.Type);
         break;
       }
 

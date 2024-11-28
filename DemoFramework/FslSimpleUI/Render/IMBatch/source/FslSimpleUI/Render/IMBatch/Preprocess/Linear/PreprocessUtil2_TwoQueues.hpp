@@ -96,7 +96,7 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
     {
       const EncodedCommand& command = commandSpan[i];
       // The queue should never contain a Nop command
-      assert(command.Type != DrawCommandType::Nop);
+      assert(command.State.Type() != DrawCommandType::Nop);
       const int32_t hMesh = HandleCoding::GetOriginalHandle(command.Mesh);
       switch (HandleCoding::GetType(command.Mesh))
       {
@@ -104,7 +104,7 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
         break;
       case RenderDrawSpriteType::BasicImageSprite:
         {
-          const auto& meshRecord = meshManager.UncheckedGetBasicImageSprite(hMesh);
+          const auto& meshRecord = meshManager.UncheckedGetImageSprite(hMesh);
           const PxAreaRectangleF dstRectanglePxf(command.DstPositionPxf.X, command.DstPositionPxf.Y, PxSize1DF(command.DstSizePx.Width()),
                                                  PxSize1DF(command.DstSizePx.Height()));
           if (dstRectanglePxf.RawLeft() < clipSizeWidthPx && dstRectanglePxf.RawRight() > 0.0f && dstRectanglePxf.RawTop() < clipSizeHeightPx &&
@@ -137,7 +137,7 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
         }
       case RenderDrawSpriteType::BasicNineSliceSprite:
         {
-          const auto& meshRecord = meshManager.UncheckedGetBasicNineSliceSprite(hMesh);
+          const auto& meshRecord = meshManager.UncheckedGetNineSliceSprite(hMesh);
           const PxAreaRectangleF dstRectanglePxf(command.DstPositionPxf.X, command.DstPositionPxf.Y, PxSize1DF(command.DstSizePx.Width()),
                                                  PxSize1DF(command.DstSizePx.Height()));
           if (dstRectanglePxf.RawLeft() < clipSizeWidthPx && dstRectanglePxf.RawRight() > 0.0f && dstRectanglePxf.RawTop() < clipSizeHeightPx &&
@@ -174,8 +174,30 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
       case RenderDrawSpriteType::ImageSprite:
         {
           const auto& meshRecord = meshManager.UncheckedGetImageSprite(hMesh);
-          const PxAreaRectangleF dstRectanglePxf(command.DstPositionPxf.X, command.DstPositionPxf.Y, PxSize1DF(command.DstSizePx.Width()),
-                                                 PxSize1DF(command.DstSizePx.Height()));
+
+          PxAreaRectangleF dstRectanglePxf;
+          if (command.DstSizePx == meshRecord.Primitive.RenderInfo.ScaledSizePx)
+          {
+            dstRectanglePxf = PxAreaRectangleF(command.DstPositionPxf.X + meshRecord.Primitive.RenderInfo.ScaledTrimMarginPxf.Left(),
+                                               command.DstPositionPxf.Y + meshRecord.Primitive.RenderInfo.ScaledTrimMarginPxf.Top(),
+                                               meshRecord.Primitive.RenderInfo.ScaledTrimmedSizePxf.Width(),
+                                               meshRecord.Primitive.RenderInfo.ScaledTrimmedSizePxf.Height());
+          }
+          else
+          {
+            const PxSize1DF dstWidthPxf(command.DstSizePx.Width());
+            const PxSize1DF dstHeightPxf(command.DstSizePx.Height());
+            // We need to apply the scaling and trim
+            PxSize1DF finalScalingX = dstWidthPxf / PxSize1DF(meshRecord.Primitive.RenderInfo.ScaledSizePx.Width());
+            PxSize1DF finalScalingY = dstHeightPxf / PxSize1DF(meshRecord.Primitive.RenderInfo.ScaledSizePx.Height());
+
+            dstRectanglePxf =
+              PxAreaRectangleF(command.DstPositionPxf.X + (meshRecord.Primitive.RenderInfo.ScaledTrimMarginPxf.Left() * finalScalingX),
+                               command.DstPositionPxf.Y + (meshRecord.Primitive.RenderInfo.ScaledTrimMarginPxf.Top() * finalScalingY),
+                               dstWidthPxf - (meshRecord.Primitive.RenderInfo.ScaledTrimMarginPxf.SumX() * finalScalingX),
+                               dstHeightPxf - (meshRecord.Primitive.RenderInfo.ScaledTrimMarginPxf.SumY() * finalScalingY));
+          }
+
           if (dstRectanglePxf.RawLeft() < clipSizeWidthPx && dstRectanglePxf.RawRight() > 0.0f && dstRectanglePxf.RawTop() < clipSizeHeightPx &&
               dstRectanglePxf.RawBottom() > 0.0f)
           {
@@ -208,9 +230,9 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
         {
           const auto& meshRecord = meshManager.UncheckedGetNineSliceSprite(hMesh);
           assert(meshRecord.Sprite);
-          const PxThicknessF& scaledImageTrimMarginPxf = meshRecord.Sprite->GetRenderInfo().ScaledTrimMarginPxf;
+          const PxThicknessF& scaledImageTrimMarginPxf = meshRecord.Primitive.RenderInfo.ScaledTrimMarginPxf;
           const auto dstRectanglePxf =
-            command.Type != DrawCommandType::DrawRot90CWAtOffsetAndSize
+            command.State.Type() != DrawCommandType::DrawRot90CWAtOffsetAndSize
               ? PxAreaRectangleF(command.DstPositionPxf.X + scaledImageTrimMarginPxf.Left(),
                                  command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Top(),
                                  PxSize1DF::UncheckedCreate(PxSize1DF(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumX()),
@@ -287,7 +309,7 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
           assert(meshRecord.Sprite);
           const PxThicknessF& scaledImageTrimMarginPxf = meshRecord.Sprite->GetRenderInfo().ScaledTrimMarginPxf;
           const auto dstRectanglePxf =
-            command.Type != DrawCommandType::DrawRot90CWAtOffsetAndSize
+            command.State.Type() != DrawCommandType::DrawRot90CWAtOffsetAndSize
               ? PxAreaRectangleF(command.DstPositionPxf.X + scaledImageTrimMarginPxf.Left(),
                                  command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Top(),
                                  PxSize1DF::UncheckedCreate(PxSize1DF(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumX()),

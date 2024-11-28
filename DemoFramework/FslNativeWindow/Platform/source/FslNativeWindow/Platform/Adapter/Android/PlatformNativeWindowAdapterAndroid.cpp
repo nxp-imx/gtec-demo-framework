@@ -721,7 +721,8 @@ namespace Fsl
       android_poll_source* source;
 
       // We loop until all events are read, then continue to draw the next frame of animation.
-      while ((id = ALooper_pollAll(0, nullptr, &events, (void**)&source)) >= 0)
+      // while ((id = ALooper_pollAll(0, nullptr, &events, (void**)&source)) >= 0)
+      while ((id = ALooper_pollOnce(0, nullptr, &events, (void**)&source)) > ALOOPER_POLL_TIMEOUT)
       {
         // Process this event.
         if (source != nullptr)

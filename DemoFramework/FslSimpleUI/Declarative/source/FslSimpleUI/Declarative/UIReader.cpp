@@ -35,6 +35,7 @@
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/Math/Dp/DpSize1D.hpp>
 #include <FslBase/NumericCast.hpp>
+#include <FslBase/Span/SpanUtil_Array.hpp>
 #include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslDataBinding/Base/DataBindingService.hpp>
@@ -59,6 +60,7 @@
 #include <FslSimpleUI/Declarative/PropertyRecord.hpp>
 #include <FslSimpleUI/Declarative/PropertyValue.hpp>
 #include <FslSimpleUI/Declarative/RadioGroupManager.hpp>
+#include <FslSimpleUI/Declarative/ThemeProperties/ParseHelper.hpp>
 #include <FslSimpleUI/Declarative/UIReader.hpp>
 #include <pugixml.hpp>
 #include <iterator>
@@ -80,6 +82,7 @@ namespace Fsl::UI::Declarative::UIReader
       DataBinding::TypedDependencyProperty<uint32_t> m_propertyUInt32;
       DataBinding::TypedDependencyProperty<DpSize1D> m_propertyDpSize1D;
       DataBinding::TypedDependencyProperty<DpSize1DF> m_propertyDpSize1DF;
+      DataBinding::TypedDependencyProperty<DpThicknessF> m_propertyDpThicknessF;
       DataBinding::TypedDependencyProperty<UI::DpLayoutSize1D> m_propertyDpLayoutSize1D;
       DataBinding::TypedDependencyProperty<UI::ItemAlignment> m_propertyItemAlignment;
       DataBinding::TypedDependencyProperty<UI::LayoutOrientation> m_propertyLayoutOrientation;
@@ -100,6 +103,8 @@ namespace Fsl::UI::Declarative::UIReader
       static DataBinding::DependencyPropertyDefinition PropertyDpSize1D;
       // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyDpSize1DF;
+      // NOLINTNEXTLINE(readability-identifier-naming)
+      static DataBinding::DependencyPropertyDefinition PropertyDpThicknessF;
       // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyDpLayoutSize1D;
       // NOLINTNEXTLINE(readability-identifier-naming)
@@ -178,6 +183,16 @@ namespace Fsl::UI::Declarative::UIReader
         return m_propertyDpSize1DF.Set(ThisDependencyObject(), value);
       }
 
+      DpThicknessF GetDpThicknessF() const noexcept
+      {
+        return m_propertyDpThicknessF.Get();
+      }
+
+      bool SetDpThicknessF(const DpThicknessF value)
+      {
+        return m_propertyDpThicknessF.Set(ThisDependencyObject(), value);
+      }
+
       DpLayoutSize1D GetDpLayoutSize1D() const noexcept
       {
         return m_propertyDpLayoutSize1D.Get();
@@ -246,9 +261,10 @@ namespace Fsl::UI::Declarative::UIReader
           this, ThisDependencyObject(), sourceDef, PropLinkRefs(PropertyBool, m_propertyBool), PropLinkRefs(PropertyUInt8, m_propertyUInt8),
           PropLinkRefs(PropertyInt32, m_propertyInt32), PropLinkRefs(PropertyUInt32, m_propertyUInt32),
           PropLinkRefs(PropertyDpSize1D, m_propertyDpSize1D), PropLinkRefs(PropertyDpSize1DF, m_propertyDpSize1DF),
-          PropLinkRefs(PropertyDpLayoutSize1D, m_propertyDpLayoutSize1D), PropLinkRefs(PropertyItemAlignment, m_propertyItemAlignment),
-          PropLinkRefs(PropertyLayoutOrientation, m_propertyLayoutOrientation), PropLinkRefs(PropertyScrollModeFlags, m_propertyScrollModeFlags),
-          PropLinkRefs(PropertyTransitionType, m_propertyTransitionType), PropLinkRefs(PropertyStringView, m_propertyStringView));
+          PropLinkRefs(PropertyDpThicknessF, m_propertyDpThicknessF), PropLinkRefs(PropertyDpLayoutSize1D, m_propertyDpLayoutSize1D),
+          PropLinkRefs(PropertyItemAlignment, m_propertyItemAlignment), PropLinkRefs(PropertyLayoutOrientation, m_propertyLayoutOrientation),
+          PropLinkRefs(PropertyScrollModeFlags, m_propertyScrollModeFlags), PropLinkRefs(PropertyTransitionType, m_propertyTransitionType),
+          PropLinkRefs(PropertyStringView, m_propertyStringView));
         return res.IsValid() ? res : DependencyObject::TryGetPropertyHandleNow(sourceDef);
       }
 
@@ -260,9 +276,10 @@ namespace Fsl::UI::Declarative::UIReader
           this, ThisDependencyObject(), targetDef, binding, PropLinkRefs(PropertyBool, m_propertyBool), PropLinkRefs(PropertyUInt8, m_propertyUInt8),
           PropLinkRefs(PropertyInt32, m_propertyInt32), PropLinkRefs(PropertyUInt32, m_propertyUInt32),
           PropLinkRefs(PropertyDpSize1D, m_propertyDpSize1D), PropLinkRefs(PropertyDpSize1DF, m_propertyDpSize1DF),
-          PropLinkRefs(PropertyDpLayoutSize1D, m_propertyDpLayoutSize1D), PropLinkRefs(PropertyItemAlignment, m_propertyItemAlignment),
-          PropLinkRefs(PropertyLayoutOrientation, m_propertyLayoutOrientation), PropLinkRefs(PropertyScrollModeFlags, m_propertyScrollModeFlags),
-          PropLinkRefs(PropertyTransitionType, m_propertyTransitionType), PropLinkRefs(PropertyStringView, m_propertyStringView));
+          PropLinkRefs(PropertyDpThicknessF, m_propertyDpThicknessF), PropLinkRefs(PropertyDpLayoutSize1D, m_propertyDpLayoutSize1D),
+          PropLinkRefs(PropertyItemAlignment, m_propertyItemAlignment), PropLinkRefs(PropertyLayoutOrientation, m_propertyLayoutOrientation),
+          PropLinkRefs(PropertyScrollModeFlags, m_propertyScrollModeFlags), PropLinkRefs(PropertyTransitionType, m_propertyTransitionType),
+          PropLinkRefs(PropertyStringView, m_propertyStringView));
         return res != PropertySetBindingResult::NotFound ? res : DependencyObject::TrySetBindingNow(targetDef, binding);
       }
     };
@@ -290,6 +307,10 @@ namespace Fsl::UI::Declarative::UIReader
     DataBinding::DependencyPropertyDefinition PropertySetter::PropertyDpSize1DF =
       DataBinding::DependencyPropertyDefinitionFactory::Create<DpSize1DF, PropertySetter, &PropertySetter::GetDpSize1DF,
                                                                &PropertySetter::SetDpSize1DF>("DpSize1DF");
+
+    DataBinding::DependencyPropertyDefinition PropertySetter::PropertyDpThicknessF =
+      DataBinding::DependencyPropertyDefinitionFactory::Create<DpThicknessF, PropertySetter, &PropertySetter::GetDpThicknessF,
+                                                               &PropertySetter::SetDpThicknessF>("DpThicknessF");
 
     DataBinding::DependencyPropertyDefinition PropertySetter::PropertyDpLayoutSize1D =
       DataBinding::DependencyPropertyDefinitionFactory::Create<DpLayoutSize1D, PropertySetter, &PropertySetter::GetDpLayoutSize1D,
@@ -323,6 +344,8 @@ namespace Fsl::UI::Declarative::UIReader
       const std::shared_ptr<DataBinding::DataBindingService>& m_dataBinding;
       PropertySetter m_valueSource;
       std::map<std::string, std::shared_ptr<UI::BaseWindow>> m_namedControls;
+
+      std::array<char, 256> m_scratchpad{};
 
     public:
       Walker(ControlFactory& controlFactory, RadioGroupManager& radioGroupManager,
@@ -803,6 +826,16 @@ namespace Fsl::UI::Declarative::UIReader
           {    // Quick solution, use the data binding service as a setter
             m_valueSource.SetDpSize1DF(DpSize1DF::Create(value));
             ExecuteChanges(window, propertyDef, PropertySetter::PropertyDpSize1DF);
+          }
+        }
+        else if (setType == typeid(DpThicknessF))
+        {
+          std::array<float, 4> value{};
+          StringParseUtil::ParseArray(SpanUtil::AsSpan(value), ParseHelper::WrapAsArray(m_scratchpad, strValue));
+
+          {    // Quick solution, use the data binding service as a setter
+            m_valueSource.SetDpThicknessF(DpThicknessF::Create(value[0], value[1], value[2], value[3]));
+            ExecuteChanges(window, propertyDef, PropertySetter::PropertyDpThicknessF);
           }
         }
         else if (setType == typeid(DpLayoutSize1D))

@@ -63,11 +63,13 @@ namespace Fsl
     }
   }
 
-  TestAppHost::TestAppHost(const ServiceProvider& serviceProvider, const DemoWindowMetrics& windowMetrics, const bool useCustomModule)
+  TestAppHost::TestAppHost(const ServiceProvider& serviceProvider, const DemoWindowMetrics& windowMetrics, const AppBenchmarkScene benchmarkScene,
+                           const bool useCustomModule)
     : m_serviceProvider(serviceProvider)
-    , m_config(false, 0, PxViewport(0, 0, windowMetrics.GetSizePx().Width(), windowMetrics.GetSizePx().Height()))
+    , m_config(false, 0, PxViewport(0, 0, windowMetrics.GetSizePx().Width(), windowMetrics.GetSizePx().Height()), false, {})
     , m_realWindowMetrics(windowMetrics)
     , m_appWindowMetrics(windowMetrics)
+    , m_benchmarkScene(benchmarkScene)
     , m_demoAppControl(m_serviceProvider.Get<IDemoAppControl>())
     , m_demoPerformanceCapture(std::make_shared<DemoPerformanceCapture>())
     , m_externalModules(CreateExternalModules(useCustomModule))
@@ -131,8 +133,10 @@ namespace Fsl
     UIDemoAppRenderCreateInfo renderCreateInfo(UI::UIColorSpace::SRGBNonLinear, LocalConfig::DefaultRenderCapacity, materialCreateInfo,
                                                materialConfig);
     m_appRecord.TestApp = testAppFactory.Create(UIDemoAppExtensionCreateInfo(m_serviceProvider, m_appWindowMetrics, renderCreateInfo,
-                                                                             m_demoPerformanceCapture, SpanUtil::AsReadOnlySpan(m_externalModules)));
+                                                                             m_demoPerformanceCapture, SpanUtil::AsReadOnlySpan(m_externalModules)),
+                                                m_benchmarkScene);
     m_appRecord.TestApp->SetCustomViewport(m_config.AppViewportPx);
+    m_appRecord.TestApp->SetClipRectangle(m_config.AppClipEnabled, m_config.AppClipRectanglePx);
     assert(m_appRecord.TestApp);
     m_appRecord.DemoExtension = m_appRecord.TestApp->GetCustomUIDemoAppExtension();
     if (!m_externalModules.empty())
@@ -166,6 +170,22 @@ namespace Fsl
     }
     ConfigurationChanged(m_realWindowMetrics);
   }
+
+
+  void TestAppHost::SetAppClipRectangle(const bool enabled, const PxRectangle& clipRectanglePx)
+  {
+    if (m_config.AppClipEnabled == enabled && clipRectanglePx == m_config.AppClipRectanglePx)
+    {
+      return;
+    }
+    m_config.AppClipEnabled = enabled;
+    m_config.AppClipRectanglePx = clipRectanglePx;
+    if (m_appRecord.TestApp)
+    {
+      m_appRecord.TestApp->SetClipRectangle(m_config.AppClipEnabled, m_config.AppClipRectanglePx);
+    }
+  }
+
 
   void TestAppHost::AppUpdate(const DemoTime& demoTime)
   {

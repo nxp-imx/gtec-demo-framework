@@ -32,6 +32,7 @@
 #include "PlaygroundScene.hpp"
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/Math/Pixel/FmtPxRectangle.hpp>
 #include <FslBase/Math/MathHelper_Clamp.hpp>
 #include <FslBase/NumericCast.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
@@ -85,6 +86,10 @@ namespace Fsl
       constexpr int32_t DpiMax = 640;
       constexpr int32_t SliderDpiTick = 40u;
       constexpr int32_t SliderDpiTickSlow = 1u;
+
+      constexpr DpSize1D SizeOfDragAreaDp(DpSize1D::Create(10));
+      constexpr UI::UIColor ClipRectangleColor(PackedColor32(0x20808080));
+      constexpr UI::UIColor ClipRectangleHandleColor(PackedColor32(0x10808080));
     }
 
     namespace LocalStrings
@@ -134,7 +139,7 @@ namespace Fsl
                                              CustomControlFactory::MaxCpuProfileDataEntries(), UI::ChartData::Constraints(0, {})))
     , m_dataAverage(LocalConfig::AverageEntries)
     , m_anim(UI::DefaultAnim::ColorChangeTime)
-    , m_testAppHost(std::make_shared<TestAppHost>(createInfo.DemoServiceProvider, m_windowMetrics))
+    , m_testAppHost(std::make_shared<TestAppHost>(createInfo.DemoServiceProvider, m_windowMetrics, createInfo.BenchmarkScene))
     , m_settings(createInfo.Settings)
   {
     m_uiProfile = CreateProfileUI(*m_uiControlFactory, NumericCast<uint16_t>(m_windowMetrics.DensityDpi), m_data, m_settings->UI);
@@ -274,6 +279,12 @@ namespace Fsl
       break;
     case VirtualKey::F2:
       ShowColorDialog();
+      break;
+    case VirtualKey::F3:
+      m_settings->Test.ShowClipRectangle = !m_settings->Test.ShowClipRectangle;
+      break;
+    case VirtualKey::F4:
+      m_settings->Test.EnableClipping = !m_settings->Test.EnableClipping;
       break;
     case VirtualKey::B:
       if (m_uiProfile.OptionsBar.RenderOptions.SwitchBatch->IsEnabled())
@@ -421,6 +432,9 @@ namespace Fsl
       }
       CustomControlFactory::SetContent(m_uiProfile.BottomBar.CpuLegendUI.AverageTimeLabel.get(), total);
     }
+
+    m_uiProfile.ResizeableClipArea->SetVisibility(m_settings->Test.ShowClipRectangle ? UI::ItemVisibility::Visible : UI::ItemVisibility::Hidden);
+    m_testAppHost->SetAppClipRectangle(m_settings->Test.EnableClipping, m_uiProfile.ResizeableClipArea->GetRectangle());
 
     const UI::UIColor overlayColor = (m_settings->UI.ShowStats) ? UI::UIColors::White() : UI::UIColor(PackedColor32(0x00FFFFFF));
     m_anim.OverlayColorStatsApp.SetValue(overlayColor);
@@ -725,6 +739,7 @@ namespace Fsl
       UIDemoAppMaterialCreateInfo materialCreateInfo(m_settings->Test.NoOpaqueMaterials, true);
       UIDemoAppMaterialConfig materialConfig(useSdf, depthBuffer);
       m_testAppHost->StartTestApp(appFactory, materialCreateInfo, materialConfig);
+      m_testAppHost->SetUseDrawCache(m_uiProfile.OptionsBar.SwitchUseDrawCache->IsChecked());
     }
     RenderSystemRuntimeSettingsUtil::Apply(*m_testAppHost, systemInfo.Settings, useSdf);
   }
@@ -741,6 +756,12 @@ namespace Fsl
                                                               const std::shared_ptr<UI::ChartData>& data, const AppUISettings& settings)
   {
     auto context = uiFactory.GetContext();
+
+    auto resizeableClipArea = std::make_shared<UI::ResizeableArea>(context);
+    resizeableClipArea->SetFillSprite(uiFactory.GetResources().GetBasicFillSprite(false));
+    resizeableClipArea->SetDragHandleColor(LocalConfig::ClipRectangleHandleColor);
+    resizeableClipArea->SetRectangleColor(LocalConfig::ClipRectangleColor);
+
     auto contentArea = std::make_shared<UI::BaseWindow>(context);
     contentArea->SetAlignmentX(UI::ItemAlignment::Stretch);
     contentArea->SetAlignmentY(UI::ItemAlignment::Stretch);
@@ -768,6 +789,7 @@ namespace Fsl
     layout->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Auto));
     layout->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Star, 1.0f));
     layout->AddChild(contentArea, 0, 0);
+    layout->AddChild(resizeableClipArea, 0, 0);
     layout->AddChild(overlayStack, 0, 0);
     // layout->AddChild(optionBar, 1, 0);
     layout->AddChild(optionBar, 1, 0);
@@ -792,7 +814,7 @@ namespace Fsl
     auto activityStack = std::make_shared<UI::ActivityStack>(context);
     fillLayout->AddChild(activityStack);
 
-    return {bottomSlidingPanel, bottomBar, overlay, overlay2, optionBarUI, fillLayout, uiMainLayout, activityStack, contentArea};
+    return {bottomSlidingPanel, bottomBar, overlay, overlay2, optionBarUI, fillLayout, uiMainLayout, activityStack, contentArea, resizeableClipArea};
   }
 
 

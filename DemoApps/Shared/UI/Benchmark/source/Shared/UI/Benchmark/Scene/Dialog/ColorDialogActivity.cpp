@@ -154,8 +154,8 @@ namespace Fsl::UI
 
 
     {    // setup a one way data binding between each of the already linked sliders to their label
-      auto multiConverterBinding = std::make_shared<Fsl::DataBinding::MultiConverterBinding<Color, uint8_t, uint8_t, uint8_t, uint8_t>>(
-        [](const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) { return Color(r, g, b, a); });
+      auto multiConverterBinding = std::make_shared<Fsl::DataBinding::MultiConverterBinding<UI::UIColor, uint8_t, uint8_t, uint8_t, uint8_t>>(
+        [](const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) { return UIColor(PackedColor32::CreateR8G8B8A8UNorm(r, g, b, a)); });
 
       const auto hSliderPropertyR = sliderR->GetPropertyHandle(UI::Slider<uint8_t>::PropertyValue);
       const auto hSliderPropertyG = sliderG->GetPropertyHandle(UI::Slider<uint8_t>::PropertyValue);

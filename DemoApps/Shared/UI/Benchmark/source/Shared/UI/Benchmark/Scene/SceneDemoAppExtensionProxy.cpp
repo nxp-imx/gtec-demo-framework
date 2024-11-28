@@ -353,7 +353,7 @@ namespace Fsl
     if (positionPx.has_value())
     {
       assert(m_proxy.IsReady());
-      m_proxy.OnMouseButtonEvent(MouseButtonEvent(entry.GetTimestamp(), VirtualMouseButton::Left, true, positionPx.value(), entry.IsTouch));
+      m_proxy.OnMouseButtonEvent(MouseButtonEvent(entry.Timestamp, VirtualMouseButton::Left, true, positionPx.value(), entry.IsTouch));
     }
   }
 
@@ -363,7 +363,7 @@ namespace Fsl
     if (positionPx.has_value())
     {
       assert(m_proxy.IsReady());
-      m_proxy.OnMouseButtonEvent(MouseButtonEvent(entry.GetTimestamp(), VirtualMouseButton::Left, false, positionPx.value(), entry.IsTouch));
+      m_proxy.OnMouseButtonEvent(MouseButtonEvent(entry.Timestamp, VirtualMouseButton::Left, false, positionPx.value(), entry.IsTouch));
     }
   }
 
@@ -373,8 +373,7 @@ namespace Fsl
     if (positionPx.has_value())
     {
       assert(m_proxy.IsReady());
-      m_proxy.OnMouseMoveEvent(
-        MouseMoveEvent(entry.GetTimestamp(), positionPx.value(), VirtualMouseButtonFlags(VirtualMouseButton::Left), entry.IsTouch));
+      m_proxy.OnMouseMoveEvent(MouseMoveEvent(entry.Timestamp, positionPx.value(), VirtualMouseButtonFlags(VirtualMouseButton::Left), entry.IsTouch));
     }
   }
 
@@ -384,7 +383,7 @@ namespace Fsl
     if (positionPx.has_value())
     {
       assert(m_proxy.IsReady());
-      m_proxy.OnMouseMoveEvent(MouseMoveEvent(entry.GetTimestamp(), positionPx.value(), VirtualMouseButtonFlags(), entry.IsTouch));
+      m_proxy.OnMouseMoveEvent(MouseMoveEvent(entry.Timestamp, positionPx.value(), VirtualMouseButtonFlags(), entry.IsTouch));
     }
   }
 
@@ -393,7 +392,7 @@ namespace Fsl
     FSL_PARAM_NOT_USED(entry);
     const auto positionPx = PxPoint2::Create(-25000, -25000);
     assert(m_proxy.IsReady());
-    m_proxy.OnMouseMoveEvent(MouseMoveEvent(entry.GetTimestamp(), positionPx, VirtualMouseButtonFlags(), entry.IsTouch));
+    m_proxy.OnMouseMoveEvent(MouseMoveEvent(entry.Timestamp, positionPx, VirtualMouseButtonFlags(), entry.IsTouch));
   }
 
 

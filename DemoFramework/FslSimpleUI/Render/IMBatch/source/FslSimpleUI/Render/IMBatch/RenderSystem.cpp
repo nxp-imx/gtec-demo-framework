@@ -37,6 +37,7 @@
 #include <FslGraphics/Sprite/BasicNineSliceSprite.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslGraphics/Sprite/ImageSprite.hpp>
+#include <FslGraphics/Sprite/Info/Core/RenderConverter.hpp>
 #include <FslGraphics/Sprite/Material/Basic/BasicSpriteMaterial.hpp>
 #include <FslGraphics/Sprite/Material/Basic/BasicSpriteMaterialUtil.hpp>
 #include <FslGraphics/Sprite/NineSliceSprite.hpp>
@@ -91,202 +92,341 @@ namespace Fsl::UI::RenderIMBatch
     };
 
 
-    // -------------------------------------------------------------------------------------------------------------------------------------------
-    // BasicImageSprite
-    // -------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+    // BasicImageSprite, ImageSprite
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
 
     // CommandDrawAtOffsetAndSize
-
     template <typename TBatcher>
-    inline void AddBasicImageSprite(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd,
-                                    const MeshManager::BasicImageSpriteMeshRecord& meshRecord)
+    inline void AddImageMesh(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd, const MeshManager::ImageMeshRecord& meshRecord)
     {
-      auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
-                                                    static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
-                                                    UIRenderColor::Premultiply(processedCmd.FinalColor));
+      auto builder = rBatcher.BeginMeshBuildCustomZ(
+        processedCmd.MaterialId, meshRecord.Primitive.MeshVertexCapacity, meshRecord.Primitive.MeshIndexCapacity,
+        static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), UIRenderColor::Premultiply(processedCmd.FinalColor));
       {
         assert(meshRecord.Sprite);
-        builder.AddRect(processedCmd.DstAreaRectanglePxf, meshRecord.Sprite->GetRenderInfo().TextureArea);
+        builder.AddRect(processedCmd.DstAreaRectanglePxf, meshRecord.Primitive.RenderInfo.TextureArea);
       }
       rBatcher.EndMeshBuild(builder);
     }
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    // CommandDrawAtOffsetAndSize
+    template <typename TBatcher>
+    inline void AddImageMeshWithClipping(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd,
+                                         const MeshManager::ImageMeshRecord& meshRecord, const PxAreaRectangleF& clipRectanglePxf)
+    {
+      PxAreaRectangleF dstRectanglePxf = processedCmd.DstAreaRectanglePxf;
+      NativeTextureArea srcTextureArea = meshRecord.Primitive.RenderInfo.TextureArea;
+
+      if (!Clip2DUtil::Clip(dstRectanglePxf, srcTextureArea, clipRectanglePxf))
+      {
+        auto builder = rBatcher.BeginMeshBuildCustomZ(
+          processedCmd.MaterialId, meshRecord.Primitive.MeshVertexCapacity, meshRecord.Primitive.MeshIndexCapacity,
+          static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), UIRenderColor::Premultiply(processedCmd.FinalColor));
+        {
+          assert(meshRecord.Sprite);
+          builder.AddRect(dstRectanglePxf, srcTextureArea);
+        }
+        rBatcher.EndMeshBuild(builder);
+      }
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
 
     // CommandDrawCustomBasicImageAtOffsetAndSize
 
     template <typename TBatcher>
     inline void AddBasicImageSprite(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd,
                                     const CommandDrawCustomBasicImageAtOffsetAndSize& cmd, const CustomDrawBasicImageInfo& customDrawInfo,
-                                    const MeshManager::BasicImageSpriteMeshRecord& meshRecord)
+                                    const MeshManager::ImageMeshRecord& meshRecord, const DrawClipContext& clipContext)
     {
       // The custom rendering functions gets called with non-premultiplied colors so its up to them to do the proper color conversion depending on
       // the chosen material
       auto builder =
-        rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
+        rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.Primitive.MeshVertexCapacity, meshRecord.Primitive.MeshIndexCapacity,
                                        static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), processedCmd.FinalColor);
       {
         assert(customDrawInfo.FnDraw != nullptr);
         assert(meshRecord.Sprite);
         // Execute the custom draw command
-        customDrawInfo.FnDraw(builder, cmd.GetDstPositionPxf(), cmd.GetDstSizePx(), meshRecord.Sprite->GetRenderInfo(),
-                              customDrawInfo.CustomData.get());
+        customDrawInfo.FnDraw(builder, cmd.GetDstPositionPxf(), cmd.GetDstSizePx(), clipContext,
+                              RenderConverter::ToRenderBasicImageInfo(meshRecord.Primitive.RenderInfo), customDrawInfo.CustomData.get());
       }
       rBatcher.EndMeshBuild(builder);
     }
 
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
     template <typename TBatcher>
     inline void AddBasicImageSpriteMesh(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd,
                                         const CommandDrawCustomBasicImageAtOffsetAndSizeBasicMesh& cmd,
-                                        const CustomDrawBasicImageBasicMeshInfo& customDrawInfo,
-                                        const MeshManager::BasicImageSpriteMeshRecord& meshRecord)
+                                        const CustomDrawBasicImageBasicMeshInfo& customDrawInfo, const MeshManager::ImageMeshRecord& meshRecord,
+                                        const DrawClipContext& clipContext)
     {
       // The custom rendering functions gets called with non-premultiplied colors so its up to them to do the proper color conversion depending on
       // the chosen material
 
       auto builder =
-        rBatcher.BeginBasicMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity,
+        rBatcher.BeginBasicMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.Primitive.MeshVertexCapacity,
                                             static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), processedCmd.FinalColor);
       {
         assert(customDrawInfo.FnDraw != nullptr);
         assert(meshRecord.Sprite);
         // Execute the custom draw command
-        customDrawInfo.FnDraw(builder, cmd.GetDstPositionPxf(), cmd.GetDstSizePx(), meshRecord.Sprite->GetRenderInfo(),
-                              customDrawInfo.CustomData.get());
+        customDrawInfo.FnDraw(builder, cmd.GetDstPositionPxf(), cmd.GetDstSizePx(), clipContext,
+                              RenderConverter::ToRenderBasicImageInfo(meshRecord.Primitive.RenderInfo), customDrawInfo.CustomData.get());
       }
       rBatcher.EndBasicMeshBuild(builder);
     }
 
-    // -------------------------------------------------------------------------------------------------------------------------------------------
-    // BasicNineSliceSprite
-    // -------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+    // BasicNineSliceSprite, NineSliceSprite
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
 
     // CommandDrawAtOffsetAndSize
-
     template <typename TBatcher>
-    inline void AddBasicNineSliceSprite(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd, const CommandDrawAtOffsetAndSize& cmd,
-                                        const MeshManager::BasicNineSliceSpriteMeshRecord& meshRecord)
+    inline void AddNineSliceSprite(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd, const MeshManager::NineSliceMeshRecord& meshRecord)
     {
-      auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
-                                                    static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
-                                                    UIRenderColor::Premultiply(processedCmd.FinalColor));
+      assert(processedCmd.DstAreaRectanglePxf.RawWidth() > 0);
+      assert(processedCmd.DstAreaRectanglePxf.RawHeight() > 0);
+      assert(meshRecord.Sprite);
+      const auto& renderInfo = meshRecord.Primitive.RenderInfo;
+      auto builder = rBatcher.BeginMeshBuildCustomZ(
+        processedCmd.MaterialId, meshRecord.Primitive.MeshVertexCapacity, meshRecord.Primitive.MeshIndexCapacity,
+        static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), UIRenderColor::Premultiply(processedCmd.FinalColor));
       {
-        const PxSize2D& dstSizePx = cmd.GetDstSizePx();
-        // The zero sized elements should already have been removed
-        assert(dstSizePx.RawWidth() > 0 && dstSizePx.RawHeight() > 0);
-        assert(meshRecord.Sprite);
-        const PxVector2& dstPositionPxf = cmd.GetDstPositionPxf();
-        const RenderBasicNineSliceInfo& renderInfo = meshRecord.Sprite->GetRenderInfo();
-        const auto& scaledNineSlicePx = renderInfo.ScaledNineSlicePx;
-        const float dstX0Pxf = dstPositionPxf.X.Value;
-        const float dstY0Pxf = dstPositionPxf.Y.Value;
-        const float dstX1Pxf = dstX0Pxf + static_cast<float>(scaledNineSlicePx.RawLeft());
-        const float dstY1Pxf = dstY0Pxf + static_cast<float>(scaledNineSlicePx.RawTop());
-        const float dstX2Pxf = dstX0Pxf + static_cast<float>(dstSizePx.RawWidth() - scaledNineSlicePx.RawRight());
-        const float dstY2Pxf = dstY0Pxf + static_cast<float>(dstSizePx.RawHeight() - scaledNineSlicePx.RawBottom());
-        const float dstX3Pxf = dstX0Pxf + static_cast<float>(dstSizePx.RawWidth());
-        const float dstY3Pxf = dstY0Pxf + static_cast<float>(dstSizePx.RawHeight());
-
-        builder.AddNineSlice(dstX0Pxf, dstY0Pxf, dstX1Pxf, dstY1Pxf, dstX2Pxf, dstY2Pxf, dstX3Pxf, dstY3Pxf, renderInfo.TextureArea);
+        builder.AddNineSlice(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
+                             processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft(),
+                             processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop(),
+                             processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight(),
+                             processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom(),
+                             processedCmd.DstAreaRectanglePxf.RawRight(), processedCmd.DstAreaRectanglePxf.RawBottom(), renderInfo.TextureArea);
       }
       rBatcher.EndMeshBuild(builder);
     }
 
-
-    // -------------------------------------------------------------------------------------------------------------------------------------------
-    // ImageSprite
-    // -------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
 
     // CommandDrawAtOffsetAndSize
-
     template <typename TBatcher>
-    inline void AddImageSprite(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd, const CommandDrawAtOffsetAndSize& cmd,
-                               const MeshManager::ImageSpriteMeshRecord& meshRecord)
+    inline void AddNineSliceSpriteWithClipping(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd,
+                                               const MeshManager::NineSliceMeshRecord& meshRecord, const PxAreaRectangleF& clipRectanglePxf)
     {
-      auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
-                                                    static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
-                                                    UIRenderColor::Premultiply(processedCmd.FinalColor));
+      assert(processedCmd.DstAreaRectanglePxf.RawWidth() > 0);
+      assert(processedCmd.DstAreaRectanglePxf.RawHeight() > 0);
+      assert(meshRecord.Sprite);
+      const auto& renderInfo = meshRecord.Primitive.RenderInfo;
+      auto builder = rBatcher.BeginMeshBuildCustomZ(
+        processedCmd.MaterialId, meshRecord.Primitive.MeshVertexCapacity, meshRecord.Primitive.MeshIndexCapacity,
+        static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), UIRenderColor::Premultiply(processedCmd.FinalColor));
       {
-        assert(meshRecord.Sprite);
-        const RenderImageInfo& renderInfo = meshRecord.Sprite->GetRenderInfo();
-
-        const PxVector2& dstPositionPxf = cmd.GetDstPositionPxf();
-        const PxSize2D& dstSizePx = cmd.GetDstSizePx();
-        if (dstSizePx.RawWidth() > 0 && dstSizePx.RawHeight() > 0)
-        {
-          if (dstSizePx == renderInfo.ScaledSizePx)
-          {
-            // Create a unscaled destination rectangle (applying the trim to the offset)
-            PxAreaRectangleF dstRectanglePxf(dstPositionPxf.X + renderInfo.ScaledTrimMarginPxf.Left(),
-                                             dstPositionPxf.Y + renderInfo.ScaledTrimMarginPxf.Top(), renderInfo.ScaledTrimmedSizePxf.Width(),
-                                             renderInfo.ScaledTrimmedSizePxf.Height());
-            builder.AddRect(dstRectanglePxf, renderInfo.TextureArea);
-          }
-          else
-          {
-            // We need to apply the scaling and trim
-            const PxSize1DF finalScalingX = PxSize1DF(dstSizePx.Width()) / PxSize1DF(renderInfo.ScaledSizePx.Width());
-            const PxSize1DF finalScalingY = PxSize1DF(dstSizePx.Height()) / PxSize1DF(renderInfo.ScaledSizePx.Height());
-
-            PxAreaRectangleF dstRectanglePxf(dstPositionPxf.X + (renderInfo.ScaledTrimMarginPxf.Left() * finalScalingX),
-                                             dstPositionPxf.Y + (renderInfo.ScaledTrimMarginPxf.Top() * finalScalingY),
-                                             PxSize1DF(dstSizePx.Width()) - (renderInfo.ScaledTrimMarginPxf.SumX() * finalScalingX),
-                                             PxSize1DF(dstSizePx.Height()) - (renderInfo.ScaledTrimMarginPxf.SumY() * finalScalingY));
-
-            builder.AddRect(dstRectanglePxf, renderInfo.TextureArea);
-          }
-        }
+        builder.AddNineSlice(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
+                             processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft(),
+                             processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop(),
+                             processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight(),
+                             processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom(),
+                             processedCmd.DstAreaRectanglePxf.RawRight(), processedCmd.DstAreaRectanglePxf.RawBottom(), renderInfo.TextureArea,
+                             clipRectanglePxf);
       }
       rBatcher.EndMeshBuild(builder);
     }
 
-    // -------------------------------------------------------------------------------------------------------------------------------------------
-    // NineSliceSprite
-    // -------------------------------------------------------------------------------------------------------------------------------------------
-
-    // CommandDrawAtOffsetAndSize
-    // FIX: since the trim handling was moved to pre-process, this means that the rendering code is equal how we render the basic nine slice mesh!
-
-    template <typename TBatcher>
-    inline void AddNineSliceSprite(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd,
-                                   const MeshManager::NineSliceSpriteMeshRecord& meshRecord)
-    {
-      // assert(processedCmd.DstAreaRectanglePxf.Width() > 0);
-      // assert(processedCmd.DstAreaRectanglePxf.Height() > 0);
-      // FIX: remove this check, it should be done during pre-process, this will save a lot more
-      if (processedCmd.DstAreaRectanglePxf.RawWidth() > 0 && processedCmd.DstAreaRectanglePxf.RawHeight() > 0)
-      {
-        assert(meshRecord.Sprite);
-        const auto& renderInfo = meshRecord.Sprite->GetRenderInfo();
-        auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
-                                                      static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
-                                                      UIRenderColor::Premultiply(processedCmd.FinalColor));
-        {
-          builder.AddNineSlice(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
-                               processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft(),
-                               processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop(),
-                               processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight(),
-                               processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom(),
-                               processedCmd.DstAreaRectanglePxf.RawRight(), processedCmd.DstAreaRectanglePxf.RawBottom(), renderInfo.TextureArea);
-        }
-        rBatcher.EndMeshBuild(builder);
-      }
-    }
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
 
     // CommandDrawRot90CWAtOffsetAndSize
-
     template <typename TBatcher>
     inline void AddNineSliceSpriteRot90(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd,
-                                        const MeshManager::NineSliceSpriteMeshRecord& meshRecord)
+                                        const MeshManager::NineSliceMeshRecord& meshRecord)
     {
-      // assert(processedCmd.DstAreaRectanglePxf.Width() > 0);
-      // assert(processedCmd.DstAreaRectanglePxf.Height() > 0);
-      // FIX: remove this check, it should be done during pre-process, this will save a lot more
-      if (processedCmd.DstAreaRectanglePxf.RawWidth() > 0 && processedCmd.DstAreaRectanglePxf.RawHeight() > 0)
+      assert(processedCmd.DstAreaRectanglePxf.RawWidth() > 0);
+      assert(processedCmd.DstAreaRectanglePxf.RawHeight() > 0);
+      assert(meshRecord.Sprite);
+      const auto& renderInfo = meshRecord.Primitive.RenderInfo;
+      auto builder = rBatcher.BeginMeshBuildCustomZ(
+        processedCmd.MaterialId, meshRecord.Primitive.MeshVertexCapacity, meshRecord.Primitive.MeshIndexCapacity,
+        static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), UIRenderColor::Premultiply(processedCmd.FinalColor));
+      {
+        builder.AddNineSliceUVRotated90CW(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
+                                          processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop(),
+                                          processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft(),
+                                          processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom(),
+                                          processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight(),
+                                          processedCmd.DstAreaRectanglePxf.RawRight(), processedCmd.DstAreaRectanglePxf.RawBottom(),
+                                          renderInfo.TextureArea);
+      }
+      rBatcher.EndMeshBuild(builder);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    // CommandDrawRot90CWAtOffsetAndSize
+    template <typename TBatcher>
+    inline void AddNineSliceSpriteRot90WithClipping(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd,
+                                                    const MeshManager::NineSliceMeshRecord& meshRecord, const PxAreaRectangleF& clipRectanglePxf)
+    {
+      assert(processedCmd.DstAreaRectanglePxf.RawWidth() > 0);
+      assert(processedCmd.DstAreaRectanglePxf.RawHeight() > 0);
+      assert(meshRecord.Sprite);
+      const auto& renderInfo = meshRecord.Primitive.RenderInfo;
+      auto builder = rBatcher.BeginMeshBuildCustomZ(
+        processedCmd.MaterialId, meshRecord.Primitive.MeshVertexCapacity, meshRecord.Primitive.MeshIndexCapacity,
+        static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), UIRenderColor::Premultiply(processedCmd.FinalColor));
+      {
+        builder.AddNineSliceUVRotated90CW(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
+                                          processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop(),
+                                          processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft(),
+                                          processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom(),
+                                          processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight(),
+                                          processedCmd.DstAreaRectanglePxf.RawRight(), processedCmd.DstAreaRectanglePxf.RawBottom(),
+                                          renderInfo.TextureArea, clipRectanglePxf);
+      }
+      rBatcher.EndMeshBuild(builder);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    // CommandDrawCustomNineSliceAtOffsetAndSize
+    template <typename TBatcher>
+    inline void AddNineSliceSprite(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd,
+                                   const CommandDrawCustomNineSliceAtOffsetAndSize& cmd, const CustomDrawNineSliceInfo& customDrawInfo,
+                                   const MeshManager::NineSliceMeshRecord& meshRecord, const DrawClipContext clipContext)
+    {
+      // The custom rendering functions gets called with non-premultiplied colors so its up to them to do the proper color conversion depending on
+      // the chosen material
+      auto builder =
+        rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.Primitive.MeshVertexCapacity, meshRecord.Primitive.MeshIndexCapacity,
+                                       static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), processedCmd.FinalColor);
+      {
+        assert(meshRecord.Sprite);
+        assert(customDrawInfo.FnDraw != nullptr);
+        const RenderOptimizedNineSliceInfo& renderInfo = meshRecord.Primitive.RenderInfo;
+        // Execute the custom draw command
+        customDrawInfo.FnDraw(builder, cmd.GetDstPositionPxf(), cmd.GetDstSizePx(), clipContext, renderInfo, customDrawInfo.CustomData.get());
+      }
+      rBatcher.EndMeshBuild(builder);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+    // OptimizedNineSliceSprite
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    // CommandDrawAtOffsetAndSize
+    template <typename TBatcher>
+    inline void AddOptimizedNineSliceSprite(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd,
+                                            const MeshManager::OptimizedNineSliceSpriteMeshRecord& meshRecord)
+    {
+      assert(processedCmd.DstAreaRectanglePxf.RawWidth() > 0);
+      assert(processedCmd.DstAreaRectanglePxf.RawHeight() > 0);
+      auto builder = rBatcher.BeginMeshBuildCustomZ(
+        processedCmd.MaterialId, meshRecord.Primitive.MeshVertexCapacity, meshRecord.Primitive.MeshIndexCapacity,
+        static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), UIRenderColor::Premultiply(processedCmd.FinalColor));
       {
         assert(meshRecord.Sprite);
         const auto& renderInfo = meshRecord.Sprite->GetRenderInfo();
-        auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
-                                                      static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
-                                                      UIRenderColor::Premultiply(processedCmd.FinalColor));
+
+        const float dstX0Pxf = processedCmd.DstAreaRectanglePxf.RawLeft();
+        const float dstY0Pxf = processedCmd.DstAreaRectanglePxf.RawTop();
+        const float dstX1Pxf = processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft();
+        const float dstY1Pxf = processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop();
+        const float dstX2Pxf = processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight();
+        const float dstY2Pxf = processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom();
+        const float dstX3Pxf = processedCmd.DstAreaRectanglePxf.RawRight();
+        const float dstY3Pxf = processedCmd.DstAreaRectanglePxf.RawBottom();
+
+        // Optimization fix: Once we decouple the rendering commands from the original command entry the preprocessor
+        //                   can just rewrite the command type and schedule a normal nineslice operation instead since its compatible.
+        if (!ProcessedCommandFlagsUtil::IsEnabled(processedCmd.Flags, ProcessedCommandFlags::RenderIgnoreOpacity))
+        {
+          builder.AddNineSlice(dstX0Pxf, dstY0Pxf, dstX1Pxf, dstY1Pxf, dstX2Pxf, dstY2Pxf, dstX3Pxf, dstY3Pxf, renderInfo.TextureArea,
+                               renderInfo.Flags, ProcessedCommandFlagsUtil::IsEnabled(processedCmd.Flags, ProcessedCommandFlags::RenderOpaque));
+        }
+        else
+        {
+          builder.AddNineSlice(dstX0Pxf, dstY0Pxf, dstX1Pxf, dstY1Pxf, dstX2Pxf, dstY2Pxf, dstX3Pxf, dstY3Pxf, renderInfo.TextureArea);
+        }
+      }
+      rBatcher.EndMeshBuild(builder);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    // CommandDrawAtOffsetAndSize
+    template <typename TBatcher>
+    inline void AddOptimizedNineSliceSpriteWithClipping(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd,
+                                                        const MeshManager::OptimizedNineSliceSpriteMeshRecord& meshRecord,
+                                                        const PxAreaRectangleF& clipRectanglePxf)
+    {
+      assert(processedCmd.DstAreaRectanglePxf.RawWidth() > 0);
+      assert(processedCmd.DstAreaRectanglePxf.RawHeight() > 0);
+      auto builder = rBatcher.BeginMeshBuildCustomZ(
+        processedCmd.MaterialId, meshRecord.Primitive.MeshVertexCapacity, meshRecord.Primitive.MeshIndexCapacity,
+        static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), UIRenderColor::Premultiply(processedCmd.FinalColor));
+      {
+        assert(meshRecord.Sprite);
+        const auto& renderInfo = meshRecord.Sprite->GetRenderInfo();
+
+        const float dstX0Pxf = processedCmd.DstAreaRectanglePxf.RawLeft();
+        const float dstY0Pxf = processedCmd.DstAreaRectanglePxf.RawTop();
+        const float dstX1Pxf = processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft();
+        const float dstY1Pxf = processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop();
+        const float dstX2Pxf = processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight();
+        const float dstY2Pxf = processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom();
+        const float dstX3Pxf = processedCmd.DstAreaRectanglePxf.RawRight();
+        const float dstY3Pxf = processedCmd.DstAreaRectanglePxf.RawBottom();
+
+        // Optimization fix: Once we decouple the rendering commands from the original command entry the preprocessor
+        //                   can just rewrite the command type and schedule a normal nineslice operation instead since its compatible.
+        if (!ProcessedCommandFlagsUtil::IsEnabled(processedCmd.Flags, ProcessedCommandFlags::RenderIgnoreOpacity))
+        {
+          builder.AddNineSlice(dstX0Pxf, dstY0Pxf, dstX1Pxf, dstY1Pxf, dstX2Pxf, dstY2Pxf, dstX3Pxf, dstY3Pxf, renderInfo.TextureArea,
+                               clipRectanglePxf, renderInfo.Flags,
+                               ProcessedCommandFlagsUtil::IsEnabled(processedCmd.Flags, ProcessedCommandFlags::RenderOpaque));
+        }
+        else
+        {
+          builder.AddNineSlice(dstX0Pxf, dstY0Pxf, dstX1Pxf, dstY1Pxf, dstX2Pxf, dstY2Pxf, dstX3Pxf, dstY3Pxf, renderInfo.TextureArea,
+                               clipRectanglePxf);
+        }
+      }
+      rBatcher.EndMeshBuild(builder);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    // CommandDrawRot90CWAtOffsetAndSize
+    template <typename TBatcher>
+    inline void AddOptimizedNineSliceSpriteRot90(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd,
+                                                 const MeshManager::OptimizedNineSliceSpriteMeshRecord& meshRecord)
+    {
+      assert(processedCmd.DstAreaRectanglePxf.RawWidth() > 0);
+      assert(processedCmd.DstAreaRectanglePxf.RawHeight() > 0);
+      auto builder = rBatcher.BeginMeshBuildCustomZ(
+        processedCmd.MaterialId, meshRecord.Primitive.MeshVertexCapacity, meshRecord.Primitive.MeshIndexCapacity,
+        static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), UIRenderColor::Premultiply(processedCmd.FinalColor));
+      {
+        assert(meshRecord.Sprite);
+        const auto& renderInfo = meshRecord.Sprite->GetRenderInfo();
+
+        // Optimization fix: Once we decouple the rendering commands from the original command entry the preprocessor
+        //                   can just rewrite the command type and schedule a normal nineslice operation instead since its compatible.
+        if (!ProcessedCommandFlagsUtil::IsEnabled(processedCmd.Flags, ProcessedCommandFlags::RenderIgnoreOpacity))
+        {
+          builder.AddNineSliceUVRotated90CW(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
+                                            processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop(),
+                                            processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft(),
+                                            processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom(),
+                                            processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight(),
+                                            processedCmd.DstAreaRectanglePxf.RawRight(), processedCmd.DstAreaRectanglePxf.RawBottom(),
+                                            renderInfo.TextureArea, renderInfo.Flags,
+                                            ProcessedCommandFlagsUtil::IsEnabled(processedCmd.Flags, ProcessedCommandFlags::RenderOpaque));
+        }
+        else
         {
           builder.AddNineSliceUVRotated90CW(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
                                             processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop(),
@@ -296,140 +436,66 @@ namespace Fsl::UI::RenderIMBatch
                                             processedCmd.DstAreaRectanglePxf.RawRight(), processedCmd.DstAreaRectanglePxf.RawBottom(),
                                             renderInfo.TextureArea);
         }
-        rBatcher.EndMeshBuild(builder);
-      }
-    }
-
-    // CommandDrawCustomNineSliceAtOffsetAndSize
-
-    template <typename TBatcher>
-    inline void AddNineSliceSprite(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd,
-                                   const CommandDrawCustomNineSliceAtOffsetAndSize& cmd, const CustomDrawNineSliceInfo& customDrawInfo,
-                                   const MeshManager::NineSliceSpriteMeshRecord& meshRecord)
-    {
-      // The custom rendering functions gets called with non-premultiplied colors so its up to them to do the proper color conversion depending on
-      // the chosen material
-      auto builder =
-        rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
-                                       static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), processedCmd.FinalColor);
-      {
-        assert(meshRecord.Sprite);
-        assert(customDrawInfo.FnDraw != nullptr);
-        const RenderNineSliceInfo& renderInfo = meshRecord.Sprite->GetRenderInfo();
-        // Execute the custom draw command
-        customDrawInfo.FnDraw(builder, cmd.GetDstPositionPxf(), cmd.GetDstSizePx(), renderInfo, customDrawInfo.CustomData.get());
       }
       rBatcher.EndMeshBuild(builder);
     }
 
-    // -------------------------------------------------------------------------------------------------------------------------------------------
-    // OptimizedNineSliceSprite
-    // -------------------------------------------------------------------------------------------------------------------------------------------
-
-    // CommandDrawAtOffsetAndSize
-
-    template <typename TBatcher>
-    inline void AddOptimizedNineSliceSprite(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd,
-                                            const MeshManager::OptimizedNineSliceSpriteMeshRecord& meshRecord)
-    {
-      // assert(processedCmd.DstAreaRectanglePxf.Width() > 0);
-      // assert(processedCmd.DstAreaRectanglePxf.Height() > 0);
-      // FIX: remove this check, it should be done during pre-process, this will save a lot more
-      if (processedCmd.DstAreaRectanglePxf.RawWidth() > 0 && processedCmd.DstAreaRectanglePxf.RawHeight() > 0)
-      {
-        auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
-                                                      static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
-                                                      UIRenderColor::Premultiply(processedCmd.FinalColor));
-        {
-          assert(meshRecord.Sprite);
-          const auto& renderInfo = meshRecord.Sprite->GetRenderInfo();
-
-          const float dstX0Pxf = processedCmd.DstAreaRectanglePxf.RawLeft();
-          const float dstY0Pxf = processedCmd.DstAreaRectanglePxf.RawTop();
-          const float dstX1Pxf = processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft();
-          const float dstY1Pxf = processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop();
-          const float dstX2Pxf = processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight();
-          const float dstY2Pxf = processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom();
-          const float dstX3Pxf = processedCmd.DstAreaRectanglePxf.RawRight();
-          const float dstY3Pxf = processedCmd.DstAreaRectanglePxf.RawBottom();
-
-          // Optimization fix: Once we decouple the rendering commands from the original command entry the preprocessor
-          //                   can just rewrite the command type and schedule a normal nineslice operation instead since its compatible.
-          if (!ProcessedCommandFlagsUtil::IsEnabled(processedCmd.Flags, ProcessedCommandFlags::RenderIgnoreOpacity))
-          {
-            builder.AddNineSlice(dstX0Pxf, dstY0Pxf, dstX1Pxf, dstY1Pxf, dstX2Pxf, dstY2Pxf, dstX3Pxf, dstY3Pxf, renderInfo.TextureArea,
-                                 renderInfo.Flags, ProcessedCommandFlagsUtil::IsEnabled(processedCmd.Flags, ProcessedCommandFlags::RenderOpaque));
-          }
-          else
-          {
-            builder.AddNineSlice(dstX0Pxf, dstY0Pxf, dstX1Pxf, dstY1Pxf, dstX2Pxf, dstY2Pxf, dstX3Pxf, dstY3Pxf, renderInfo.TextureArea);
-          }
-        }
-        rBatcher.EndMeshBuild(builder);
-      }
-    }
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
 
     // CommandDrawRot90CWAtOffsetAndSize
-
     template <typename TBatcher>
-    inline void AddOptimizedNineSliceSpriteRot90(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd,
-                                                 const MeshManager::OptimizedNineSliceSpriteMeshRecord& meshRecord)
+    inline void AddOptimizedNineSliceSpriteRot90WithClipping(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd,
+                                                             const MeshManager::OptimizedNineSliceSpriteMeshRecord& meshRecord,
+                                                             const PxAreaRectangleF& clipRectanglePxf)
     {
-      // assert(processedCmd.DstAreaRectanglePxf.Width() > 0);
-      // assert(processedCmd.DstAreaRectanglePxf.Height() > 0);
-      // FIX: remove this check, it should be done during pre-process, this will save a lot more
-      if (processedCmd.DstAreaRectanglePxf.RawWidth() > 0 && processedCmd.DstAreaRectanglePxf.RawHeight() > 0)
-
+      assert(processedCmd.DstAreaRectanglePxf.RawWidth() > 0);
+      assert(processedCmd.DstAreaRectanglePxf.RawHeight() > 0);
+      auto builder = rBatcher.BeginMeshBuildCustomZ(
+        processedCmd.MaterialId, meshRecord.Primitive.MeshVertexCapacity, meshRecord.Primitive.MeshIndexCapacity,
+        static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), UIRenderColor::Premultiply(processedCmd.FinalColor));
       {
-        auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
-                                                      static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
-                                                      UIRenderColor::Premultiply(processedCmd.FinalColor));
-        {
-          assert(meshRecord.Sprite);
-          const auto& renderInfo = meshRecord.Sprite->GetRenderInfo();
+        assert(meshRecord.Sprite);
+        const auto& renderInfo = meshRecord.Sprite->GetRenderInfo();
 
-          // Optimization fix: Once we decouple the rendering commands from the original command entry the preprocessor
-          //                   can just rewrite the command type and schedule a normal nineslice operation instead since its compatible.
-          if (!ProcessedCommandFlagsUtil::IsEnabled(processedCmd.Flags, ProcessedCommandFlags::RenderIgnoreOpacity))
-          {
-            builder.AddNineSliceUVRotated90CW(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
-                                              processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop(),
-                                              processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft(),
-                                              processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom(),
-                                              processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight(),
-                                              processedCmd.DstAreaRectanglePxf.RawRight(), processedCmd.DstAreaRectanglePxf.RawBottom(),
-                                              renderInfo.TextureArea, renderInfo.Flags,
-                                              ProcessedCommandFlagsUtil::IsEnabled(processedCmd.Flags, ProcessedCommandFlags::RenderOpaque));
-          }
-          else
-          {
-            builder.AddNineSliceUVRotated90CW(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
-                                              processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop(),
-                                              processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft(),
-                                              processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom(),
-                                              processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight(),
-                                              processedCmd.DstAreaRectanglePxf.RawRight(), processedCmd.DstAreaRectanglePxf.RawBottom(),
-                                              renderInfo.TextureArea);
-          }
+        // Optimization fix: Once we decouple the rendering commands from the original command entry the preprocessor
+        //                   can just rewrite the command type and schedule a normal nineslice operation instead since its compatible.
+        if (!ProcessedCommandFlagsUtil::IsEnabled(processedCmd.Flags, ProcessedCommandFlags::RenderIgnoreOpacity))
+        {
+          builder.AddNineSliceUVRotated90CW(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
+                                            processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop(),
+                                            processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft(),
+                                            processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom(),
+                                            processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight(),
+                                            processedCmd.DstAreaRectanglePxf.RawRight(), processedCmd.DstAreaRectanglePxf.RawBottom(),
+                                            renderInfo.TextureArea, clipRectanglePxf, renderInfo.Flags,
+                                            ProcessedCommandFlagsUtil::IsEnabled(processedCmd.Flags, ProcessedCommandFlags::RenderOpaque));
         }
-        rBatcher.EndMeshBuild(builder);
+        else
+        {
+          builder.AddNineSliceUVRotated90CW(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
+                                            processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop(),
+                                            processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft(),
+                                            processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom(),
+                                            processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight(),
+                                            processedCmd.DstAreaRectanglePxf.RawRight(), processedCmd.DstAreaRectanglePxf.RawBottom(),
+                                            renderInfo.TextureArea, clipRectanglePxf);
+        }
       }
+      rBatcher.EndMeshBuild(builder);
     }
 
-
-    // -------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
     // SpriteFont
-    // -------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
 
     // CommandDrawAtOffsetAndSize
-
     template <typename TBatcher>
     inline void AddSpriteFont(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd, UITextMeshBuilder& textMeshBuilder,
                               const CommandDrawAtOffsetAndSize& cmd, const MeshManager::SpriteFontMeshRecord& meshRecord)
     {
-      auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
-                                                    static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
-                                                    UIRenderColor::Premultiply(processedCmd.FinalColor));
+      auto builder = rBatcher.BeginMeshBuildCustomZ(
+        processedCmd.MaterialId, meshRecord.Primitive.MeshVertexCapacity, meshRecord.Primitive.MeshIndexCapacity,
+        static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), UIRenderColor::Premultiply(processedCmd.FinalColor));
       {
         assert(meshRecord.Sprite);
         textMeshBuilder.AddString(builder, cmd.GetDstPositionPxf(), meshRecord.GetGlyphs());
@@ -437,8 +503,27 @@ namespace Fsl::UI::RenderIMBatch
       rBatcher.EndMeshBuild(builder);
     }
 
-    // CommandDrawCustomTextAtOffsetAndSize
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
 
+    // CommandDrawAtOffsetAndSize
+    template <typename TBatcher>
+    inline void AddSpriteFontWithClipping(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd, UITextMeshBuilder& textMeshBuilder,
+                                          const CommandDrawAtOffsetAndSize& cmd, const MeshManager::SpriteFontMeshRecord& meshRecord)
+    {
+      auto builder = rBatcher.BeginMeshBuildCustomZ(
+        processedCmd.MaterialId, meshRecord.Primitive.MeshVertexCapacity, meshRecord.Primitive.MeshIndexCapacity,
+        static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), UIRenderColor::Premultiply(processedCmd.FinalColor));
+      {
+        assert(meshRecord.Sprite);
+        textMeshBuilder.AddString(builder, cmd.GetDstPositionPxf(), meshRecord.GetGlyphs(), cmd.GetClipRectanglePxf());
+      }
+      rBatcher.EndMeshBuild(builder);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    // CommandDrawCustomTextAtOffsetAndSize
     template <typename TBatcher>
     inline void AddSpriteFont(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd, UITextMeshBuilder& rTextMeshBuilder,
                               const CommandDrawCustomTextAtOffsetAndSize& cmd, const CustomDrawTextInfo& customDrawInfo,
@@ -448,7 +533,7 @@ namespace Fsl::UI::RenderIMBatch
       // the chosen material
 
       auto builder =
-        rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, record.VertexCapacity, record.IndexCapacity,
+        rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, record.Primitive.MeshVertexCapacity, record.Primitive.MeshIndexCapacity,
                                        static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), processedCmd.FinalColor);
       {
         assert(record.Sprite);
@@ -458,9 +543,31 @@ namespace Fsl::UI::RenderIMBatch
       rBatcher.EndMeshBuild(builder);
     }
 
-    // -------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    // CommandDrawCustomTextAtOffsetAndSize
+    template <typename TBatcher>
+    inline void AddSpriteFontWithClipping(TBatcher& rBatcher, const ProcessedCommandRecord& processedCmd, UITextMeshBuilder& rTextMeshBuilder,
+                                          const CommandDrawCustomTextAtOffsetAndSize& cmd, const CustomDrawTextInfo& customDrawInfo,
+                                          const MeshManager::SpriteFontMeshRecord& record)
+    {
+      // The custom rendering functions gets called with non-premultiplied colors so its up to them to do the proper color conversion depending on
+      // the chosen material
+
+      auto builder =
+        rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, record.Primitive.MeshVertexCapacity, record.Primitive.MeshIndexCapacity,
+                                       static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex), processedCmd.FinalColor);
+      {
+        assert(record.Sprite);
+        ScopedCustomUITextMeshBuilder2D scopedTextBuilder(builder, rTextMeshBuilder, *record.Sprite, cmd.GetClipRectanglePxf());
+        customDrawInfo.FnDraw(scopedTextBuilder, cmd.GetDstPositionPxf(), cmd.GetDstSizePx(), customDrawInfo.CustomData.get());
+      }
+      rBatcher.EndMeshBuild(builder);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
     // Process
-    // -------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
 
     template <typename TBatcher>
     void ProcessDrawCommands(TBatcher& rBatcher, const MeshManager& meshManager, UITextMeshBuilder& rTextMeshBuilder,
@@ -473,76 +580,151 @@ namespace Fsl::UI::RenderIMBatch
         const ProcessedCommandRecord& record = orderedSpan[i];
         const EncodedCommand& command = commandSpan[record.LegacyCommandSpanIndex];
         const auto hMesh = HandleCoding::GetOriginalHandle(command.Mesh);
-        switch (ToRenderDrawCommandType(HandleCoding::GetType(command.Mesh), command.Type))
+        if (!command.State.IsClipEnabled())
         {
-        case RenderDrawCommandType::BasicImageSprite_DrawAtOffsetAndSize:
-          AddBasicImageSprite(rBatcher, record, meshManager.UncheckedGetBasicImageSprite(hMesh));
-          break;
-        case RenderDrawCommandType::BasicImageSprite_DrawCustomBasicImageAtOffsetAndSize:
+          switch (ToRenderDrawCommandType(HandleCoding::GetType(command.Mesh), command.State.Type()))
           {
-            CommandDrawCustomBasicImageAtOffsetAndSize cmdEx(command);
-            const CustomDrawBasicImageInfo& customDrawInfo = commandBuffer.FastGetCustomDrawBasicImageInfo(cmdEx.CustomDrawFunctionIndex());
-            if (customDrawInfo.FnDraw != nullptr)
+          case RenderDrawCommandType::BasicImageSprite_DrawAtOffsetAndSize:
+          case RenderDrawCommandType::ImageSprite_DrawAtOffsetAndSize:
+            AddImageMesh(rBatcher, record, meshManager.UncheckedGetImageSprite(hMesh));
+            break;
+          case RenderDrawCommandType::BasicImageSprite_DrawCustomBasicImageAtOffsetAndSize:
             {
-              AddBasicImageSprite(rBatcher, record, cmdEx, customDrawInfo, meshManager.UncheckedGetBasicImageSprite(hMesh));
+              CommandDrawCustomBasicImageAtOffsetAndSize cmdEx(command);
+              const CustomDrawBasicImageInfo& customDrawInfo = commandBuffer.FastGetCustomDrawBasicImageInfo(cmdEx.CustomDrawFunctionIndex());
+              if (customDrawInfo.FnDraw != nullptr)
+              {
+                AddBasicImageSprite(rBatcher, record, cmdEx, customDrawInfo, meshManager.UncheckedGetImageSprite(hMesh), {});
+              }
+              break;
             }
+          case RenderDrawCommandType::BasicImageSprite_DrawCustomBasicImageAtOffsetAndSizeBasicMesh:
+            {
+              CommandDrawCustomBasicImageAtOffsetAndSizeBasicMesh cmdEx(command);
+              const CustomDrawBasicImageBasicMeshInfo& customDrawInfo =
+                commandBuffer.FastGetCustomDrawBasicImageBasicMeshInfo(cmdEx.CustomDrawFunctionIndex());
+              if (customDrawInfo.FnDraw != nullptr)
+              {
+                AddBasicImageSpriteMesh(rBatcher, record, cmdEx, customDrawInfo, meshManager.UncheckedGetImageSprite(hMesh), {});
+              }
+              break;
+            }
+          case RenderDrawCommandType::BasicNineSliceSprite_DrawAtOffsetAndSize:
+          case RenderDrawCommandType::NineSliceSprite_DrawAtOffsetAndSize:
+            AddNineSliceSprite(rBatcher, record, meshManager.UncheckedGetNineSliceSprite(hMesh));
+            break;
+          case RenderDrawCommandType::NineSliceSprite_DrawRot90CWAtOffsetAndSize:
+            AddNineSliceSpriteRot90(rBatcher, record, meshManager.UncheckedGetNineSliceSprite(hMesh));
+            break;
+          case RenderDrawCommandType::NineSliceSprite_DrawCustomNineSliceAtOffsetAndSize:
+            {
+              CommandDrawCustomNineSliceAtOffsetAndSize cmdEx(command);
+              const CustomDrawNineSliceInfo& customDrawInfo = commandBuffer.FastGetCustomDrawNineSliceInfo(cmdEx.CustomDrawFunctionIndex());
+              if (customDrawInfo.FnDraw != nullptr)
+              {
+                AddNineSliceSprite(rBatcher, record, cmdEx, customDrawInfo, meshManager.UncheckedGetNineSliceSprite(hMesh), {});
+              }
+              break;
+            }
+          case RenderDrawCommandType::OptimizedNineSliceSprite_DrawAtOffsetAndSize:
+            AddOptimizedNineSliceSprite(rBatcher, record, meshManager.UncheckedGetOptimizedNineSliceSprite(hMesh));
+            break;
+          case RenderDrawCommandType::OptimizedNineSliceSprite_DrawRot90CWAtOffsetAndSize:
+            AddOptimizedNineSliceSpriteRot90(rBatcher, record, meshManager.UncheckedGetOptimizedNineSliceSprite(hMesh));
+            break;
+          case RenderDrawCommandType::SpriteFont_DrawAtOffsetAndSize:
+            AddSpriteFont(rBatcher, record, rTextMeshBuilder, CommandDrawAtOffsetAndSize(command), meshManager.UncheckedGetSpriteFont(hMesh));
+            break;
+          case RenderDrawCommandType::SpriteFont_DrawCustomTextAtOffsetAndSize:
+            {
+              CommandDrawCustomTextAtOffsetAndSize cmdEx(command);
+              const CustomDrawTextInfo& customDrawInfo = commandBuffer.FastGetCustomDrawTextInfo(cmdEx.CustomDrawFunctionIndex());
+              if (customDrawInfo.FnDraw != nullptr)
+              {
+                AddSpriteFont(rBatcher, record, rTextMeshBuilder, cmdEx, customDrawInfo, meshManager.UncheckedGetSpriteFont(hMesh));
+              }
+              break;
+            }
+          default:
+            FSLLOG3_ERROR("Not a valid draw command '{}' for for the given mesh type {}", command.State.Type(), HandleCoding::GetType(command.Mesh));
             break;
           }
-        case RenderDrawCommandType::BasicImageSprite_DrawCustomBasicImageAtOffsetAndSizeBasicMesh:
+        }
+        else
+        {
+          switch (ToRenderDrawCommandType(HandleCoding::GetType(command.Mesh), command.State.Type()))
           {
-            CommandDrawCustomBasicImageAtOffsetAndSizeBasicMesh cmdEx(command);
-            const CustomDrawBasicImageBasicMeshInfo& customDrawInfo =
-              commandBuffer.FastGetCustomDrawBasicImageBasicMeshInfo(cmdEx.CustomDrawFunctionIndex());
-            if (customDrawInfo.FnDraw != nullptr)
+          case RenderDrawCommandType::BasicImageSprite_DrawAtOffsetAndSize:
+          case RenderDrawCommandType::ImageSprite_DrawAtOffsetAndSize:
+            AddImageMeshWithClipping(rBatcher, record, meshManager.UncheckedGetImageSprite(hMesh), command.ClipRectanglePxf);
+            break;
+          case RenderDrawCommandType::BasicImageSprite_DrawCustomBasicImageAtOffsetAndSize:
             {
-              AddBasicImageSpriteMesh(rBatcher, record, cmdEx, customDrawInfo, meshManager.UncheckedGetBasicImageSprite(hMesh));
+              CommandDrawCustomBasicImageAtOffsetAndSize cmdEx(command);
+              const CustomDrawBasicImageInfo& customDrawInfo = commandBuffer.FastGetCustomDrawBasicImageInfo(cmdEx.CustomDrawFunctionIndex());
+              if (customDrawInfo.FnDraw != nullptr)
+              {
+                AddBasicImageSprite(rBatcher, record, cmdEx, customDrawInfo, meshManager.UncheckedGetImageSprite(hMesh),
+                                    DrawClipContext(true, command.ClipRectanglePxf));
+              }
+              break;
             }
+          case RenderDrawCommandType::BasicImageSprite_DrawCustomBasicImageAtOffsetAndSizeBasicMesh:
+            {
+              CommandDrawCustomBasicImageAtOffsetAndSizeBasicMesh cmdEx(command);
+              const CustomDrawBasicImageBasicMeshInfo& customDrawInfo =
+                commandBuffer.FastGetCustomDrawBasicImageBasicMeshInfo(cmdEx.CustomDrawFunctionIndex());
+              if (customDrawInfo.FnDraw != nullptr)
+              {
+                AddBasicImageSpriteMesh(rBatcher, record, cmdEx, customDrawInfo, meshManager.UncheckedGetImageSprite(hMesh),
+                                        DrawClipContext(true, command.ClipRectanglePxf));
+              }
+              break;
+            }
+          case RenderDrawCommandType::BasicNineSliceSprite_DrawAtOffsetAndSize:
+          case RenderDrawCommandType::NineSliceSprite_DrawAtOffsetAndSize:
+            AddNineSliceSpriteWithClipping(rBatcher, record, meshManager.UncheckedGetNineSliceSprite(hMesh), command.ClipRectanglePxf);
+            break;
+          case RenderDrawCommandType::NineSliceSprite_DrawRot90CWAtOffsetAndSize:
+            AddNineSliceSpriteRot90WithClipping(rBatcher, record, meshManager.UncheckedGetNineSliceSprite(hMesh), command.ClipRectanglePxf);
+            break;
+          case RenderDrawCommandType::NineSliceSprite_DrawCustomNineSliceAtOffsetAndSize:
+            {
+              CommandDrawCustomNineSliceAtOffsetAndSize cmdEx(command);
+              const CustomDrawNineSliceInfo& customDrawInfo = commandBuffer.FastGetCustomDrawNineSliceInfo(cmdEx.CustomDrawFunctionIndex());
+              if (customDrawInfo.FnDraw != nullptr)
+              {
+                AddNineSliceSprite(rBatcher, record, cmdEx, customDrawInfo, meshManager.UncheckedGetNineSliceSprite(hMesh),
+                                   DrawClipContext(true, command.ClipRectanglePxf));
+              }
+              break;
+            }
+          case RenderDrawCommandType::OptimizedNineSliceSprite_DrawAtOffsetAndSize:
+            AddOptimizedNineSliceSpriteWithClipping(rBatcher, record, meshManager.UncheckedGetOptimizedNineSliceSprite(hMesh),
+                                                    command.ClipRectanglePxf);
+            break;
+          case RenderDrawCommandType::OptimizedNineSliceSprite_DrawRot90CWAtOffsetAndSize:
+            AddOptimizedNineSliceSpriteRot90WithClipping(rBatcher, record, meshManager.UncheckedGetOptimizedNineSliceSprite(hMesh),
+                                                         command.ClipRectanglePxf);
+            break;
+          case RenderDrawCommandType::SpriteFont_DrawAtOffsetAndSize:
+            AddSpriteFontWithClipping(rBatcher, record, rTextMeshBuilder, CommandDrawAtOffsetAndSize(command),
+                                      meshManager.UncheckedGetSpriteFont(hMesh));
+            break;
+          case RenderDrawCommandType::SpriteFont_DrawCustomTextAtOffsetAndSize:
+            {
+              CommandDrawCustomTextAtOffsetAndSize cmdEx(command);
+              const CustomDrawTextInfo& customDrawInfo = commandBuffer.FastGetCustomDrawTextInfo(cmdEx.CustomDrawFunctionIndex());
+              if (customDrawInfo.FnDraw != nullptr)
+              {
+                AddSpriteFontWithClipping(rBatcher, record, rTextMeshBuilder, cmdEx, customDrawInfo, meshManager.UncheckedGetSpriteFont(hMesh));
+              }
+              break;
+            }
+          default:
+            FSLLOG3_ERROR("Not a valid draw command '{}' for for the given mesh type {}", command.State.Type(), HandleCoding::GetType(command.Mesh));
             break;
           }
-        case RenderDrawCommandType::BasicNineSliceSprite_DrawAtOffsetAndSize:
-          AddBasicNineSliceSprite(rBatcher, record, CommandDrawAtOffsetAndSize(command), meshManager.UncheckedGetBasicNineSliceSprite(hMesh));
-          break;
-        case RenderDrawCommandType::ImageSprite_DrawAtOffsetAndSize:
-          AddImageSprite(rBatcher, record, CommandDrawAtOffsetAndSize(command), meshManager.UncheckedGetImageSprite(hMesh));
-          break;
-        case RenderDrawCommandType::NineSliceSprite_DrawAtOffsetAndSize:
-          AddNineSliceSprite(rBatcher, record, meshManager.UncheckedGetNineSliceSprite(hMesh));
-          break;
-        case RenderDrawCommandType::NineSliceSprite_DrawRot90CWAtOffsetAndSize:
-          AddNineSliceSpriteRot90(rBatcher, record, meshManager.UncheckedGetNineSliceSprite(hMesh));
-          break;
-        case RenderDrawCommandType::NineSliceSprite_DrawCustomNineSliceAtOffsetAndSize:
-          {
-            CommandDrawCustomNineSliceAtOffsetAndSize cmdEx(command);
-            const CustomDrawNineSliceInfo& customDrawInfo = commandBuffer.FastGetCustomDrawNineSliceInfo(cmdEx.CustomDrawFunctionIndex());
-            if (customDrawInfo.FnDraw != nullptr)
-            {
-              AddNineSliceSprite(rBatcher, record, cmdEx, customDrawInfo, meshManager.UncheckedGetNineSliceSprite(hMesh));
-            }
-            break;
-          }
-        case RenderDrawCommandType::OptimizedNineSliceSprite_DrawAtOffsetAndSize:
-          AddOptimizedNineSliceSprite(rBatcher, record, meshManager.UncheckedGetOptimizedNineSliceSprite(hMesh));
-          break;
-        case RenderDrawCommandType::OptimizedNineSliceSprite_DrawRot90CWAtOffsetAndSize:
-          AddOptimizedNineSliceSpriteRot90(rBatcher, record, meshManager.UncheckedGetOptimizedNineSliceSprite(hMesh));
-          break;
-        case RenderDrawCommandType::SpriteFont_DrawAtOffsetAndSize:
-          AddSpriteFont(rBatcher, record, rTextMeshBuilder, CommandDrawAtOffsetAndSize(command), meshManager.UncheckedGetSpriteFont(hMesh));
-          break;
-        case RenderDrawCommandType::SpriteFont_DrawCustomTextAtOffsetAndSize:
-          {
-            CommandDrawCustomTextAtOffsetAndSize cmdEx(command);
-            const CustomDrawTextInfo& customDrawInfo = commandBuffer.FastGetCustomDrawTextInfo(cmdEx.CustomDrawFunctionIndex());
-            if (customDrawInfo.FnDraw != nullptr)
-            {
-              AddSpriteFont(rBatcher, record, rTextMeshBuilder, cmdEx, customDrawInfo, meshManager.UncheckedGetSpriteFont(hMesh));
-            }
-            break;
-          }
-        default:
-          FSLLOG3_ERROR("Not a valid draw command '{}' for for the given mesh type {}", command.Type, HandleCoding::GetType(command.Mesh));
-          break;
         }
       }
     }
@@ -917,7 +1099,7 @@ namespace Fsl::UI::RenderIMBatch
     const BasicCameraInfo cameraInfo(GetMatrixProjection());
     if (m_config.ReorderMethod == DrawReorderMethod::Disabled)
     {
-      BasicPreprocessor preprocessor(allowDepthBuffer);
+      BasicPreprocessor preprocessor(allowDepthBuffer, GetWindowMetrics().GetSizePx());
       DoDraw(DoGetStats(), GetRenderSystem(), rMeshManager, GetBuffers(), m_processedCommandRecords, m_batcher, GetCommandBuffer(), cameraInfo,
              preprocessor, pPerformanceCapture, maxDrawCalls, isNewCommandBuffer);
     }

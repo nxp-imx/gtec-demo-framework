@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/BasicTypes.hpp>
 #include <FslDataBinding/Base/Debug/ToStringPropertySetResult.hpp>
 #include <ostream>
 

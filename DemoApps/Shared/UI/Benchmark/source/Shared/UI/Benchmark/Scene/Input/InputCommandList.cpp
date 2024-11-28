@@ -112,32 +112,33 @@ namespace Fsl
   }
 
 
-  void InputCommandList::AddMouseButtonUp(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition,
-                                          const bool isTouch)
+  void InputCommandList::AddMouseButtonUp(const MillisecondTickCount32 timestamp, const CustomWindowId windowId, const PxRectangle windowRectPx,
+                                          const PxPoint2 mousePosition, const bool isTouch)
   {
-    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseUp, windowId, windowRectPx, mousePosition, isTouch));
+    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseUp, timestamp, windowId, windowRectPx, mousePosition, isTouch));
   }
 
-  void InputCommandList::AddMouseButtonDown(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition,
-                                            const bool isTouch)
+  void InputCommandList::AddMouseButtonDown(const MillisecondTickCount32 timestamp, const CustomWindowId windowId, const PxRectangle windowRectPx,
+                                            const PxPoint2 mousePosition, const bool isTouch)
   {
-    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseDown, windowId, windowRectPx, mousePosition, isTouch));
+    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseDown, timestamp, windowId, windowRectPx, mousePosition, isTouch));
   }
 
-  void InputCommandList::AddMouseMoveWhileDown(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition,
-                                               const bool isTouch)
+  void InputCommandList::AddMouseMoveWhileDown(const MillisecondTickCount32 timestamp, const CustomWindowId windowId, const PxRectangle windowRectPx,
+                                               const PxPoint2 mousePosition, const bool isTouch)
   {
-    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseDownMove, windowId, windowRectPx, mousePosition, isTouch));
+    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseDownMove, timestamp, windowId, windowRectPx, mousePosition, isTouch));
   }
 
-  void InputCommandList::AddMouseMove(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition, const bool isTouch)
+  void InputCommandList::AddMouseMove(const MillisecondTickCount32 timestamp, const CustomWindowId windowId, const PxRectangle windowRectPx,
+                                      const PxPoint2 mousePosition, const bool isTouch)
   {
-    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseMove, windowId, windowRectPx, mousePosition, isTouch));
+    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseMove, timestamp, windowId, windowRectPx, mousePosition, isTouch));
   }
 
-  void InputCommandList::AddMouseMoveDone()
+  void InputCommandList::AddMouseMoveDone(const MillisecondTickCount32 timestamp)
   {
-    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseMoveClear));
+    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseMoveClear, timestamp));
   }
 
 

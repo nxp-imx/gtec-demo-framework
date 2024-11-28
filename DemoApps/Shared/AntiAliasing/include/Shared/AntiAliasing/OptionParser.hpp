@@ -1,7 +1,7 @@
-#ifndef FSLGRAPHICS_SPRITE_INFO_CORE_RENDERBASICNINESLICEINFOEX_HPP
-#define FSLGRAPHICS_SPRITE_INFO_CORE_RENDERBASICNINESLICEINFOEX_HPP
+#ifndef SHARED_ANTIALIASING_OPTIONPARSER_HPP
+#define SHARED_ANTIALIASING_OPTIONPARSER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,55 +31,47 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxSize2D.hpp>
-#include <FslBase/Math/Pixel/PxThickness.hpp>
-#include <FslGraphics/NativeNineSliceTextureArea.hpp>
-#include <FslGraphics/TextureAtlas/AtlasNineSliceFlags.hpp>
+#include <FslDemoApp/Base/ADemoOptionParser.hpp>
+#include <Shared/AntiAliasing/AntiAliasingMethod.hpp>
+#include <Shared/AntiAliasing/ContentWindowId.hpp>
 
 namespace Fsl
 {
-  //! @brief Represents a atlas texture 2d image with no trim
-  struct RenderBasicNineSliceInfoEx
+  class OptionParser : public ADemoOptionParser
   {
-    //! The UV coordinates on the source atlas texture in native texture coordinates
-    NativeNineSliceTextureArea TextureArea;
+    ContentWindowId m_contentId;
+    AntiAliasingMethod m_aaMethod{AntiAliasingMethod::MSAA2X};
+    bool m_enableFastResolve{false};
+    bool m_paused{false};
 
-    AtlasNineSliceFlags Flags{AtlasNineSliceFlags::Opaque};
+  public:
+    OptionParser();
+    ~OptionParser() override;
 
-    // ---- Values below can be modified due to 'resize'
-
-    //! The scaled image size in pixels
-    PxSize2D ScaledSizePx;
-
-    //! The scaled nine slice
-    PxThickness ScaledNineSlicePx;
-
-    //! The scaled content margin
-    PxThickness ScaledContentMarginPx;
-
-    constexpr RenderBasicNineSliceInfoEx() = default;
-    constexpr RenderBasicNineSliceInfoEx(const NativeNineSliceTextureArea& imageNativeNineSliceTextureArea, const AtlasNineSliceFlags flags,
-                                         const PxSize2D scaledImageSizePx, const PxThickness& scaledNineSlicePx,
-                                         const PxThickness& scaledContentMarginPx)
-      : TextureArea(imageNativeNineSliceTextureArea)
-      , Flags(flags)
-      , ScaledSizePx(scaledImageSizePx)
-      , ScaledNineSlicePx(scaledNineSlicePx)
-      , ScaledContentMarginPx(scaledContentMarginPx)
+    ContentWindowId GetContentId() const noexcept
     {
+      return m_contentId;
     }
 
-
-    constexpr bool operator==(const RenderBasicNineSliceInfoEx& rhs) const
+    AntiAliasingMethod GetAAMethod() const noexcept
     {
-      return TextureArea == rhs.TextureArea && Flags == rhs.Flags && ScaledSizePx == rhs.ScaledSizePx && ScaledNineSlicePx == rhs.ScaledNineSlicePx &&
-             ScaledContentMarginPx == rhs.ScaledContentMarginPx;
+      return m_aaMethod;
     }
 
-    constexpr bool operator!=(const RenderBasicNineSliceInfoEx& rhs) const
+    bool EnableFastResolve() const noexcept
     {
-      return !(*this == rhs);
+      return m_enableFastResolve;
     }
+
+    bool IsPaused() const noexcept
+    {
+      return m_paused;
+    }
+
+  protected:
+    void OnArgumentSetup(std::deque<Option>& rOptions) override;
+    OptionParseResult OnParse(const int32_t cmdId, const StringViewLite& strOptArg) override;
+    bool OnParsingComplete() override;
   };
 }
 

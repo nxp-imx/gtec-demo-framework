@@ -53,6 +53,7 @@ namespace Fsl
 
   namespace UI
   {
+    struct DrawClipContext;
     class DrawCommandBuffer;
     struct PxAvailableSize;
     class WindowMouseOverEvent;
@@ -306,7 +307,7 @@ namespace Fsl
       // ------
 
       void Draw(DrawCommandBuffer& commandBuffer, const PxVector2 dstPositionPxf, const UIRenderColor finalColor, const PxValue cursorPositionPx,
-                const bool isDragging, const SpriteUnitConverter& spriteUnitConverter);
+                const bool isDragging, const DrawClipContext& clipContext, const SpriteUnitConverter& spriteUnitConverter);
 
       void OnMouseOver(const std::shared_ptr<WindowMouseOverEvent>& theEvent, const bool isEnabled);
 

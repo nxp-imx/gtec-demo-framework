@@ -33,6 +33,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
+#include <FslSimpleUI/Render/Base/DrawClipContext.hpp>
 
 namespace Fsl::UI
 {
@@ -40,20 +41,17 @@ namespace Fsl::UI
   {
     TreeNodeDrawContext() noexcept = default;
 
-    explicit TreeNodeDrawContext(const PxAreaRectangleF& targetRect) noexcept
+    explicit TreeNodeDrawContext(const PxAreaRectangleF& targetRect, const DrawClipContext& drawClipContext) noexcept
       : TargetRect(targetRect)
-      , ClippedTargetRect(targetRect)
+      , ClipContext(drawClipContext)
     {
     }
 
     //! @brief The target rect that the draw should occur to
     PxAreaRectangleF TargetRect;
 
-    //! @brief The target rect clipped against the parent
-    PxAreaRectangleF ClippedTargetRect;
-
-    //! @brief If clip to parent is enabled
-    bool ClipToParentEnabled{false};
+    //! @brief The clip context
+    DrawClipContext ClipContext;
   };
 }
 

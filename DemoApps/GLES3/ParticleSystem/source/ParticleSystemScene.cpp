@@ -338,6 +338,13 @@ namespace Fsl
   }
 
 
+  void ParticleSystemScene::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
+  {
+    AScene::ConfigurationChanged(windowMetrics);
+    m_camera.SetScreenResolution(windowMetrics.GetSizePx());
+  }
+
+
   void ParticleSystemScene::Update(const DemoTime& demoTime)
   {
     if (m_particleSystem)

@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-// Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpan.hpp>
 #include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslUtil/OpenGLES3/GLBuffer.hpp>
@@ -90,6 +90,20 @@ namespace Fsl::GLES3
     }
 
     //! @brief Create a initialized vertex buffer
+    GLVertexBuffer(const ReadOnlyFlexSpan vertices, const VertexDeclarationSpan vertexDeclarationSpan, const GLenum usage)
+      : GLVertexBuffer()
+    {
+      Reset(vertices, vertexDeclarationSpan, usage);
+    }
+
+    //! @brief Create a initialized vertex buffer
+    GLVertexBuffer(const ReadOnlyFlexVertexSpan vertices, const GLenum usage)
+      : GLVertexBuffer()
+    {
+      Reset(vertices, usage);
+    }
+
+    //! @brief Create a initialized vertex buffer
     template <typename T, std::size_t TSize>
     GLVertexBuffer(const std::array<T, TSize>& vertices, const GLenum usage)
       : GLVertexBuffer()
@@ -124,6 +138,22 @@ namespace Fsl::GLES3
     void Reset(const T* const pVertices, const std::size_t elementCount, const GLenum usage)
     {
       Reset(pVertices, elementCount, T::AsVertexDeclarationSpan(), usage);
+    }
+
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const ReadOnlyFlexSpan vertices, const VertexDeclarationSpan vertexDeclarationSpan, const GLenum usage)
+    {
+      Reset(vertices.data(), vertices.size(), vertexDeclarationSpan, usage);
+    }
+
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const ReadOnlyFlexVertexSpan vertices, const GLenum usage)
+    {
+      Reset(vertices.data(), vertices.size(), vertices.AsVertexDeclarationSpan(), usage);
     }
 
     //! @brief Reset the buffer to contain the supplied elements

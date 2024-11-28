@@ -280,6 +280,14 @@ namespace Fsl::TypeConverter
                                                     To<PxAreaRectangleF::value_type>(value.Bottom()));
   }
 
+  template <>
+  constexpr inline PxAreaRectangleF To<PxAreaRectangleF, PxClipRectangle>(const PxClipRectangle& value)
+  {
+    return PxAreaRectangleF::FromLeftTopRightBottom(To<PxAreaRectangleF::value_type>(value.Left()), To<PxAreaRectangleF::value_type>(value.Top()),
+                                                    To<PxAreaRectangleF::value_type>(value.Right()),
+                                                    To<PxAreaRectangleF::value_type>(value.Bottom()));
+  }
+
   // --- PxClipRectangle
 
   template <>
@@ -429,6 +437,13 @@ namespace Fsl::TypeConverter
             To<PxThicknessF::value_type>(value.Bottom)};
   }
 
+  template <>
+  constexpr inline PxThicknessF To<PxThicknessF, PxThickness>(const PxThickness& value)
+  {
+    return {To<PxThicknessF::value_type>(value.Left()), To<PxThicknessF::value_type>(value.Top()), To<PxThicknessF::value_type>(value.Right()),
+            To<PxThicknessF::value_type>(value.Bottom())};
+  }
+
   // --- PxThicknessU
 
   template <>
@@ -444,6 +459,12 @@ namespace Fsl::TypeConverter
   constexpr inline PxVector2 To<PxVector2, PxPoint2>(const PxPoint2& value)
   {
     return {To<PxVector2::value_type>(value.X), To<PxVector2::value_type>(value.Y)};
+  }
+
+  template <>
+  constexpr inline PxVector2 To<PxVector2, PxSize2D>(const PxSize2D& value)
+  {
+    return {To<PxVector2::value_type>(value.Width()), To<PxVector2::value_type>(value.Height())};
   }
 
   // -------------------------------------------------------------------------------------------------------------------------------------------------

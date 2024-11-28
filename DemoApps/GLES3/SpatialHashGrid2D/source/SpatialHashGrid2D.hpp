@@ -41,6 +41,8 @@ namespace Fsl
 {
   class SpatialHashGrid2D final : public DemoAppGLES3
   {
+    using base_type = DemoAppGLES3;
+
     struct VertexUBOData
     {
       Matrix MatViewProjection;

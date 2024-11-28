@@ -14,7 +14,7 @@ The external dependencies are build on a 'as required' basis meaning that we 'fe
 
 ## Common requirements
 
-* Python 3.6 or better is required by all our scripts
+* Python 3.10 or better is required by all our scripts
 * [CMake](https://cmake.org/) is required by most external source packages.
 * Git is required by a few external packages.
 

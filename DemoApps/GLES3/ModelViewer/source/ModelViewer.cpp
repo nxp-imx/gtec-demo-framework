@@ -53,10 +53,9 @@ namespace Fsl
 {
   using namespace GLES3;
 
-  constexpr int32_t GraphRes = 20000;
-
   namespace
   {
+    constexpr int32_t GraphRes = 20000;
     constexpr float DefaultZoom = 10;
     constexpr float DefaultModelScale = 5;
     constexpr auto ScenePath = "Models";
@@ -235,7 +234,7 @@ namespace Fsl
       event.Handled();
       break;
     default:
-      DemoAppGLES3::OnKeyEvent(event);
+      base_type::OnKeyEvent(event);
       break;
     }
   }
@@ -268,7 +267,7 @@ namespace Fsl
       }
       break;
     default:
-      DemoAppGLES3::OnMouseButtonEvent(event);
+      base_type::OnMouseButtonEvent(event);
       break;
     }
   }
@@ -276,7 +275,7 @@ namespace Fsl
 
   void ModelViewer::OnMouseMoveEvent(const MouseMoveEvent& event)
   {
-    DemoAppGLES3::OnMouseMoveEvent(event);
+    base_type::OnMouseMoveEvent(event);
 
     if (m_camera.IsDragging())
     {
@@ -288,8 +287,15 @@ namespace Fsl
 
   void ModelViewer::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
-    DemoAppGLES3::OnMouseWheelEvent(event);
+    base_type::OnMouseWheelEvent(event);
     m_camera.AddZoom(static_cast<float>(event.GetDelta()) * -0.001f);
+  }
+
+
+  void ModelViewer::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
+  {
+    base_type::ConfigurationChanged(windowMetrics);
+    m_camera.SetScreenResolution(windowMetrics.GetSizePx());
   }
 
 
@@ -483,10 +489,10 @@ namespace Fsl
     // << " draw: " << totalTimeDraw);
 
     {
-      const auto val1 = static_cast<int32_t>(TimeSpanUtil::ToClampedMicrosecondsInt32(totalTimeBind));
-      const auto val2 = static_cast<int32_t>(TimeSpanUtil::ToClampedMicrosecondsInt32(totalTimeEnable));
-      const auto val3 = static_cast<int32_t>(TimeSpanUtil::ToClampedMicrosecondsInt32(totalTimeDraw));
-      const auto val4 = static_cast<int32_t>(TimeSpanUtil::ToClampedMicrosecondsInt32(totalTime));
+      const auto val1 = TimeSpanUtil::ToClampedMicrosecondsInt32(totalTimeBind);
+      const auto val2 = TimeSpanUtil::ToClampedMicrosecondsInt32(totalTimeEnable);
+      const auto val3 = TimeSpanUtil::ToClampedMicrosecondsInt32(totalTimeDraw);
+      const auto val4 = TimeSpanUtil::ToClampedMicrosecondsInt32(totalTime);
       m_profilerService->Set(m_hCounterBind, val1);
       m_profilerService->Set(m_hCounterEnable, val2);
       m_profilerService->Set(m_hCounterDraw, val3);

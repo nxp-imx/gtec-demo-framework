@@ -90,6 +90,7 @@ namespace Fsl::GLES3
     //! @brief Create a uninitialized buffer
     GLRenderBuffer();
     GLRenderBuffer(const PxSize2D& size, const GLenum format);
+    GLRenderBuffer(const GLuint handle, const PxSize2D& size, const GLenum format);
 
     ~GLRenderBuffer();
 
@@ -100,6 +101,9 @@ namespace Fsl::GLES3
     //! @param size the size of the buffer
     //! @param format the format of the buffer (for example GL_RGBA4, GL_RGB565, GL_RGB5_A1, GL_DEPTH_COMPONENT16, or GL_STENCIL_INDEX8)
     void Reset(const PxSize2D& size, const GLenum format);
+
+    // Release the existing buffer and take ownership of the supplied handle
+    void Reset(const GLuint handle, const PxSize2D& size, const GLenum format);
 
     //! @brief Check if this buffer contains a valid gl handle.
     bool IsValid() const

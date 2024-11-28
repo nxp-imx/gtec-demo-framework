@@ -33,6 +33,7 @@
 
 #include <FslBase/IO/Path.hpp>
 #include <FslDemoApp/Base/ADemoOptionParser.hpp>
+#include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkScene.hpp>
 #include <Shared/UI/Benchmark/SceneId.hpp>
 #include <optional>
 
@@ -45,6 +46,7 @@ namespace Fsl
     std::optional<IO::Path> m_compareReportFile;
     std::optional<IO::Path> m_viewReportFile;
     SceneId m_sceneId{SceneId::Playground};
+    AppBenchmarkScene m_benchmarkScene{AppBenchmarkScene::Scene0};
     bool m_runDefaultBench{false};
 
   public:
@@ -68,6 +70,15 @@ namespace Fsl
         return SceneId::Benchmark;
       }
       return !m_viewReportFile.has_value() ? m_sceneId : SceneId::Result;
+    }
+
+    AppBenchmarkScene GetBenchmarkScene() const
+    {
+      if (m_runDefaultBench)
+      {
+        return AppBenchmarkScene::Scene0;
+      }
+      return m_benchmarkScene;
     }
 
     bool GetRunDefaultBench() const

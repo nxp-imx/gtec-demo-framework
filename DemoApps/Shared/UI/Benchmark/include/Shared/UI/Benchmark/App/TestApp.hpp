@@ -39,6 +39,7 @@
 #include <Shared/UI/Benchmark/App/BackgroundCube.hpp>
 #include <Shared/UI/Benchmark/App/CustomUIDemoAppExtension.hpp>
 #include <Shared/UI/Benchmark/App/ITestApp.hpp>
+#include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkScene.hpp>
 #include <memory>
 
 namespace Fsl
@@ -49,7 +50,15 @@ namespace Fsl
   {
     struct BasicUI
     {
-      std::shared_ptr<UI::Layout> Layout;
+      std::shared_ptr<UI::BaseWindow> Content;
+    };
+
+    struct ControlUI
+    {
+      std::shared_ptr<UI::BaseWindow> Content;
+      std::shared_ptr<UI::ButtonBase> ButtonShowDialog0;
+      std::shared_ptr<UI::ButtonBase> ButtonShowDialog1;
+      std::shared_ptr<UI::ButtonBase> ButtonShowDialog2;
     };
 
     struct MainUI
@@ -57,9 +66,7 @@ namespace Fsl
       std::shared_ptr<UI::Layout> Layout;
       std::shared_ptr<UI::Layout> AppLayout;
       std::shared_ptr<UI::ActivityStack> ActivityStack;
-      std::shared_ptr<UI::ButtonBase> ButtonShowDialog0;
-      std::shared_ptr<UI::ButtonBase> ButtonShowDialog1;
-      std::shared_ptr<UI::ButtonBase> ButtonShowDialog2;
+      ControlUI Control;
     };
 
     // The UI event listener is responsible for forwarding events to this classes implementation of the UI::EventListener (while its still alive).
@@ -73,7 +80,7 @@ namespace Fsl
     MainUI m_uiProfile;
 
   public:
-    explicit TestApp(const UIDemoAppExtensionCreateInfo& createInfo);
+    explicit TestApp(const UIDemoAppExtensionCreateInfo& createInfo, const AppBenchmarkScene benchmarkScene);
     ~TestApp() override;
 
 
@@ -92,7 +99,9 @@ namespace Fsl
     {
       return m_uiExtension;
     }
+
     void SetCustomViewport(const PxViewport& viewportPx) final;
+    void SetClipRectangle(const bool enabled, const PxRectangle& clipRectanglePx) final;
     void SetUseDrawCache(const bool useDrawCache) final;
 
     bool IsUIIdle() const final;
@@ -105,7 +114,14 @@ namespace Fsl
   private:
     void SetDefaultValues();
 
-    MainUI CreateUI(UI::Theme::IThemeControlFactory& uiFactory);
+    MainUI CreateUI(UI::Theme::IThemeControlFactory& uiFactory, const AppBenchmarkScene benchmarkScene);
+    MainUI CreateUIScene0(UI::Theme::IThemeControlFactory& uiFactory);
+    MainUI CreateUIDev(UI::Theme::IThemeControlFactory& uiFactory);
+
+    BasicUI CreateUIScene0Top(UI::Theme::IThemeControlFactory& uiFactory);
+    BasicUI CreateUIScene0Middle(UI::Theme::IThemeControlFactory& uiFactory);
+    ControlUI CreateUIScene0Bottom(UI::Theme::IThemeControlFactory& uiFactory);
+
     BasicUI CreateSwitchUI(UI::Theme::IThemeControlFactory& uiFactory);
     BasicUI CreateCheckBoxUI(UI::Theme::IThemeControlFactory& uiFactory);
     BasicUI CreateRadioButtonUI(UI::Theme::IThemeControlFactory& uiFactory);

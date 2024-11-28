@@ -88,7 +88,7 @@ namespace Fsl::UI
     ContentControl::WinDraw(context);
 
     const auto finalColor = GetFinalBaseColor() * m_propertyBackgroundColor.InternalColor;
-    context.CommandBuffer.Draw(m_background.Get(), context.TargetRect.Location(), RenderSizePx(), finalColor);
+    context.CommandBuffer.Draw(m_background.Get(), context.TargetRect.Location(), RenderSizePx(), finalColor, context.ClipContext);
   }
 
 

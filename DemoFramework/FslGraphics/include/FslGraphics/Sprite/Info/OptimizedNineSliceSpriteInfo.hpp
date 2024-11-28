@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Sprite/Info/Core/CoreNineSliceInfo.hpp>
-#include <FslGraphics/Sprite/Info/Core/RenderNineSliceInfoEx.hpp>
+#include <FslGraphics/Sprite/Info/Core/RenderOptimizedNineSliceInfo.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
 #include <FslGraphics/Sprite/SpriteDpConfig.hpp>
 #include <FslGraphics/TextureAtlas/AtlasNineSliceFlags.hpp>
@@ -55,7 +55,7 @@ namespace Fsl
 
     uint32_t ImageDpi{SpriteDpConfig::BaseDpi};
 
-    RenderNineSliceInfoEx RenderInfo;
+    RenderOptimizedNineSliceInfo RenderInfo;
 
     OptimizedNineSliceSpriteInfo() = default;
     OptimizedNineSliceSpriteInfo(const SpriteNativeAreaCalc& spriteAreaCalc, const SpriteMaterialInfo& opaqueSpriteMaterialInfo,

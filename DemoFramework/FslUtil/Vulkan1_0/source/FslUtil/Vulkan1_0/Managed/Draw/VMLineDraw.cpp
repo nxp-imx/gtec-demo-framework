@@ -149,7 +149,8 @@ namespace Fsl::Vulkan
                                                  const VkShaderModule vertexShaderModule, const VkShaderModule fragmentShaderModule,
                                                  const std::array<VkVertexInputAttributeDescription, 2> lineVertexAttributeDescription,
                                                  const VkVertexInputBindingDescription lineVertexInputBindingDescription,
-                                                 const VkRenderPass renderPass, const uint32_t subpass, const bool dynamicScissor)
+                                                 const VkRenderPass renderPass, const uint32_t subpass, const bool dynamicScissor,
+                                                 const bool dynamicViewport, const VkSampleCountFlagBits sampleCount)
     {
       assert(pipelineLayout.IsValid());
       assert(vertexShaderModule != VK_NULL_HANDLE);
@@ -212,7 +213,7 @@ namespace Fsl::Vulkan
 
       VkPipelineMultisampleStateCreateInfo pipelineMultisampleStateCreateInfo{};
       pipelineMultisampleStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-      pipelineMultisampleStateCreateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+      pipelineMultisampleStateCreateInfo.rasterizationSamples = sampleCount;
       pipelineMultisampleStateCreateInfo.sampleShadingEnable = VK_FALSE;
       pipelineMultisampleStateCreateInfo.minSampleShading = 0.0f;
       pipelineMultisampleStateCreateInfo.pSampleMask = nullptr;
@@ -240,12 +241,36 @@ namespace Fsl::Vulkan
       pipelineColorBlendStateCreateInfo.blendConstants[2] = 0.0f;
       pipelineColorBlendStateCreateInfo.blendConstants[3] = 0.0f;
 
-      std::array<VkDynamicState, 1> dynamicState = {VK_DYNAMIC_STATE_SCISSOR};
+      std::array<VkDynamicState, 1> dynamicStateScissor = {VK_DYNAMIC_STATE_SCISSOR};
+      std::array<VkDynamicState, 1> dynamicStateViewport = {VK_DYNAMIC_STATE_VIEWPORT};
+      std::array<VkDynamicState, 2> dynamicStateScissorAndViewport = {VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_VIEWPORT};
 
       VkPipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo{};
       pipelineDynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-      pipelineDynamicStateCreateInfo.dynamicStateCount = dynamicScissor ? static_cast<uint32_t>(dynamicState.size()) : 0;
-      pipelineDynamicStateCreateInfo.pDynamicStates = dynamicScissor ? dynamicState.data() : nullptr;
+      if (dynamicScissor)
+      {
+        if (dynamicViewport)
+        {
+          pipelineDynamicStateCreateInfo.dynamicStateCount = UncheckedNumericCast<uint32_t>(dynamicStateScissorAndViewport.size());
+          pipelineDynamicStateCreateInfo.pDynamicStates = dynamicStateScissorAndViewport.data();
+        }
+        else
+        {
+          pipelineDynamicStateCreateInfo.dynamicStateCount = UncheckedNumericCast<uint32_t>(dynamicStateScissor.size());
+          pipelineDynamicStateCreateInfo.pDynamicStates = dynamicStateScissor.data();
+        }
+      }
+      else if (dynamicViewport)
+      {
+        pipelineDynamicStateCreateInfo.dynamicStateCount = UncheckedNumericCast<uint32_t>(dynamicStateViewport.size());
+        pipelineDynamicStateCreateInfo.pDynamicStates = dynamicStateViewport.data();
+      }
+      else
+      {
+        pipelineDynamicStateCreateInfo.dynamicStateCount = 0u;
+        pipelineDynamicStateCreateInfo.pDynamicStates = nullptr;
+      }
+
 
       VkPipelineDepthStencilStateCreateInfo depthStencilStateCreateInfo{};
       depthStencilStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
@@ -338,7 +363,8 @@ namespace Fsl::Vulkan
   }
 
   void VMLineDraw::BuildResources(const VkExtent2D& extent, const VkShaderModule vertexShaderModule, const VkShaderModule fragmentShaderModule,
-                                  const VkRenderPass renderPass, const uint32_t subpass, const bool dynamicScissor)
+                                  const VkRenderPass renderPass, const uint32_t subpass, const bool dynamicScissor, const bool dynamicViewport,
+                                  const VkSampleCountFlagBits sampleCount)
   {
     if (!IsValid())
     {
@@ -377,7 +403,7 @@ namespace Fsl::Vulkan
 
     m_dependentResources.PipelineRender =
       CreatePipeline(m_resources.MainPipelineLayout, extent, vertexShaderModule, fragmentShaderModule, lineVertexAttributeDescription,
-                     lineVertexInputBindingDescription, renderPass, subpass, dynamicScissor);
+                     lineVertexInputBindingDescription, renderPass, subpass, dynamicScissor, dynamicViewport, sampleCount);
   }
 
   void VMLineDraw::FreeResources() noexcept

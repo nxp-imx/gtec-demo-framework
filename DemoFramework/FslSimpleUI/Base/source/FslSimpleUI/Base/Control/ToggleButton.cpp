@@ -38,7 +38,6 @@
 #include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
 #include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslGraphics/Color.hpp>
-#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Sprite/ISizedSprite.hpp>
 #include <FslSimpleUI/Base/Control/ToggleButton.hpp>
 #include <FslSimpleUI/Base/DefaultAnim.hpp>
@@ -97,6 +96,8 @@ namespace Fsl::UI
   TDef TClass::PropertyIsChecked = TFactory::Create<bool, TClass, &TClass::IsChecked, &TClass::SetIsChecked>("Checked");
   TDef TClass::PropertyIsEnabled = TFactory::Create<bool, TClass, &TClass::IsEnabled, &TClass::SetEnabled>("Enabled");
   TDef TClass::PropertyText = TFactory::Create<StringViewLite, TClass, &TClass::GetText, &TClass::SetText>("Text");
+  TDef TClass::PropertyTextAlignment = TFactory::Create<ItemAlignment, TClass, &TClass::GetTextAlignment, &TClass::SetTextAlignment>("TextAlignment");
+  TDef TClass::PropertyTextLocation = TFactory::Create<ItemTextLocation, TClass, &TClass::GetTextLocation, &TClass::SetTextLocation>("TextLocation");
 }
 
 namespace Fsl::UI
@@ -128,6 +129,29 @@ namespace Fsl::UI
     }
     return changed;
   }
+
+
+  bool ToggleButton::SetTextAlignment(const ItemAlignment value)
+  {
+    const bool changed = m_propertyTextAlignment.Set(ThisDependencyObject(), value);
+    if (changed)
+    {
+      PropertyUpdated(PropertyType::Other);
+    }
+    return changed;
+  }
+
+
+  bool ToggleButton::SetTextLocation(const ItemTextLocation value)
+  {
+    const bool changed = m_propertyTextLocation.Set(ThisDependencyObject(), value);
+    if (changed)
+    {
+      PropertyUpdated(PropertyType::Other);
+    }
+    return changed;
+  }
+
 
   bool ToggleButton::SetImageAlignment(const ItemAlignment value)
   {
@@ -405,20 +429,14 @@ namespace Fsl::UI
           // Center the round to nearest pixel
           centeredYPx = ItemAlignmentUtil::CenterPx(renderSizePx.Height() - m_cachedFontMeasureInfo.MeasureSizePx.Height());
         }
-        const PxVector2 dstPositionPxf(positionPxf.X, positionPxf.Y + PxValueF(centeredYPx));
-        context.CommandBuffer.Draw(m_font.Mesh.Get(), dstPositionPxf, m_cachedFontMeasureInfo.MinimalSizePx, finalColor * fontColor);
+        const PxVector2 dstPositionPxf(positionPxf.X + PxValueF(m_cachedTextOffsetPx), positionPxf.Y + PxValueF(centeredYPx));
+        context.CommandBuffer.Draw(m_font.Mesh.Get(), dstPositionPxf, m_cachedFontMeasureInfo.MinimalSizePx, finalColor * fontColor,
+                                   context.ClipContext);
       }
     }
 
     // Draw the ToggleButton
     {
-      PxValue offsetXPx = m_cachedFontMeasureInfo.MeasureSizePx.Width().Value();
-      {
-        const PxSize2D sizeTex = GetMaxSpriteSize();
-        offsetXPx += ItemAlignmentUtil::CalcAlignmentPx(
-          m_propertyImageAlignment.Get(), PxSize1D(renderSizePx.Width() - m_cachedFontMeasureInfo.MeasureSizePx.Width()) - sizeTex.Width());
-      }
-
       if (m_background.Mesh.IsValid())    // Background mesh
       {
         PxValue centeredYPx;
@@ -427,11 +445,11 @@ namespace Fsl::UI
         {
           centeredYPx = ItemAlignmentUtil::CenterPx(renderSizePx.Height() - backgroundSpriteRenderSizePx.Height());
         }
-        const PxVector2 dstPositionPxf(positionPxf.X + PxValueF(offsetXPx), positionPxf.Y + PxValueF(centeredYPx));
+        const PxVector2 dstPositionPxf(positionPxf.X + PxValueF(m_cachedImageOffsetPx), positionPxf.Y + PxValueF(centeredYPx));
 
         // Draw the background mesh
         context.CommandBuffer.Draw(m_background.Mesh.Get(), dstPositionPxf, backgroundSpriteRenderSizePx,
-                                   finalColor * m_background.CurrentColor.GetValue());
+                                   finalColor * m_background.CurrentColor.GetValue(), context.ClipContext);
       }
 
       if (m_cursor.Mesh.IsValid())
@@ -444,12 +462,13 @@ namespace Fsl::UI
         {
           const PxSize2DF cursorOriginPxf(TypeConverter::To<PxSize2DF>(cursorSpriteRenderSizePx) / PxSize1DF::Create(2));
           const PxPoint2 adjustedCursorPositionPx =
-            PxPoint2(offsetXPx, PxValue()) + TypeConverter::UncheckedChangeTo<PxPoint2>(cursorPositionPxf - cursorOriginPxf);
+            PxPoint2(m_cachedImageOffsetPx, PxValue()) + TypeConverter::UncheckedChangeTo<PxPoint2>(cursorPositionPxf - cursorOriginPxf);
 
           const PxVector2 dstPositionPxf(positionPxf.X + PxValueF(adjustedCursorPositionPx.X), positionPxf.Y + PxValueF(adjustedCursorPositionPx.Y));
 
           // Draw the cursor mesh
-          context.CommandBuffer.Draw(m_cursor.Mesh.Get(), dstPositionPxf, cursorSpriteRenderSizePx, finalColor * m_cursor.CurrentColor.GetValue());
+          context.CommandBuffer.Draw(m_cursor.Mesh.Get(), dstPositionPxf, cursorSpriteRenderSizePx, finalColor * m_cursor.CurrentColor.GetValue(),
+                                     context.ClipContext);
         }
 
         // Draw the overlay (if enabled)
@@ -459,7 +478,7 @@ namespace Fsl::UI
           if (m_hoverOverlay.IsConstrainToGraphics)
           {
             PxPoint2 positionPx(TypeConverter::UncheckedChangeTo<PxPoint2>(positionPxf));
-            PxRectangle cursorRect(PxPoint2(positionPx.X + offsetXPx, positionPx.Y + centeredYPx), cursorSpriteRenderSizePx);
+            PxRectangle cursorRect(PxPoint2(positionPx.X + m_cachedImageOffsetPx, positionPx.Y + centeredYPx), cursorSpriteRenderSizePx);
             showOverlay = cursorRect.Contains(m_hoverOverlay.LastScreenPositionPx);
           }
           if (showOverlay)
@@ -467,14 +486,14 @@ namespace Fsl::UI
             const PxSize2DF overlayOriginPxf(TypeConverter::To<PxSize2DF>(m_hoverOverlay.Mesh.GetSpriteObject().GetRenderSizePx()) /
                                              PxSize1DF::Create(2));
             const PxPoint2 adjustedOverlayPositionPx =
-              PxPoint2(offsetXPx, PxValue()) + TypeConverter::UncheckedChangeTo<PxPoint2>(cursorPositionPxf - overlayOriginPxf);
+              PxPoint2(m_cachedImageOffsetPx, PxValue()) + TypeConverter::UncheckedChangeTo<PxPoint2>(cursorPositionPxf - overlayOriginPxf);
 
             const PxVector2 dstPositionPxf(positionPxf.X + PxValueF(adjustedOverlayPositionPx.X),
                                            positionPxf.Y + PxValueF(adjustedOverlayPositionPx.Y));
 
             // Draw the overlay mesh
             context.CommandBuffer.Draw(m_hoverOverlay.Mesh.Get(), dstPositionPxf, m_hoverOverlay.Mesh.FastGetRenderSizePx(),
-                                       finalColor * m_hoverOverlay.CurrentColor.GetValue());
+                                       finalColor * m_hoverOverlay.CurrentColor.GetValue(), context.ClipContext);
           }
         }
       }
@@ -486,9 +505,64 @@ namespace Fsl::UI
     if (m_propertyIsEnabled.Get() && !theEvent->IsHandled())
     {
       theEvent->Handled();
-      if (theEvent->IsBegin() && !theEvent->IsRepeat())
+      if (theEvent->IsBegin())
       {
-        Toggle();
+        if (!theEvent->IsRepeat())
+        {
+          // Begin
+          const auto claimRectanglePx = TryGetButtonClaimRectangle();
+          if (!claimRectanglePx.IsEmpty())
+          {
+            const auto localPositionPx = PointFromScreen(theEvent->GetScreenPosition());
+            if (claimRectanglePx.Contains(localPositionPx))
+            {
+              Toggle();
+              theEvent->Claimed();
+              m_eventButtonState = EventButtonState::DownClaimed;
+            }
+          }
+          if (m_eventButtonState == EventButtonState::Up)
+          {
+            theEvent->Handled();
+            m_eventButtonState = EventButtonState::Down;
+          }
+        }
+        else
+        {
+          // Continue
+          if (m_eventButtonState == EventButtonState::Down)
+          {
+            theEvent->Handled();
+          }
+          else
+          {
+            theEvent->Claimed();
+          }
+        }
+      }
+      else if (theEvent->IsCanceled())
+      {
+        if (m_eventButtonState == EventButtonState::DownClaimed)
+        {
+          Toggle();
+        }
+        m_eventButtonState = EventButtonState::Up;
+        theEvent->Handled();
+      }
+      else if (theEvent->IsEnd())
+      {
+        if (m_eventButtonState == EventButtonState::Down)
+        {
+          // Only accept the press if the mouse/finger is still on top of the button
+          const auto localPositionPx = PointFromScreen(theEvent->GetScreenPosition());
+          const PxRectangle hitRect(PxPoint2(), RenderSizePx());
+          if (hitRect.Contains(localPositionPx.X, localPositionPx.Y))
+          {
+            Toggle();
+          }
+        }
+        m_eventButtonState = EventButtonState::Up;
+        theEvent->Handled();
       }
     }
   }
@@ -507,8 +581,73 @@ namespace Fsl::UI
     theEvent->Handled();
   }
 
+
+  PxRectangle ToggleButton::TryGetButtonClaimRectangle() const noexcept
+  {
+    return {m_cachedImageOffsetPx, PxValue(0), m_cachedImageSizePx.Value(), RenderSizePx().Height()};
+  }
+
+
   PxSize2D ToggleButton::ArrangeOverride(const PxSize2D& finalSizePx)
   {
+    // ---*-TEXT  TextLocation = right  TextAlignment = far   ImageAlignment=far
+    // *----TEXT  TextLocation = right  TextAlignment = far   ImageAlignment=near
+    // *-TEXT---  TextLocation = right  TextAlignment = near  ImageAlignment=near/center/far
+
+    // TEXT-*---  TextLocation = left   TextAlignment = near  ImageAlignment=near
+    // TEXT----*  TextLocation = left   TextAlignment = near  ImageAlignment=far
+    // ---TEXT-*  TextLocation = left   TextAlignment = far   ImageAlignment=near/center/far
+
+
+    const PxSize1D finalWidthPx = std::max(finalSizePx.Width(), DesiredSizePx().Width());
+    const PxSize2D labelDesiredSizePx = m_cachedFontMeasureInfo.MeasureSizePx;
+    const PxSize1D spriteWidthPx = GetMaxSpriteSize().Width();
+    const PxSize1D maxTextWidthPx(finalWidthPx - spriteWidthPx);
+    PxValue labelPositionPx;
+    // const PxSize1D labelFinalWidthPx = labelDesiredSizePx.Width();
+    PxSize1D imageAvailableWidthPx;
+    if (GetTextLocation() == ItemTextLocation::Left)
+    {
+      switch (GetTextAlignment())
+      {
+      case ItemAlignment::Center:
+        labelPositionPx = (maxTextWidthPx - labelDesiredSizePx.Width()) / PxSize1D::Create(2);
+        break;
+      case ItemAlignment::Far:
+        labelPositionPx = (maxTextWidthPx - labelDesiredSizePx.Width());
+        break;
+      case ItemAlignment::Stretch:
+      case ItemAlignment::Near:
+      default:
+        labelPositionPx = PxValue();
+        break;
+      }
+      m_cachedTextOffsetPx = labelPositionPx;
+      m_cachedImageOffsetPx = PxValue(labelPositionPx + labelDesiredSizePx.Width());
+      imageAvailableWidthPx = PxSize1D(finalWidthPx - m_cachedImageOffsetPx);
+    }
+    else
+    {
+      switch (GetTextAlignment())
+      {
+      case ItemAlignment::Center:
+        labelPositionPx = spriteWidthPx + (maxTextWidthPx - labelDesiredSizePx.Width()) / PxSize1D::Create(2);
+        break;
+      case ItemAlignment::Far:
+        labelPositionPx = spriteWidthPx + (maxTextWidthPx - labelDesiredSizePx.Width());
+        break;
+      case ItemAlignment::Stretch:
+      case ItemAlignment::Near:
+      default:
+        labelPositionPx = spriteWidthPx.Value();
+        break;
+      }
+      m_cachedImageOffsetPx = PxValue::Zero();
+      imageAvailableWidthPx = PxSize1D(labelPositionPx);
+    }
+    m_cachedTextOffsetPx = labelPositionPx;
+    m_cachedImageOffsetPx += PxValue(ItemAlignmentUtil::CalcAlignmentPx(GetImageAlignment(), imageAvailableWidthPx - spriteWidthPx));
+    m_cachedImageSizePx = PxSize1D::Create(imageAvailableWidthPx);
     return finalSizePx;
   }
 
@@ -544,7 +683,9 @@ namespace Fsl::UI
       DataBinding::PropLinkRefs(PropertyHoverOverlayCheckedColor, m_hoverOverlay.Checked.PrimaryColor.ExternalColor),
       DataBinding::PropLinkRefs(PropertyHoverOverlayUncheckedColor, m_hoverOverlay.Unchecked.PrimaryColor.ExternalColor),
       DataBinding::PropLinkRefs(PropertyImageAlignment, m_propertyImageAlignment), DataBinding::PropLinkRefs(PropertyIsChecked, m_propertyIsChecked),
-      DataBinding::PropLinkRefs(PropertyIsEnabled, m_propertyIsEnabled), DataBinding::PropLinkRefs(PropertyText, m_propertyText));
+      DataBinding::PropLinkRefs(PropertyIsEnabled, m_propertyIsEnabled), DataBinding::PropLinkRefs(PropertyText, m_propertyText),
+      DataBinding::PropLinkRefs(PropertyTextAlignment, m_propertyTextAlignment),
+      DataBinding::PropLinkRefs(PropertyTextLocation, m_propertyTextLocation));
     return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
   }
 
@@ -568,7 +709,9 @@ namespace Fsl::UI
       DataBinding::PropLinkRefs(PropertyHoverOverlayCheckedColor, m_hoverOverlay.Checked.PrimaryColor.ExternalColor),
       DataBinding::PropLinkRefs(PropertyHoverOverlayUncheckedColor, m_hoverOverlay.Unchecked.PrimaryColor.ExternalColor),
       DataBinding::PropLinkRefs(PropertyImageAlignment, m_propertyImageAlignment), DataBinding::PropLinkRefs(PropertyIsChecked, m_propertyIsChecked),
-      DataBinding::PropLinkRefs(PropertyIsEnabled, m_propertyIsEnabled), DataBinding::PropLinkRefs(PropertyText, m_propertyText));
+      DataBinding::PropLinkRefs(PropertyIsEnabled, m_propertyIsEnabled), DataBinding::PropLinkRefs(PropertyText, m_propertyText),
+      DataBinding::PropLinkRefs(PropertyTextAlignment, m_propertyTextAlignment),
+      DataBinding::PropLinkRefs(PropertyTextLocation, m_propertyTextLocation));
     return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
   }
 
@@ -593,6 +736,8 @@ namespace Fsl::UI
     rProperties.push_back(PropertyIsChecked);
     rProperties.push_back(PropertyIsEnabled);
     rProperties.push_back(PropertyText);
+    rProperties.push_back(PropertyTextAlignment);
+    rProperties.push_back(PropertyTextLocation);
   }
 
 

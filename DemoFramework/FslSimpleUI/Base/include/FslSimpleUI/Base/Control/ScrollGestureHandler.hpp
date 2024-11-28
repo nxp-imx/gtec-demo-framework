@@ -40,7 +40,10 @@
 #include <FslSimpleUI/Base/Control/ContentControl.hpp>
 #include <FslSimpleUI/Base/Control/ScrollGestureAnimationConfig.hpp>
 #include <FslSimpleUI/Base/Control/ScrollModeFlags.hpp>
+#include <FslSimpleUI/Base/Event/EventTransactionState.hpp>
 #include <FslSimpleUI/Base/Gesture/GestureManager.hpp>
+#include <FslSimpleUI/Base/MovementOwnership.hpp>
+#include <FslSimpleUI/Base/MovementTransactionAction.hpp>
 #include <vector>
 
 
@@ -89,14 +92,16 @@ namespace Fsl::UI
     AnimRecord m_animRecord;
 
     PxPoint2 m_scrollOffsetPx;
-    bool m_scrollEnabled{false};
 
   public:
     explicit ScrollGestureHandler(const uint16_t densityDpi);
 
     void ConfigurationChanged(const uint16_t densityDpi);
 
-    void AddMovement(const MillisecondTickCount32 eventTimestamp, const PxPoint2 screenPositionPx, bool isDown);
+    MovementTransactionAction AddMovement(const MillisecondTickCount32 eventTimestamp, const PxPoint2 screenPositionPx,
+                                          const EventTransactionState state, const bool isRepeat, const MovementOwnership movementOwnership);
+
+    bool IsScrollingEnabled() const noexcept;
 
     void SetScrollMode(const ScrollModeFlags value) noexcept;
 

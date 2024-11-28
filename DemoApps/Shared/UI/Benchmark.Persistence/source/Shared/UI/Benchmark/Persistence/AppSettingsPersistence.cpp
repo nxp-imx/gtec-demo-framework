@@ -57,6 +57,8 @@ namespace Fsl::AppSettingsPersistence
       constexpr auto ShowStats = "ShowStats";
       constexpr auto ShowIdle = "ShowIdle";
       constexpr auto NoOpaqueMaterials = "NoOpaqueMaterials";
+      constexpr auto EnableClipping = "EnableClipping";
+      constexpr auto ShowClipRectangle = "ShowClipRectangle";
       constexpr auto ActiveRenderIndex = "ActiveRenderIndex";
     }
 
@@ -145,15 +147,31 @@ namespace Fsl::AppSettingsPersistence
       std::optional<bool> showStats = JsonHelper::TryParseBool(jsonValue[LocalSystemSettings::ShowStats]);
       std::optional<bool> showIdle = JsonHelper::TryParseBool(jsonValue[LocalSystemSettings::ShowIdle]);
       std::optional<bool> noOpaqueMaterials = JsonHelper::TryParseBool(jsonValue[LocalSystemSettings::NoOpaqueMaterials]);
-      if (!showStats.has_value() || !showIdle.has_value() || !noOpaqueMaterials.has_value() || !activeRenderIndex.has_value())
+      std::optional<bool> enableClipping = false;
+      std::optional<bool> showClipRectangle = false;
+
+      if (jsonValue.contains(LocalSystemSettings::EnableClipping))
+      {
+        enableClipping = JsonHelper::TryParseBool(jsonValue[LocalSystemSettings::EnableClipping]);
+      }
+      if (jsonValue.contains(LocalSystemSettings::ShowClipRectangle))
+      {
+        showClipRectangle = JsonHelper::TryParseBool(jsonValue[LocalSystemSettings::ShowClipRectangle]);
+      }
+
+      if (!showStats.has_value() || !showIdle.has_value() || !noOpaqueMaterials.has_value() || !enableClipping.has_value() ||
+          !showClipRectangle.has_value() || !activeRenderIndex.has_value())
       {
         FSLLOG3_DEBUG_WARNING_IF(showStats.has_value(), "Failed to parse: '{}'", LocalSystemSettings::ShowStats);
         FSLLOG3_DEBUG_WARNING_IF(showIdle.has_value(), "Failed to parse: '{}'", LocalSystemSettings::ShowIdle);
         FSLLOG3_DEBUG_WARNING_IF(noOpaqueMaterials.has_value(), "Failed to parse: '{}'", LocalSystemSettings::NoOpaqueMaterials);
+        FSLLOG3_DEBUG_WARNING_IF(enableClipping.has_value(), "Failed to parse: '{}'", LocalSystemSettings::EnableClipping);
+        FSLLOG3_DEBUG_WARNING_IF(showClipRectangle.has_value(), "Failed to parse: '{}'", LocalSystemSettings::ShowClipRectangle);
         FSLLOG3_DEBUG_WARNING_IF(activeRenderIndex.has_value(), "Failed to parse: '{}'", LocalSystemSettings::ActiveRenderIndex);
         return {};
       }
-      return AppTestSettings(showStats.value(), showIdle.value(), noOpaqueMaterials.value(), activeRenderIndex.value());
+      return AppTestSettings(showStats.value(), showIdle.value(), noOpaqueMaterials.value(), enableClipping.value(), showClipRectangle.value(),
+                             activeRenderIndex.value());
     }
 
 
@@ -167,6 +185,8 @@ namespace Fsl::AppSettingsPersistence
 
       std::optional<bool> showStats = JsonHelper::TryParseBool(jsonValue[LocalUISettings::ShowStats]);
       std::optional<bool> showChart = JsonHelper::TryParseBool(jsonValue[LocalUISettings::ShowChart]);
+
+
       if (!showStats.has_value() || !showChart.has_value())
       {
         FSLLOG3_DEBUG_WARNING_IF(showStats.has_value(), "Failed to parse: '{}'", LocalUISettings::ShowStats);
@@ -231,6 +251,8 @@ namespace Fsl::AppSettingsPersistence
       json[LocalSettings::TestSettings] = {{LocalSystemSettings::ShowStats, settings.Test.ShowStats},
                                            {LocalSystemSettings::ShowIdle, settings.Test.ShowIdle},
                                            {LocalSystemSettings::NoOpaqueMaterials, settings.Test.NoOpaqueMaterials},
+                                           {LocalSystemSettings::EnableClipping, settings.Test.EnableClipping},
+                                           {LocalSystemSettings::ShowClipRectangle, settings.Test.ShowClipRectangle},
                                            {LocalSystemSettings::ActiveRenderIndex, settings.Test.ActiveRenderIndex}};
 
       json[LocalSettings::UISettings] = {{LocalUISettings::ShowStats, settings.UI.ShowStats}, {LocalUISettings::ShowChart, settings.UI.ShowChart}};

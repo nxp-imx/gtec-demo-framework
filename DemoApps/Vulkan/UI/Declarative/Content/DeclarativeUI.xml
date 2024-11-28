@@ -76,92 +76,133 @@
       </StackLayout>
     </BackgroundWindow>
 
-    <ScrollViewer AlignmentX="Center" AlignmentY="Stretch" ScrollMode="TranslateY">
-      <StackLayout Orientation="Vertical">
-        <Label Content="1" AlignmentX="Center"/>
-        <Label Content="2" AlignmentX="Center"/>
-        <Label Content="3" AlignmentX="Center"/>
-        <Label Content="4" AlignmentX="Center"/>
-        <Label Content="5" AlignmentX="Center"/>
-        <Label Content="6" AlignmentX="Center"/>
-        <Label Content="7" AlignmentX="Center"/>
-        <Label Content="8" AlignmentX="Center"/>
-        <Label Content="9" AlignmentX="Center"/>
-        <Label Content="*** Drag this to scroll ***"/>
-        <Label Content="1" AlignmentX="Center"/>
-        <Label Content="2" AlignmentX="Center"/>
-        <Label Content="3" AlignmentX="Center"/>
-        <Label Content="4" AlignmentX="Center"/>
-        <Label Content="5" AlignmentX="Center"/>
-        <Label Content="6" AlignmentX="Center"/>
-        <Label Content="7" AlignmentX="Center"/>
-        <Label Content="8" AlignmentX="Center"/>
-        <Label Content="9" AlignmentX="Center"/>
-        <Label Content="*** Drag this to scroll ***"/>
-        <Label Content="1" AlignmentX="Center"/>
-        <Label Content="2" AlignmentX="Center"/>
-        <Label Content="3" AlignmentX="Center"/>
-        <Label Content="4" AlignmentX="Center"/>
-        <Label Content="5" AlignmentX="Center"/>
-        <Label Content="6" AlignmentX="Center"/>
-        <Label Content="7" AlignmentX="Center"/>
-        <Label Content="8" AlignmentX="Center"/>
-        <Label Content="9" AlignmentX="Center"/>
-        <Label Content="*** Drag this to scroll ***"/>
-        <Label Content="1" AlignmentX="Center"/>
-        <Label Content="2" AlignmentX="Center"/>
-        <Label Content="3" AlignmentX="Center"/>
-        <Label Content="4" AlignmentX="Center"/>
-        <Label Content="5" AlignmentX="Center"/>
-        <Label Content="6" AlignmentX="Center"/>
-        <Label Content="7" AlignmentX="Center"/>
-        <Label Content="8" AlignmentX="Center"/>
-        <Label Content="9" AlignmentX="Center"/>
-        <Label Content="*** Drag this to scroll ***"/>
-        <Label Content="1" AlignmentX="Center"/>
-        <Label Content="2" AlignmentX="Center"/>
-        <Label Content="3" AlignmentX="Center"/>
-        <Label Content="4" AlignmentX="Center"/>
-        <Label Content="5" AlignmentX="Center"/>
-        <Label Content="6" AlignmentX="Center"/>
-        <Label Content="7" AlignmentX="Center"/>
-        <Label Content="8" AlignmentX="Center"/>
-        <Label Content="9" AlignmentX="Center"/>
-        <Label Content="*** Drag this to scroll ***"/>
-        <Label Content="1" AlignmentX="Center"/>
-        <Label Content="2" AlignmentX="Center"/>
-        <Label Content="3" AlignmentX="Center"/>
-        <Label Content="4" AlignmentX="Center"/>
-        <Label Content="5" AlignmentX="Center"/>
-        <Label Content="6" AlignmentX="Center"/>
-        <Label Content="7" AlignmentX="Center"/>
-        <Label Content="8" AlignmentX="Center"/>
-        <Label Content="9" AlignmentX="Center"/>
-        <Label Content="*** Drag this to scroll ***"/>
-        <Label Content="1" AlignmentX="Center"/>
-        <Label Content="2" AlignmentX="Center"/>
-        <Label Content="3" AlignmentX="Center"/>
-        <Label Content="4" AlignmentX="Center"/>
-        <Label Content="5" AlignmentX="Center"/>
-        <Label Content="6" AlignmentX="Center"/>
-        <Label Content="7" AlignmentX="Center"/>
-        <Label Content="8" AlignmentX="Center"/>
-        <Label Content="9" AlignmentX="Center"/>
-        <Label Content="*** Drag this to scroll ***"/>
-        <Label Content="1" AlignmentX="Center"/>
-        <Label Content="2" AlignmentX="Center"/>
-        <Label Content="3" AlignmentX="Center"/>
-        <Label Content="4" AlignmentX="Center"/>
-        <Label Content="5" AlignmentX="Center"/>
-        <Label Content="6" AlignmentX="Center"/>
-        <Label Content="7" AlignmentX="Center"/>
-        <Label Content="8" AlignmentX="Center"/>
-        <Label Content="9" AlignmentX="Center"/>
-        <Label Content="*** Drag this to scroll ***"/>
-      </StackLayout>
-    </ScrollViewer>
+    <BackgroundWindow AlignmentX="Near" AlignmentY="Center" theme_Type="DialogNormal" Height="200">
+      <ScrollViewer AlignmentX="Center" AlignmentY="Stretch" ScrollMode="TranslateY" ClipContent="true">
+        <StackLayout Orientation="Vertical">
+          <Label Content="*** Drag this to scroll ***"/>
+          <Label Content="1" AlignmentX="Center"/>
+          <Label Content="2" AlignmentX="Center"/>
+          <Label Content="3" AlignmentX="Center"/>
+          <Label Content="4" AlignmentX="Center"/>
+          <Label Content="5" AlignmentX="Center"/>
+          <Label Content="6" AlignmentX="Center"/>
+          <Label Content="7" AlignmentX="Center"/>
+          <Label Content="8" AlignmentX="Center"/>
+          <Label Content="9" AlignmentX="Center"/>
+          <Label Content="*** Drag this to scroll ***"/>
+          <Label Content="1" AlignmentX="Center"/>
+          <Label Content="2" AlignmentX="Center"/>
+          <Label Content="3" AlignmentX="Center"/>
+          <Label Content="4" AlignmentX="Center"/>
+          <Label Content="5" AlignmentX="Center"/>
+          <Label Content="6" AlignmentX="Center"/>
+          <Label Content="7" AlignmentX="Center"/>
+          <Label Content="8" AlignmentX="Center"/>
+          <Label Content="9" AlignmentX="Center"/>
+          <Label Content="*** Drag this to scroll ***"/>
+          <Label Content="1" AlignmentX="Center"/>
+          <Label Content="2" AlignmentX="Center"/>
+          <Label Content="3" AlignmentX="Center"/>
+          <Label Content="4" AlignmentX="Center"/>
+          <Label Content="5" AlignmentX="Center"/>
+          <Label Content="6" AlignmentX="Center"/>
+          <Label Content="7" AlignmentX="Center"/>
+          <Label Content="8" AlignmentX="Center"/>
+          <Label Content="9" AlignmentX="Center"/>
+          <Label Content="*** Drag this to scroll ***"/>
+          <Label Content="1" AlignmentX="Center"/>
+          <Label Content="2" AlignmentX="Center"/>
+          <Label Content="3" AlignmentX="Center"/>
+          <Label Content="4" AlignmentX="Center"/>
+          <Label Content="5" AlignmentX="Center"/>
+          <Label Content="6" AlignmentX="Center"/>
+          <Label Content="7" AlignmentX="Center"/>
+          <Label Content="8" AlignmentX="Center"/>
+          <Label Content="9" AlignmentX="Center"/>
+          <Label Content="*** Drag this to scroll ***"/>
+          <Label Content="1" AlignmentX="Center"/>
+          <Label Content="2" AlignmentX="Center"/>
+          <Label Content="3" AlignmentX="Center"/>
+          <Label Content="4" AlignmentX="Center"/>
+          <Label Content="5" AlignmentX="Center"/>
+          <Label Content="6" AlignmentX="Center"/>
+          <Label Content="7" AlignmentX="Center"/>
+          <Label Content="8" AlignmentX="Center"/>
+          <Label Content="9" AlignmentX="Center"/>
+          <Label Content="*** Drag this to scroll ***"/>
+          <Label Content="1" AlignmentX="Center"/>
+          <Label Content="2" AlignmentX="Center"/>
+          <Label Content="3" AlignmentX="Center"/>
+          <Label Content="4" AlignmentX="Center"/>
+          <Label Content="5" AlignmentX="Center"/>
+          <Label Content="6" AlignmentX="Center"/>
+          <Label Content="7" AlignmentX="Center"/>
+          <Label Content="8" AlignmentX="Center"/>
+          <Label Content="9" AlignmentX="Center"/>
+          <Label Content="*** Drag this to scroll ***"/>
+          <Label Content="1" AlignmentX="Center"/>
+          <Label Content="2" AlignmentX="Center"/>
+          <Label Content="3" AlignmentX="Center"/>
+          <Label Content="4" AlignmentX="Center"/>
+          <Label Content="5" AlignmentX="Center"/>
+          <Label Content="6" AlignmentX="Center"/>
+          <Label Content="7" AlignmentX="Center"/>
+          <Label Content="8" AlignmentX="Center"/>
+          <Label Content="9" AlignmentX="Center"/>
+          <Label Content="*** Drag this to scroll ***"/>
+          <Label Content="1" AlignmentX="Center"/>
+          <Label Content="2" AlignmentX="Center"/>
+          <Label Content="3" AlignmentX="Center"/>
+          <Label Content="4" AlignmentX="Center"/>
+          <Label Content="5" AlignmentX="Center"/>
+          <Label Content="6" AlignmentX="Center"/>
+          <Label Content="7" AlignmentX="Center"/>
+          <Label Content="8" AlignmentX="Center"/>
+          <Label Content="9" AlignmentX="Center"/>
+          <Label Content="*** Drag this to scroll ***"/>
+        </StackLayout>
+      </ScrollViewer>
+    </BackgroundWindow>
 
-
+    <BackgroundWindow AlignmentX="Center" AlignmentY="Center" theme_Type="DialogNormal" Height="250">
+      <ScrollViewer AlignmentX="Center" AlignmentY="Stretch" ScrollMode="TranslateY" ClipContent="true">
+        <StackLayout Orientation="Vertical">
+          <Label Content="*** Drag this to scroll ***" AlignmentX="Center"/>
+          <Label Content="Hello world" AlignmentX="Center"/>
+          <ScrollViewer AlignmentX="Stretch" AlignmentY="Center" ScrollMode="TranslateX" ClipContent="true" Width="300">
+            <StackLayout Orientation="Horizontal">
+            <ContainedTextButton Content="Drag this" AlignmentY="Center"/>
+              <Label Content="to scroll horizontally" AlignmentY="Center"/>
+              <TextButton Content="Wizard" AlignmentY="Center"/>
+              <OutlinedTextButton Content="Magic" AlignmentY="Center"/>
+            </StackLayout>
+          </ScrollViewer>
+          <UniformStackLayout Orientation="Vertical" AlignmentX="Stretch">
+            <TextButton Content="Five" AlignmentX="Center"/>
+            <OutlinedTextButton Content="Jumping" AlignmentX="Center"/>
+            <ContainedTextButton Content="Wizard" AlignmentX="Center"/>
+          </UniformStackLayout>
+          <Label Content="Hi there" AlignmentX="Center"/>
+          <UniformStackLayout Orientation="Horizontal">
+            <CheckBox Text="Five" AlignmentX="Stretch" Enabled="false"/>
+            <CheckBox Text="Jumping" AlignmentX="Stretch" Checked="true"/>
+            <CheckBox Text="Wizard" AlignmentX="Stretch"/>
+          </UniformStackLayout>
+          <UniformStackLayout Orientation="Horizontal">
+            <RadioButton GroupName="Test2" Text="Five" AlignmentX="Stretch" Enabled="false"/>
+            <RadioButton GroupName="Test2" Text="Jumping" AlignmentX="Stretch" Checked="true"/>
+            <RadioButton GroupName="Test2" Text="Wizard" AlignmentX="Stretch"/>
+          </UniformStackLayout>
+          <UniformStackLayout Orientation="Horizontal">
+            <Switch Text="Five" AlignmentX="Stretch" Enabled="false"/>
+            <Switch Text="Jumping" AlignmentX="Stretch" Checked="true"/>
+            <Switch Text="Wizard" AlignmentX="Stretch"/>
+          </UniformStackLayout>
+          <Label Content="*** Drag this to scroll ***" AlignmentX="Center"/>
+        </StackLayout>
+      </ScrollViewer>
+    </BackgroundWindow>
+    
     <StackLayout AlignmentX="Stretch" AlignmentY="Far" Spacing="4">
       <Label Content="UniformWrapLayout"/>
       <UniformWrapLayout Orientation="Horizontal" AlignmentX="Center" AlignmentY="Far" >

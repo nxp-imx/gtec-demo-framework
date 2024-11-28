@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 #include <FslBase/Math/Pixel/PxClipRectangle.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslSimpleUI/Render/Base/UIRenderColor.hpp>
 #include <FslSimpleUI/Render/Builder/UIRawMeshBuilder2D.hpp>
@@ -45,6 +46,8 @@ namespace Fsl::UI
     UIRawMeshBuilder2D& m_rBuilder;
     UITextMeshBuilder& m_rTextBuilder;
     const SpriteFont& m_spriteFont;
+    bool m_clippingEnabled{false};
+    PxAreaRectangleF m_clipRectanglePxf;
 
   public:
     ScopedCustomUITextMeshBuilder2D(UIRawMeshBuilder2D& rBuilder, UITextMeshBuilder& rTextBuilder, const SpriteFont& spriteFont)
@@ -53,6 +56,17 @@ namespace Fsl::UI
       , m_spriteFont(spriteFont)
     {
     }
+
+    ScopedCustomUITextMeshBuilder2D(UIRawMeshBuilder2D& rBuilder, UITextMeshBuilder& rTextBuilder, const SpriteFont& spriteFont,
+                                    const PxAreaRectangleF clipRectanglePxf)
+      : m_rBuilder(rBuilder)
+      , m_rTextBuilder(rTextBuilder)
+      , m_spriteFont(spriteFont)
+      , m_clippingEnabled(true)
+      , m_clipRectanglePxf(clipRectanglePxf)
+    {
+    }
+
 
     const SpriteFontInfo& GetFontInfo()
     {
@@ -71,17 +85,42 @@ namespace Fsl::UI
 
     void AddString(const PxVector2 dstPositionPxf, const StringViewLite strView)
     {
-      m_rTextBuilder.AddString(m_rBuilder, m_spriteFont, dstPositionPxf, strView);
+      if (!m_clippingEnabled)
+      {
+        m_rTextBuilder.AddString(m_rBuilder, m_spriteFont, dstPositionPxf, strView);
+      }
+      else
+      {
+        m_rTextBuilder.AddString(m_rBuilder, m_spriteFont, dstPositionPxf, strView, m_clipRectanglePxf);
+      }
     }
 
     void AddString(const PxVector2 dstPositionPxf, const StringViewLite strView, const PxClipRectangle& clipRectPx)
     {
-      m_rTextBuilder.AddString(m_rBuilder, m_spriteFont, dstPositionPxf, strView, clipRectPx);
+      if (!m_clippingEnabled)
+      {
+        m_rTextBuilder.AddString(m_rBuilder, m_spriteFont, dstPositionPxf, strView, clipRectPx);
+      }
+      else
+      {
+        auto clipRectPxf = TypeConverter::To<PxAreaRectangleF>(clipRectPx);
+        clipRectPxf = PxAreaRectangleF::Intersect(m_clipRectanglePxf, clipRectPxf);
+
+        m_rTextBuilder.AddString(m_rBuilder, m_spriteFont, dstPositionPxf, strView, clipRectPxf);
+      }
     }
 
     void AddString(const PxVector2 dstPositionPxf, const StringViewLite strView, const PxAreaRectangleF& clipRectPxf)
     {
-      m_rTextBuilder.AddString(m_rBuilder, m_spriteFont, dstPositionPxf, strView, clipRectPxf);
+      if (!m_clippingEnabled)
+      {
+        m_rTextBuilder.AddString(m_rBuilder, m_spriteFont, dstPositionPxf, strView, clipRectPxf);
+      }
+      else
+      {
+        auto finalClipRectPxf = PxAreaRectangleF::Intersect(m_clipRectanglePxf, clipRectPxf);
+        m_rTextBuilder.AddString(m_rBuilder, m_spriteFont, dstPositionPxf, strView, finalClipRectPxf);
+      }
     }
   };
 }

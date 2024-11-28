@@ -74,6 +74,8 @@ namespace Fsl::UI::Theme
 
       const UIColor ImageOnPrimary{UIColors::White()};
 
+      const UIColor ScrollbarCursorColor{PackedColor32(0x82FFFFFF)};
+
       constexpr explicit PaletteRecord(const OpacityRecord& opacity)
       {
         FSL_PARAM_NOT_USED(opacity);
@@ -359,6 +361,17 @@ namespace Fsl::UI::Theme
       }
     };
 
+    struct ScrollbarRecord
+    {
+      const UIColor Cursor;
+
+      constexpr ScrollbarRecord(const OpacityRecord& opacity, const PaletteRecord& palette)
+        : Cursor(palette.ScrollbarCursorColor)
+      {
+        FSL_PARAM_NOT_USED(opacity);
+      }
+    };
+
     struct SwitchRecord
     {
       const UIColor HoverChecked;
@@ -468,6 +481,7 @@ namespace Fsl::UI::Theme
     const DividerRecord Divider;
     const ImageButtonRecord ImageButton;
     const RadioButtonRecord RadioButton;
+    const ScrollbarRecord Scrollbar;
     const SwitchRecord Switch;
     const SliderRecord Slider;
     const WindowRecord Window;
@@ -482,6 +496,7 @@ namespace Fsl::UI::Theme
       , Divider(Opacity, Palette)
       , ImageButton(Opacity, Palette)
       , RadioButton(Opacity, Palette)
+      , Scrollbar(Opacity, Palette)
       , Switch(Opacity, Palette)
       , Slider(Opacity, Palette)
       , Window(Opacity, Palette)
@@ -490,8 +505,8 @@ namespace Fsl::UI::Theme
 
     constexpr explicit BasicThemeColors(const ColorSpace activeColorSpace, const OpacityRecord& opacity, PaletteRecord palette, BarRecord bar,
                                         DefaultFontRecord defaultFont, ButtonRecord button, CheckBoxRecord checkBox, DividerRecord divider,
-                                        ImageButtonRecord imageButton, RadioButtonRecord radioButton, SwitchRecord switchRecord, SliderRecord slider,
-                                        WindowRecord window)
+                                        ImageButtonRecord imageButton, RadioButtonRecord radioButton, ScrollbarRecord scrollbar,
+                                        SwitchRecord switchRecord, SliderRecord slider, WindowRecord window)
       : ActiveColorSpace(activeColorSpace)
       , Opacity(opacity)
       , Palette(std::move(palette))
@@ -502,6 +517,7 @@ namespace Fsl::UI::Theme
       , Divider(std::move(divider))
       , ImageButton(std::move(imageButton))
       , RadioButton(std::move(radioButton))
+      , Scrollbar(std::move(scrollbar))
       , Switch(std::move(switchRecord))
       , Slider(std::move(slider))
       , Window(std::move(window))

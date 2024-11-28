@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,6 +49,7 @@ namespace Fsl
         DisableChart = DEMO_APP_OPTION_BASE,
         ShowSystemIdle,
         Scene,
+        BenchmarkScene,
         RunDefaultBench,
         Compare,
         View,
@@ -61,6 +62,8 @@ namespace Fsl
     rOptions.emplace_back("NoChart", OptionArgument::OptionNone, CommandId::DisableChart, "Disable the chart UI");
     rOptions.emplace_back("ShowSystemIdle", OptionArgument::OptionNone, CommandId::ShowSystemIdle, "Indicate if the system UI is idle or not");
     rOptions.emplace_back("Scene", OptionArgument::OptionRequired, CommandId::Scene, "Select the scene to start: bench, play, record, result");
+    rOptions.emplace_back("BenchmarkScene", OptionArgument::OptionRequired, CommandId::BenchmarkScene,
+                          "Select the benchmark scene to use: 0 (default), dev");
     rOptions.emplace_back("RunDefaultBench", OptionArgument::OptionNone, CommandId::RunDefaultBench,
                           "Run the default bench, this forces the use of the default input recording and forces the scene to bench");
     rOptions.emplace_back("Compare", OptionArgument::OptionRequired, CommandId::Compare, "Always compare a benchmark to the supplied result file");
@@ -98,6 +101,18 @@ namespace Fsl
       else if (strOptArg == "result")
       {
         m_sceneId = SceneId::Result;
+        return OptionParseResult::Parsed;
+      }
+      return OptionParseResult::Failed;
+    case CommandId::BenchmarkScene:
+      if (strOptArg == "0" || strOptArg == "default")
+      {
+        m_benchmarkScene = AppBenchmarkScene::Scene0;
+        return OptionParseResult::Parsed;
+      }
+      else if (strOptArg == "dev")
+      {
+        m_benchmarkScene = AppBenchmarkScene::Dev;
         return OptionParseResult::Parsed;
       }
       return OptionParseResult::Failed;

@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-// Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslUtil/OpenGLES3/GLBuffer.hpp>
 #include <GLES3/gl3.h>
@@ -85,6 +85,12 @@ namespace Fsl::GLES3
     GLIndexBuffer(const uint16_t* const pIndices, const std::size_t elementCount, const GLenum usage);
 
     //! @brief Create a initialized index buffer
+    GLIndexBuffer(const ReadOnlySpan<uint8_t> indices, const GLenum usage);
+
+    //! @brief Create a initialized index buffer
+    GLIndexBuffer(const ReadOnlySpan<uint16_t> indices, const GLenum usage);
+
+    //! @brief Create a initialized index buffer
     GLIndexBuffer(const std::vector<uint8_t>& indices, const GLenum usage);
 
     //! @brief Create a initialized index buffer
@@ -106,6 +112,16 @@ namespace Fsl::GLES3
     //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
     //! internally)
     void Reset(const uint16_t* const pIndices, const std::size_t elementCount, const GLenum usage);
+
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const ReadOnlySpan<uint8_t>& indices, const GLenum usage);
+
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const ReadOnlySpan<uint16_t>& indices, const GLenum usage);
 
     //! @brief Reset the buffer to contain the supplied elements
     //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer

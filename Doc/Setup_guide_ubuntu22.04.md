@@ -38,7 +38,7 @@
     sudo apt-get install cmake
     ```
 
-* Python 3.6+
+* Python 3.10+
   To be able run python scripts, they are not needed to build.
   It should be part of the default Ubuntu install.
 * DevIL (Developer's Image Library)

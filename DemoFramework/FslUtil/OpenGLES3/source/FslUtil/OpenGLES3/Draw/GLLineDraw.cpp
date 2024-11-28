@@ -84,6 +84,7 @@ namespace Fsl::GLES3
     assert(vertexCount <= static_cast<std::make_unsigned<GLsizei>::type>(std::numeric_limits<GLsizei>::max()));
     glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(vertexCount));
 
+    LineVertexBuffer.DisableAttribArrays(pLinks, linkCount);
     glBindBuffer(GL_ARRAY_BUFFER, 0u);
   }
 }

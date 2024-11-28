@@ -32,9 +32,11 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Time/TimeSpan.hpp>
+#include <FslGraphics/Sprite/IContentSprite.hpp>
 #include <FslSimpleUI/Base/Control/ContentControl.hpp>
 #include <FslSimpleUI/Base/Control/ScrollGestureHandler.hpp>
 #include <FslSimpleUI/Base/Control/ScrollModeFlags.hpp>
+#include <FslSimpleUI/Base/Mesh/ContentSpriteMesh.hpp>
 
 namespace Fsl::UI
 {
@@ -42,8 +44,31 @@ namespace Fsl::UI
   {
     using base_type = ContentControl;
 
+  protected:
+    struct RenderCursorInfo
+    {
+      bool Enabled{false};
+      PxPoint2 OffsetPx;
+      PxSize2D SizePx;
+      UIRenderColor Color;
+
+      constexpr RenderCursorInfo() noexcept = default;
+      constexpr RenderCursorInfo(const bool enabled, const PxPoint2 offsetPx, const PxSize2D sizePx, const UIRenderColor color) noexcept
+      {
+        Enabled = enabled;
+        OffsetPx = offsetPx;
+        SizePx = sizePx;
+        Color = color;
+      }
+    };
+
+  private:
     ScrollGestureHandler m_gestureHandler;
     bool m_isDown{false};
+    PxPoint2 m_scrollPositionOffsetPx;
+
+    ContentSpriteMesh m_cursorX;
+    ContentSpriteMesh m_cursorY;
 
     DataBinding::TypedDependencyProperty<ScrollModeFlags> m_propertyScrollMode;
     DataBinding::TypedDependencyProperty<float> m_propertyDragFlickDeceleration;
@@ -52,6 +77,8 @@ namespace Fsl::UI
     DataBinding::TypedDependencyProperty<float> m_propertyBounceSpringStiffness;
     DataBinding::TypedDependencyProperty<TimeSpan> m_propertyBounceAnimationTime;
     DataBinding::TypedDependencyProperty<TransitionType> m_propertyBounceTransitionType;
+    DataBinding::TypedDependencyProperty<bool> m_propertyClipContent;
+    DependencyPropertyUIColor m_propertyCursorColor;
 
   public:
     // NOLINTNEXTLINE(readability-identifier-naming)
@@ -68,10 +95,12 @@ namespace Fsl::UI
     static DataBinding::DependencyPropertyDefinition PropertyBounceAnimationTime;
     // NOLINTNEXTLINE(readability-identifier-naming)
     static DataBinding::DependencyPropertyDefinition PropertyBounceTransitionType;
-
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    static DataBinding::DependencyPropertyDefinition PropertyClipContent;
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    static DataBinding::DependencyPropertyDefinition PropertyCursorColor;
 
     explicit ScrollViewer(const std::shared_ptr<BaseWindowContext>& context);
-
 
     void WinResolutionChanged(const ResolutionChangedInfo& info) final;
 
@@ -96,6 +125,31 @@ namespace Fsl::UI
     TransitionType GetBounceTransitionType() const noexcept;
     bool SetBounceTransitionType(const TransitionType value) noexcept;
 
+    UIColor GetCursorColor() const noexcept;
+    bool SetCursorColor(const UIColor value) noexcept;
+
+    bool GetClipContent() const noexcept;
+    bool SetClipContent(const bool value) noexcept;
+
+    const std::shared_ptr<IContentSprite>& GetCursorX() const
+    {
+      return m_cursorX.GetSprite();
+    }
+
+    bool SetCursorX(const std::shared_ptr<IContentSprite>& value);
+    bool SetCursorX(std::shared_ptr<IContentSprite>&& value);
+
+    const std::shared_ptr<IContentSprite>& GetCursorY() const
+    {
+      return m_cursorY.GetSprite();
+    }
+
+    bool SetCursorY(const std::shared_ptr<IContentSprite>& value);
+    bool SetCursorY(std::shared_ptr<IContentSprite>&& value);
+
+
+    void WinDraw(const UIDrawContext& context) override;
+
   protected:
     void OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent) final;
 
@@ -103,6 +157,9 @@ namespace Fsl::UI
     bool UpdateAnimationState(const bool forceCompleteAnimation) final;
     PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
     PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final;
+
+    RenderCursorInfo GetRenderCursorInfoX() const noexcept;
+    RenderCursorInfo GetRenderCursorInfoY() const noexcept;
 
     DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) final;
     DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,

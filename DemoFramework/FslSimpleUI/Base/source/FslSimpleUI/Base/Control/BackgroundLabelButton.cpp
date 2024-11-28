@@ -307,12 +307,12 @@ namespace Fsl::UI
       if (!IsDown() && m_isHovering && m_backgroundHover.IsValid() && IsEnabled())
       {
         context.CommandBuffer.Draw(m_backgroundHover.Get(), context.TargetRect.TopLeft(), renderSizePx,
-                                   finalColor * m_backgroundCurrentColor.GetValue());
+                                   finalColor * m_backgroundCurrentColor.GetValue(), context.ClipContext);
       }
       else
       {
         context.CommandBuffer.Draw(m_backgroundNormal.Get(), context.TargetRect.TopLeft(), renderSizePx,
-                                   finalColor * m_backgroundCurrentColor.GetValue());
+                                   finalColor * m_backgroundCurrentColor.GetValue(), context.ClipContext);
       }
     }
 
@@ -321,7 +321,7 @@ namespace Fsl::UI
       if (backgroundHoverOverlayColor.RawA() > 0)
       {
         context.CommandBuffer.Draw(m_backgroundHoverOverlay.Get(), context.TargetRect.TopLeft(), renderSizePx,
-                                   finalColor * backgroundHoverOverlayColor);
+                                   finalColor * backgroundHoverOverlayColor, context.ClipContext);
       }
     }
 
@@ -341,7 +341,8 @@ namespace Fsl::UI
       posPxf.X += TypeConverter::UncheckedTo<PxValueF>(contentMarginPx.Left() + paddingPx.Left() + offsetXPx);
       posPxf.Y += TypeConverter::UncheckedTo<PxValueF>(contentMarginPx.Top() + paddingPx.Top() + offsetYPx);
 
-      context.CommandBuffer.Draw(m_fontMesh.Get(), posPxf, m_labelMeasureInfo.MinimalSizePx, finalColor * m_fontCurrentColor.GetValue());
+      context.CommandBuffer.Draw(m_fontMesh.Get(), posPxf, m_labelMeasureInfo.MinimalSizePx, finalColor * m_fontCurrentColor.GetValue(),
+                                 context.ClipContext);
     }
   }
 

@@ -35,7 +35,8 @@ namespace Fsl
 {
   enum class AppBenchmarkScene
   {
-    Scene0 = 0
+    Scene0 = 0,
+    Dev = 0xFF,
   };
 }
 

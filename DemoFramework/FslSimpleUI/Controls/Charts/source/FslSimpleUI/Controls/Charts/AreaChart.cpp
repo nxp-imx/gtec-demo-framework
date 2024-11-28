@@ -121,7 +121,7 @@ namespace Fsl::UI
     }
 
     void DrawCustomGridLabelsBGNow(UIRawMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx,
-                                   const RenderNineSliceInfo& renderInfo,
+                                   const RenderOptimizedNineSliceInfo& renderInfo,
                                    const ReadOnlySpan<Render::ChartDataWindowDrawData::GridLineRecord> gridLines, const UIRenderColor mainColor)
     {
       const PxAreaRectangleF clipRectanglePx(dstPositionPxf.X, dstPositionPxf.Y, PxSize1DF(dstSizePx.Width()), PxSize1DF(dstSizePx.Height()));
@@ -225,7 +225,7 @@ namespace Fsl::UI
     }
 
     void DrawCustomGraph(UIRawBasicMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx,
-                         const RenderBasicImageInfo& renderInfo, const ICustomDrawData* const pCustomDrawData)
+                         const DrawClipContext& clipContext, const RenderBasicImageInfo& renderInfo, const ICustomDrawData* const pCustomDrawData)
     {
       const auto* pChartWindow = dynamic_cast<const Render::ChartDataWindowDrawData*>(pCustomDrawData);
       if (pChartWindow != nullptr && pChartWindow->DataView)
@@ -295,7 +295,7 @@ namespace Fsl::UI
     }
 
     void DrawCustomGridLines(UIRawMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx,
-                             const RenderBasicImageInfo& renderInfo, const ICustomDrawData* const pCustomDrawData)
+                             const DrawClipContext& clipContext, const RenderBasicImageInfo& renderInfo, const ICustomDrawData* const pCustomDrawData)
     {
       const auto* pChartWindow = dynamic_cast<const Render::ChartDataWindowDrawData*>(pCustomDrawData);
       if (pChartWindow != nullptr)
@@ -314,7 +314,8 @@ namespace Fsl::UI
 
 
     void DrawCustomGridLabelsBG(UIRawMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx,
-                                const RenderNineSliceInfo& renderInfo, const ICustomDrawData* const pCustomDrawData)
+                                const DrawClipContext& clipContext, const RenderOptimizedNineSliceInfo& renderInfo,
+                                const ICustomDrawData* const pCustomDrawData)
     {
       const auto* pChartWindow = dynamic_cast<const Render::ChartDataWindowDrawData*>(pCustomDrawData);
       if (pChartWindow != nullptr)
@@ -565,23 +566,26 @@ namespace Fsl::UI
     if (m_graphMesh.IsValid())
     {
       m_chartWindowDrawData->FillChartCache(finalBaseColor);
-      context.CommandBuffer.DrawCustom(m_graphMesh.Get(), context.TargetRect.Location(), RenderSizePx(), finalBaseColor, DrawCustomGraph,
-                                       m_chartWindowDrawData);
+      context.CommandBuffer.DrawCustom(m_graphMesh.Get(), context.TargetRect.Location(), RenderSizePx(), finalBaseColor, context.ClipContext,
+                                       DrawCustomGraph, m_chartWindowDrawData);
     }
     if (m_gridLinesMesh.IsValid())
     {
       context.CommandBuffer.DrawCustom(m_gridLinesMesh.Get(), context.TargetRect.Location(), RenderSizePx(),
-                                       finalBaseColor * m_lineColor.GetInternalColor(), DrawCustomGridLines, m_chartWindowDrawData);
+                                       finalBaseColor * m_lineColor.GetInternalColor(), context.ClipContext, DrawCustomGridLines,
+                                       m_chartWindowDrawData);
     }
     if (m_gridLabelsBackground.IsValid())
     {
       context.CommandBuffer.DrawCustom(m_gridLabelsBackground.Get(), context.TargetRect.Location(), RenderSizePx(),
-                                       finalBaseColor * m_backgroundColor.GetInternalColor(), DrawCustomGridLabelsBG, m_chartWindowDrawData);
+                                       finalBaseColor * m_backgroundColor.GetInternalColor(), context.ClipContext, DrawCustomGridLabelsBG,
+                                       m_chartWindowDrawData);
     }
     if (m_gridLabelsMesh.IsValid())
     {
       context.CommandBuffer.DrawCustom(m_gridLabelsMesh.Get(), context.TargetRect.Location(), RenderSizePx(),
-                                       finalBaseColor * m_labelColor.GetInternalColor(), DrawCustomGridLabels, m_chartWindowDrawData);
+                                       finalBaseColor * m_labelColor.GetInternalColor(), context.ClipContext, DrawCustomGridLabels,
+                                       m_chartWindowDrawData);
     }
 
     if (m_gridLineManager.IsAnimating())

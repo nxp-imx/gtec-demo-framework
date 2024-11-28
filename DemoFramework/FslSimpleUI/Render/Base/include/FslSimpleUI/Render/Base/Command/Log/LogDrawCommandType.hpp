@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/BasicTypes.hpp>
 #include <FslSimpleUI/Render/Base/Command/Debug/DebugDrawCommandType.hpp>
 #include <ostream>
 

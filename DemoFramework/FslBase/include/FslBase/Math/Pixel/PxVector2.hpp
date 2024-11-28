@@ -42,8 +42,8 @@ namespace Fsl
     using value_type = PxValueF;
     using raw_value_type = value_type::raw_value_type;
 
-    value_type X{0};
-    value_type Y{0};
+    PxValueF X{0};
+    PxValueF Y{0};
 
     constexpr PxVector2() noexcept = default;
 

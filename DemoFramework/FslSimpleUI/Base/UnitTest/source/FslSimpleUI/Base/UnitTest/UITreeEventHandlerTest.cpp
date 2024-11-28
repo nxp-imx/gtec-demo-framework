@@ -54,10 +54,10 @@ namespace Fsl::UI
       {
         if (routedEvent.IsTunneling == itrFindIntercept->second)
         {
-          // clickEvent->Intercept();
+          clickEvent->Intercept();
         }
       }
-      else if (clickEvent->GetState() == EventTransactionState::Begin && !clickEvent->IsRepeat())
+      if (clickEvent->GetState() == EventTransactionState::Begin && !clickEvent->IsRepeat())
       {
         auto itrFindHandle = m_clickEventHandleBegin.find(target);
         if (itrFindHandle != m_clickEventHandleBegin.end())

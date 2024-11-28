@@ -140,6 +140,15 @@ namespace Fsl::UI
   }
 
 
+  void UIManager::SetClipRectangle(const bool enabled, const PxRectangle& clipRectanglePx)
+  {
+    if (m_tree)
+    {
+      m_tree->SetClipRectangle(enabled, clipRectanglePx);
+    }
+  }
+
+
   std::shared_ptr<AExternalModule> UIManager::GetExternalModule(const ExternalModuleId& moduleId) const
   {
     if (m_externalModules)

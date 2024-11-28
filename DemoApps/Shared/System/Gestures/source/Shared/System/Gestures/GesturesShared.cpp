@@ -76,11 +76,13 @@ namespace Fsl
     , m_spriteUnitConverter(config.WindowMetrics.DensityDpi)
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
     , m_batch(m_graphics->GetNativeBatch2D())
-    , m_gestureManager(UI::GestureFlags::Everything, UI::GestureDetector(), config.WindowMetrics.DensityDpi)
+    , m_gestureManager(UI::GestureFlags::Everything, UI::GestureDetector(UI::GestureFlags::Everything), config.WindowMetrics.DensityDpi)
     , m_moveableRectangleManager(config.WindowMetrics.GetSizePx(), config.WindowMetrics.DensityDpi)
     , m_add0Px(LocalConfig::Speed)
     , m_add1Px(LocalConfig::Speed)
   {
+    m_gestureManager.SetEnabled(true);
+
     const std::shared_ptr<IContentManager> contentManager = config.DemoServiceProvider.Get<IContentManager>();
     {
       Bitmap bitmap;
@@ -120,8 +122,11 @@ namespace Fsl
   {
     if (event.GetButton() == VirtualMouseButton::Left)
     {
+      const bool previousState = m_mouseLeftMouseDown;
       m_mouseLeftMouseDown = event.IsPressed();
-      m_gestureManager.AddMovement(event.GetTimestamp(), event.GetPosition(), m_mouseLeftMouseDown);
+      const auto state = m_mouseLeftMouseDown ? UI::EventTransactionState::Begin : UI::EventTransactionState::End;
+      m_gestureManager.AddMovement(event.GetTimestamp(), event.GetPosition(), state, m_mouseLeftMouseDown == previousState,
+                                   UI::MovementOwnership::Unhandled);
     }
   }
 
@@ -130,7 +135,8 @@ namespace Fsl
   {
     if (m_mouseLeftMouseDown)
     {
-      m_gestureManager.AddMovement(event.GetTimestamp(), event.GetPosition(), m_mouseLeftMouseDown);
+      m_gestureManager.AddMovement(event.GetTimestamp(), event.GetPosition(), UI::EventTransactionState::Begin, true,
+                                   UI::MovementOwnership::Unhandled);
     }
   }
 

@@ -33,23 +33,23 @@
 
 #include <FslBase/Math/Dp/DpPoint2F.hpp>
 #include <FslBase/Time/MillisecondTickCount32.hpp>
+#include <FslSimpleUI/Base/Event/EventTransactionState.hpp>
+#include <FslSimpleUI/Base/Gesture/GestureAxis.hpp>
 #include <FslSimpleUI/Base/Gesture/GestureRecord.hpp>
+#include <FslSimpleUI/Base/Gesture/GestureTransactionRecord.hpp>
 #include <FslSimpleUI/Base/Gesture/Velocity/VelocityTracker.hpp>
+#include <FslSimpleUI/Base/MovementOwnership.hpp>
+#include <FslSimpleUI/Base/MovementTransactionAction.hpp>
 #include <queue>
 
 namespace Fsl::UI
 {
   class GestureDetector final
   {
+    GestureFlags m_enabledGestures{GestureFlags::NotDefined};
     VelocityTracker m_velocityTracker;
-    bool m_isDown{false};
-    bool m_hasTapCandidate{false};
-    bool m_gotHold{false};
-    bool m_inMotion{false};
-    MillisecondTickCount32 m_downTimestamp;
-    DpPoint2F m_initialDownPositionDpf;
-    bool m_currentlyPressed{false};
-
+    GestureAxis m_axisFlags{GestureAxis::NotDefined};
+    GestureTransactionRecord m_transactionRecord;
     std::queue<GestureRecord> m_gestureQueue;
 
   public:
@@ -61,20 +61,37 @@ namespace Fsl::UI
     // move constructor
     GestureDetector(GestureDetector&& other) noexcept;
 
-    GestureDetector();
+    explicit GestureDetector(const GestureFlags enabledGestures, const GestureAxis axisFlags = GestureAxis::XY);
 
     void Clear();
 
     //! Check if there is a gesture available
     bool IsGestureAvailable() const noexcept;
 
+    bool InMomementTransaction() const noexcept;
+
+    GestureAxis GetGestureAxis() const noexcept;
+    void SetGestureAxis(const GestureAxis value);
+
+    bool HasVelocityEntries() const noexcept;
+
     bool TryReadGesture(GestureRecord& record) noexcept;
 
-    void AddMovement(const MillisecondTickCount32 timestamp, const DpPoint2F screenPositionDpf, const bool isPressed);
+    MovementTransactionAction AddMovement(const MillisecondTickCount32 timestamp, const DpPoint2F screenPositionDpf,
+                                          const EventTransactionState state, const bool isRepeat, const MovementOwnership movementOwnership);
 
   private:
+    MovementTransactionAction BeginTransaction(const MillisecondTickCount32 timestamp, const DpPoint2F screenPositionDpf,
+                                               const MovementOwnership movementOwnership);
+    MovementTransactionAction ContinueTransaction(const MillisecondTickCount32 timestamp, const DpPoint2F screenPositionDpf,
+                                                  const MovementOwnership movementOwnership);
+    MovementTransactionAction EndTransaction(const MillisecondTickCount32 timestamp, const DpPoint2F screenPositionDpf);
+    MovementTransactionAction CancelTransaction(const MillisecondTickCount32 timestamp, const DpPoint2F screenPositionDpf,
+                                                const MovementOwnership movementOwnership);
+    void UpdateTransactionState(const MillisecondTickCount32 timestamp, const DpPoint2F screenPositionDpf, const bool allowNewGestures);
+    void EnqueueGesture(const GestureRecord record);
+
     void Reset() noexcept;
-    void ProcessMovement(const MillisecondTickCount32 timestamp, const DpPoint2F screenPositionDpf, const bool isPressed, const bool isRepeat);
   };
 }
 

@@ -68,7 +68,7 @@ namespace Fsl::SpanUtil
 
   template <typename T, std::size_t TSize>
   inline constexpr ReadOnlySpan<T> UncheckedAsReadOnlySpan(const std::array<T, TSize>& value, typename Span<T>::size_type offset,
-                                                           typename Span<T>::size_type count)
+                                                           typename Span<T>::size_type count) noexcept
   {
     assert(offset <= value.size());
     assert(count <= (value.size() - offset));
@@ -79,7 +79,7 @@ namespace Fsl::SpanUtil
 
   template <typename T, std::size_t TSize>
   inline constexpr ReadOnlySpan<T> UncheckedAsSpan(const std::array<T, TSize>& value, typename Span<T>::size_type offset,
-                                                   typename Span<T>::size_type count)
+                                                   typename Span<T>::size_type count) noexcept
   {
     assert(offset <= value.size());
     assert(count <= (value.size() - offset));

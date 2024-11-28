@@ -80,7 +80,7 @@ namespace Fsl::DataBinding
 
     private:
       std::array<DataBindingInstanceHandle, Internal::DbsConstants::MaxMultiBindSize> m_handles;
-      std::uint32_t m_handleCount;
+      std::uint32_t m_handleCount{0};
 
     public:
       void ClearHandles()

@@ -60,23 +60,24 @@ namespace Fsl
     void SetContent(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo, const BitmapFont& bitmapFont,
                     const SpriteFontConfig& spriteFontConfig, const uint32_t densityDpi, const StringViewLite& debugName);
 
-    const SpriteFontInfo& GetInfo() const
+    const SpriteFontInfo& GetInfo() const noexcept
     {
       return m_info;
     }
 
-    uint32_t GetMaterialCount() const final
+    uint32_t GetMaterialCount() const noexcept final
     {
       return 1u;
     }
     const SpriteMaterialInfo& GetMaterialInfo(const uint32_t index) const final;
+
     void Resize(const uint32_t densityDpi) final;
 
     //! @brief Measure the string size in pixels taking into account the default font config of the font
     PxSize2D MeasureString(const StringViewLite& strView) const;
 
 
-    const TextureAtlasSpriteFont& GetTextureAtlasSpriteFont() const
+    const TextureAtlasSpriteFont& GetTextureAtlasSpriteFont() const noexcept
     {
       return m_bitmapFontAtlas;
     }

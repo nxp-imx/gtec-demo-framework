@@ -45,6 +45,7 @@ namespace Fsl
   class CustomUIDemoAppExtension;
   struct DemoTime;
   struct DemoWindowMetrics;
+  struct PxRectangle;
   struct PxViewport;
 
   class ITestApp
@@ -60,6 +61,7 @@ namespace Fsl
 
     virtual std::shared_ptr<CustomUIDemoAppExtension> GetCustomUIDemoAppExtension() const = 0;
     virtual void SetCustomViewport(const PxViewport& viewportPx) = 0;
+    virtual void SetClipRectangle(const bool enabled, const PxRectangle& clipRectanglePx) = 0;
     virtual void SetUseDrawCache(const bool useDrawCache) = 0;
 
     virtual bool IsUIIdle() const = 0;

@@ -51,10 +51,10 @@ namespace Fsl
     using raw_size_value_type = size_value_type::raw_value_type;
 
   private:
-    value_type m_x;
-    value_type m_y;
-    size_value_type m_width;
-    size_value_type m_height;
+    PxValue m_x;
+    PxValue m_y;
+    PxSize1D m_width;
+    PxSize1D m_height;
 
   public:
     constexpr PxRectangle() noexcept = default;
@@ -471,6 +471,32 @@ namespace Fsl
       return UncheckedFromLeftTopRightBottom(value_type(left), value_type(top), value_type(right), value_type(bottom));
     }
   };
+
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
+  // op multiply
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
+
+  inline constexpr PxRectangle operator*(const PxRectangle lhs, const PxSize1D rhs) noexcept
+  {
+    return {lhs.Left() * rhs, lhs.Top() * rhs, lhs.Width() * rhs, lhs.Height() * rhs};
+  }
+
+  inline constexpr PxRectangle operator*(const PxSize1D lhs, const PxRectangle rhs) noexcept
+  {
+    return {lhs * rhs.Left(), lhs * rhs.Top(), lhs * rhs.Width(), lhs * rhs.Height()};
+  }
+
+  // -------------------------------------------------------------------------------------------------------------------------------------------------
+
+  inline constexpr PxRectangle operator*(const PxRectangle lhs, const PxValue rhs) noexcept
+  {
+    return {lhs.Left() * rhs, lhs.Top() * rhs, lhs.Width() * rhs, lhs.Height() * rhs};
+  }
+
+  inline constexpr PxRectangle operator*(const PxValue lhs, const PxRectangle rhs) noexcept
+  {
+    return {lhs * rhs.Left(), lhs * rhs.Top(), lhs * rhs.Width(), lhs * rhs.Height()};
+  }
 }
 
 

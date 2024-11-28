@@ -75,6 +75,6 @@ namespace Fsl
       unitConverter.CalcScaledPxTrimmedNineSlice(m_info.ImageInfo.ExtentPx, m_info.ImageInfo.TrimMarginPx, m_info.ImageInfo.TrimmedNineSlicePx,
                                                  m_info.ImageInfo.ContentMarginPx, m_info.ImageDpi);
 
-    m_info.RenderInfo = RenderNineSliceInfoEx(m_info.RenderInfo.TextureArea, m_info.RenderInfo.Flags, trimmedNineSlice);
+    m_info.RenderInfo = RenderOptimizedNineSliceInfo(m_info.RenderInfo.TextureArea, m_info.RenderInfo.Flags, trimmedNineSlice);
   }
 }

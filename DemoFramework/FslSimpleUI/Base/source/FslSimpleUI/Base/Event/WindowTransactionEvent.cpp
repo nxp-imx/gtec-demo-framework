@@ -29,19 +29,32 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslSimpleUI/Base/Event/WindowTransactionEvent.hpp>
 
 namespace Fsl::UI
 {
   WindowTransactionEvent::WindowTransactionEvent(const EventTypeId typeId, const EventDescription& eventDescription) noexcept
     : WindowEvent(typeId, eventDescription)
-    , m_sourceId(0)
-    , m_sourceSubId(0)
-    , m_state(EventTransactionState::End)
-    , m_isRepeat(false)
+
   {
   }
 
+
+  bool WindowTransactionEvent::Intercept()
+  {
+    if (m_allowIntercept)
+    {
+      ++m_interceptionCount;
+      ClearStatus();
+      return true;
+    }
+
+
+    // Both the initial and repeat events can be intercepted
+    FSLLOG3_WARNING("Only 'Begin' state events can be intercepted (and END event during tunnnel), request ignored");
+    return false;
+  }
 
   void WindowTransactionEvent::SYS_DoConstruct(const MillisecondTickCount32 timestamp, const int32_t sourceId, const int32_t sourceSubId,
                                                const EventTransactionState state, const bool isRepeat) noexcept
@@ -52,6 +65,8 @@ namespace Fsl::UI
     m_sourceSubId = sourceSubId;
     m_state = state;
     m_isRepeat = isRepeat;
+    m_interceptionCount = 0;
+    m_allowIntercept = false;
   }
 
 
@@ -62,6 +77,18 @@ namespace Fsl::UI
     m_sourceSubId = 0;
     m_state = EventTransactionState::End;
     m_isRepeat = false;
+    m_interceptionCount = 0;
+    m_allowIntercept = false;
     WindowEvent::SYS_Destruct();
+  }
+
+
+  void WindowTransactionEvent::SYS_PatchInternals(EventTransactionState transactionState, bool isRepeat, EventHandlingStatus handlingStatus,
+                                                  bool allowIntercept)
+  {
+    m_state = transactionState;
+    m_isRepeat = isRepeat;
+    m_allowIntercept = allowIntercept;
+    WindowEvent::SYS_DoPatchInternals(handlingStatus);
   }
 }

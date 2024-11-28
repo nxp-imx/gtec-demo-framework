@@ -61,6 +61,20 @@ namespace Fsl::GLES3
   }
 
 
+  GLIndexBuffer::GLIndexBuffer(const ReadOnlySpan<uint8_t> indices, const GLenum usage)
+    : GLBuffer(GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint8_t), usage)
+    , m_type(GL_UNSIGNED_BYTE)
+  {
+  }
+
+
+  GLIndexBuffer::GLIndexBuffer(const ReadOnlySpan<uint16_t> indices, const GLenum usage)
+    : GLBuffer(GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint16_t), usage)
+    , m_type(GL_UNSIGNED_SHORT)
+  {
+  }
+
+
   GLIndexBuffer::GLIndexBuffer(const std::vector<uint8_t>& indices, const GLenum usage)
     : GLBuffer(GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint8_t), usage)
     , m_type(GL_UNSIGNED_BYTE)
@@ -93,6 +107,20 @@ namespace Fsl::GLES3
   void GLIndexBuffer::Reset(const uint16_t* const pIndices, const std::size_t elementCount, const GLenum usage)
   {
     DoReset(GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, sizeof(uint16_t), usage);
+    m_type = GL_UNSIGNED_SHORT;
+  }
+
+
+  void GLIndexBuffer::Reset(const ReadOnlySpan<uint8_t>& indices, const GLenum usage)
+  {
+    DoReset(GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint8_t), usage);
+    m_type = GL_UNSIGNED_BYTE;
+  }
+
+
+  void GLIndexBuffer::Reset(const ReadOnlySpan<uint16_t>& indices, const GLenum usage)
+  {
+    DoReset(GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint16_t), usage);
     m_type = GL_UNSIGNED_SHORT;
   }
 

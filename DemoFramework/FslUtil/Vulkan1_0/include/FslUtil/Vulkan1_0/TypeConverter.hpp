@@ -36,6 +36,7 @@
 #include <FslBase/Math/Extent3D.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxExtent3D.hpp>
+#include <FslBase/Math/Pixel/PxRectangle.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/TypeConverter.hpp>
 #include <FslGraphics/Render/Basic/BasicCompareOp.hpp>
@@ -92,6 +93,12 @@ namespace Fsl::TypeConverter
     return {value.Width.Value, value.Height.Value};
   }
 
+  template <>
+  constexpr inline VkExtent2D UncheckedTo<VkExtent2D, PxSize2D>(const PxSize2D& value) noexcept
+  {
+    return {UncheckedNumericCast<uint32_t>(value.RawWidth()), UncheckedNumericCast<uint32_t>(value.RawHeight())};
+  }
+
   // VkExtent3D
 
   template <>
@@ -104,6 +111,22 @@ namespace Fsl::TypeConverter
   constexpr inline VkExtent3D UncheckedTo<VkExtent3D, PxExtent3D>(const PxExtent3D& value) noexcept
   {
     return {value.Width.Value, value.Height.Value, value.Depth.Value};
+  }
+
+  // VkOffset2D
+
+  template <>
+  constexpr inline VkOffset2D UncheckedTo<VkOffset2D, PxPoint2>(const PxPoint2& value) noexcept
+  {
+    return {value.X.Value, value.Y.Value};
+  }
+
+  // VkRect2D
+
+  template <>
+  constexpr inline VkRect2D UncheckedTo<VkRect2D, PxRectangle>(const PxRectangle& value) noexcept
+  {
+    return {UncheckedTo<VkOffset2D>(value.Location()), UncheckedTo<VkExtent2D>(value.GetSize())};
   }
 
   // VkCullModeFlags

@@ -31,29 +31,58 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Pixel/PxVector2.hpp>
 #include <FslGraphics/Color.hpp>
-#include <FslSimpleUI/Render/Base/UIRenderColor.hpp>
 #include <FslSimpleUI/Render/Base/Command/DrawCommandType.hpp>
+#include <FslSimpleUI/Render/Base/Command/EncodedCommandState.hpp>
+#include <FslSimpleUI/Render/Base/DrawClipContext.hpp>
 #include <FslSimpleUI/Render/Base/MeshHandle.hpp>
+#include <FslSimpleUI/Render/Base/UIRenderColor.hpp>
 
 namespace Fsl::UI
 {
   struct EncodedCommand
   {
-    DrawCommandType Type{DrawCommandType::Nop};
+    EncodedCommandState State;
 
     MeshHandle Mesh;
     PxVector2 DstPositionPxf;
     PxSize2D DstSizePx;
     UIRenderColor DstColor;
+    PxAreaRectangleF ClipRectanglePxf;
     uint32_t Custom0{0};
+
+    constexpr EncodedCommand() noexcept = default;
+
+    constexpr EncodedCommand(const DrawCommandType type, const MeshHandle mesh, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx,
+                             const UIRenderColor dstColor, const DrawClipContext& clipContext)
+      : State(type, clipContext.Enabled)
+      , Mesh(mesh)
+      , DstPositionPxf(dstPositionPxf)
+      , DstSizePx(dstSizePx)
+      , DstColor(dstColor)
+      , ClipRectanglePxf(clipContext.ClipRectanglePxf)
+    {
+    }
+
+    constexpr EncodedCommand(const DrawCommandType type, const MeshHandle mesh, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx,
+                             const UIRenderColor dstColor, const DrawClipContext& clipContext, const uint32_t custom0)
+      : State(type, clipContext.Enabled)
+      , Mesh(mesh)
+      , DstPositionPxf(dstPositionPxf)
+      , DstSizePx(dstSizePx)
+      , DstColor(dstColor)
+      , ClipRectanglePxf(clipContext.ClipRectanglePxf)
+      , Custom0(custom0)
+    {
+    }
 
     constexpr bool operator==(const EncodedCommand rhs) const noexcept
     {
-      return Mesh == rhs.Mesh && DstPositionPxf == rhs.DstPositionPxf && DstSizePx == rhs.DstSizePx && DstColor == rhs.DstColor &&
-             Custom0 == rhs.Custom0;
+      return State == rhs.State && Mesh == rhs.Mesh && DstPositionPxf == rhs.DstPositionPxf && DstSizePx == rhs.DstSizePx &&
+             DstColor == rhs.DstColor && ClipRectanglePxf == rhs.ClipRectanglePxf && Custom0 == rhs.Custom0;
     }
 
     constexpr bool operator!=(const EncodedCommand rhs) const noexcept

@@ -203,6 +203,7 @@ namespace Fsl
 
   void Bloom::OnMouseButtonEvent(const MouseButtonEvent& event)
   {
+    base_type::OnMouseButtonEvent(event);
     if (event.IsHandled())
     {
       return;
@@ -241,6 +242,7 @@ namespace Fsl
 
   void Bloom::OnMouseMoveEvent(const MouseMoveEvent& event)
   {
+    base_type::OnMouseMoveEvent(event);
     if (event.IsHandled())
     {
       return;
@@ -257,6 +259,7 @@ namespace Fsl
 
   void Bloom::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
+    base_type::OnMouseWheelEvent(event);
     if (event.IsHandled())
     {
       return;
@@ -265,8 +268,15 @@ namespace Fsl
     m_camera.AddZoom(static_cast<float>(event.GetDelta()) * -0.001f);
   }
 
+  void Bloom::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
+  {
+    base_type::ConfigurationChanged(windowMetrics);
+    m_camera.SetScreenResolution(windowMetrics.GetSizePx());
+  }
+
   void Bloom::Update(const DemoTime& demoTime)
   {
+    base_type::Update(demoTime);
     if (m_menuUI.IsRotateEnabled())
     {
       m_rotation.X += m_rotationSpeed.X * demoTime.DeltaTime;
@@ -289,7 +299,7 @@ namespace Fsl
 
   void Bloom::Draw(const FrameInfo& frameInfo)
   {
-    FSL_PARAM_NOT_USED(frameInfo);
+    base_type::Draw(frameInfo);
 
     if (!m_scene)
     {

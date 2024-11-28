@@ -649,6 +649,7 @@
 		<xs:attribute name="BounceSpringStiffness" type="_TP_float" use="optional" />
 		<xs:attribute name="BounceAnimationTime" type="_TP_Fsl.TimeSpan" use="optional" />
 		<xs:attribute name="BounceTransitionType" type="_TP_Fsl.TransitionType" use="optional" />
+		<xs:attribute name="ClipContent" type="_TP_bool" use="optional" />
 		<xs:attribute name="GridLayout.Column" type="xs:string" use="optional" />
 		<xs:attribute name="GridLayout.Row" type="xs:string" use="optional" />
 	</xs:complexType>

@@ -57,7 +57,7 @@ namespace Fsl
   }
 
 
-  std::unique_ptr<ITestApp> TestAppFactory::Create(const UIDemoAppExtensionCreateInfo& createInfo)
+  std::unique_ptr<ITestApp> TestAppFactory::Create(const UIDemoAppExtensionCreateInfo& createInfo, const AppBenchmarkScene benchmarkScene)
   {
     UI::RenderIMBatch::RenderSystemFactory factory(ToRenderSystemType(m_batchMethod));
 
@@ -65,6 +65,6 @@ namespace Fsl
     UIDemoAppExtensionCreateInfo createInfoEx(createInfo);
     createInfoEx.pRenderSystemFactory = &factory;
 
-    return std::make_unique<TestApp>(createInfoEx);
+    return std::make_unique<TestApp>(createInfoEx, benchmarkScene);
   }
 }

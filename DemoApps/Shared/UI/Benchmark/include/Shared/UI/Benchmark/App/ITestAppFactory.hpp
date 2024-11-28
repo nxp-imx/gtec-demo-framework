@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <Shared/UI/Benchmark/App/ITestApp.hpp>
+#include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkScene.hpp>
 #include <memory>
 
 namespace Fsl
@@ -43,7 +44,7 @@ namespace Fsl
   public:
     virtual ~ITestAppFactory() = default;
 
-    virtual std::unique_ptr<ITestApp> Create(const UIDemoAppExtensionCreateInfo& createInfo) = 0;
+    virtual std::unique_ptr<ITestApp> Create(const UIDemoAppExtensionCreateInfo& createInfo, const AppBenchmarkScene benchmarkScene) = 0;
   };
 }
 

@@ -52,7 +52,7 @@ namespace Fsl
     AppBenchmarkInfo() = default;
     AppBenchmarkInfo(std::string appName, const VersionInfo appVersion, const bool appDebugMode, const AppBenchmarkScene scene,
                      const VersionInfo sceneVersion, const PxSize2D resolutionPx, const uint16_t densityDpi)
-      : AppName(std::move(std::move(appName)))
+      : AppName(std::move(appName))
       , AppVersion(appVersion)
       , AppDebugMode(appDebugMode)
       , Scene(scene)

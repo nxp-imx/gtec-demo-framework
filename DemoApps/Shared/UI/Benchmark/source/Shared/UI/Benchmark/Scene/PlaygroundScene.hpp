@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_SCENE_PLAYGROUNDSCENE_HPP
 #define SHARED_UI_BENCHMARK_SCENE_PLAYGROUNDSCENE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2022, 2024 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,22 +32,24 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
+#include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/FmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
-#include <FslSimpleUI/Base/Transition/TransitionUIColor.hpp>
-// #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/RadioButton.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/Layout.hpp>
+#include <FslSimpleUI/Base/Transition/TransitionUIColor.hpp>
 #include <FslSimpleUI/Controls/Charts/Common/AverageData.hpp>
 #include <FslSimpleUI/Controls/Charts/Data/ChartData.hpp>
+#include <FslSimpleUI/Controls/Experimental/ResizeableArea.hpp>
 #include <FslSimpleUI/Render/Base/RenderOptionFlags.hpp>
 #include <FslSimpleUI/Render/Base/RenderSystemInfo.hpp>
 #include <Shared/UI/Benchmark/Persistence/AppRenderMethod.hpp>
 #include <Shared/UI/Benchmark/Persistence/AppSettings.hpp>
+#include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkScene.hpp>
 #include <Shared/UI/Benchmark/RenderMethodInfo.hpp>
 #include <Shared/UI/Benchmark/Scene/Control/RenderOptionControls.hpp>
 #include <future>
@@ -138,6 +140,7 @@ namespace Fsl
       std::shared_ptr<UI::Layout> AppLayout;
       std::shared_ptr<UI::ActivityStack> ActivityStack;
       std::shared_ptr<UI::BaseWindow> ContentArea;
+      std::shared_ptr<UI::ResizeableArea> ResizeableClipArea;
     };
 
     struct AnimRecord

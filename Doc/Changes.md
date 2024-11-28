@@ -1,5 +1,30 @@
 # Latest version
 
+## Release 6.5.0
+
+* Added GLES3 and Vulkan AntiAliasing sample: MSAA, SSAA
+* UI.Benchmark
+  * New setting: Enable clipping
+  * New setting: Show clip rectangle
+  * Saved events now capture isTouch and timestamp of input events to ensure they can be played back correctly.
+* UI.Declarative added a more complex example scene with ScrollViewers  
+* FslSimpleUI
+  * Control clipping support added.
+  * ScrollViewer
+    * Content clipping property
+    * Scrollbar support.
+    * Nesting support.
+  * More complex transaction events.
+    * Allows complex ScrollViewer nesting.
+  * Improved gesture handling to work better with the new transaction event scheme.
+  * ToggleButtons (Switch, RadioButton, CheckBox) now works better in a ScrollViewer.
+* Added natviz support to Visual Studio Code projects (ubuntu/windows).  
+* Fixed a zlib ubuntu build issue.
+* Android ALopper_pollAll was deprecated, moved to ALooper_pollOnce
+* The main README.md file has now been split into API APP specific files.
+* The main API README.md files now utilize special Thumbnail.jpg instead of Example.jpg when available.
+* Python 3.10 or better is now required
+
 ## Release 6.4.2
 
 * GCC 14 compatibilty

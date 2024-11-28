@@ -38,9 +38,10 @@ namespace Fsl::UI
     Nop = 0,
     GestureDragBegin = 1,
     GestureDrag = 2,
-    GestureDragEnd = 3,
-    GestureFlick = 4,
-    GestureTap = 5,
+    GestureDragCancel = 3,
+    GestureDragEnd = 4,
+    GestureFlick = 5,
+    GestureTap = 6,
   };
 }
 

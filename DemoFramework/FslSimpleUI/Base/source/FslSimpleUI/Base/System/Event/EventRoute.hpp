@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslSimpleUI/Base/Event/EventRoutingStrategy.hpp>
 #include <FslSimpleUI/Base/WindowFlags.hpp>
 #include <memory>
@@ -39,6 +40,7 @@
 namespace Fsl::UI
 {
   class IEventHandler;
+  struct RoutedEvent;
   class TreeNode;
   class WindowEvent;
 
@@ -46,8 +48,8 @@ namespace Fsl::UI
   class EventRoute
   {
     WindowFlags m_flags;
-    std::vector<std::shared_ptr<TreeNode>> m_tunnelList;
-    std::vector<std::shared_ptr<TreeNode>> m_bubbleList;
+    std::vector<std::shared_ptr<TreeNode>> m_windowList;
+    EventRoutingStrategy m_strategy{EventRoutingStrategy::Direct};
     std::shared_ptr<TreeNode> m_target;
     bool m_isInitialized;
 
@@ -107,14 +109,15 @@ namespace Fsl::UI
 
     std::size_t GetWindowCount() const
     {
-      return m_tunnelList.size() + m_bubbleList.size();
+      return m_windowList.size();
     }
 
   private:
-    void SendTo(IEventHandler& eventHandler, const std::vector<std::shared_ptr<TreeNode>>& nodes, const std::shared_ptr<WindowEvent>& theEvent,
-                const bool isTunneling);
-    void BuildTunnel(const std::shared_ptr<TreeNode>& target);
-    void BuildBubble(const std::shared_ptr<TreeNode>& target);
+    void SendTo(IEventHandler& eventHandler, std::vector<std::shared_ptr<TreeNode>>& rNodes, const std::shared_ptr<WindowEvent>& theEvent,
+                const bool isTunneling, const bool paired = false);
+    void UpdateTargetIfNecessary(ReadOnlySpan<std::shared_ptr<TreeNode>> nodeSpan);
+
+    void BuildParent(const std::shared_ptr<TreeNode>& target);
     void BuildDirect(const std::shared_ptr<TreeNode>& target);
   };
 }

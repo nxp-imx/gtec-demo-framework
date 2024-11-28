@@ -33,7 +33,8 @@
 
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Pixel/PxVector2.hpp>
-#include <FslGraphics/Sprite/Info/Core/RenderNineSliceInfo.hpp>
+#include <FslGraphics/Sprite/Info/Core/RenderOptimizedNineSliceInfo.hpp>
+#include <FslSimpleUI/Render/Base/DrawClipContext.hpp>
 #include <memory>
 #include <utility>
 
@@ -41,8 +42,8 @@ namespace Fsl::UI
 {
   class UIRawMeshBuilder2D;
   class ICustomDrawData;
-  using FnDrawCustomNineSliceMesh = void (*)(UIRawMeshBuilder2D&, const PxVector2, const PxSize2D, const RenderNineSliceInfo&,
-                                             const ICustomDrawData* const);
+  using FnDrawCustomNineSliceMesh = void (*)(UIRawMeshBuilder2D&, const PxVector2, const PxSize2D, const DrawClipContext&,
+                                             const RenderOptimizedNineSliceInfo&, const ICustomDrawData* const);
 
   struct CustomDrawNineSliceInfo
   {

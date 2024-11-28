@@ -38,6 +38,7 @@ namespace Fsl
 {
   NLOHMANN_JSON_SERIALIZE_ENUM(AppBenchmarkScene, {
                                                     {AppBenchmarkScene::Scene0, "Scene0"},
+                                                    {AppBenchmarkScene::Dev, "Dev"},
                                                   })
 }
 

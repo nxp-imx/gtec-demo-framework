@@ -46,10 +46,10 @@ namespace Fsl
     using value_type = PxValueU16;
     using raw_value_type = value_type::raw_value_type;
 
-    value_type X{0};
-    value_type Y{0};
-    value_type Width{0};
-    value_type Height{0};
+    PxValueU16 X{0};
+    PxValueU16 Y{0};
+    PxValueU16 Width{0};
+    PxValueU16 Height{0};
 
     constexpr PxRectangleU16() noexcept = default;
     constexpr PxRectangleU16(const value_type x, const value_type y, const value_type width, const value_type height) noexcept

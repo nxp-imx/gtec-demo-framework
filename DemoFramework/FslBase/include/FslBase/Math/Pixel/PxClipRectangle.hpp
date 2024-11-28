@@ -51,10 +51,10 @@ namespace Fsl
     using raw_size_value_type = size_value_type::raw_value_type;
 
   private:
-    value_type m_left;
-    value_type m_top;
-    value_type m_right;
-    value_type m_bottom;
+    PxValue m_left;
+    PxValue m_top;
+    PxValue m_right;
+    PxValue m_bottom;
 
     constexpr explicit PxClipRectangle(const value_type left, const value_type top, const value_type right, const value_type bottom,
                                        const OptimizationInternal /*unused*/)

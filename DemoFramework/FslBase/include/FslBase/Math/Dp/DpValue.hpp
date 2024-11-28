@@ -40,7 +40,7 @@ namespace Fsl
     using value_type = int32_t;
     using raw_value_type = int32_t;
 
-    value_type Value{0};
+    int32_t Value{0};
 
     inline constexpr DpValue() noexcept = default;
 

@@ -33,6 +33,7 @@
 
 #include <FslGraphics/Sprite/IImageSprite.hpp>
 #include <FslGraphics/Sprite/Info/BasicImageSpriteInfo.hpp>
+#include <FslGraphics/Sprite/Info/Core/RenderConverter.hpp>
 
 namespace Fsl
 {
@@ -53,29 +54,35 @@ namespace Fsl
                     const PxRectangleU16& imageRectanglePx, const uint32_t imageDpi, const StringViewLite& debugName, const uint32_t densityDpi);
 
 
-    PxSize2D GetRenderSizePx() const final
+    PxSize2D GetRenderSizePx() const noexcept final
     {
       return m_info.RenderInfo.ScaledSizePx;
     }
 
 
-    const BasicImageSpriteInfo& GetInfo() const
+    RenderImageInfo GetImageRenderInfo() const noexcept final
+    {
+      return RenderConverter::ToRenderImageInfo(GetRenderInfo());
+    }
+
+
+    const BasicImageSpriteInfo& GetInfo() const noexcept
     {
       return m_info;
     }
 
-    const CoreBasicImageInfo& GetImageInfo() const
+    const CoreBasicImageInfo& GetImageInfo() const noexcept
     {
       return m_info.ImageInfo;
     }
 
-    const RenderBasicImageInfo& GetRenderInfo() const
+    const RenderBasicImageInfo& GetRenderInfo() const noexcept
     {
       return m_info.RenderInfo;
     }
 
 
-    uint32_t GetMaterialCount() const final
+    uint32_t GetMaterialCount() const noexcept final
     {
       return 1u;
     }

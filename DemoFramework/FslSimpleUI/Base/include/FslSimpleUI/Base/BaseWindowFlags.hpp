@@ -50,6 +50,7 @@ namespace Fsl::UI
       ContentRenderingDirty = WindowFlags::ContentRenderingDirty,
       UpdateEnabled = WindowFlags::UpdateEnabled,
       DrawEnabled = WindowFlags::DrawEnabled,
+      ClipEnabled = WindowFlags::ClipEnabled,
       VisibilityMask = WindowFlags::VisibilityMask,
       InBatchPropertyUpdate = (0x01 << BitShiftBaseWindowFlags),
       InLayoutArrange = (0x02 << BitShiftBaseWindowFlags),

@@ -32,11 +32,14 @@
 #include "EventRoute.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslSimpleUI/Base/Event/RoutedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
+#include <FslSimpleUI/Base/Event/WindowTransactionEvent.hpp>
 #include <FslSimpleUI/Base/System/Event/IEventHandler.hpp>
 #include <algorithm>
 #include <cassert>
+#include "../../Event/ScopedWindowTransactionEventPatch.hpp"
 #include "../TreeNode.hpp"
 
 namespace Fsl::UI
@@ -61,27 +64,186 @@ namespace Fsl::UI
       }
       return found;
     }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+
+    void SendCancelEventsViaTunnel(IEventHandler& eventHandler, ReadOnlySpan<std::shared_ptr<TreeNode>> nodeSpan,
+                                   const std::shared_ptr<WindowTransactionEvent>& theEvent)
+    {
+      RoutedEvent routedEvent(theEvent, true);
+      Internal::ScopedWindowTransactionEventPatch scopedStateChange(*theEvent, EventTransactionState::Canceled, false, false);
+      for (const auto& entry : nodeSpan)
+      {
+        if (entry->IsConsideredRunning())
+        {
+          eventHandler.HandleEvent(entry, routedEvent);
+        }
+      }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+
+    void SendCancelEventsViaBubble(IEventHandler& eventHandler, ReadOnlySpan<std::shared_ptr<TreeNode>> nodeSpan,
+                                   const std::shared_ptr<WindowTransactionEvent>& theEvent)
+    {
+      RoutedEvent routedEvent(theEvent, false);
+      Internal::ScopedWindowTransactionEventPatch scopedStateChange(*theEvent, EventTransactionState::Canceled, false, false);
+      // Temporarily patch the event so it becomes a cancel event
+      for (std::size_t i = nodeSpan.size(); i > 0; --i)
+      {
+        const auto& entry = nodeSpan[i - 1u];
+        if (entry->IsConsideredRunning())
+        {
+          eventHandler.HandleEvent(entry, routedEvent);
+        }
+      }
+    }
+
+    void SendToViaTunnel(IEventHandler& eventHandler, std::vector<std::shared_ptr<TreeNode>>& rNodes, const RoutedEvent& routedEvent,
+                         const bool paired)
+    {
+      std::shared_ptr<WindowTransactionEvent> windowTransactionEvent = std::dynamic_pointer_cast<UI::WindowTransactionEvent>(routedEvent.Content);
+
+      uint32_t interceptionCount = 0;
+      bool allowIntercept = false;
+      if (windowTransactionEvent)
+      {
+        interceptionCount = windowTransactionEvent->GetInterceptionCount();
+        // Intercept is only valid for begin and end events during tunnel
+        allowIntercept =
+          windowTransactionEvent->GetState() == EventTransactionState::Begin || windowTransactionEvent->GetState() == EventTransactionState::End;
+        windowTransactionEvent->SYS_SetAllowIntercept(allowIntercept);
+      }
+      for (std::size_t i = 0; i < rNodes.size(); ++i)
+      {
+        // The check is not needed as it would not get on the list if it was not interested at the time the list was build
+        // Doing the check causes problems with FocusLoss events during 'hiding' of windows where certain flags are disabled.
+        if (rNodes[i]->IsConsideredRunning())
+        {
+          eventHandler.HandleEvent(rNodes[i], routedEvent);
+          if (windowTransactionEvent && windowTransactionEvent->GetInterceptionCount() != interceptionCount)
+          {
+            interceptionCount = windowTransactionEvent->GetInterceptionCount();
+
+            if (allowIntercept)
+            {
+              std::size_t removeIndex = i + 1;
+              if (removeIndex < rNodes.size())
+              {
+                FSLLOG3_VERBOSE3("Intercepting transaction event");
+                const std::size_t removeCount = rNodes.size() - removeIndex;
+                if (windowTransactionEvent->IsRepeat() || windowTransactionEvent->GetState() == EventTransactionState::End)
+                {
+                  // Since this is either a 'begin + repeat' or a end event we need to send a cancel event to the windows we are about to remove from
+                  // the transaction
+                  SendCancelEventsViaTunnel(eventHandler, SpanUtil::AsReadOnlySpan(rNodes, removeIndex, removeCount), windowTransactionEvent);
+                  if (paired)
+                  {
+                    SendCancelEventsViaBubble(eventHandler, SpanUtil::AsReadOnlySpan(rNodes, removeIndex, removeCount), windowTransactionEvent);
+                  }
+                }
+
+                {    // Remove all following windows from the route
+                  auto itrRemoveBegin = std::next(rNodes.begin(), UncheckedNumericCast<std::ptrdiff_t>(removeIndex));
+                  auto itrRemoveEnd = std::next(itrRemoveBegin, UncheckedNumericCast<std::ptrdiff_t>(removeCount));
+                  rNodes.erase(itrRemoveBegin, itrRemoveEnd);
+                }
+              }
+              else
+              {
+                FSLLOG3_VERBOSE3("A event intercept was requested from the main target, request ignored");
+              }
+            }
+            else
+            {
+              FSLLOG3_ERROR("Only begin and end state events can be intercepted during tunnel, request ignored");
+            }
+          }
+        }
+      }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+
+    void SendViaBubble(IEventHandler& eventHandler, std::vector<std::shared_ptr<TreeNode>>& rNodes, const RoutedEvent& routedEvent, const bool paired)
+    {
+      std::shared_ptr<WindowTransactionEvent> windowTransactionEvent = std::dynamic_pointer_cast<UI::WindowTransactionEvent>(routedEvent.Content);
+
+      uint32_t interceptionCount = 0;
+      bool allowIntercept = false;
+      if (windowTransactionEvent)
+      {
+        interceptionCount = windowTransactionEvent->GetInterceptionCount();
+        // Intercept is only valid for begin events during bubble
+        allowIntercept = windowTransactionEvent->GetState() == EventTransactionState::Begin;
+        windowTransactionEvent->SYS_SetAllowIntercept(allowIntercept);
+      }
+      for (std::size_t i = rNodes.size(); i > 0; --i)
+      {
+        const auto& node = rNodes[i - 1];
+
+        // The check is not needed as it would not get on the list if it was not interested at the time the list was build
+        // Doing the check causes problems with FocusLoss events during 'hiding' of windows where certain flags are disabled.
+        if (node->IsConsideredRunning())
+        {
+          eventHandler.HandleEvent(node, routedEvent);
+
+          if (windowTransactionEvent && windowTransactionEvent->GetInterceptionCount() != interceptionCount)
+          {
+            interceptionCount = windowTransactionEvent->GetInterceptionCount();
+
+            if (allowIntercept)
+            {
+              // since i is already one ahead
+              const std::size_t removeIndex = i;
+              if (removeIndex < rNodes.size())
+              {
+                FSLLOG3_VERBOSE3("Intercepting transaction event");
+
+                const std::size_t removeCount = rNodes.size() - removeIndex;
+                // For bubble events that are intercepted at a parent we always need to send a cancel to the children
+                if (paired)
+                {
+                  SendCancelEventsViaTunnel(eventHandler, SpanUtil::AsReadOnlySpan(rNodes, removeIndex, removeCount), windowTransactionEvent);
+                }
+                SendCancelEventsViaBubble(eventHandler, SpanUtil::AsReadOnlySpan(rNodes, removeIndex, removeCount), windowTransactionEvent);
+
+                {    // Remove all following windows from the route
+                  auto itrRemoveBegin = std::next(rNodes.begin(), UncheckedNumericCast<std::ptrdiff_t>(removeIndex));
+                  auto itrRemoveEnd = std::next(itrRemoveBegin, UncheckedNumericCast<std::ptrdiff_t>(removeCount));
+                  rNodes.erase(itrRemoveBegin, itrRemoveEnd);
+                }
+              }
+              else
+              {
+                FSLLOG3_VERBOSE3("A event intercept was requested from the main target, request ignored");
+              }
+            }
+            else
+            {
+              FSLLOG3_ERROR("Only begin state events can be intercepted during bubble, request ignored");
+            }
+          }
+        }
+      }
+    }
   }
 
 
   EventRoute::EventRoute()
-    : m_tunnelList(InitialNodeCapacity)
-    , m_bubbleList(InitialNodeCapacity)
+    : m_windowList(InitialNodeCapacity)
     , m_isInitialized(false)
   {
-    m_tunnelList.clear();
-    m_bubbleList.clear();
+    m_windowList.clear();
   }
 
 
   EventRoute::EventRoute(const WindowFlags flags)
     : m_flags(flags)
-    , m_tunnelList(InitialNodeCapacity)
-    , m_bubbleList(InitialNodeCapacity)
+    , m_windowList(InitialNodeCapacity)
     , m_isInitialized(true)
   {
-    m_tunnelList.clear();
-    m_bubbleList.clear();
+    m_windowList.clear();
   }
 
 
@@ -102,8 +264,7 @@ namespace Fsl::UI
   void EventRoute::Shutdown()
   {
     m_flags = WindowFlags();
-    m_tunnelList.clear();
-    m_bubbleList.clear();
+    m_windowList.clear();
     m_target.reset();
     m_isInitialized = false;
   }
@@ -112,7 +273,7 @@ namespace Fsl::UI
   bool EventRoute::IsEmpty() const noexcept
   {
     assert(m_isInitialized);
-    return (m_bubbleList.empty() && m_tunnelList.empty());
+    return m_windowList.empty();
   }
 
 
@@ -128,8 +289,25 @@ namespace Fsl::UI
     bool send = false;
     if (m_target)
     {
-      SendTo(*pEventHandler, m_tunnelList, theEvent, true);
-      SendTo(*pEventHandler, m_bubbleList, theEvent, false);
+      switch (m_strategy)
+      {
+      case EventRoutingStrategy::Direct:
+        SendTo(*pEventHandler, m_windowList, theEvent, true);
+        break;
+      case EventRoutingStrategy::Tunnel:
+        SendTo(*pEventHandler, m_windowList, theEvent, true);
+        break;
+      case EventRoutingStrategy::Bubble:
+        SendTo(*pEventHandler, m_windowList, theEvent, false);
+        break;
+      case EventRoutingStrategy::Paired:
+        SendTo(*pEventHandler, m_windowList, theEvent, true, true);
+        SendTo(*pEventHandler, m_windowList, theEvent, false, true);
+        break;
+      default:
+        return false;
+      }
+
       send = GetWindowCount() > 0u;
     }
     return send;
@@ -140,8 +318,8 @@ namespace Fsl::UI
   {
     assert(m_isInitialized);
 
-    m_tunnelList.clear();
-    m_bubbleList.clear();
+    m_windowList.clear();
+    m_strategy = EventRoutingStrategy::Direct;
     m_target.reset();
   }
 
@@ -150,24 +328,24 @@ namespace Fsl::UI
   {
     assert(m_isInitialized);
     Clear();
+    m_strategy = routingStrategy;
     m_target = target;
     if (m_target)
     {
       // Build the tunnel part of the route if requested
-      if (routingStrategy == EventRoutingStrategy::Paired || routingStrategy == EventRoutingStrategy::Tunnel)
+      // Build the tunnel part of the route if requested
+      switch (routingStrategy)
       {
-        BuildTunnel(target);
-      }
-
-      // Build the bubble part of the route if requested
-      if (routingStrategy == EventRoutingStrategy::Paired || routingStrategy == EventRoutingStrategy::Bubble)
-      {
-        BuildBubble(target);
-      }
-
-      if (routingStrategy == EventRoutingStrategy::Direct)
-      {
-        BuildDirect(target);
+      case EventRoutingStrategy::Bubble:
+      case EventRoutingStrategy::Tunnel:
+      case EventRoutingStrategy::Paired:
+        BuildParent(m_target);
+        break;
+      case EventRoutingStrategy::Direct:
+        BuildDirect(m_target);
+        break;
+      default:
+        throw NotSupportedException(fmt::format("Unsupported routing strategy: {}", fmt::underlying(routingStrategy)));
       }
     }
   }
@@ -177,8 +355,7 @@ namespace Fsl::UI
   {
     assert(m_isInitialized);
     bool removed = false;
-    removed |= Remove(m_tunnelList, node);
-    removed |= Remove(m_bubbleList, node);
+    removed |= Remove(m_windowList, node);
 
     if (m_target == node)
     {
@@ -188,13 +365,13 @@ namespace Fsl::UI
   }
 
 
-  void EventRoute::SendTo(IEventHandler& eventHandler, const std::vector<std::shared_ptr<TreeNode>>& nodes,
-                          const std::shared_ptr<WindowEvent>& theEvent, const bool isTunneling)
+  void EventRoute::SendTo(IEventHandler& eventHandler, std::vector<std::shared_ptr<TreeNode>>& rNodes, const std::shared_ptr<WindowEvent>& theEvent,
+                          const bool isTunneling, const bool paired)
   {
     assert(m_isInitialized);
     assert(m_target);
 
-    if (nodes.empty())
+    if (rNodes.empty())
     {
       return;
     }
@@ -207,61 +384,56 @@ namespace Fsl::UI
 
     // Continue to send the event while the event isn't marked as handled.
     RoutedEvent routedEvent(theEvent, isTunneling);
-    for (auto itr = nodes.begin(); itr != nodes.end() && !theEvent->IsHandled(); ++itr)
+    if (isTunneling)
     {
-      if ((*itr)->IsConsideredRunning() && (*itr)->GetFlags().IsFlagged(m_flags))
-      {
-        eventHandler.HandleEvent(*itr, routedEvent);
-      }
+      SendToViaTunnel(eventHandler, rNodes, routedEvent, paired);
+      UpdateTargetIfNecessary(SpanUtil::AsReadOnlySpan(rNodes));
+    }
+    else
+    {
+      SendViaBubble(eventHandler, rNodes, routedEvent, paired);
+      UpdateTargetIfNecessary(SpanUtil::AsReadOnlySpan(rNodes));
     }
   }
 
-
-  void EventRoute::BuildTunnel(const std::shared_ptr<TreeNode>& target)
+  void EventRoute::UpdateTargetIfNecessary(ReadOnlySpan<std::shared_ptr<TreeNode>> nodeSpan)
   {
-    assert(m_isInitialized);
-    if (target && target->IsConsideredRunning())
+    if (m_target && !nodeSpan.empty() && nodeSpan.back() != m_target)
     {
-      // ask the parents first
-      BuildTunnel(target->GetParent());
-
-      // If the record is enabled, append it to the tunnel route
-      if (target->GetFlags().IsFlagged(m_flags))
-      {
-        assert(!Exists(m_tunnelList, target));
-        m_tunnelList.push_back(target);
-      }
+      FSLLOG3_VERBOSE3("Updating EventRoute target as list target was changed");
+      m_target = nodeSpan.back();
     }
-    // assert(IsValidRoute());
   }
 
-
-  void EventRoute::BuildBubble(const std::shared_ptr<TreeNode>& target)
+  void EventRoute::BuildParent(const std::shared_ptr<TreeNode>& target)
   {
     assert(m_isInitialized);
-    std::shared_ptr<TreeNode> current = target;
-    while (current)
+    if (!target || !target->IsConsideredRunning())
     {
-      // only 'bubble' the event into parents that are interested in events.
-      if (current->IsConsideredRunning() && current->GetFlags().IsFlagged(m_flags))
-      {
-        assert(!Exists(m_bubbleList, current));
-        m_bubbleList.push_back(current);
-      }
-      current = current->GetParent();
+      return;
     }
-    // assert(IsValidRoute());
+
+    // ask the parents first
+    BuildParent(target->GetParent());
+
+    // If the record is enabled, append it to the tunnel route
+    if (target->GetFlags().IsFlagged(m_flags))
+    {
+      // The window should not be present in the list
+      assert(!Exists(m_windowList, target));
+      m_windowList.push_back(target);
+    }
   }
 
 
   void EventRoute::BuildDirect(const std::shared_ptr<TreeNode>& target)
   {
     assert(m_isInitialized);
-    if (target->IsConsideredRunning() && target->GetFlags().IsFlagged(m_flags))
+    if (target && target->IsConsideredRunning() && target->GetFlags().IsFlagged(m_flags))
     {
-      assert(!Exists(m_tunnelList, target));
-      m_tunnelList.push_back(target);
+      // The window should not be present in the list
+      assert(!Exists(m_windowList, target));
+      m_windowList.push_back(target);
     }
-    // assert(IsValidRoute());
   }
 }

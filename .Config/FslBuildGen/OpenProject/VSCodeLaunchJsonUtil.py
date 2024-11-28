@@ -45,6 +45,9 @@ class LocalStrings(object):
     ConfigKeyCwd = "cwd"
     ConfigKeyName = "name"
     ConfigKeySetupCommands = "setupCommands"
+    ConfigVisualizerFile = "visualizerFile"
+    ConfigShowDisplayString = "showDisplayString"
+
 
     UbuntuLaunchName = "(FslBuild-Ubuntu) Launch"
     WindowsLaunchName = "(FslBuild-Windows) Launch"
@@ -53,7 +56,7 @@ class LocalStrings(object):
 class VSCodeLaunchJsonUtil(object):
 
     @staticmethod
-    def TryPatch(jsonFilePath: str, buildPlatformType: BuildPlatformType, executable: str, currentWorkingDirectory: str) -> bool:
+    def TryPatch(jsonFilePath: str, buildPlatformType: BuildPlatformType, executable: str, currentWorkingDirectory: str, combinedNatvisFile: str) -> bool:
         strJson = IOUtil.TryReadFile(jsonFilePath)
         if strJson is not None:
             strJson = VSCodeLaunchJsonUtil.__StripComments(strJson)
@@ -72,18 +75,18 @@ class VSCodeLaunchJsonUtil(object):
         launchUbuntuFound = buildPlatformType == BuildPlatformType.Windows   # this basically ensures we only generate the ubuntu launch on non windows platforms
         for configDict in configurationDictList:
             if configDict[LocalStrings.ConfigKeyName] == LocalStrings.WindowsLaunchName:
-                VSCodeLaunchJsonUtil.__PacthConfigurationDict(configDict, executable, currentWorkingDirectory, False)
+                VSCodeLaunchJsonUtil.__PacthConfigurationDict(configDict, executable, currentWorkingDirectory, combinedNatvisFile, False)
                 launchWindowsFound = True
             elif configDict[LocalStrings.ConfigKeyName] == LocalStrings.UbuntuLaunchName:
-                VSCodeLaunchJsonUtil.__PacthConfigurationDict(configDict, executable, currentWorkingDirectory, True)
+                VSCodeLaunchJsonUtil.__PacthConfigurationDict(configDict, executable, currentWorkingDirectory, combinedNatvisFile, True)
                 launchUbuntuFound = True
         if not launchWindowsFound:
             configDict = VSCodeLaunchJsonUtil.__CreateWindowsLaunchConfigurationDict()
-            VSCodeLaunchJsonUtil.__PacthConfigurationDict(configDict, executable, currentWorkingDirectory, False)
+            VSCodeLaunchJsonUtil.__PacthConfigurationDict(configDict, executable, currentWorkingDirectory, combinedNatvisFile, False)
             configurationDictList.append(configDict)
         if not launchUbuntuFound:
             configDict = VSCodeLaunchJsonUtil.__CreateUbuntuLaunchConfigurationDict()
-            VSCodeLaunchJsonUtil.__PacthConfigurationDict(configDict, executable, currentWorkingDirectory, True)
+            VSCodeLaunchJsonUtil.__PacthConfigurationDict(configDict, executable, currentWorkingDirectory, combinedNatvisFile, True)
             configurationDictList.append(configDict)
 
 
@@ -95,19 +98,20 @@ class VSCodeLaunchJsonUtil(object):
 
 
     @staticmethod
-    def __PacthConfigurationDict(configDict: Dict[str, object], executable: str, currentWorkingDirectory: str, isUnix: bool) -> None:
+    def __PacthConfigurationDict(configDict: Dict[str, object], executable: str, currentWorkingDirectory: str, combinedNatvisFile: str, isUnix: bool) -> None:
         #configDict[LocalStrings.ConfigKeyProgram] = executable
         configDict[LocalStrings.ConfigKeyProgram] = "${command:cmake.launchTargetPath}"
         configDict[LocalStrings.ConfigKeyCwd] = currentWorkingDirectory
+        configDict[LocalStrings.ConfigVisualizerFile] = combinedNatvisFile
 
         if isUnix:
+            configDict[LocalStrings.ConfigShowDisplayString] = True
             configDict["MIMode"] = "gdb"
             setupCommandsDict = {}   # type: Dict[str, object]
             setupCommandsDict["description"] = "Enable pretty-printing for gdb"
             setupCommandsDict["text"] =  "-enable-pretty-printing"
             setupCommandsDict["ignoreFailures"] = True
             configDict[LocalStrings.ConfigKeySetupCommands] = [setupCommandsDict]
-
 
     @staticmethod
     def __StripComments(json: str) -> str:

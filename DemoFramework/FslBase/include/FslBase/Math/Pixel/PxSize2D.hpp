@@ -49,8 +49,8 @@ namespace Fsl
     using raw_unsigned_value_type = unsigned_value_type::raw_value_type;
 
   private:
-    value_type m_width;
-    value_type m_height;
+    PxSize1D m_width;
+    PxSize1D m_height;
 
   public:
     constexpr PxSize2D() noexcept = default;
@@ -244,6 +244,11 @@ namespace Fsl
       return {value_type::Multiply(sizePx.m_width, size2Px.m_width), value_type::Multiply(sizePx.m_height, size2Px.m_height)};
     }
 
+    static constexpr PxSize2D Multiply(const PxSize2D sizePx, const PxSize1D size2Px)
+    {
+      return {sizePx.Width() * size2Px, sizePx.Height() * size2Px};
+    }
+
     static constexpr PxPoint2 Multiply(const PxPoint2 pointPx, const PxSize2D sizePx)
     {
       return {value_type::Multiply(PxValue(pointPx.X), sizePx.m_width), value_type::Multiply(PxValue(pointPx.Y), sizePx.m_height)};
@@ -422,6 +427,11 @@ namespace Fsl
     return PxSize2D::Multiply(lhs, rhs);
   }
 
+  inline constexpr PxSize2D operator*(const PxSize2D lhs, const PxSize1D rhs) noexcept
+  {
+    return PxSize2D::Multiply(lhs, rhs);
+  }
+
   // PxPoint2
   inline constexpr PxPoint2 operator*(const PxPoint2 lhs, const PxSize2D rhs) noexcept
   {
@@ -434,7 +444,6 @@ namespace Fsl
   }
 
   // op divide
-
   inline constexpr PxSize2D operator/(const PxSize2D lhs, const PxSize2D rhs)
   {
     return PxSize2D::Divide(lhs, rhs);
@@ -481,6 +490,18 @@ namespace Fsl
   }
 
   // op *=
+
+  inline constexpr PxSize2D operator*=(PxSize2D& rLhs, const PxSize2D rhs) noexcept
+  {
+    rLhs = rLhs * rhs;
+    return rLhs;
+  }
+
+  inline constexpr PxSize2D operator*=(PxSize2D& rLhs, const PxSize1D rhs) noexcept
+  {
+    rLhs = PxSize2D(rLhs.Width() * rhs, rLhs.Height() * rhs);
+    return rLhs;
+  }
 
   inline constexpr PxPoint2 operator*=(PxPoint2& rLhs, const PxSize2D rhs) noexcept
   {

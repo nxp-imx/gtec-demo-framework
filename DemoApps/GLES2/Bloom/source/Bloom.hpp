@@ -50,6 +50,8 @@ namespace Fsl
 
   class Bloom : public DemoAppGLES2
   {
+    using base_type = DemoAppGLES2;
+
     enum class BlurShaderType
     {
       Gaussian5X5,
@@ -106,12 +108,13 @@ namespace Fsl
     ~Bloom() override;
 
   protected:
-    void OnKeyEvent(const KeyEvent& event) override;
-    void OnMouseButtonEvent(const MouseButtonEvent& event) override;
-    void OnMouseMoveEvent(const MouseMoveEvent& event) override;
-    void OnMouseWheelEvent(const MouseWheelEvent& event) override;
-    void Update(const DemoTime& demoTime) override;
-    void Draw(const FrameInfo& frameInfo) override;
+    void OnKeyEvent(const KeyEvent& event) final;
+    void OnMouseButtonEvent(const MouseButtonEvent& event) final;
+    void OnMouseMoveEvent(const MouseMoveEvent& event) final;
+    void OnMouseWheelEvent(const MouseWheelEvent& event) final;
+    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
+    void Update(const DemoTime& demoTime) final;
+    void Draw(const FrameInfo& frameInfo) final;
 
   private:
     void DrawFinalComposite();

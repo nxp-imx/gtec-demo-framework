@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/BasicTypes.hpp>
 #include <FslGraphics/Debug/DebugColorSpace.hpp>
 #include <ostream>
 

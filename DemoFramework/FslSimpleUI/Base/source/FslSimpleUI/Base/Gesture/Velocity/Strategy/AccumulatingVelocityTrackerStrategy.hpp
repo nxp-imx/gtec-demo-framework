@@ -57,6 +57,10 @@ namespace Fsl::UI
 
     void AddMovement(const MillisecondTickCount32 eventTime, const DpValueF positionDpf) final;
     void ClearPointer() noexcept final;
+    bool IsEmpty() const noexcept final
+    {
+      return m_movements.empty();
+    }
   };
 }
 

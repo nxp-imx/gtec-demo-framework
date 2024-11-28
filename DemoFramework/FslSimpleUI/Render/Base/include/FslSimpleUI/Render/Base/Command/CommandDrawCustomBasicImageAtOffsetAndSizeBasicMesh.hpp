@@ -40,7 +40,7 @@ namespace Fsl::UI
     constexpr explicit CommandDrawCustomBasicImageAtOffsetAndSizeBasicMesh(const EncodedCommand& command) noexcept
       : EncodedCommand(command)
     {
-      assert(command.Type == DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh);
+      assert(command.State.Type() == DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh);
     }
 
     constexpr MeshHandle GetMesh() const noexcept
@@ -69,9 +69,16 @@ namespace Fsl::UI
     }
 
     inline constexpr static EncodedCommand Encode(const MeshHandle hMesh, const PxVector2& dstPositionPxf, const PxSize2D dstSizePx,
-                                                  const UIRenderColor dstColor, const uint32_t customDrawFunctionIndex) noexcept
+                                                  const UIRenderColor dstColor, const DrawClipContext& clipContext,
+                                                  const uint32_t customDrawFunctionIndex) noexcept
     {
-      return {DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh, hMesh, dstPositionPxf, dstSizePx, dstColor, customDrawFunctionIndex};
+      return {DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh,
+              hMesh,
+              dstPositionPxf,
+              dstSizePx,
+              dstColor,
+              clipContext,
+              customDrawFunctionIndex};
     }
   };
 }

@@ -47,7 +47,7 @@
 #include "Log/FmtRenderDrawSpriteType.hpp"
 #include "MeshManager.hpp"
 
-// #define LOCAL_SANITY_CHECK
+#define LOCAL_SANITY_CHECK
 #ifdef LOCAL_SANITY_CHECK
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define SANITY_CHECK() SanityCheck();
@@ -110,10 +110,10 @@ namespace Fsl::UI::RenderIMBatch
       {
         const uint32_t index = rMeshes.Count() - 1u;
         const auto& record = rMeshes[index];
-        assert(rCapacity.VertexCapacity >= record.VertexCapacity);
-        assert(rCapacity.IndexCapacity >= record.IndexCapacity);
-        rCapacity.VertexCapacity -= record.VertexCapacity;
-        rCapacity.IndexCapacity -= record.IndexCapacity;
+        assert(rCapacity.VertexCapacity >= record.Primitive.MeshVertexCapacity);
+        assert(rCapacity.IndexCapacity >= record.Primitive.MeshIndexCapacity);
+        rCapacity.VertexCapacity -= record.Primitive.MeshVertexCapacity;
+        rCapacity.IndexCapacity -= record.Primitive.MeshIndexCapacity;
         rMeshes.FastRemoveAt(index);
       }
     }
@@ -127,8 +127,8 @@ namespace Fsl::UI::RenderIMBatch
       for (uint32_t i = 0; i < meshes.Count(); ++i)
       {
         const auto& record = meshes[i];
-        vertexCount += record.VertexCapacity;
-        indexCount += record.IndexCapacity;
+        vertexCount += record.Primitive.MeshVertexCapacity;
+        indexCount += record.Primitive.MeshIndexCapacity;
       }
       rVertexCount += vertexCount;
       rIndexCount += indexCount;
@@ -196,10 +196,10 @@ namespace Fsl::UI::RenderIMBatch
       {
         auto index = rMeshes.FastHandleToIndex(hMeshValue);
         const auto& record = rMeshes[index];
-        assert(rCapacity.VertexCapacity >= record.VertexCapacity);
-        assert(rCapacity.IndexCapacity >= record.IndexCapacity);
-        rCapacity.VertexCapacity -= record.VertexCapacity;
-        rCapacity.IndexCapacity -= record.IndexCapacity;
+        assert(rCapacity.VertexCapacity >= record.Primitive.MeshVertexCapacity);
+        assert(rCapacity.IndexCapacity >= record.Primitive.MeshIndexCapacity);
+        rCapacity.VertexCapacity -= record.Primitive.MeshVertexCapacity;
+        rCapacity.IndexCapacity -= record.Primitive.MeshIndexCapacity;
         rMaterialLookup.Release(record.MaterialHandle);
         rMeshes.FastRemoveAt(index);
       }
@@ -216,10 +216,10 @@ namespace Fsl::UI::RenderIMBatch
       {
         auto index = rMeshes.FastHandleToIndex(hMeshValue);
         const auto& record = rMeshes[index];
-        assert(rCapacity.VertexCapacity >= record.VertexCapacity);
-        assert(rCapacity.IndexCapacity >= record.IndexCapacity);
-        rCapacity.VertexCapacity -= record.VertexCapacity;
-        rCapacity.IndexCapacity -= record.IndexCapacity;
+        assert(rCapacity.VertexCapacity >= record.Primitive.MeshVertexCapacity);
+        assert(rCapacity.IndexCapacity >= record.Primitive.MeshIndexCapacity);
+        rCapacity.VertexCapacity -= record.Primitive.MeshVertexCapacity;
+        rCapacity.IndexCapacity -= record.Primitive.MeshIndexCapacity;
         rMaterialLookup.Release(record.OpaqueMaterialHandle);
         rMaterialLookup.Release(record.TransparentMaterialHandle);
         rMeshes.FastRemoveAt(index);
@@ -256,6 +256,26 @@ namespace Fsl::UI::RenderIMBatch
       }
     }
 
+    RenderImageInfo UpdatePrimitiveRenderInfo(const IImageSprite& sprite) noexcept
+    {
+      return sprite.GetImageRenderInfo();
+    }
+
+    RenderOptimizedNineSliceInfo UpdatePrimitiveRenderInfo(const INineSliceSprite& sprite) noexcept
+    {
+      return sprite.GetNineSliceRenderInfo();
+    }
+
+    bool UpdatePrimitiveRenderInfo(const SpriteFont& sprite) noexcept
+    {
+      return false;
+    }
+
+    RenderImageInfo UpdatePrimitiveRenderInfo(const ISprite& sprite) noexcept
+    {
+      return {};
+    }
+
     template <typename TMeshRecord>
     void UpdateConfiguration(MaterialLookup& rMaterialLookup, HandleVector<TMeshRecord>& rMeshes)
     {
@@ -264,7 +284,10 @@ namespace Fsl::UI::RenderIMBatch
       for (uint32_t i = 0; i < count; ++i)
       {
         TMeshRecord& rRecord = rMeshes[i];
-        const ISprite* const pSprite = rRecord.Sprite.get();
+        const auto* const pSprite = rRecord.Sprite.get();
+
+        rRecord.Primitive.RenderInfo = UpdatePrimitiveRenderInfo(*pSprite);
+
         // Try to acquire the batch material handle for the given sprite and compare it to the one we stored,
         // if it is different we release the old one and acquire the new one
         const BatchMaterialHandle batchMaterialHandle = rMaterialLookup.TryGetHandle(pSprite, rRecord.SpriteMaterialIndex);
@@ -286,22 +309,22 @@ namespace Fsl::UI::RenderIMBatch
                           const uint32_t indexCapacity)
     {
       auto& rRecord = rMeshes.Get(HandleCoding::GetOriginalHandle(hMesh));
-      if ((rRecord.IndexCapacity > 0 || indexCapacity > 0) && vertexCapacity > 0xFFFF)
+      if ((rRecord.Primitive.MeshIndexCapacity > 0 || indexCapacity > 0) && vertexCapacity > 0xFFFF)
       {
         throw NotSupportedException("vertex capacity exceeded");
       }
 
-      if (vertexCapacity > rRecord.VertexCapacity)
+      if (vertexCapacity > rRecord.Primitive.MeshVertexCapacity)
       {
-        rCapacity.VertexCapacity -= rRecord.VertexCapacity;
+        rCapacity.VertexCapacity -= rRecord.Primitive.MeshVertexCapacity;
         rCapacity.VertexCapacity += vertexCapacity;
-        rRecord.VertexCapacity = vertexCapacity;
+        rRecord.Primitive.MeshVertexCapacity = vertexCapacity;
       }
-      if (indexCapacity > rRecord.IndexCapacity)
+      if (indexCapacity > rRecord.Primitive.MeshIndexCapacity)
       {
-        rCapacity.IndexCapacity -= rRecord.IndexCapacity;
+        rCapacity.IndexCapacity -= rRecord.Primitive.MeshIndexCapacity;
         rCapacity.IndexCapacity += indexCapacity;
-        rRecord.IndexCapacity = indexCapacity;
+        rRecord.Primitive.MeshIndexCapacity = indexCapacity;
       }
     }
   }
@@ -358,10 +381,6 @@ namespace Fsl::UI::RenderIMBatch
     SANITY_CHECK_ALL();
     RemoveAllMeshes(m_capacity, m_meshesDummy);
     SANITY_CHECK_ALL();
-    RemoveAllMeshes(m_capacity, m_meshesBasicImageSprite);
-    SANITY_CHECK_ALL();
-    RemoveAllMeshes(m_capacity, m_meshesBasicNineSliceSprite);
-    SANITY_CHECK_ALL();
     RemoveAllMeshes(m_capacity, m_meshesImageSprite);
     SANITY_CHECK_ALL();
     RemoveAllMeshes(m_capacity, m_meshesNineSliceSprite);
@@ -379,8 +398,6 @@ namespace Fsl::UI::RenderIMBatch
   {
     // The configuration changed which means that the sprites materials could have been reconfigured.
     UpdateConfiguration(m_materialLookup, m_meshesDummy);
-    UpdateConfiguration(m_materialLookup, m_meshesBasicImageSprite);
-    UpdateConfiguration(m_materialLookup, m_meshesBasicNineSliceSprite);
     UpdateConfiguration(m_materialLookup, m_meshesImageSprite);
     UpdateConfiguration(m_materialLookup, m_meshesNineSliceSprite);
     UpdateConfiguration(m_materialLookup, m_meshesOptimizedNineSliceSprite);
@@ -495,9 +512,9 @@ namespace Fsl::UI::RenderIMBatch
       const uint32_t finalVertexCapacity = std::max(LocalCapacity::SpriteFont::VertexCapacity, vertexCapacity);
       const uint32_t finalIndexCapacity = std::max(LocalCapacity::SpriteFont::IndexCapacity, indexCapacity);
 
-      const auto hMeshValue = m_meshesSpriteFont.Add(SpriteFontMeshRecord(sprite, batchMaterialHandle, spriteMaterialIndex,
-                                                                          m_materialLookup.GetSpriteMaterialInfo(batchMaterialHandle).IsOpaque,
-                                                                          finalVertexCapacity, finalIndexCapacity));
+      SpriteFontRenderPrimitive primitive(finalVertexCapacity, finalIndexCapacity, false);
+      const auto hMeshValue = m_meshesSpriteFont.Add(SpriteFontMeshRecord(primitive, sprite, batchMaterialHandle, spriteMaterialIndex,
+                                                                          m_materialLookup.GetSpriteMaterialInfo(batchMaterialHandle).IsOpaque));
 
       FSLLOG3(LocalConfig::Verbosity, "MeshManager::CreateMesh() MeshHandle:{} SpriteFont", hMeshValue);
       m_capacity.VertexCapacity += finalVertexCapacity;
@@ -526,14 +543,10 @@ namespace Fsl::UI::RenderIMBatch
       found = DoDestroyMeshMat1(m_materialLookup, m_capacity, m_meshesDummy, hMesh);
       break;
     case RenderDrawSpriteType::BasicImageSprite:
-      found = DoDestroyMeshMat1(m_materialLookup, m_capacity, m_meshesBasicImageSprite, hMesh);
-      break;
-    case RenderDrawSpriteType::BasicNineSliceSprite:
-      found = DoDestroyMeshMat1(m_materialLookup, m_capacity, m_meshesBasicNineSliceSprite, hMesh);
-      break;
     case RenderDrawSpriteType::ImageSprite:
       found = DoDestroyMeshMat1(m_materialLookup, m_capacity, m_meshesImageSprite, hMesh);
       break;
+    case RenderDrawSpriteType::BasicNineSliceSprite:
     case RenderDrawSpriteType::NineSliceSprite:
       found = DoDestroyMeshMat1(m_materialLookup, m_capacity, m_meshesNineSliceSprite, hMesh);
       break;
@@ -600,8 +613,8 @@ namespace Fsl::UI::RenderIMBatch
     rMeshRecord.MaterialHandle = m_materialLookup.Acquire(sprite.get(), rMeshRecord.SpriteMaterialIndex);
     rMeshRecord.SetSprite(sprite);
 
-    assert(m_capacity.VertexCapacity >= rMeshRecord.VertexCapacity);
-    assert(m_capacity.IndexCapacity >= rMeshRecord.IndexCapacity);
+    assert(m_capacity.VertexCapacity >= rMeshRecord.Primitive.MeshVertexCapacity);
+    assert(m_capacity.IndexCapacity >= rMeshRecord.Primitive.MeshIndexCapacity);
 
     // Since we just change between two font materials the required vertex and index capacity should not change!
     SANITY_CHECK_ALL();
@@ -636,14 +649,10 @@ namespace Fsl::UI::RenderIMBatch
       DoEnsureCapacity(m_capacity, m_meshesDummy, hMesh, vertexCapacity, indexCapacity);
       break;
     case RenderDrawSpriteType::BasicImageSprite:
-      DoEnsureCapacity(m_capacity, m_meshesBasicImageSprite, hMesh, vertexCapacity, indexCapacity);
-      break;
-    case RenderDrawSpriteType::BasicNineSliceSprite:
-      DoEnsureCapacity(m_capacity, m_meshesBasicNineSliceSprite, hMesh, vertexCapacity, indexCapacity);
-      break;
     case RenderDrawSpriteType::ImageSprite:
       DoEnsureCapacity(m_capacity, m_meshesImageSprite, hMesh, vertexCapacity, indexCapacity);
       break;
+    case RenderDrawSpriteType::BasicNineSliceSprite:
     case RenderDrawSpriteType::NineSliceSprite:
       DoEnsureCapacity(m_capacity, m_meshesNineSliceSprite, hMesh, vertexCapacity, indexCapacity);
       break;
@@ -674,8 +683,9 @@ namespace Fsl::UI::RenderIMBatch
       if (spriteEx)
       {
         const uint32_t finalVertexCapacity = std::max(LocalCapacity::ImageSprite::MinVertexCapacity, vertexCapacity);
-        const auto hMeshValue = m_meshesBasicImageSprite.Add(
-          BasicImageSpriteMeshRecord(std::move(spriteEx), batchMaterialHandle, spriteMaterialIndex, isOpaque, finalVertexCapacity, 0));
+        ImageRenderPrimitive primitive(finalVertexCapacity, 0, spriteEx->GetImageRenderInfo());
+        const auto hMeshValue =
+          m_meshesImageSprite.Add(ImageMeshRecord(primitive, std::move(spriteEx), batchMaterialHandle, spriteMaterialIndex, isOpaque));
         return {RenderDrawSpriteType::BasicImageSprite, finalVertexCapacity, 0u, hMeshValue};
       }
     }
@@ -683,8 +693,8 @@ namespace Fsl::UI::RenderIMBatch
     {
       FSLLOG3_WARNING("Unsupported sprite type, using dummy render");
       const uint32_t finalVertexCapacity = std::max(LocalCapacity::DummySprite::MinVertexCapacity, vertexCapacity);
-      const auto hMeshValue =
-        m_meshesDummy.Add(DummySpriteMeshRecord(sprite, batchMaterialHandle, spriteMaterialIndex, isOpaque, finalVertexCapacity, 0));
+      ImageRenderPrimitive primitive(finalVertexCapacity, 0, RenderImageInfo());
+      const auto hMeshValue = m_meshesDummy.Add(DummySpriteMeshRecord(primitive, sprite, batchMaterialHandle, spriteMaterialIndex, isOpaque));
       return {RenderDrawSpriteType::Dummy, finalVertexCapacity, 0u, hMeshValue};
     }
   }
@@ -701,8 +711,9 @@ namespace Fsl::UI::RenderIMBatch
       {
         const uint32_t finalVertexCapacity = std::max(LocalCapacity::ImageSprite::MinVertexCapacity, vertexCapacity);
         const uint32_t finalIndexCapacity = std::max(LocalCapacity::ImageSprite::MinIndexCapacity, indexCapacity);
-        const auto hMeshValue = m_meshesImageSprite.Add(
-          ImageSpriteMeshRecord(std::move(spriteEx), batchMaterialHandle, spriteMaterialIndex, isOpaque, finalVertexCapacity, finalIndexCapacity));
+        ImageRenderPrimitive primitive(finalVertexCapacity, finalIndexCapacity, spriteEx->GetImageRenderInfo());
+        const auto hMeshValue =
+          m_meshesImageSprite.Add(ImageMeshRecord(primitive, std::move(spriteEx), batchMaterialHandle, spriteMaterialIndex, isOpaque));
         return {RenderDrawSpriteType::ImageSprite, finalVertexCapacity, finalIndexCapacity, hMeshValue};
       }
     }
@@ -712,8 +723,10 @@ namespace Fsl::UI::RenderIMBatch
       {
         const uint32_t finalVertexCapacity = std::max(LocalCapacity::ImageSprite::MinVertexCapacity, vertexCapacity);
         const uint32_t finalIndexCapacity = std::max(LocalCapacity::ImageSprite::MinIndexCapacity, indexCapacity);
-        const auto hMeshValue = m_meshesBasicImageSprite.Add(BasicImageSpriteMeshRecord(std::move(spriteEx), batchMaterialHandle, spriteMaterialIndex,
-                                                                                        isOpaque, finalVertexCapacity, finalIndexCapacity));
+        ImageRenderPrimitive primitive(finalVertexCapacity, finalIndexCapacity, spriteEx->GetImageRenderInfo());
+        const auto hMeshValue =
+          m_meshesImageSprite.Add(ImageMeshRecord(primitive, std::move(spriteEx), batchMaterialHandle, spriteMaterialIndex, isOpaque));
+
         return {RenderDrawSpriteType::BasicImageSprite, finalVertexCapacity, finalIndexCapacity, hMeshValue};
       }
     }
@@ -723,8 +736,9 @@ namespace Fsl::UI::RenderIMBatch
       {
         const uint32_t finalVertexCapacity = std::max(LocalCapacity::NineSliceSprite::MinVertexCapacity, vertexCapacity);
         const uint32_t finalIndexCapacity = std::max(LocalCapacity::NineSliceSprite::MinIndexCapacity, indexCapacity);
-        const auto hMeshValue = m_meshesNineSliceSprite.Add(NineSliceSpriteMeshRecord(std::move(spriteEx), batchMaterialHandle, spriteMaterialIndex,
-                                                                                      isOpaque, finalVertexCapacity, finalIndexCapacity));
+        NineSliceRenderPrimitive primitive(finalVertexCapacity, finalIndexCapacity, spriteEx->GetNineSliceRenderInfo());
+        const auto hMeshValue =
+          m_meshesNineSliceSprite.Add(NineSliceMeshRecord(primitive, std::move(spriteEx), batchMaterialHandle, spriteMaterialIndex, isOpaque));
         return {RenderDrawSpriteType::NineSliceSprite, finalVertexCapacity, finalIndexCapacity, hMeshValue};
       }
     }
@@ -734,8 +748,9 @@ namespace Fsl::UI::RenderIMBatch
       {
         const uint32_t finalVertexCapacity = std::max(LocalCapacity::NineSliceSprite::MinVertexCapacity, vertexCapacity);
         const uint32_t finalIndexCapacity = std::max(LocalCapacity::NineSliceSprite::MinIndexCapacity, indexCapacity);
-        const auto hMeshValue = m_meshesBasicNineSliceSprite.Add(BasicNineSliceSpriteMeshRecord(
-          std::move(spriteEx), batchMaterialHandle, spriteMaterialIndex, isOpaque, finalVertexCapacity, finalIndexCapacity));
+        NineSliceRenderPrimitive primitive(finalVertexCapacity, finalIndexCapacity, spriteEx->GetNineSliceRenderInfo());
+        const auto hMeshValue =
+          m_meshesNineSliceSprite.Add(NineSliceMeshRecord(primitive, std::move(spriteEx), batchMaterialHandle, spriteMaterialIndex, isOpaque));
         return {RenderDrawSpriteType::BasicNineSliceSprite, finalVertexCapacity, finalIndexCapacity, hMeshValue};
       }
     }
@@ -771,9 +786,10 @@ namespace Fsl::UI::RenderIMBatch
 
           const MeshTransparencyFlags meshType = hasOpaqueParts | hasTransparentParts;
 
-          const auto hMeshValue = m_meshesOptimizedNineSliceSprite.Add(
-            OptimizedNineSliceSpriteMeshRecord(std::move(spriteEx), batchMaterialHandle, spriteMaterialIndex, batchMaterialHandle1,
-                                               SpriteMaterialIndex1, finalVertexCapacity, finalIndexCapacity, meshType));
+          NineSliceRenderPrimitive primitive(finalVertexCapacity, finalIndexCapacity, spriteEx->GetNineSliceRenderInfo());
+
+          const auto hMeshValue = m_meshesOptimizedNineSliceSprite.Add(OptimizedNineSliceSpriteMeshRecord(
+            primitive, std::move(spriteEx), batchMaterialHandle, spriteMaterialIndex, batchMaterialHandle1, SpriteMaterialIndex1, meshType));
           return {RenderDrawSpriteType::OptimizedNineSliceSprite, finalVertexCapacity, finalIndexCapacity, hMeshValue};
         }
         catch (const std::exception& ex)
@@ -791,8 +807,8 @@ namespace Fsl::UI::RenderIMBatch
       FSLLOG3_WARNING("Unsupported sprite type, using dummy render");
       const uint32_t finalVertexCapacity = std::max(LocalCapacity::DummySprite::MinVertexCapacity, vertexCapacity);
       const uint32_t finalIndexCapacity = std::max(LocalCapacity::DummySprite::MinIndexCapacity, indexCapacity);
-      const auto hMeshValue =
-        m_meshesDummy.Add(DummySpriteMeshRecord(sprite, batchMaterialHandle, spriteMaterialIndex, isOpaque, finalVertexCapacity, finalIndexCapacity));
+      ImageRenderPrimitive primitive(finalVertexCapacity, finalIndexCapacity, RenderImageInfo());
+      const auto hMeshValue = m_meshesDummy.Add(DummySpriteMeshRecord(primitive, sprite, batchMaterialHandle, spriteMaterialIndex, isOpaque));
       return {RenderDrawSpriteType::Dummy, finalVertexCapacity, finalIndexCapacity, hMeshValue};
     }
   }
@@ -812,8 +828,6 @@ namespace Fsl::UI::RenderIMBatch
     uint32_t vertexCount = 0;
     uint32_t indexCount = 0;
     SanityCheckAddVertexAndIndexCount(vertexCount, indexCount, m_meshesDummy);
-    SanityCheckAddVertexAndIndexCount(vertexCount, indexCount, m_meshesBasicImageSprite);
-    SanityCheckAddVertexAndIndexCount(vertexCount, indexCount, m_meshesBasicNineSliceSprite);
     SanityCheckAddVertexAndIndexCount(vertexCount, indexCount, m_meshesImageSprite);
     SanityCheckAddVertexAndIndexCount(vertexCount, indexCount, m_meshesNineSliceSprite);
     SanityCheckAddVertexAndIndexCount(vertexCount, indexCount, m_meshesOptimizedNineSliceSprite);
@@ -826,16 +840,22 @@ namespace Fsl::UI::RenderIMBatch
   void MeshManager::SanityCheckMats() noexcept
   {
 #ifdef LOCAL_SANITY_CHECK
-    std::map<BatchMaterialHandle, uint32_t> expectedRefCountMap;
-    SanityCheckMaterialRefCountMat1(expectedRefCountMap, m_meshesDummy);
-    SanityCheckMaterialRefCountMat1(expectedRefCountMap, m_meshesBasicImageSprite);
-    SanityCheckMaterialRefCountMat1(expectedRefCountMap, m_meshesBasicNineSliceSprite);
-    SanityCheckMaterialRefCountMat1(expectedRefCountMap, m_meshesImageSprite);
-    SanityCheckMaterialRefCountMat1(expectedRefCountMap, m_meshesNineSliceSprite);
-    SanityCheckMaterialRefCountMat2(expectedRefCountMap, m_meshesOptimizedNineSliceSprite);
-    SanityCheckMaterialRefCountMat1(expectedRefCountMap, m_meshesSpriteFont);
+    try
+    {
+      std::map<BatchMaterialHandle, uint32_t> expectedRefCountMap;
+      SanityCheckMaterialRefCountMat1(expectedRefCountMap, m_meshesDummy);
+      SanityCheckMaterialRefCountMat1(expectedRefCountMap, m_meshesImageSprite);
+      SanityCheckMaterialRefCountMat1(expectedRefCountMap, m_meshesNineSliceSprite);
+      SanityCheckMaterialRefCountMat2(expectedRefCountMap, m_meshesOptimizedNineSliceSprite);
+      SanityCheckMaterialRefCountMat1(expectedRefCountMap, m_meshesSpriteFont);
 
-    m_materialLookup.SanityCheck(expectedRefCountMap);
+      m_materialLookup.SanityCheck(expectedRefCountMap);
+    }
+    catch (std::exception& ex)
+    {
+      FSLLOG3_ERROR("A exception was thrown {}", ex.what());
+      assert(false);
+    }
 #endif
   }
 }

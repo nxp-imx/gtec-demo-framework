@@ -38,7 +38,7 @@
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslGraphics/NativeNineSliceTextureArea.hpp>
 #include <FslGraphics/Sprite/Info/Core/CoreBasicNineSliceInfo.hpp>
-#include <FslGraphics/Sprite/Info/Core/RenderBasicNineSliceInfoEx.hpp>
+#include <FslGraphics/Sprite/Info/Core/RenderOptimizedBasicNineSliceInfo.hpp>
 #include <FslGraphics/Sprite/Info/ImageSpriteInfo.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
 #include <FslGraphics/Sprite/SpriteDpConfig.hpp>
@@ -62,7 +62,7 @@ namespace Fsl
 
     uint32_t ImageDpi{SpriteDpConfig::BaseDpi};
 
-    RenderBasicNineSliceInfoEx RenderInfo;
+    RenderOptimizedBasicNineSliceInfo RenderInfo;
 
     OptimizedBasicNineSliceSpriteInfo() = default;
     OptimizedBasicNineSliceSpriteInfo(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& opaqueSpriteMaterialInfo,

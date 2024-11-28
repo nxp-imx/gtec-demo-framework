@@ -38,6 +38,8 @@ namespace Fsl
 {
   class DevBasicRenderCustomShader final : public VulkanBasic::DemoAppVulkanBasic
   {
+    using base_type = VulkanBasic::DemoAppVulkanBasic;
+
     struct DependentResources
     {
       RapidVulkan::RenderPass MainRenderPass;

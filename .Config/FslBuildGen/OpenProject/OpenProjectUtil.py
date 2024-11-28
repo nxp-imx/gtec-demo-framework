@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #****************************************************************************************************************************************************
-# Copyright 2020 NXP
+# Copyright 2020, 2024 NXP
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,8 @@ from FslBuildGen import IOUtil
 from FslBuildGen.DataTypes import BuildPlatformType
 from FslBuildGen.Log import Log
 from FslBuildGen.Exceptions import ExitException
+from FslBuildGen.Location.ResolvedPath import ResolvedPath
+from FslBuildGen.OpenProject.NatvisCombiner import NatvisCombiner
 from FslBuildGen.OpenProject.OpenProjectCreateInfo import OpenProjectCreateInfo
 from FslBuildGen.OpenProject.VSCodeLaunchJsonUtil import VSCodeLaunchJsonUtil
 from FslBuildGen.OpenProject.VSCodeSettingsJsonUtil import VSCodeSettingsJsonUtil
@@ -44,7 +46,7 @@ from FslBuildGen.PlatformUtil import PlatformUtil
 
 class OpenProjectUtil(object):
     @staticmethod
-    def Run(log: Log, createInfo: OpenProjectCreateInfo) -> None:
+    def Run(log: Log, createInfo: OpenProjectCreateInfo, allNatvisFiles: List[ResolvedPath]) -> None:
         log.LogPrintVerbose(1, "Configuring and launching Visual Studio Code for path '{0}'".format(createInfo.SourcePath))
 
         buildPlatformType = PlatformUtil.DetectBuildPlatformType()
@@ -52,8 +54,12 @@ class OpenProjectUtil(object):
         vsCodeConfigPath = IOUtil.Join(createInfo.SourcePath, ".vscode")
         launchFilePath = IOUtil.Join(vsCodeConfigPath, "launch.json")
         settingsFilePath = IOUtil.Join(vsCodeConfigPath, "settings.json")
+        combinedNatvisFile = IOUtil.Join(vsCodeConfigPath, "CustomCombined.natvis")
 
         IOUtil.SafeMakeDirs(vsCodeConfigPath)
+
+        # Combine all natvis files into one
+        NatvisCombiner.Combine(log, allNatvisFiles, combinedNatvisFile)
 
         log.LogPrintVerbose(1, "- Patching settings at '{0}'".format(settingsFilePath))
         log.PushIndent()
@@ -68,7 +74,7 @@ class OpenProjectUtil(object):
                 log.LogPrint("- Patching launch settings at '{0}'".format(launchFilePath))
                 log.LogPrint("  - Exe: '{0}'".format(exeInfo.Executable))
                 log.LogPrint("  - Cwd: '{0}'".format(exeInfo.CurrentWorkingDirectory))
-            if not VSCodeLaunchJsonUtil.TryPatch(launchFilePath, buildPlatformType, exeInfo.Executable, exeInfo.CurrentWorkingDirectory):
+            if not VSCodeLaunchJsonUtil.TryPatch(launchFilePath, buildPlatformType, exeInfo.Executable, exeInfo.CurrentWorkingDirectory, combinedNatvisFile):
                 log.LogPrintVerbose(1, "WARNING Failed to patch launch file '{0}'".format(launchFilePath))
         else:
             log.LogPrintVerbose(1, "- Launch: No executable information found")

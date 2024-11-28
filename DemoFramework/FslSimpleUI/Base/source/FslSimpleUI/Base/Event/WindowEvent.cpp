@@ -29,6 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
 #include <FslSimpleUI/Base/IWindowId.hpp>
 #include <cassert>
@@ -65,19 +66,40 @@ namespace Fsl::UI
   }
 
 
+  EventHandlingStatus WindowEvent::GetHandlingStatus() const noexcept
+  {
+    assert(!IsDisposed());
+    return m_status;
+  }
+
+
   bool WindowEvent::IsHandled() const noexcept
   {
     assert(!IsDisposed());
-    return m_isHandled;
+    return m_status != EventHandlingStatus::Unhandled;
   }
 
 
   void WindowEvent::Handled() noexcept
   {
     assert(!IsDisposed());
-    m_isHandled = true;
+    if (m_status == EventHandlingStatus::Unhandled)
+    {
+      m_status = EventHandlingStatus::Handled;
+    }
   }
 
+  void WindowEvent::Claimed()
+  {
+    if (m_status < EventHandlingStatus::Claimed)
+    {
+      m_status = EventHandlingStatus::Claimed;
+    }
+    else
+    {
+      FSLLOG3_WARNING("A already claimed event, can not be claimed again");
+    }
+  }
 
   void WindowEvent::SYS_SetSource(const std::shared_ptr<IWindowId>& value) noexcept
   {
@@ -95,7 +117,6 @@ namespace Fsl::UI
   WindowEvent::WindowEvent(const EventTypeId typeId, EventDescription eventDescription) noexcept
     : m_eventTypeId(typeId)
     , m_eventDescription(std::move(eventDescription))
-    , m_isHandled(false)
     , m_isInitialized(false)
   {
   }
@@ -113,7 +134,7 @@ namespace Fsl::UI
     assert(m_isInitialized);
     m_originalSource.reset();
     m_source.reset();
-    m_isHandled = false;
+    m_status = EventHandlingStatus::Unhandled;
     m_isInitialized = false;
   }
 }

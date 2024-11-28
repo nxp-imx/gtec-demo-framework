@@ -95,6 +95,10 @@ namespace Fsl
         DpThicknessF GetDefaultMarginDp(const ElementType elementType) const final;
 
 
+        // ----- CreateScrollViewer
+        std::shared_ptr<ScrollViewer> CreateScrollViewer(const std::shared_ptr<BaseWindow>& content, const ScrollModeFlags scrollMode,
+                                                         const bool clipContent) final;
+
         // ----- CreateDivider
         std::shared_ptr<Image> CreateDivider(const LayoutOrientation orientation) final;
 

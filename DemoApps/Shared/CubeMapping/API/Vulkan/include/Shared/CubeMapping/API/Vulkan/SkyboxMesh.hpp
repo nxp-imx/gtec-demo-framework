@@ -40,7 +40,7 @@ namespace Fsl
   struct SkyboxMesh
   {
     Vulkan::VMVertexBuffer VertexBuffer;
-    std::array<VkVertexInputAttributeDescription, 2> VertexAttributeDescription;
+    std::array<VkVertexInputAttributeDescription, 2> VertexAttributeDescription{};
     VkVertexInputBindingDescription VertexInputBindingDescription{};
   };
 }

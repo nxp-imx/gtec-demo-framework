@@ -43,7 +43,7 @@
   * Make sure you have at least android-ndk-r25b.
     * We recommend the latest LTS which currently is **NDK r25b**.
 
-* [Python 3.6+](https://www.python.org/ftp/python/3.8.1/python-3.8.1-amd64.exe)
+* [Python 3.10+](https://www.python.org/ftp/python/3.10.11/python-3.10.11-amd64.exe)
 
   To be able run python scripts, they are needed to build.
 

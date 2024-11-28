@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Sprite/INineSliceSprite.hpp>
+#include <FslGraphics/Sprite/Info/Core/RenderConverter.hpp>
 #include <FslGraphics/Sprite/Info/OptimizedBasicNineSliceSpriteInfo.hpp>
 #include <FslGraphics/TextureAtlas/AtlasNineSliceFlags.hpp>
 
@@ -57,38 +58,44 @@ namespace Fsl
                     const PxThicknessU& contentMarginPx, const AtlasNineSliceFlags flags, const uint32_t imageDpi, const StringViewLite& debugName,
                     const uint32_t densityDpi);
 
-    PxSize2D GetRenderSizePx() const final
+    PxSize2D GetRenderSizePx() const noexcept final
     {
       return m_info.RenderInfo.ScaledSizePx;
     }
 
-    const PxThickness& GetRenderContentMarginPx() const final
+    const PxThickness& GetRenderContentMarginPx() const noexcept final
     {
       return m_info.RenderInfo.ScaledContentMarginPx;
     }
 
-    RenderContentInfo GetRenderContentInfo() const final
+    RenderContentInfo GetRenderContentInfo() const noexcept final
     {
       return {m_info.RenderInfo.ScaledSizePx, m_info.RenderInfo.ScaledContentMarginPx};
     }
 
 
-    const OptimizedBasicNineSliceSpriteInfo& GetInfo() const
+    RenderOptimizedNineSliceInfo GetNineSliceRenderInfo() const noexcept final
+    {
+      return RenderConverter::ToRenderOptimizedNineSliceInfo(GetRenderInfo());
+    }
+
+
+    const OptimizedBasicNineSliceSpriteInfo& GetInfo() const noexcept
     {
       return m_info;
     }
 
-    const CoreBasicNineSliceInfo& GetImageInfo() const
+    const CoreBasicNineSliceInfo& GetImageInfo() const noexcept
     {
       return m_info.ImageInfo;
     }
 
-    const RenderBasicNineSliceInfoEx& GetRenderInfo() const
+    const RenderOptimizedBasicNineSliceInfo& GetRenderInfo() const noexcept
     {
       return m_info.RenderInfo;
     }
 
-    uint32_t GetMaterialCount() const final
+    uint32_t GetMaterialCount() const noexcept final
     {
       return 2u;
     }

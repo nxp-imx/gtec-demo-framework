@@ -46,8 +46,8 @@ namespace Fsl
     using raw_value_type = value_type::raw_value_type;
 
   private:
-    value_type m_width;
-    value_type m_height;
+    PxSize1DF m_width;
+    PxSize1DF m_height;
 
   public:
     constexpr PxSize2DF() noexcept = default;

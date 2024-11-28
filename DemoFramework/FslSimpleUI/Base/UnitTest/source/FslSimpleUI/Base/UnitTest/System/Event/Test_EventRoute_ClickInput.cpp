@@ -219,6 +219,10 @@ TEST_F(TestEventRouteClickInput, SendTo_Empty)
   EXPECT_FALSE(m_eventRoute.Send(&m_eventHandler, theEvent));
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
 TEST_F(TestEventRouteClickInput, SendTo_Begin_OneWindow_Direct)
 {
   m_eventRoute.SetTarget(m_nodeWindow1, UI::EventRoutingStrategy::Direct);
@@ -231,11 +235,13 @@ TEST_F(TestEventRouteClickInput, SendTo_Begin_OneWindow_Direct)
   EXPECT_TRUE(m_eventRoute.Send(&m_eventHandler, theEvent));
 
   // Its a direct event so we only expect one call to the target window with the event we send
-  EXPECT_EQ(m_eventHandler.CallCount.HandleEvent, 1u);
+  ASSERT_EQ(m_eventHandler.CallCount.HandleEvent, 1u);
   EXPECT_EQ(m_eventHandler.HandleEventCalls[0].Window, m_nodeWindow1);
   EXPECT_EQ(m_eventHandler.HandleEventCalls[0].TheEvent.Content, theEvent);
   EXPECT_TRUE(m_eventHandler.HandleEventCalls[0].TheEvent.IsTunneling);
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 TEST_F(TestEventRouteClickInput, SendTo_Begin_OneWindow_Tunnel)
 {
@@ -249,11 +255,13 @@ TEST_F(TestEventRouteClickInput, SendTo_Begin_OneWindow_Tunnel)
   EXPECT_TRUE(m_eventRoute.Send(&m_eventHandler, theEvent));
 
   // Its a tunnel event so we only expect one call to the target window with the event we send
-  EXPECT_EQ(m_eventHandler.CallCount.HandleEvent, 1u);
+  ASSERT_EQ(m_eventHandler.CallCount.HandleEvent, 1u);
   EXPECT_EQ(m_eventHandler.HandleEventCalls[0].Window, m_nodeWindow1);
   EXPECT_EQ(m_eventHandler.HandleEventCalls[0].TheEvent.Content, theEvent);
   EXPECT_TRUE(m_eventHandler.HandleEventCalls[0].TheEvent.IsTunneling);
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 TEST_F(TestEventRouteClickInput, SendTo_Begin_OneWindow_Bubble)
 {
@@ -267,17 +275,19 @@ TEST_F(TestEventRouteClickInput, SendTo_Begin_OneWindow_Bubble)
   EXPECT_TRUE(m_eventRoute.Send(&m_eventHandler, theEvent));
 
   // Its a bubble event so we only expect one call to the target window with the event we send
-  EXPECT_EQ(m_eventHandler.CallCount.HandleEvent, 1u);
+  ASSERT_EQ(m_eventHandler.CallCount.HandleEvent, 1u);
   EXPECT_EQ(m_eventHandler.HandleEventCalls[0].Window, m_nodeWindow1);
   EXPECT_EQ(m_eventHandler.HandleEventCalls[0].TheEvent.Content, theEvent);
   EXPECT_FALSE(m_eventHandler.HandleEventCalls[0].TheEvent.IsTunneling);
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
 TEST_F(TestEventRouteClickInput, SendTo_Begin_OneWindow_Pair)
 {
   m_eventRoute.SetTarget(m_nodeWindow1, UI::EventRoutingStrategy::Paired);
   EXPECT_FALSE(m_eventRoute.IsEmpty());
-  EXPECT_EQ(m_eventRoute.GetWindowCount(), 2u);
+  EXPECT_EQ(m_eventRoute.GetWindowCount(), 1u);
   EXPECT_EQ(m_eventRoute.GetTarget(), m_nodeWindow1);
 
   // Lets try to send a event
@@ -285,7 +295,7 @@ TEST_F(TestEventRouteClickInput, SendTo_Begin_OneWindow_Pair)
   EXPECT_TRUE(m_eventRoute.Send(&m_eventHandler, theEvent));
 
   // Its a paired event so we expect two calls to the target window with the event we send
-  EXPECT_EQ(m_eventHandler.CallCount.HandleEvent, 2u);
+  ASSERT_EQ(m_eventHandler.CallCount.HandleEvent, 2u);
 
   // The tunnel part
   EXPECT_EQ(m_eventHandler.HandleEventCalls[0].Window, m_nodeWindow1);
@@ -297,6 +307,10 @@ TEST_F(TestEventRouteClickInput, SendTo_Begin_OneWindow_Pair)
   EXPECT_EQ(m_eventHandler.HandleEventCalls[1].TheEvent.Content, theEvent);
   EXPECT_FALSE(m_eventHandler.HandleEventCalls[1].TheEvent.IsTunneling);
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 TEST_F(TestEventRouteClickInput, SendTo_Begin_TwoWindows_Direct)
@@ -311,11 +325,13 @@ TEST_F(TestEventRouteClickInput, SendTo_Begin_TwoWindows_Direct)
   EXPECT_TRUE(m_eventRoute.Send(&m_eventHandler, theEvent));
 
   // Its a direct event so we only expect one call to the target window with the event we send
-  EXPECT_EQ(m_eventHandler.CallCount.HandleEvent, 1u);
+  ASSERT_EQ(m_eventHandler.CallCount.HandleEvent, 1u);
   EXPECT_EQ(m_eventHandler.HandleEventCalls[0].Window, m_nodeWindow2);
   EXPECT_EQ(m_eventHandler.HandleEventCalls[0].TheEvent.Content, theEvent);
   EXPECT_TRUE(m_eventHandler.HandleEventCalls[0].TheEvent.IsTunneling);
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 TEST_F(TestEventRouteClickInput, SendTo_Begin_TwoWindows_Tunnel)
 {
@@ -329,7 +345,7 @@ TEST_F(TestEventRouteClickInput, SendTo_Begin_TwoWindows_Tunnel)
   EXPECT_TRUE(m_eventRoute.Send(&m_eventHandler, theEvent));
 
   // Its a tunneled event so we only expect one call to the parent window then the target window with the event we send
-  EXPECT_EQ(m_eventHandler.CallCount.HandleEvent, 2u);
+  ASSERT_EQ(m_eventHandler.CallCount.HandleEvent, 2u);
   EXPECT_EQ(m_eventHandler.HandleEventCalls[0].Window, m_nodeWindow1);
   EXPECT_EQ(m_eventHandler.HandleEventCalls[0].TheEvent.Content, theEvent);
   EXPECT_TRUE(m_eventHandler.HandleEventCalls[0].TheEvent.IsTunneling);
@@ -338,6 +354,8 @@ TEST_F(TestEventRouteClickInput, SendTo_Begin_TwoWindows_Tunnel)
   EXPECT_EQ(m_eventHandler.HandleEventCalls[1].TheEvent.Content, theEvent);
   EXPECT_TRUE(m_eventHandler.HandleEventCalls[1].TheEvent.IsTunneling);
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 TEST_F(TestEventRouteClickInput, SendTo_Begin_TwoWindows_Bubble)
 {
@@ -351,7 +369,7 @@ TEST_F(TestEventRouteClickInput, SendTo_Begin_TwoWindows_Bubble)
   EXPECT_TRUE(m_eventRoute.Send(&m_eventHandler, theEvent));
 
   // Its a bubble event so we expect one call to the target window with the event we send and one to the parent
-  EXPECT_EQ(m_eventHandler.CallCount.HandleEvent, 2u);
+  ASSERT_EQ(m_eventHandler.CallCount.HandleEvent, 2u);
   EXPECT_EQ(m_eventHandler.HandleEventCalls[0].Window, m_nodeWindow2);
   EXPECT_EQ(m_eventHandler.HandleEventCalls[0].TheEvent.Content, theEvent);
   EXPECT_FALSE(m_eventHandler.HandleEventCalls[0].TheEvent.IsTunneling);
@@ -361,11 +379,13 @@ TEST_F(TestEventRouteClickInput, SendTo_Begin_TwoWindows_Bubble)
   EXPECT_FALSE(m_eventHandler.HandleEventCalls[1].TheEvent.IsTunneling);
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
 TEST_F(TestEventRouteClickInput, SendTo_Begin_TwoWindows_Pair)
 {
   m_eventRoute.SetTarget(m_nodeWindow2, UI::EventRoutingStrategy::Paired);
   EXPECT_FALSE(m_eventRoute.IsEmpty());
-  EXPECT_EQ(m_eventRoute.GetWindowCount(), 4u);
+  EXPECT_EQ(m_eventRoute.GetWindowCount(), 2u);
   EXPECT_EQ(m_eventRoute.GetTarget(), m_nodeWindow2);
 
   // Lets try to send a event
@@ -373,7 +393,7 @@ TEST_F(TestEventRouteClickInput, SendTo_Begin_TwoWindows_Pair)
   EXPECT_TRUE(m_eventRoute.Send(&m_eventHandler, theEvent));
 
   // Its a paired event so we expect calls to the parent, target, target then finally the parent
-  EXPECT_EQ(m_eventHandler.CallCount.HandleEvent, 4u);
+  ASSERT_EQ(m_eventHandler.CallCount.HandleEvent, 4u);
 
   // The tunnel part
   EXPECT_EQ(m_eventHandler.HandleEventCalls[0].Window, m_nodeWindow1);
@@ -393,3 +413,7 @@ TEST_F(TestEventRouteClickInput, SendTo_Begin_TwoWindows_Pair)
   EXPECT_EQ(m_eventHandler.HandleEventCalls[3].TheEvent.Content, theEvent);
   EXPECT_FALSE(m_eventHandler.HandleEventCalls[3].TheEvent.IsTunneling);
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------------------------

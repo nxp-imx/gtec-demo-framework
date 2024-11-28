@@ -44,7 +44,7 @@ namespace Fsl::UI
     static const uint16_t MASK_PropertyTypeFlags = static_cast<uint16_t>(PropertyType::Content) | static_cast<uint16_t>(PropertyType::ContentDraw) |
                                                    static_cast<uint16_t>(PropertyType::Layout) | static_cast<uint16_t>(PropertyType::Alignment) |
                                                    static_cast<uint16_t>(PropertyType::ScalePolicy) | static_cast<uint16_t>(PropertyType::BaseColor) |
-                                                   static_cast<uint16_t>(PropertyType::Other);
+                                                   static_cast<uint16_t>(PropertyType::Clipping) | static_cast<uint16_t>(PropertyType::Other);
 
     // NOLINTNEXTLINE(readability-identifier-naming)
     static const uint16_t MASK_LayoutRelated = static_cast<uint16_t>(PropertyType::Content) | static_cast<uint16_t>(PropertyType::Layout);
@@ -52,7 +52,8 @@ namespace Fsl::UI
     // NOLINTNEXTLINE(readability-identifier-naming)
     static const uint16_t MASK_DrawRelated = MASK_LayoutRelated | static_cast<uint16_t>(PropertyType::ContentDraw) |
                                              static_cast<uint16_t>(PropertyType::Alignment) | static_cast<uint16_t>(PropertyType::ScalePolicy) |
-                                             static_cast<uint16_t>(PropertyType::BaseColor) | static_cast<uint16_t>(PropertyType::Other);
+                                             static_cast<uint16_t>(PropertyType::BaseColor) | static_cast<uint16_t>(PropertyType::Clipping) |
+                                             static_cast<uint16_t>(PropertyType::Other);
 
     // NOLINTNEXTLINE(readability-identifier-naming)
     static const uint16_t MASK_Content = static_cast<uint16_t>(PropertyType::Content) | static_cast<uint16_t>(PropertyType::ContentDraw);

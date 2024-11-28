@@ -175,7 +175,7 @@ class ConditionInterpreter(object):
         nodeVisitor.visit(astRootNode)
         self.__RootNode = astRootNode
 
-    def __Parse(self, featureRequirements: str) -> ast.AST:
+    def __Parse(self, featureRequirements: str) -> ast.Expression:
         try:
             return ast.parse(featureRequirements, mode='eval')
         except SyntaxError as ex:
@@ -212,14 +212,14 @@ class EvaluateConditionInterpreter(object):
         return EvaluateConditionInterpreter.__DoEvaluate(astRootNode, validVariableDict)
 
     @staticmethod
-    def __Parse(condition: str, sourceCondition: str, source: str) -> ast.AST:
+    def __Parse(condition: str, sourceCondition: str, source: str) -> ast.Expression:
         try:
             return ast.parse(condition, mode='eval')
         except SyntaxError as ex:
             raise Exception("Evaluate({0}) from '{1}' at 'x:{2}' in '{3}' ".format(ex.msg, source, ex.offset, str(ex.text).strip()))
 
     @staticmethod
-    def __DoEvaluate(astRootNode: ast.AST, validVariableDict: Dict[str, object]) -> bool:
+    def __DoEvaluate(astRootNode: ast.Expression, validVariableDict: Dict[str, object]) -> bool:
         #nodeTransformer = EvaluateConditionInterpreterNodeTransformer(validVariableDict)
         #nodeTransformer.visit(astRootNode)
         fixed = ast.fix_missing_locations(astRootNode)

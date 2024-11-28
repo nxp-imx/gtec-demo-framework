@@ -100,8 +100,40 @@ namespace Fsl::Vulkan
     {
       Resources(const Resources&) = delete;
       Resources& operator=(const Resources&) = delete;
-      Resources(Resources&& other) noexcept = delete;
-      Resources& operator=(Resources&& other) noexcept = delete;
+
+      Resources(Resources&& other) noexcept
+        : IsValid(other.IsValid)
+        , BufferManager(std::move(other.BufferManager))
+        , MainDescriptorSetLayout(std::move(other.MainDescriptorSetLayout))
+        , MainDescriptorPool(std::move(other.MainDescriptorPool))
+        , MainPipelineLayout(std::move(other.MainPipelineLayout))
+        , MainFrameResources(std::move(other.MainFrameResources))
+      {
+        // Remove the data from other
+        other.IsValid = false;
+      }
+
+      Resources& operator=(Resources&& other) noexcept
+      {
+        if (this != &other)
+        {
+          // Free existing resources then transfer the content of other to this one and fill other with default values
+          Reset();
+
+          // Claim ownership here
+          IsValid = other.IsValid;
+          BufferManager = std::move(other.BufferManager);
+          MainDescriptorSetLayout = std::move(other.MainDescriptorSetLayout);
+          MainDescriptorPool = std::move(other.MainDescriptorPool);
+          MainPipelineLayout = std::move(other.MainPipelineLayout);
+          MainFrameResources = std::move(other.MainFrameResources);
+
+          // Remove the data from other
+          other.IsValid = false;
+        }
+        return *this;
+      }
+
 
       Resources() = default;
 
@@ -112,7 +144,7 @@ namespace Fsl::Vulkan
       RapidVulkan::PipelineLayout MainPipelineLayout;
       std::vector<FrameResources> MainFrameResources;
 
-      void Reset()
+      void Reset() noexcept
       {
         // Use destruction order
         MainFrameResources.clear();
@@ -128,15 +160,38 @@ namespace Fsl::Vulkan
     {
       DependentResources(const DependentResources&) = delete;
       DependentResources& operator=(const DependentResources&) = delete;
-      DependentResources(DependentResources&& other) noexcept = delete;
-      DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
+      DependentResources(DependentResources&& other) noexcept
+        : PipelineRender(std::move(other.PipelineRender))
+        , IsValid(other.IsValid)
+      {
+        // Remove the data from other
+        other.IsValid = false;
+      }
+
+      DependentResources& operator=(DependentResources&& other) noexcept
+      {
+        if (this != &other)
+        {
+          // Free existing resources then transfer the content of other to this one and fill other with default values
+          Reset();
+
+          // Claim ownership here
+          PipelineRender = std::move(other.PipelineRender);
+          IsValid = other.IsValid;
+
+          // Remove the data from other
+          other.IsValid = false;
+        }
+        return *this;
+      }
 
       DependentResources() = default;
 
-      bool IsValid{false};
       RapidVulkan::GraphicsPipeline PipelineRender;
+      bool IsValid{false};
 
-      void Reset()
+      void Reset() noexcept
       {
         // Use destruction order
         PipelineRender.Reset();
@@ -148,6 +203,27 @@ namespace Fsl::Vulkan
     DependentResources m_dependentResources;
 
   public:
+    VMLineDraw(VMLineDraw&& other) noexcept
+      : m_resources(std::move(other.m_resources))
+      , m_dependentResources(std::move(other.m_dependentResources))
+    {
+    }
+
+    VMLineDraw& operator=(VMLineDraw&& other) noexcept
+    {
+      if (this != &other)
+      {
+        // Free existing resources then transfer the content of other to this one and fill other with default values
+        Reset();
+
+        // Claim ownership here
+        m_resources = std::move(other.m_resources);
+        m_dependentResources = std::move(other.m_dependentResources);
+      }
+      return *this;
+    }
+
+
     VMLineDraw() = default;
     VMLineDraw(const VUDevice& device, const std::shared_ptr<VMBufferManager>& bufferManager, const uint32_t maxFrames,
                const std::size_t sizeOfVertexUBOData, const uint32_t initialLineCapacity);
@@ -157,7 +233,8 @@ namespace Fsl::Vulkan
                const std::size_t sizeOfVertexUBOData, const uint32_t initialLineCapacity);
 
     void BuildResources(const VkExtent2D& extent, const VkShaderModule vertexShaderModule, const VkShaderModule fragmentShaderModule,
-                        const VkRenderPass renderPass, const uint32_t subpass, const bool dynamicScissor = false);
+                        const VkRenderPass renderPass, const uint32_t subpass, const bool dynamicScissor = false, const bool dynamicViewport = false,
+                        const VkSampleCountFlagBits sampleCount = VK_SAMPLE_COUNT_1_BIT);
     void FreeResources() noexcept;
 
     void UpdateVertexUBO(const void* pVertexUBOData, const std::size_t& sizeOfVertexUBOData, const uint32_t frameIndex);

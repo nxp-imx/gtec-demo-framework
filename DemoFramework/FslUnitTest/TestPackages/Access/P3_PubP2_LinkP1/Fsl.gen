@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../FslBuildGen.xsd">
-  <Executable Name="FslUnitTest.TestPackages.Access.P3_PubP2_LinkP1" NoInclude="true" CreationYear="2019" ShowInMainReadme="false">
+  <Executable Name="FslUnitTest.TestPackages.Access.P3_PubP2_LinkP1" NoInclude="true" AllowCheck="false" CreationYear="2019" ShowInMainReadme="false">
     <Dependency Name="FslUnitTest.TestPackages.Access.P2_LinkP1" Access="Public"/>
     <Platform Name="Android" Supported="false"/>  
     <Platform Name="Windows" ProjectId="5D6FE259-FF49-4066-AEF4-E39AF0CB749A"/>

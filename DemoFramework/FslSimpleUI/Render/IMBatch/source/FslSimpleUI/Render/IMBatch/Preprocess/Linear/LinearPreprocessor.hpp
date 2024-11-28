@@ -59,7 +59,7 @@ namespace Fsl::UI::RenderIMBatch
     PxSize2D m_windowSizePx;
 
   public:
-    explicit LinearPreprocessor(const bool allowDepthBuffer, PxSize2D windowSizePx)
+    explicit LinearPreprocessor(const bool allowDepthBuffer, const PxSize2D windowSizePx)
       : m_allowDepthBuffer(allowDepthBuffer)
       , m_windowSizePx(windowSizePx)
     {

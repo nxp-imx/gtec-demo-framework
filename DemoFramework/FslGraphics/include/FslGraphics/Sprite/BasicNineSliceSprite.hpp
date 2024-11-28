@@ -33,6 +33,7 @@
 
 #include <FslGraphics/Sprite/INineSliceSprite.hpp>
 #include <FslGraphics/Sprite/Info/BasicNineSliceSpriteInfo.hpp>
+#include <FslGraphics/Sprite/Info/Core/RenderConverter.hpp>
 
 namespace Fsl
 {
@@ -54,38 +55,43 @@ namespace Fsl
                     const PxRectangleU16& imageRectanglePx, const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx,
                     const uint32_t imageDpi, const StringViewLite& debugName, const uint32_t densityDpi);
 
-    PxSize2D GetRenderSizePx() const final
+    PxSize2D GetRenderSizePx() const noexcept final
     {
       return m_info.RenderInfo.ScaledSizePx;
     }
 
-    const PxThickness& GetRenderContentMarginPx() const final
+    const PxThickness& GetRenderContentMarginPx() const noexcept final
     {
       return m_info.RenderInfo.ScaledContentMarginPx;
     }
 
-    RenderContentInfo GetRenderContentInfo() const final
+    RenderContentInfo GetRenderContentInfo() const noexcept final
     {
       return {m_info.RenderInfo.ScaledSizePx, m_info.RenderInfo.ScaledContentMarginPx};
     }
 
+    RenderOptimizedNineSliceInfo GetNineSliceRenderInfo() const noexcept final
+    {
+      return RenderConverter::ToRenderOptimizedNineSliceInfo(GetRenderInfo(), m_info.MaterialInfo.IsOpaque);
+    }
 
-    const BasicNineSliceSpriteInfo& GetInfo() const
+
+    const BasicNineSliceSpriteInfo& GetInfo() const noexcept
     {
       return m_info;
     }
 
-    const CoreBasicNineSliceInfo& GetImageInfo() const
+    const CoreBasicNineSliceInfo& GetImageInfo() const noexcept
     {
       return m_info.ImageInfo;
     }
 
-    const RenderBasicNineSliceInfo& GetRenderInfo() const
+    const RenderBasicNineSliceInfo& GetRenderInfo() const noexcept
     {
       return m_info.RenderInfo;
     }
 
-    uint32_t GetMaterialCount() const final
+    uint32_t GetMaterialCount() const noexcept final
     {
       return 1u;
     }

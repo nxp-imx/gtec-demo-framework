@@ -62,6 +62,7 @@ namespace Fsl
 
   void SpatialHashGrid2D::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
   {
+    base_type::ConfigurationChanged(windowMetrics);
     m_shared.ConfigurationChanged(windowMetrics);
   }
 

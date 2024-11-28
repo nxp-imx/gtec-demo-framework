@@ -44,6 +44,16 @@ namespace Fsl::UI
       return GetState() == EventTransactionState::Begin;
     }
 
+    bool IsCanceled() const noexcept
+    {
+      return GetState() == EventTransactionState::Canceled;
+    }
+
+    bool IsEnd() const noexcept
+    {
+      return GetState() == EventTransactionState::End;
+    }
+
   protected:
     WindowInputEvent(const EventTypeId typeId, const EventDescription& eventDescription) noexcept;
     void SYS_DoConstruct(const MillisecondTickCount32 timestamp, const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state,

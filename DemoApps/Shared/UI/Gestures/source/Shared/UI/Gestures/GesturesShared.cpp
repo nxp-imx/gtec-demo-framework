@@ -410,9 +410,7 @@ namespace Fsl
       bottomStack->AddChild(lblBottom);
     }
 
-    auto bottomScrollViewerX = std::make_shared<UI::ScrollViewer>(uiFactory.GetContext());
-    bottomScrollViewerX->SetContent(bottomStack);
-    bottomScrollViewerX->SetScrollMode(UI::ScrollModeFlags::TranslateX);
+    auto bottomScrollViewerX = uiFactory.CreateScrollViewer(bottomStack, UI::ScrollModeFlags::TranslateX, false);
     auto bottomMenuBar = uiFactory.CreateBottomBar(bottomScrollViewerX);
 
     auto moveableRects = std::make_shared<UI::MoveableRectangles>(uiFactory.GetContext());

@@ -35,10 +35,13 @@
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Time/MillisecondTickCount32.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
+#include <FslSimpleUI/Base/Event/EventTransactionState.hpp>
 #include <FslSimpleUI/Base/Gesture/Event/GestureBasicEvent.hpp>
 #include <FslSimpleUI/Base/Gesture/GestureDetector.hpp>
 #include <FslSimpleUI/Base/Gesture/GestureFlags.hpp>
 #include <FslSimpleUI/Base/Gesture/GestureRecord.hpp>
+#include <FslSimpleUI/Base/MovementOwnership.hpp>
+#include <FslSimpleUI/Base/MovementTransactionAction.hpp>
 #include <deque>
 #include <memory>
 #include <span>
@@ -65,9 +68,16 @@ namespace Fsl::UI
     GestureDetector m_gestureDetection;
     std::deque<GestureBasicEvent> m_eventQueue;
     SpriteUnitConverter m_unitConverter;
+    bool m_enabled{false};
 
   public:
     GestureManager(const GestureFlags enabledGestures, GestureDetector gestureDetection, const uint16_t densityDpi);
+
+    bool IsEnabled() const noexcept;
+    void SetEnabled(const bool value);
+
+    GestureAxis GetGestureAxis() const noexcept;
+    void SetGestureAxis(const GestureAxis value);
 
     void SetDpi(const uint16_t densityDpi) noexcept;
 
@@ -75,7 +85,8 @@ namespace Fsl::UI
 
     bool TryGet(GestureBasicEvent& rEvent) noexcept;
 
-    void AddMovement(const MillisecondTickCount32 timestamp, const PxPoint2 screenPositionPx, const bool isPressed);
+    MovementTransactionAction AddMovement(const MillisecondTickCount32 timestamp, const PxPoint2 screenPositionPx, const EventTransactionState state,
+                                          const bool isRepeat, const MovementOwnership movementOwnership);
 
     // Clear all movement and all gestures
     void Clear();
@@ -87,6 +98,7 @@ namespace Fsl::UI
     void Tap(const DpPoint2F positionDpf);
     void BeginDrag(const DpPoint2F startPositionDpf);
     void Drag(const DpPoint2F positionDpf);
+    void CancelDrag(const DpPoint2F positionDpf);
     void EndDrag(const DpPoint2F positionDpf, const DpPoint2F velocityDpf);
     void Flick(const DpPoint2F positionDp, const DpPoint2F velocityDp);
   };

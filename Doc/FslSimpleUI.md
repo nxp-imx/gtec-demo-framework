@@ -125,7 +125,7 @@ Using vector graphics for rendering the actual text is the optimal solution sinc
 
 ### Bitmap vs SDF
 
-A alternative choice is to use Signed Distance Field fonts (SDF) which scales a lot better and allows for various effects to be applied to the font.
+A alternative choice is to use Signed Distance Field fonts (SDF) which scales a lot better and allows for various effects to be applied to the font. However beware that using SDF's for very small font sizes might produce worse looking characters than similar sized bitmap fonts.
 
 2x scaled at 100% zoom | 2x scaled at 200% zoom
 -----------------------|--------------
@@ -304,7 +304,7 @@ The initial 'render-system' was basically just issuing the draw-commands from th
 
 Since the rendering systems required more control of the actual rendering process it was time to retire the old 'immediate mode quad batcher' and to do this we created a basic rendering abstraction *FslGraphics3D.BasicRender* which would provide the ability to create textures, materials, vertex-buffers, index buffers and use those to do some basic rendering. This new system would serve as the main rendering API abstraction for code that needed to run on various graphics API's (OpenGL ES, Vulkan, etc) and replace the old backend code used for the immediate mode quad batcher and other things. The new rendering layer meant that we could generalize the handling of 'deferred destruction of resources', modification of 'in use' resources and use it for all API's where before it was mostly done in Vulkan specific code. This had the additional benefit that there is only one place that needs to be changed if we want to try a different strategy in our resource handling. Once the BasicRender code and migration of the base systems were in place it was time to create a new UI render-system using the new render backend.
 
-To get a quick working starting point we basically re-created a 'immediate mode quad batcher' on top of the new rendering backend. This was then extended with various improved rendering strategies that can be toggled on and off at run-time. Compared to the old system it had the additional benefit that the 'batching' code behaved the same way for all API's instead of having API specific batching code like we did in the old system. See '[draw command list processing](#draw-command-list-processing-render-system)' for more details
+To get a quick working starting point we basically re-created a 'immediate mode quad batcher' on top of the new rendering backend. This was then extended with various improved rendering strategies that can be toggled on and off at run-time. Compared to the old system it had the additional benefit that the 'batching' code behaved the same way for all API's instead of having API specific batching code like we did in the old system. See '[draw command list processing](#control-rendering-draw-command-list-processing)' for more details
 
 This is the current state of the implementation for release 5.8.0.
 
@@ -331,18 +331,19 @@ The FslSimpleUI provides a minimum feature set that just covers exactly what the
 * Basic touch / mouse input
 * Basic theme support.
 * Animation aware (so the system knows if its animating or idle)
+* UI is colorspace aware.
 
-Some common UI features that were skipped
+Some common UI features that were initilly skipped
 
 * Activities (proper activity / modal dialog support)
 * Various controls
   * Text edit controls
-  * Scroll-bars/scroll panel
-* Input gestures
+  * Scroll-bars/scroll viewer (added recently)
+* Input gestures (added recently)
 * A keyboard focus system for controls
 * A game-pad focus system for controls
 * Data-binding (this is currently being added)
-* Minimum and maximum control sizes.
+* Minimum and maximum control sizes. (added recently)
 
 New features still being rolled out.
 
@@ -385,7 +386,29 @@ furthermore it allows us to validate the user supplied information at creation t
 
 ## Control colors
 
-All control colors are in the standard non-premultiplied R8G8B8A8 format. However it recommended the [render-system](#control-rendering-draw-command-list-processing) stores pre-multiplied colors in the vertex colors.
+Originally all control colors where stored in non-premultiplied R8G8B8A8 format.
+However as the rendering reality has become more complex with the need to support both linear and
+nonlinear color spaces as well as both HDR and SDR. It was decided to split the colors into UIColor's which are used
+for control properties (user facing) and UIRenderColor which are used internally.
+This split allows the user to use his preferred color space for specifying the color which can then be converted
+internally to fit the actual color space being used. Since we need to support HDR and linear colors there are not enough precission
+in a 8bit color channel so all colors was moved to a R16G16B16A16 format instead. We do currently assume that the 16bit color channel
+maps to values between 0.0f and 1.0f so technically the UI can not currently render outside the normal SDR range.
+If HDR becomes neceesary it would probably make sense to switch to a FP16 format per channel instead.
+Unfortunately float16 are not natively supported in C++ yet.
+
+### User facing colors in UIColor
+
+The UIColor are represented as a non-premultiplied RGBA format with 16bits per channel and a associated color space.
+It defaults to SRGBNonLinear if nothing else is specified as that is what many users have come to expect.
+
+### Internal colors in UIRenderColor
+
+The UIRenderColor are represented as a non-premultiplied RGBA format with 16bits per channel that are converted from the UIColor to the actual color space being used while rendering.
+
+### Rendering
+
+While all control colors are in the non-premultiplied R16G16B16A16 format its recommended that the [render-system](#control-rendering-draw-command-list-processing) stores pre-multiplied colors in the vertex colors.
 
 To facility changing the color of a window and all of its children each window contains the following
 

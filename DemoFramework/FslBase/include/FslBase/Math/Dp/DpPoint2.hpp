@@ -43,8 +43,8 @@ namespace Fsl
     using value_type = DpValue;
     using raw_value_type = int32_t;
 
-    value_type X{0};
-    value_type Y{0};
+    DpValue X{0};
+    DpValue Y{0};
 
     constexpr DpPoint2() noexcept = default;
 

@@ -48,30 +48,27 @@ namespace Fsl
     //! @brief Mouse position in screen space
     PxPoint2 MousePositionPx;
     bool IsTouch{false};
+    MillisecondTickCount32 Timestamp;
 
     InputCommandRecord() noexcept = default;
 
-    InputCommandRecord(const uint32_t frameIndex, const InputCommandId commandId) noexcept
+    InputCommandRecord(const uint32_t frameIndex, const InputCommandId commandId, const MillisecondTickCount32 timestamp) noexcept
       : FrameIndex(frameIndex)
       , CommandId(commandId)
+      , Timestamp(timestamp)
     {
     }
 
-    InputCommandRecord(const uint32_t frameIndex, const InputCommandId commandId, const CustomWindowId windowId, const PxRectangle windowRectPx,
-                       const PxPoint2 mousePosition, const bool isTouch) noexcept
+    InputCommandRecord(const uint32_t frameIndex, const InputCommandId commandId, const MillisecondTickCount32 timestamp,
+                       const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition, const bool isTouch) noexcept
       : FrameIndex(frameIndex)
       , CommandId(commandId)
       , WindowId(windowId)
       , WindowRectPx(windowRectPx)
       , MousePositionPx(mousePosition)
       , IsTouch(isTouch)
+      , Timestamp(timestamp)
     {
-    }
-
-    MillisecondTickCount32 GetTimestamp() const noexcept
-    {
-      // For now we dont store the timestamp
-      return {};
     }
   };
 }

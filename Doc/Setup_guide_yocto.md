@@ -51,7 +51,7 @@ This tend to be the fastest way to get started.
 
 * Ubuntu 22.04
 * [CMake 3.16 or newer](https://cmake.org/download/)
-* Python 3.6 (this is standard from Ubuntu 16.04 and forward)
+* Python 3.10 (this is standard from Ubuntu 22.04 and forward)
 * A prebuild sdk for your board typically called something like ```toolchain.sh```
 * A prebuild sd-card image for your board typically called ```BoardName.rootfs.sdcard.bz2```
 * Git
@@ -112,7 +112,7 @@ It's also a good idea to read the introduction to the [FslBuild toolchain](./Fsl
     ```
 
    Another possible error you can encounter is that the FslBuild.py scripts fail to include the 'typing' library.
-   This can happen because the SDK comes with a too old Python3 version or a incomplete Python3.6 version.
+   This can happen because the SDK comes with a too old Python3 version or a incomplete Python3.10 version.
    As a workaround for that you could delete the Python3 binaries from the SDK which will cause it to use the system Python3 version instead.
 
 ## Ready to build via sdk
@@ -131,7 +131,7 @@ This process provides the most flexible solution but it also takes significantly
 
 * The Ubuntu version required by the BSP release.
 * [CMake 3.16 or newer](https://cmake.org/download/)
-* Python 3.6+ It should be part of the default Ubuntu install.
+* Python 3.10+ It should be part of the default Ubuntu install.
 * Ninja build
 
     ```bash

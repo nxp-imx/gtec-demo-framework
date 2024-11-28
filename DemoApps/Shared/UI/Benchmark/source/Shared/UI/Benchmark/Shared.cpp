@@ -117,6 +117,7 @@ namespace Fsl
     , m_serviceProvider(config.DemoServiceProvider)
     , m_settingsPath(IO::Path::Combine(m_serviceProvider.Get<IPersistentDataManager>()->GetPersistentDataPath(), LocalConfig::SettingsFilename))
     , m_settings(std::make_shared<AppSettings>(LoadSettings(m_settingsPath)))
+    , m_benchmarkScene(config.GetOptions<OptionParser>()->GetBenchmarkScene())
   {
     // Ensure that the active render index is within the allowed range
     m_settings->Test.ActiveRenderIndex = std::clamp(m_settings->Test.ActiveRenderIndex, static_cast<uint32_t>(0), RenderConfig::GetSize());
@@ -143,8 +144,8 @@ namespace Fsl
     m_mainLayout->AddChild(m_overlayFillImage);
     m_uiExtension->SetMainWindow(m_mainLayout);
 
-    SceneCreateInfo createInfo(m_appInfo, m_serviceProvider, config.WindowMetrics, m_forwarder, m_uiControlFactory, m_sceneLayout, m_settings,
-                               m_uiExtension, m_gpuProfiler);
+    SceneCreateInfo createInfo(m_appInfo, m_benchmarkScene, m_serviceProvider, config.WindowMetrics, m_forwarder, m_uiControlFactory, m_sceneLayout,
+                               m_settings, m_uiExtension, m_gpuProfiler);
     NextSceneRecord nextSceneRecord(options->GetSceneId());
     m_sceneRecord = SelectScene(*m_demoAppControl, nextSceneRecord, createInfo, m_inputRecordingManager, m_benchResultManager);
 
@@ -249,8 +250,8 @@ namespace Fsl
         {
           CloseScene();
           // Launch the next scene
-          SceneCreateInfo createInfo(m_appInfo, m_serviceProvider, m_windowMetrics, m_forwarder, m_uiControlFactory, m_sceneLayout, m_settings,
-                                     m_uiExtension, m_gpuProfiler);
+          SceneCreateInfo createInfo(m_appInfo, m_benchmarkScene, m_serviceProvider, m_windowMetrics, m_forwarder, m_uiControlFactory, m_sceneLayout,
+                                     m_settings, m_uiExtension, m_gpuProfiler);
           m_sceneRecord = SelectScene(*m_demoAppControl, closeRes.value(), createInfo, m_inputRecordingManager, m_benchResultManager);
         }
       }

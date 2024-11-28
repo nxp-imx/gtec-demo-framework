@@ -358,7 +358,8 @@ namespace Fsl
       //! @brief Call this to crate a 'basic' depth image view.
       //         The created depth image view will be in the VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL layout.
       static Vulkan::VUImageMemoryView CreateBasicDepthImageView(const Vulkan::VUDevice& device, const VkExtent2D& depthImageExtent,
-                                                                 const VkCommandPool commandPool);
+                                                                 const VkCommandPool commandPool,
+                                                                 const VkSampleCountFlagBits sampleCount = VK_SAMPLE_COUNT_1_BIT);
 
       const Vulkan::SurfaceFormatInfo& GetSurfaceFormatInfo() const
       {

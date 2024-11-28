@@ -72,12 +72,14 @@ namespace Fsl
 
   void DevBasicRenderCustomShader::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
   {
+    base_type::ConfigurationChanged(windowMetrics);
     m_shared.ConfigurationChanged(windowMetrics);
   }
 
 
   void DevBasicRenderCustomShader::Update(const DemoTime& demoTime)
   {
+    base_type::Update(demoTime);
     m_shared.Update(demoTime);
   }
 

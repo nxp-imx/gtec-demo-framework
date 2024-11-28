@@ -41,7 +41,7 @@
 #include <cassert>
 #include <cstring>
 
-namespace Fsl::GLES3
+namespace Fsl::GLES3::GLUtil
 {
   namespace
   {
@@ -110,7 +110,7 @@ namespace Fsl::GLES3
     }
   }
 
-  std::vector<StringViewLite> GLUtil::GetExtensions()
+  std::vector<StringViewLite> GetExtensions()
   {
     const auto* pszExtensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
     if (pszExtensions == nullptr)
@@ -122,61 +122,66 @@ namespace Fsl::GLES3
   }
 
 
-  bool GLUtil::HasExtension(const char* const pszExtensionName)
+  // bool HasExtension(const char* const pszExtensionName)
+  //{
+  //   if (pszExtensionName == nullptr)
+  //   {
+  //     throw std::invalid_argument("pszExtensionName can not be null");
+  //   }
+
+  //  const auto* pszExtensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
+  //  if (pszExtensions == nullptr)
+  //  {
+  //    return false;
+  //  }
+
+  //  const auto lenExtensionName = strlen(pszExtensionName);
+
+  //  const char* pszCurrentLocation = pszExtensions;
+  //  while (pszCurrentLocation != nullptr)
+  //  {
+  //    const char* pszCharLocation = strstr(pszCurrentLocation, pszExtensionName);
+  //    if (pszCharLocation == nullptr)
+  //    {
+  //      return false;
+  //    }
+
+  //    // If this isn't the first entry, then the previous character must be a space
+  //    if (pszCharLocation == pszExtensions || *(pszCharLocation - 1) == ' ')
+  //    {
+  //      const char endChar = *(pszCharLocation + lenExtensionName);
+  //      if (endChar == ' ' || endChar == 0)
+  //      {
+  //        return true;
+  //      }
+  //    }
+  //    // Not a exact match -> so exit
+  //    pszCurrentLocation = pszCharLocation + 1;
+  //  }
+  //  return false;
+  //}
+
+  bool HasExtension(const char* const pszExtensionName)
   {
     if (pszExtensionName == nullptr)
     {
       throw std::invalid_argument("pszExtensionName can not be null");
     }
 
-    const auto* pszExtensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
-    if (pszExtensions == nullptr)
+    int max = 0;
+    glGetIntegerv(GL_NUM_EXTENSIONS, &max);
+
+    for (int i = 0; i < max; ++i)
     {
-      return false;
-    }
-
-    const auto lenExtensionName = strlen(pszExtensionName);
-
-    const char* pszCurrentLocation = pszExtensions;
-    while (pszCurrentLocation != nullptr)
-    {
-      const char* pszCharLocation = strstr(pszCurrentLocation, pszExtensionName);
-      if (pszCharLocation == nullptr)
+      if (strcmp(reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i)), pszExtensionName) == 0)
       {
-        return false;
+        return true;
       }
-
-      // If this isn't the first entry, then the previous character must be a space
-      if (pszCharLocation == pszExtensions || *(pszCharLocation - 1) == ' ')
-      {
-        const char endChar = *(pszCharLocation + lenExtensionName);
-        if (endChar == ' ' || endChar == 0)
-        {
-          return true;
-        }
-      }
-      // Not a exact match -> so exit
-      pszCurrentLocation = pszCharLocation + 1;
     }
     return false;
   }
 
-  // This works for ES3+, but has shown itself to be less reliable than the old way of checking
-  // bool GLUtil::HasExtension(const char*const pszExtensionName)
-  //{
-  //  int max = 0;
-  //  glGetIntegerv(GL_NUM_EXTENSIONS, &max);
-
-  //  for (int i = 0; i < max; ++i)
-  //  {
-  //    if (strcmp(reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i)), pszExtensionName) == 0)
-  //      return true;
-  //  }
-  //  return false;
-  //}
-
-
-  void GLUtil::Capture(Bitmap& rBitmap, const PixelFormat pixelFormat)
+  void Capture(Bitmap& rBitmap, const PixelFormat pixelFormat)
   {
     // Read the viewport to get the current size
     std::array<GLint, 4> viewport{};
@@ -187,7 +192,7 @@ namespace Fsl::GLES3
   }
 
 
-  void GLUtil::Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const PxRectangle& srcRectanglePx)
+  void Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const PxRectangle& srcRectanglePx)
   {
     const CaptureMethodRecord captureDecision = MakeCaptureDecision();
 
@@ -210,7 +215,7 @@ namespace Fsl::GLES3
   }
 
 
-  GLenum GLUtil::Convert(const PrimitiveType primitiveType)
+  GLenum Convert(const PrimitiveType primitiveType)
   {
     switch (primitiveType)
     {
@@ -228,7 +233,7 @@ namespace Fsl::GLES3
   }
 
 
-  std::vector<GLint> GLUtil::GetCompressedTextureFormats()
+  std::vector<GLint> GetCompressedTextureFormats()
   {
     GLint count = 0;
     glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &count);

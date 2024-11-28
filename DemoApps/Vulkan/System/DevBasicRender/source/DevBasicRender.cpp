@@ -57,12 +57,14 @@ namespace Fsl
 
   void DevBasicRender::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
   {
+    base_type::ConfigurationChanged(windowMetrics);
     m_shared.ConfigurationChanged(windowMetrics);
   }
 
 
   void DevBasicRender::Update(const DemoTime& demoTime)
   {
+    base_type::Update(demoTime);
     m_shared.Update(demoTime);
   }
 

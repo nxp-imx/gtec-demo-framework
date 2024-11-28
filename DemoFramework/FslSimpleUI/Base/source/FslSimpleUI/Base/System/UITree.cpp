@@ -32,6 +32,7 @@
 #include "UITree.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
@@ -355,6 +356,20 @@ namespace Fsl::UI
   }
 
 
+  void UITree::SetClipRectangle(const bool enabled, const PxRectangle& clipRectanglePx)
+  {
+    if (enabled == m_clipEnabled && clipRectanglePx == m_rootClipRectPx)
+    {
+      return;
+    }
+
+    m_clipEnabled = enabled;
+    m_rootClipRectPx = clipRectanglePx;
+    m_drawCacheDirty = true;
+    m_contentRenderingIsDirty = true;
+  }
+
+
   void UITree::ProcessEvents()
   {
     if (m_state != State::Ready)
@@ -444,8 +459,7 @@ namespace Fsl::UI
 
     for (const auto& record : m_vectorDraw)
     {
-      record.pWindow->WinDraw(UIDrawContext(drawCommandBuffer, record.DrawContext.TargetRect, record.DrawContext.ClippedTargetRect,
-                                            record.DrawContext.ClipToParentEnabled));
+      record.pWindow->WinDraw(UIDrawContext(drawCommandBuffer, record.DrawContext.TargetRect, record.DrawContext.ClipContext));
     }
 
     m_stats.DrawCalls = UncheckedNumericCast<uint32_t>(m_vectorDraw.size());
@@ -1099,19 +1113,45 @@ namespace Fsl::UI
     m_vectorDraw.clear();
     m_vectorClickInputTarget.clear();
     m_vectorMouseOverTarget.clear();
-    RebuildDeques(m_root, m_rootRectPx, ItemVisibility::Visible);
+
+    DrawClipContext clipContext(m_clipEnabled, TypeConverter::UncheckedTo<PxAreaRectangleF>(!m_clipEnabled ? m_rootRectPx : m_rootClipRectPx));
+    RebuildDeques(m_root, m_rootRectPx, ItemVisibility::Visible, clipContext);
   }
 
 
-  void UITree::RebuildDeques(const std::shared_ptr<TreeNode>& node, const PxRectangle& parentRectPx, const ItemVisibility parentVisibility)
+  void UITree::RebuildDeques(const std::shared_ptr<TreeNode>& node, const PxRectangle& parentRectPx, const ItemVisibility parentVisibility,
+                             DrawClipContext drawClipContext)
   {
     assert(m_state == State::Ready);
     PxRectangle currentRectPx = node->WinGetContentRectanglePx();
     currentRectPx.Add(parentRectPx.Location());
 
+    PxRectangle currentInputRectPx = currentRectPx;
+
     const TreeNodeFlags flags = node->GetFlags();
     ItemVisibility visibility = flags.GetVisibility();
     visibility = parentVisibility <= visibility ? visibility : parentVisibility;
+
+    if (flags.IsFlagged(WindowFlags::ClipEnabled))
+    {
+      PxAreaRectangleF currentClipRectPxf(TypeConverter::UncheckedTo<PxAreaRectangleF>(currentRectPx));
+      // parentContext.Clip.Enabled == false -> parent doesn't require clipping, but this window does
+      // parentContext.Clip.Enabled == true  -> parent require clipping and this window require clipping
+      drawClipContext = DrawClipContext(
+        true, !drawClipContext.Enabled ? currentClipRectPxf : PxAreaRectangleF::Intersect(drawClipContext.ClipRectanglePxf, currentClipRectPxf));
+
+      // Use the clipped input rectangle
+      currentInputRectPx = TypeConverter::UncheckedChangeTo<PxRectangle>(drawClipContext.ClipRectanglePxf);
+    }
+    else if (drawClipContext.Enabled)
+    {
+      PxAreaRectangleF currentInputRectPxf =
+        PxAreaRectangleF::Intersect(drawClipContext.ClipRectanglePxf, TypeConverter::UncheckedTo<PxAreaRectangleF>(currentInputRectPx));
+      // Use the clipped input rectangle
+      currentInputRectPx = TypeConverter::UncheckedChangeTo<PxRectangle>(currentInputRectPxf);
+    }
+
+    // WARNING: at this point the original parent drawClipContext might have been replaced
 
     if (flags.IsFlagged(TreeNodeFlags::UpdateEnabled))
     {
@@ -1127,23 +1167,23 @@ namespace Fsl::UI
     }
     if (visibility == ItemVisibility::Visible && flags.IsFlagged(TreeNodeFlags::DrawEnabled))
     {
-      m_vectorDraw.emplace_back(TreeNodeDrawContext(TypeConverter::UncheckedTo<PxAreaRectangleF>(currentRectPx)), node->GetWindowPointer());
+      m_vectorDraw.emplace_back(TreeNodeDrawContext(TypeConverter::UncheckedTo<PxAreaRectangleF>(currentRectPx), drawClipContext),
+                                node->GetWindowPointer());
     }
 
-    // FIX: once we add clipping support we need to take that into account when storing the click input target rect
     if (visibility == ItemVisibility::Visible && flags.IsFlagged(TreeNodeFlags::ClickInput))
     {
-      m_vectorClickInputTarget.emplace_back(currentRectPx, node);
+      m_vectorClickInputTarget.emplace_back(currentInputRectPx, node);
     }
     if (visibility == ItemVisibility::Visible && flags.IsFlagged(TreeNodeFlags::MouseOver))
     {
-      m_vectorMouseOverTarget.emplace_back(currentRectPx, node);
+      m_vectorMouseOverTarget.emplace_back(currentInputRectPx, node);
     }
 
     auto& nodeChildren = node->m_children;
     for (auto& entry : nodeChildren)
     {
-      RebuildDeques(entry, currentRectPx, visibility);
+      RebuildDeques(entry, currentRectPx, visibility, drawClipContext);
     }
   }
 

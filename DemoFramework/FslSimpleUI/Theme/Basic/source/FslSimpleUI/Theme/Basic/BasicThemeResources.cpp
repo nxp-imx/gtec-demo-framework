@@ -97,6 +97,10 @@ namespace Fsl::UI::Theme
       constexpr const IO::PathView SliderCursor("Control/White/SliderCursor");
       constexpr const IO::PathView SliderCursorHover("Control/White/SliderCursor_Hover");
 
+      // Scrollbar
+      constexpr const IO::PathView ScrollbarH("Control/White/ScrollbarH");
+      constexpr const IO::PathView ScrollbarV("Control/White/ScrollbarV");
+
       // ToolTip
       constexpr const IO::PathView ToolTip("Control/White/ToolTip");
 
@@ -194,6 +198,11 @@ namespace Fsl::UI::Theme
     , SliderCursorSprite(rResourceManager.CreateImageSprite(createInfo.DefaultTransparentMaterialId, TextureName::SliderCursor))
     , SliderCursorHoverSprite(rResourceManager.CreateImageSprite(createInfo.DefaultTransparentMaterialId, TextureName::SliderCursorHover))
     , SliderBGSprite(CreateNineSlice(rResourceManager, createInfo, TextureName::SliderBackground))
+    // scrollbar
+    , TexScrollbarH(rResourceManager.CreateOptimizedNineSliceSprite(createInfo.DefaultOpaqueMaterialId, createInfo.DefaultTransparentMaterialId,
+                                                                    TextureName::ScrollbarH))
+    , TexScrollbarV(rResourceManager.CreateOptimizedNineSliceSprite(createInfo.DefaultOpaqueMaterialId, createInfo.DefaultTransparentMaterialId,
+                                                                    TextureName::ScrollbarV))
     // ToolTip
     , ToolTipNineSliceSprite(rResourceManager.CreateNineSliceSprite(createInfo.DefaultTransparentMaterialId, TextureName::ToolTip))
     // ColorMarker

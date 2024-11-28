@@ -61,6 +61,12 @@ namespace Fsl::UI
   }
 
 
+  void ActivitySystem::SetClipRectangle(const bool enabled, const PxRectangle& clipRectanglePx)
+  {
+    m_uiManager.SetClipRectangle(enabled, clipRectanglePx);
+  }
+
+
   std::shared_ptr<AExternalModule> ActivitySystem::GetExternalModule(const ExternalModuleId& moduleId) const
   {
     return m_uiManager.GetExternalModule(moduleId);

@@ -56,11 +56,15 @@ namespace Fsl
     void Clear();
     void NextFrameIndex();
 
-    void AddMouseButtonUp(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition, const bool isTouch);
-    void AddMouseButtonDown(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition, const bool isTouch);
-    void AddMouseMoveWhileDown(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition, const bool isTouch);
-    void AddMouseMove(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition, const bool isTouch);
-    void AddMouseMoveDone();
+    void AddMouseButtonUp(const MillisecondTickCount32 timestamp, const CustomWindowId windowId, const PxRectangle windowRectPx,
+                          const PxPoint2 mousePosition, const bool isTouch);
+    void AddMouseButtonDown(const MillisecondTickCount32 timestamp, const CustomWindowId windowId, const PxRectangle windowRectPx,
+                            const PxPoint2 mousePosition, const bool isTouch);
+    void AddMouseMoveWhileDown(const MillisecondTickCount32 timestamp, const CustomWindowId windowId, const PxRectangle windowRectPx,
+                               const PxPoint2 mousePosition, const bool isTouch);
+    void AddMouseMove(const MillisecondTickCount32 timestamp, const CustomWindowId windowId, const PxRectangle windowRectPx,
+                      const PxPoint2 mousePosition, const bool isTouch);
+    void AddMouseMoveDone(const MillisecondTickCount32 timestamp);
 
   private:
     void Enqueue(const InputCommandRecord record);

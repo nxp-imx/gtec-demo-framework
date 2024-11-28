@@ -18,7 +18,7 @@ Please beware that emscripten support is highly experimental and incomplete. Man
 * [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html)
   (community or better)
 * [CMake 3.16 or newer](https://cmake.org/download/)
-* [Python 3.6+](https://www.python.org/ftp/python/3.8.3/python-3.8.3-amd64.exe)
+* [Python 3.10+](https://www.python.org/ftp/python/3.10.11/python-3.10.11-amd64.exe)
   To be able run python scripts.
 * Download the source from git.
 

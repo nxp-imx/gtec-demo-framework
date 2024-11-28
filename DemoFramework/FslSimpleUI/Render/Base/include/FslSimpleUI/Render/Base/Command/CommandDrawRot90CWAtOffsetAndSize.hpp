@@ -40,7 +40,7 @@ namespace Fsl::UI
     constexpr explicit CommandDrawRot90CWAtOffsetAndSize(const EncodedCommand& command) noexcept
       : EncodedCommand(command)
     {
-      assert(command.Type == DrawCommandType::DrawRot90CWAtOffsetAndSize);
+      assert(command.State.Type() == DrawCommandType::DrawRot90CWAtOffsetAndSize);
     }
 
     constexpr MeshHandle GetMesh() const noexcept
@@ -64,9 +64,9 @@ namespace Fsl::UI
     }
 
     inline constexpr static EncodedCommand Encode(const MeshHandle hMesh, const PxVector2& dstPositionPxf, const PxSize2D dstSizePx,
-                                                  const UIRenderColor dstColor) noexcept
+                                                  const UIRenderColor dstColor, const DrawClipContext& clipContext) noexcept
     {
-      return {DrawCommandType::DrawRot90CWAtOffsetAndSize, hMesh, dstPositionPxf, dstSizePx, dstColor, 0};
+      return {DrawCommandType::DrawRot90CWAtOffsetAndSize, hMesh, dstPositionPxf, dstSizePx, dstColor, clipContext};
     }
   };
 }

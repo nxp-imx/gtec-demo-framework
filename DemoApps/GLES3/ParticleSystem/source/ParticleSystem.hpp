@@ -42,6 +42,8 @@ namespace Fsl
     : public DemoAppGLES3
     , public UI::EventListener
   {
+    using base_type = DemoAppGLES3;
+
     UI::CallbackEventListenerScope m_uiEventListener;
     std::shared_ptr<UIDemoAppExtension> m_uiExtension;
     std::shared_ptr<AScene> m_scene;
@@ -49,16 +51,17 @@ namespace Fsl
   public:
     explicit ParticleSystem(const DemoAppConfig& config);
     ~ParticleSystem() override;
-    void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
-    void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
+    void OnSelect(const std::shared_ptr<UI::WindowSelectEvent>& theEvent) final;
+    void OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) final;
 
   protected:
-    void OnKeyEvent(const KeyEvent& event) override;
-    void OnMouseButtonEvent(const MouseButtonEvent& event) override;
-    void OnMouseMoveEvent(const MouseMoveEvent& event) override;
-    void OnMouseWheelEvent(const MouseWheelEvent& event) override;
-    void Update(const DemoTime& demoTime) override;
-    void Draw(const FrameInfo& frameInfo) override;
+    void OnKeyEvent(const KeyEvent& event) final;
+    void OnMouseButtonEvent(const MouseButtonEvent& event) final;
+    void OnMouseMoveEvent(const MouseMoveEvent& event) final;
+    void OnMouseWheelEvent(const MouseWheelEvent& event) final;
+    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;
+    void Update(const DemoTime& demoTime) final;
+    void Draw(const FrameInfo& frameInfo) final;
 
   private:
   };

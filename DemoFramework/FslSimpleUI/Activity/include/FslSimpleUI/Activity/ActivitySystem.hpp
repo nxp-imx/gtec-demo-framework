@@ -50,6 +50,7 @@ namespace Fsl::UI
     ~ActivitySystem();
 
     void SetUseDrawCache(const bool useDrawCache);
+    void SetClipRectangle(const bool enabled, const PxRectangle& clipRectanglePx);
 
     std::shared_ptr<AExternalModule> GetExternalModule(const ExternalModuleId& moduleId) const;
 

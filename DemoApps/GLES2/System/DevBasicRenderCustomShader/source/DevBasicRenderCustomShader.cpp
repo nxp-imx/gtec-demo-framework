@@ -63,19 +63,21 @@ namespace Fsl
 
   void DevBasicRenderCustomShader::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
   {
+    base_type::ConfigurationChanged(windowMetrics);
     m_shared.ConfigurationChanged(windowMetrics);
   }
 
 
   void DevBasicRenderCustomShader::Update(const DemoTime& demoTime)
   {
+    base_type::Update(demoTime);
     m_shared.Update(demoTime);
   }
 
 
   void DevBasicRenderCustomShader::Draw(const FrameInfo& frameInfo)
   {
-    FSL_PARAM_NOT_USED(frameInfo);
+    base_type::Draw(frameInfo);
 
     // Clear the screen
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);

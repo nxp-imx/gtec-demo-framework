@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/BasicTypes.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 
 namespace Fsl::UI

@@ -31,10 +31,24 @@
 
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/Dp/FmtDpPoint2F.hpp>
+#include <FslBase/Log/Time/FmtMillisecondTickCount32.hpp>
+#include <FslBase/Math/MathHelper_Clamp.hpp>
 #include <FslSimpleUI/Base/Gesture/GestureDetector.hpp>
+#include <FslSimpleUI/Base/Log/Gesture/FmtGestureType.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+
+// #define LOCAL_LOG_ENABLED
+#ifdef LOCAL_LOG_ENABLED
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define LOCAL_LOG(...) FSLLOG3_INFO(__VA_ARGS__)
+#else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define LOCAL_LOG(...) \
+  {                    \
+  }
+#endif
 
 namespace Fsl::UI
 {
@@ -43,12 +57,22 @@ namespace Fsl::UI
     namespace LocalConfig
     {
       constexpr TimeSpan MaxTapTime = TimeSpan::FromMilliseconds(500);
-      constexpr TimeSpan HoldTimeout = TimeSpan::FromMilliseconds(900);
+      // constexpr TimeSpan HoldTimeout = TimeSpan::FromMilliseconds(900);
       constexpr DpValueF FlickVelocityThresholdX(50.0f);
       constexpr DpValueF FlickVelocityThresholdY(50.0f);
       constexpr DpValueF MinFlingVelocityDpf(50.0f);
       constexpr DpValueF MaxFlingVelocityDpf(8000.0f);
       constexpr DpValueF TapDistThresholdSqr(4);
+    }
+
+    constexpr DpPoint2F ClampToAxis(const DpPoint2F deltaPosDpf, const GestureAxis axisFlags) noexcept
+    {
+      if (axisFlags == GestureAxis::XY)
+      {
+        return deltaPosDpf;
+      }
+      return GestureAxisUtil::IsEnabled(axisFlags, GestureAxis::X) ? DpPoint2F(deltaPosDpf.X, DpValueF(0.0f))
+                                                                   : DpPoint2F(DpValueF(0.0f), deltaPosDpf.Y);
     }
 
     constexpr DpPoint2F ClampMagnitude(const DpPoint2F srcValue, const DpValueF minValue, const DpValueF maxValue)
@@ -69,6 +93,27 @@ namespace Fsl::UI
       }
       return srcValue;
     }
+
+    constexpr DpValueF ClampMagnitude(DpValueF src, DpValueF min, DpValueF max)
+    {
+      const auto length = src.Value >= 0.0f ? src.Value : -src.Value;
+      auto clampedLength = MathHelper::Clamp(length, min.Value, max.Value);
+      return DpValueF(src.Value >= 0 ? clampedLength : -clampedLength);
+    }
+
+    constexpr DpPoint2F ClampMagnitude(const DpPoint2F srcValue, const DpValueF minValue, const DpValueF maxValue, const GestureAxis axisFlags)
+    {
+      if (GestureAxisUtil::IsEnabled(axisFlags, GestureAxis::XY))
+      {
+        return ClampMagnitude(srcValue, minValue, maxValue);
+      }
+      if (GestureAxisUtil::IsEnabled(axisFlags, GestureAxis::X))
+      {
+        return {ClampMagnitude(srcValue.X, minValue, maxValue), DpValueF()};
+      }
+      return {DpValueF(), ClampMagnitude(srcValue.Y, minValue, maxValue)};
+    }
+
   }
 
 
@@ -80,50 +125,38 @@ namespace Fsl::UI
       Reset();
 
       // Claim ownership here
+      m_enabledGestures = other.m_enabledGestures;
       m_velocityTracker = std::move(other.m_velocityTracker);
-      m_isDown = other.m_isDown;
-      m_hasTapCandidate = other.m_hasTapCandidate;
-      m_gotHold = other.m_gotHold;
-      m_inMotion = other.m_inMotion;
-      m_downTimestamp = other.m_downTimestamp;
-      m_initialDownPositionDpf = other.m_initialDownPositionDpf;
-      m_currentlyPressed = other.m_currentlyPressed;
+      m_axisFlags = other.m_axisFlags;
+      m_transactionRecord = other.m_transactionRecord;
       m_gestureQueue = std::move(other.m_gestureQueue);
 
       // Remove the data from other
-      other.m_isDown = false;
-      other.m_hasTapCandidate = false;
-      other.m_gotHold = false;
-      other.m_inMotion = false;
-      other.m_downTimestamp = {};
-      other.m_initialDownPositionDpf = {};
-      other.m_currentlyPressed = false;
+      other.m_enabledGestures = GestureFlags::NotDefined;
+      other.m_axisFlags = GestureAxis::NotDefined;
+      other.m_transactionRecord = {};
     }
     return *this;
   }
 
   GestureDetector::GestureDetector(GestureDetector&& other) noexcept
-    : m_velocityTracker(std::move(other.m_velocityTracker))
-    , m_isDown(other.m_isDown)
-    , m_hasTapCandidate(other.m_hasTapCandidate)
-    , m_gotHold(other.m_gotHold)
-    , m_inMotion(other.m_inMotion)
-    , m_downTimestamp(other.m_downTimestamp)
-    , m_initialDownPositionDpf(other.m_initialDownPositionDpf)
-    , m_currentlyPressed(other.m_currentlyPressed)
+    : m_enabledGestures(other.m_enabledGestures)
+    , m_velocityTracker(std::move(other.m_velocityTracker))
+    , m_axisFlags(other.m_axisFlags)
+    , m_transactionRecord(other.m_transactionRecord)
     , m_gestureQueue(std::move(other.m_gestureQueue))
   {
     // Remove the data from other
-    other.m_isDown = false;
-    other.m_hasTapCandidate = false;
-    other.m_gotHold = false;
-    other.m_inMotion = false;
-    other.m_downTimestamp = {};
-    other.m_initialDownPositionDpf = {};
-    other.m_currentlyPressed = false;
+    other.m_enabledGestures = GestureFlags::NotDefined;
+    other.m_axisFlags = GestureAxis::NotDefined;
+    other.m_transactionRecord = {};
   }
 
-  GestureDetector::GestureDetector() = default;
+  GestureDetector::GestureDetector(const GestureFlags enabledGestures, const GestureAxis axisFlags)
+    : m_enabledGestures(enabledGestures)
+    , m_axisFlags(axisFlags)
+  {
+  }
 
 
   bool GestureDetector::IsGestureAvailable() const noexcept
@@ -132,9 +165,42 @@ namespace Fsl::UI
   }
 
 
+  bool GestureDetector::InMomementTransaction() const noexcept
+  {
+    return !m_transactionRecord.IsDefault();
+  }
+
+
+  GestureAxis GestureDetector::GetGestureAxis() const noexcept
+  {
+    return m_axisFlags;
+  }
+
+
+  void GestureDetector::SetGestureAxis(const GestureAxis value)
+  {
+    m_axisFlags = value;
+  }
+
+
+  bool GestureDetector::HasVelocityEntries() const noexcept
+  {
+    return m_velocityTracker.HasVelocityEntries();
+  }
+
+
   void GestureDetector::Clear()
   {
-    Reset();
+    // m_enabledGestures = GestureFlags::NotDefined;
+    // m_axisFlags = GestureAxis::NotDefined;
+
+    // Basically a reset but without clearing the enabled gestures and axis flags
+    m_velocityTracker.Clear();
+    m_transactionRecord = {};
+    while (!m_gestureQueue.empty())
+    {
+      m_gestureQueue.pop();
+    }
   }
 
   bool GestureDetector::TryReadGesture(GestureRecord& rRecord) noexcept
@@ -151,139 +217,253 @@ namespace Fsl::UI
   }
 
 
-  void GestureDetector::AddMovement(const MillisecondTickCount32 timestamp, const DpPoint2F screenPositionDpf, const bool isPressed)
+  MovementTransactionAction GestureDetector::AddMovement(const MillisecondTickCount32 timestamp, const DpPoint2F screenPositionDpf,
+                                                         const EventTransactionState state, const bool isRepeat,
+                                                         const MovementOwnership movementOwnership)
   {
-    if (m_isDown && m_hasTapCandidate)
+    EventTransactionState currentState = state;
+    const bool isBeginTransaction = currentState == EventTransactionState::Begin && !isRepeat;
+    if (!m_transactionRecord.IsDefault() && isBeginTransaction)
     {
-      const auto sessionDuration = timestamp - m_downTimestamp;
-      // Update tap candidate
-      if (sessionDuration > LocalConfig::MaxTapTime)
+      FSLLOG3_WARNING("Got a begin transaction while already in a transaction, cancelling existing transaction");
+      CancelTransaction(timestamp, screenPositionDpf, movementOwnership);
+    }
+    else if (m_transactionRecord.Mode() == GestureTransactionMode::Ignore)
+    {
+      return MovementTransactionAction::Handle;
+    }
+
+    if (m_transactionRecord.IsDefault())
+    {
+      if (isBeginTransaction)
       {
-        assert(m_isDown);
-        assert(m_hasTapCandidate);
-        m_hasTapCandidate = false;
+        // A request to start a new transaction
+        return BeginTransaction(timestamp, screenPositionDpf, movementOwnership);
       }
-      if (!m_gotHold && sessionDuration > LocalConfig::HoldTimeout)
+      return MovementTransactionAction::NotInterested;
+    }
+    if (movementOwnership == MovementOwnership::HandledAndControlled)    //  && m_transactionRecord.Mode != TransactionMode.Control)
+    {
+      LOCAL_LOG("Ownership claimed, cancelling transaction");
+      currentState = EventTransactionState::Canceled;
+    }
+
+    // We are current in a transaction, so determine how to handle it
+    switch (currentState)
+    {
+    case EventTransactionState::Begin:
+      // Continue a existing transaction
+      assert(!isBeginTransaction);
+      return ContinueTransaction(timestamp, screenPositionDpf, movementOwnership);
+    case EventTransactionState::Canceled:
+      return CancelTransaction(timestamp, screenPositionDpf, movementOwnership);
+    case EventTransactionState::End:
+      if (m_transactionRecord.Mode() == GestureTransactionMode::Evaluate)
       {
-        m_gotHold = true;
-        m_gestureQueue.emplace(GestureType::Hold, m_initialDownPositionDpf, DpPoint2F());
+        // For now we cancel the transaction if we are still in evaluate mode.
+        // To allow Evaluate to 'intercept' during EndTransaction we would need to hook into the tunnel preview events
+        return CancelTransaction(timestamp, screenPositionDpf, movementOwnership);
+      }
+      return EndTransaction(timestamp, screenPositionDpf);
+    }
+    FSLLOG3_WARNING("Unknown transaction state, cancelling transaction: {}", fmt::underlying(currentState));
+    return CancelTransaction(timestamp, screenPositionDpf, movementOwnership);
+  }
+
+
+  MovementTransactionAction GestureDetector::BeginTransaction(const MillisecondTickCount32 timestamp, const DpPoint2F screenPositionDpf,
+                                                              const MovementOwnership movementOwnership)
+  {
+    if (movementOwnership == MovementOwnership::HandledAndControlled)
+    {
+      // Someone else is controlling this, so dont start a new transaction
+      return MovementTransactionAction::NotInterested;
+    }
+
+    LOCAL_LOG("BeginTransaction: {0} {1} {2}", timestamp, screenPositionDpf, fmt::underlying(movementOwnership));
+
+    auto mode = GestureTransactionMode::Handle;
+    if (movementOwnership == MovementOwnership::Handled)
+    {
+      mode = GestureTransactionMode::Evaluate;
+    }
+
+    m_velocityTracker.Clear();
+    m_velocityTracker.AddMovement(timestamp, screenPositionDpf);
+
+    m_transactionRecord = GestureTransactionRecord(m_enabledGestures, mode, timestamp, screenPositionDpf);
+    return m_transactionRecord.ClaimAction();
+  }
+
+  MovementTransactionAction GestureDetector::ContinueTransaction(const MillisecondTickCount32 timestamp, const DpPoint2F screenPositionDpf,
+                                                                 const MovementOwnership movementOwnership)
+  {
+    assert(!m_transactionRecord.IsDefault());
+    assert(m_transactionRecord.Mode() == GestureTransactionMode::Control || m_transactionRecord.Mode() == GestureTransactionMode::Handle ||
+           m_transactionRecord.Mode() == GestureTransactionMode::Evaluate);
+
+    LOCAL_LOG("ContinueTransaction: {} {} {}", timestamp, screenPositionDpf, fmt::underlying(movementOwnership));
+
+    UpdateTransactionState(timestamp, screenPositionDpf, true);
+
+    if (!m_transactionRecord.IsHold())
+    {
+      DpPoint2F deltaPosDpf = screenPositionDpf - m_transactionRecord.GetInitialDownPositionDpf();
+      if (!m_transactionRecord.InMotion())
+      {
+        deltaPosDpf = ClampToAxis(deltaPosDpf, m_axisFlags);
+        auto distSqrDpf = deltaPosDpf.LengthSquared();
+        if (distSqrDpf > LocalConfig::TapDistThresholdSqr)
+        {
+          m_transactionRecord.MarkAsInMotion();
+          if (GestureFlagsUtil::IsEnabled(m_enabledGestures, GestureFlags::Drag))
+          {
+            EnqueueGesture(GestureRecord(GestureType::FreeDrag, m_transactionRecord.GetInitialDownPositionDpf(), DpPoint2F()));
+            EnqueueGesture(GestureRecord(GestureType::FreeDrag, screenPositionDpf, DpPoint2F()));
+          }
+        }
+      }
+      else if (GestureFlagsUtil::IsEnabled(m_enabledGestures, GestureFlags::Drag))
+      {
+        EnqueueGesture(GestureRecord(GestureType::FreeDrag, screenPositionDpf, DpPoint2F()));
+      }
+    }
+    return m_transactionRecord.ClaimAction();
+  }
+
+  MovementTransactionAction GestureDetector::EndTransaction(const MillisecondTickCount32 timestamp, const DpPoint2F screenPositionDpf)
+  {
+    assert(!m_transactionRecord.IsDefault());
+    assert(m_transactionRecord.Mode() == GestureTransactionMode::Control || m_transactionRecord.Mode() == GestureTransactionMode::Handle ||
+           m_transactionRecord.Mode() == GestureTransactionMode::Evaluate);
+
+    LOCAL_LOG("EndTransaction: {0} {1}", timestamp, screenPositionDpf);
+
+    UpdateTransactionState(timestamp, screenPositionDpf, true);
+
+    // Detect a motion that consist of a initial begin followed by a end
+    if (!m_transactionRecord.IsHold() && !m_transactionRecord.InMotion())
+    {
+      const DpPoint2F deltaPosDpf = screenPositionDpf - m_transactionRecord.GetInitialDownPositionDpf();
+      const auto distSqrDpf = deltaPosDpf.LengthSquared();
+      if (distSqrDpf > LocalConfig::TapDistThresholdSqr)
+      {
+        m_transactionRecord.MarkAsInMotion();
+
+        if (GestureFlagsUtil::IsEnabled(m_enabledGestures, GestureFlags::Drag))
+        {
+          EnqueueGesture(GestureRecord(GestureType::FreeDrag, m_transactionRecord.GetInitialDownPositionDpf(), DpPoint2F()));
+        }
       }
     }
 
-    // pointer motion event
-    if (isPressed)
+    if (!m_transactionRecord.IsHold())
     {
-      if (!m_currentlyPressed)
+      if (m_transactionRecord.CanBeTap())
       {
-        m_velocityTracker.Clear();
+        assert(GestureFlagsUtil::IsEnabled(m_enabledGestures, GestureFlags::Tap));
+        EnqueueGesture(GestureRecord(GestureType::Tap, screenPositionDpf, DpPoint2F()));
       }
-      m_velocityTracker.AddMovement(timestamp, screenPositionDpf);
+      else if (m_transactionRecord.InMotion() && GestureFlagsUtil::IsEnabled(m_enabledGestures, GestureFlags::Drag))
+      {
+        // Include a flick if above the threshold else just send a simple DragComplete
+        DpPoint2F flingVelocityDpf;
+        m_velocityTracker.TryGetVelocity(flingVelocityDpf);
+
+        float velocityMagXDp = std::abs(flingVelocityDpf.X.Value);
+        float velocityMagYDp = std::abs(flingVelocityDpf.Y.Value);
+
+        if (velocityMagXDp > LocalConfig::FlickVelocityThresholdX.Value || velocityMagYDp > LocalConfig::FlickVelocityThresholdY.Value)
+        {
+          auto clampedFlingVelocityDpf =
+            ClampMagnitude(flingVelocityDpf, LocalConfig::MinFlingVelocityDpf, LocalConfig::MaxFlingVelocityDpf, m_axisFlags);
+          // g_logger.Info("flingVelocityDpf {0} clampedFlingVelocityDpf {1}", flingVelocityDpf, clampedFlingVelocityDpf);
+          EnqueueGesture(GestureRecord(GestureType::DragComplete, screenPositionDpf, clampedFlingVelocityDpf));
+        }
+        else
+        {
+          EnqueueGesture(GestureRecord(GestureType::DragComplete, screenPositionDpf, DpPoint2F()));
+        }
+      }
     }
-    else if (m_currentlyPressed)
+    m_velocityTracker.Clear();
+
+    const auto action = m_transactionRecord.ClaimEndAction();
+    m_transactionRecord = {};
+    return action;
+  }
+
+
+  //! This does not clear any pending gestures
+  MovementTransactionAction GestureDetector::CancelTransaction(const MillisecondTickCount32 timestamp, const DpPoint2F screenPositionDpf,
+                                                               const MovementOwnership movementOwnership)
+  {
+    assert(!m_transactionRecord.IsDefault());
+    assert(m_transactionRecord.Mode() == GestureTransactionMode::Control || m_transactionRecord.Mode() == GestureTransactionMode::Handle ||
+           m_transactionRecord.Mode() == GestureTransactionMode::Evaluate);
+
+    LOCAL_LOG("CancelTransaction: {} {}", timestamp, screenPositionDpf);
+
+    UpdateTransactionState(timestamp, screenPositionDpf, false);
+
+    m_velocityTracker.Clear();
+
+    if (m_transactionRecord.InMotion() && GestureFlagsUtil::IsEnabled(m_enabledGestures, GestureFlags::Drag))
     {
-      // Register the last position when the button was released as movement as well.
-      m_velocityTracker.AddMovement(timestamp, screenPositionDpf);
+      EnqueueGesture(GestureRecord(GestureType::DragCanceled, screenPositionDpf, DpPoint2F()));
     }
 
-    ProcessMovement(timestamp, screenPositionDpf, isPressed, isPressed ? m_currentlyPressed : false);
-    m_currentlyPressed = isPressed;
+    const auto action = m_transactionRecord.ClaimCancelAction(movementOwnership);
+    m_transactionRecord = {};
+    return action;
+  }
+
+
+  void GestureDetector::UpdateTransactionState(const MillisecondTickCount32 timestamp, const DpPoint2F screenPositionDpf, const bool allowNewGestures)
+  {
+    if (m_transactionRecord.IsDefault())
+    {
+      return;
+    }
+
+    m_velocityTracker.AddMovement(timestamp, screenPositionDpf);
+
+    auto sessionDuration = timestamp - m_transactionRecord.GetDownTimestamp();
+    // Update tap candidate
+    if (m_transactionRecord.CanBeTap() && sessionDuration > LocalConfig::MaxTapTime)
+    {
+      // Tap timed out -> so it can no longer trigger for this event type
+      m_transactionRecord.DisableTap();
+    }
+
+    // if (m_transactionRecord.CanBeHold() && sessionDuration > LocalConfig::HoldTimeout)
+    //{
+    //   m_transactionRecord.MarkAsHold();
+    //   EnqueueGesture(GestureRecord(GestureType::Hold, m_transactionRecord.IsHold(), DpPoint2F()));
+    // }
+  }
+
+
+  void GestureDetector::EnqueueGesture(const GestureRecord record)
+  {
+    LOCAL_LOG("EnqueueGesture: {} {} {}", record.Gesture, record.PositionDpf, record.VelocityDpf);
+
+    assert(!m_transactionRecord.IsDefault());
+    m_gestureQueue.push(record);
+
+    m_transactionRecord.TakeControl();
   }
 
 
   void GestureDetector::Reset() noexcept
   {
+    m_enabledGestures = GestureFlags::NotDefined;
     m_velocityTracker.Clear();
-    m_isDown = false;
-    m_hasTapCandidate = false;
-    m_gotHold = false;
-    m_inMotion = false;
-    m_downTimestamp = {};
-    m_initialDownPositionDpf = {};
-    m_currentlyPressed = false;
-
+    m_axisFlags = GestureAxis::NotDefined;
+    m_transactionRecord = {};
     while (!m_gestureQueue.empty())
     {
       m_gestureQueue.pop();
-    }
-  }
-
-
-  void GestureDetector::ProcessMovement(const MillisecondTickCount32 timestamp, const DpPoint2F screenPositionDpf, const bool isPressed,
-                                        const bool isRepeat)
-  {
-    if (isPressed)
-    {
-      if (isRepeat)
-      {
-        if (m_isDown && !m_gotHold)
-        {
-          const DpPoint2F deltaPosDp = screenPositionDpf - m_initialDownPositionDpf;
-
-          if (!m_inMotion)
-          {
-            const auto distSqrDp = deltaPosDp.LengthSquared();
-            if (distSqrDp > LocalConfig::TapDistThresholdSqr)
-            {
-              m_inMotion = true;
-              m_hasTapCandidate = false;
-
-              m_gestureQueue.emplace(GestureType::FreeDrag, m_initialDownPositionDpf, DpPoint2F());
-              m_gestureQueue.emplace(GestureType::FreeDrag, screenPositionDpf, DpPoint2F());
-            }
-          }
-          else
-          {
-            m_gestureQueue.emplace(GestureType::FreeDrag, screenPositionDpf, DpPoint2F());
-          }
-        }
-      }
-      else
-      {
-        // pointer down event
-        m_isDown = true;
-        m_hasTapCandidate = true;
-        m_inMotion = false;
-        m_initialDownPositionDpf = screenPositionDpf;
-        m_gotHold = false;
-
-        // Store this so we know when the down occurred
-        m_downTimestamp = timestamp;
-      }
-    }
-    else
-    {
-      // pointer up event
-      if (!m_gotHold)
-      {
-        if (m_hasTapCandidate)
-        {
-          m_gestureQueue.emplace(GestureType::Tap, screenPositionDpf, DpPoint2F());
-        }
-        else if (m_inMotion)
-        {
-          // Include a flick if above the threshold else just send a simple DragComplete
-          DpPoint2F flingVelocityDpf;
-          m_velocityTracker.TryGetVelocity(flingVelocityDpf);
-
-          const float velocityMagXDp = std::abs(flingVelocityDpf.X.Value);
-          const float velocityMagYDp = std::abs(flingVelocityDpf.Y.Value);
-
-          const auto finalDeltaDpf = screenPositionDpf - m_initialDownPositionDpf;
-
-          if (velocityMagXDp > LocalConfig::FlickVelocityThresholdX.Value || velocityMagYDp > LocalConfig::FlickVelocityThresholdY.Value)
-          {
-            const auto clampedFlingVelocityDpf = ClampMagnitude(flingVelocityDpf, LocalConfig::MinFlingVelocityDpf, LocalConfig::MaxFlingVelocityDpf);
-            // FSLLOG3_INFO("flingVelocityDpf {} clampedFlingVelocityDpf {}", flingVelocityDpf, clampedFlingVelocityDpf);
-            m_gestureQueue.emplace(GestureType::DragComplete, finalDeltaDpf, clampedFlingVelocityDpf);
-          }
-          else
-          {
-            m_gestureQueue.emplace(GestureType::DragComplete, finalDeltaDpf, DpPoint2F());
-          }
-        }
-      }
-
-      m_isDown = false;
     }
   }
 }

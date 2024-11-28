@@ -53,7 +53,8 @@ namespace Fsl::AppInputCommandListIO
     enum class VersionId : uint32_t
     {
       Version1 = 1,
-      Version2 = 2
+      Version2 = 2,
+      Version3 = 3
     };
 
     namespace Header
@@ -61,7 +62,7 @@ namespace Fsl::AppInputCommandListIO
       // LCN, since this is written as little endian it becomes NCL in the file
       constexpr const uint32_t Magic = 0x004C434E;
       constexpr const uint32_t MinVersion = static_cast<uint32_t>(VersionId::Version1);
-      constexpr const uint32_t MaxVersion = static_cast<uint32_t>(VersionId::Version2);
+      constexpr const uint32_t MaxVersion = static_cast<uint32_t>(VersionId::Version3);
 
       constexpr const uint32_t HeaderOffsetMagic = 0;
       constexpr const uint32_t HeaderOffsetVersion = 4;
@@ -116,7 +117,7 @@ namespace Fsl::AppInputCommandListIO
     {
       assert(span.size() >= Header::SizeOfHeader);
       ByteSpanUtil::WriteUInt32LE(span, Header::HeaderOffsetMagic, Header::Magic);
-      ByteSpanUtil::WriteUInt32LE(span, Header::HeaderOffsetVersion, static_cast<uint32_t>(VersionId::Version2));
+      ByteSpanUtil::WriteUInt32LE(span, Header::HeaderOffsetVersion, static_cast<uint32_t>(VersionId::Version3));
       ByteSpanUtil::WriteUInt32LE(span, Header::HeaderOffsetContentSize, 0);
       return span.subspan(Header::SizeOfHeader);
     }
@@ -194,6 +195,7 @@ namespace Fsl::AppInputCommandListIO
       dstSpan = Write(dstSpan, record.WindowRectPx);
       dstSpan = Write(dstSpan, record.MousePositionPx);
       dstSpan = ValueCompression::WriteSimpleUInt32(dstSpan, record.IsTouch ? 1u : 0u);
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, record.Timestamp.Ticks());
       return dstSpan;
     }
 
@@ -205,11 +207,16 @@ namespace Fsl::AppInputCommandListIO
       const PxRectangle windowRectPx = ReadPxRectangle(rSrcSpan);
       const PxPoint2 mousePositionPx = ReadPxPoint2(rSrcSpan);
       bool isTouch = false;
+      int32_t timestamp = 0;
       if (currentVersion >= VersionId::Version2)
       {
         isTouch = ValueCompression::ReadSimpleUInt32(rSrcSpan) != 0;
       }
-      return {frameIndex, commandId, CustomWindowId(windowId), windowRectPx, mousePositionPx, isTouch};
+      if (currentVersion >= VersionId::Version3)
+      {
+        timestamp = static_cast<int32_t>(ValueCompression::ReadSimpleInt32(rSrcSpan));
+      }
+      return {frameIndex, commandId, MillisecondTickCount32(timestamp), CustomWindowId(windowId), windowRectPx, mousePositionPx, isTouch};
     }
 
 

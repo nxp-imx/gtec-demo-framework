@@ -4,7 +4,6 @@ apply plugin: 'com.android.application'
 
 android {
     ndkVersion "##FSL_NDK_VERSION##"
-    compileSdkVersion ##FSL_PACKAGE_TARGET_ANDROID_SDK_VERSION##
     defaultConfig {
         applicationId "com.freescale.##PREFIXED_PROJECT_NAME_L##.##PACKAGE_TARGET_NAME##"
         minSdkVersion ##FSL_PACKAGE_MIN_ANDROID_SDK_VERSION##
@@ -39,23 +38,24 @@ android {
     }
     buildFeatures.prefab true
     namespace 'com.freescale.##PREFIXED_PROJECT_NAME_L##'
+    compileSdk ##FSL_PACKAGE_TARGET_ANDROID_SDK_VERSION##
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.google.android.material:material:1.9.0'
-    implementation 'androidx.core:core:1.9.0'
-    implementation 'androidx.games:games-activity:2.0.2'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.core:core:1.15.0'
+    implementation 'androidx.games:games-activity:3.0.5'
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
     // Use relinker as recommended by the android documentation at
     // https://developer.android.com/ndk/guides/cpp-support.html#c_runtime_libraries
     // https://github.com/KeepSafe/ReLinker
     implementation 'com.getkeepsafe.relinker:relinker:1.4.3'
 }
 
-task buildContentFiles(type: Exec) {
+tasks.register('buildContentFiles', Exec) {
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         commandLine 'python', "${System.env.FSL_GRAPHICS_SDK}/.Config/FslBuildContent.py", '-p', 'android', '--Variants', '[##VARIANT_LIST##]', '--input', '##PACKAGE_PATH##'
     } else {
@@ -63,7 +63,7 @@ task buildContentFiles(type: Exec) {
     }
 }
 
-task syncContentFiles(type: Exec) {
+tasks.register('syncContentFiles', Exec) {
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         commandLine 'python', "${System.env.FSL_GRAPHICS_SDK}/.Config/FslContentSync.py", '##PACKAGE_CONTENT_PATH##', '##PACKAGE_ANDROID_PROJECT_PATH##/app/src/main/assets/fsl-content', '-i', '--create', '--ifExist'
     } else {

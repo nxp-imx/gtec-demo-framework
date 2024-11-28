@@ -353,10 +353,11 @@ class PackageFilter:
         for package in packages:
             if package.ResolvedPlatformSupported:
                 packageList.append(package)
-            elif not package.Type == PackageType.TopLevel and log.IsVerbose and isinstance(package, Package):
-                notSupported = LocalUtil.BuildListOfDirectlyNotSupported(package)
-                notSupportedNames = Util.ExtractNames(notSupported)
-                log.DoPrint("Skipping {0} since its marked as not supported on this platform by package: {1}".format(package.Name, notSupportedNames))
+            elif not package.Type == PackageType.TopLevel and log.IsVerbose:
+                if isinstance(package, Package):
+                    notSupported = LocalUtil.BuildListOfDirectlyNotSupported(package)
+                    notSupportedNames = Util.ExtractNames(notSupported)
+                    log.DoPrint("Skipping {0} since its marked as not supported on this platform by package: {1}".format(package.Name, notSupportedNames))
         return cast(List[T], packageList)
 
     @staticmethod

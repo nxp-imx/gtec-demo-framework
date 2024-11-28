@@ -53,17 +53,8 @@ namespace Fsl
     {
     }
 
-
-    constexpr bool operator==(const NativeTextureArea& rhs) const noexcept
-    {
-      return ((X0 == rhs.X0) && (Y0 == rhs.Y0) && (X1 == rhs.X1) && (Y1 == rhs.Y1));
-    }
-
-
-    constexpr bool operator!=(const NativeTextureArea& rhs) const noexcept
-    {
-      return !((*this) == rhs);
-    }
+    // op==
+    constexpr bool operator==(const NativeTextureArea& other) const noexcept = default;
   };
 }
 

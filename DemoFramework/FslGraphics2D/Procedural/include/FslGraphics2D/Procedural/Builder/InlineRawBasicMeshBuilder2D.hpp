@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
+#include <FslBase/Math/Pixel/PxRectangle.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/OptimizationFlag.hpp>
@@ -153,11 +154,22 @@ namespace Fsl
       ++m_vertexCount;
     }
 
+    inline constexpr void AddRect(const PxValue x0, const PxValue y0, const PxValue x1, const PxValue y1,
+                                  const NativeTextureArea& textureCoords) noexcept
+    {
+      AddRect(static_cast<float>(x0.Value), static_cast<float>(y0.Value), static_cast<float>(x1.Value), static_cast<float>(y1.Value), textureCoords);
+    }
+
     inline constexpr void AddRect(const PxAreaRectangleF& areaRectPxf, const NativeTextureArea& textureCoords) noexcept
     {
       AddRect(areaRectPxf.RawLeft(), areaRectPxf.RawTop(), areaRectPxf.RawRight(), areaRectPxf.RawBottom(), textureCoords);
     }
 
+    inline constexpr void AddRect(const PxRectangle& areaRectPx, const NativeTextureArea& textureCoords) noexcept
+    {
+      AddRect(static_cast<float>(areaRectPx.RawLeft()), static_cast<float>(areaRectPx.RawTop()), static_cast<float>(areaRectPx.RawRight()),
+              static_cast<float>(areaRectPx.RawBottom()), textureCoords);
+    }
 
     //! @brief  Add a simple quad mesh
     //! @note   Mesh example:
@@ -184,6 +196,30 @@ namespace Fsl
         pDst[5] = TVertex(vertex_position_type(x1, y0, m_zPos), m_color, vertex_uv_type(textureCoords.X1, textureCoords.Y0));    // C
       }
       m_vertexCount += 6;
+    }
+
+    inline constexpr void AddRect(const PxVector2 dstOffsetPxf, const float x0, const float y0, const float x1, const float y1,
+                                  const NativeTextureArea& textureCoords) noexcept
+    {
+      AddRect(dstOffsetPxf.X.Value + x0, dstOffsetPxf.Y.Value + y0, dstOffsetPxf.X.Value + x1, dstOffsetPxf.Y.Value + y1, textureCoords);
+    }
+
+    inline constexpr void AddRect(const PxVector2 dstOffsetPxf, const PxValue x0, const PxValue y0, const PxValue x1, const PxValue y1,
+                                  const NativeTextureArea& textureCoords) noexcept
+    {
+      AddRect(dstOffsetPxf, static_cast<float>(x0.Value), static_cast<float>(y0.Value), static_cast<float>(x1.Value), static_cast<float>(y1.Value),
+              textureCoords);
+    }
+
+    inline constexpr void AddRect(const PxVector2 dstOffsetPxf, const PxAreaRectangleF& areaRectPxf, const NativeTextureArea& textureCoords) noexcept
+    {
+      AddRect(dstOffsetPxf, areaRectPxf.RawLeft(), areaRectPxf.RawTop(), areaRectPxf.RawRight(), areaRectPxf.RawBottom(), textureCoords);
+    }
+
+    inline constexpr void AddRect(const PxVector2 dstOffsetPxf, const PxRectangle& areaRectPx, const NativeTextureArea& textureCoords) noexcept
+    {
+      AddRect(dstOffsetPxf, static_cast<float>(areaRectPx.RawLeft()), static_cast<float>(areaRectPx.RawTop()),
+              static_cast<float>(areaRectPx.RawRight()), static_cast<float>(areaRectPx.RawBottom()), textureCoords);
     }
   };
 

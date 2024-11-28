@@ -38,6 +38,7 @@
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <Shared/UI/Benchmark/DemoAppExtensionForwarder.hpp>
 #include <Shared/UI/Benchmark/Persistence/AppSettings.hpp>
+#include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkScene.hpp>
 #include <Shared/UI/Benchmark/SceneAppInfo.hpp>
 #include <memory>
 #include <utility>
@@ -49,6 +50,7 @@ namespace Fsl
   struct SceneCreateInfo
   {
     SceneAppInfo AppInfo;
+    AppBenchmarkScene BenchmarkScene{AppBenchmarkScene::Scene0};
     ServiceProvider DemoServiceProvider;
     DemoWindowMetrics WindowMetrics;
     std::shared_ptr<DemoAppExtensionForwarder> Forwarder;
@@ -59,11 +61,13 @@ namespace Fsl
     std::shared_ptr<IBasicGpuProfiler> GpuProfiler;    // This can be null
 
 
-    SceneCreateInfo(SceneAppInfo appInfo, const ServiceProvider& demoServiceProvider, const DemoWindowMetrics& windowMetrics,
-                    std::shared_ptr<DemoAppExtensionForwarder> forwarder, std::shared_ptr<UI::Theme::IThemeControlFactory> controlFactory,
-                    std::shared_ptr<UI::Layout> rootLayout, std::shared_ptr<AppSettings> settings,
-                    std::shared_ptr<const UIDemoAppExtension> uiExtension, std::shared_ptr<IBasicGpuProfiler> gpuProfiler)
+    SceneCreateInfo(SceneAppInfo appInfo, const AppBenchmarkScene benchmarkScene, const ServiceProvider& demoServiceProvider,
+                    const DemoWindowMetrics& windowMetrics, std::shared_ptr<DemoAppExtensionForwarder> forwarder,
+                    std::shared_ptr<UI::Theme::IThemeControlFactory> controlFactory, std::shared_ptr<UI::Layout> rootLayout,
+                    std::shared_ptr<AppSettings> settings, std::shared_ptr<const UIDemoAppExtension> uiExtension,
+                    std::shared_ptr<IBasicGpuProfiler> gpuProfiler)
       : AppInfo(std::move(appInfo))
+      , BenchmarkScene(benchmarkScene)
       , DemoServiceProvider(demoServiceProvider)
       , WindowMetrics(windowMetrics)
       , Forwarder(std::move(forwarder))

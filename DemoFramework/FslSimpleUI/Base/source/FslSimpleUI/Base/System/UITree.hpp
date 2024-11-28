@@ -39,6 +39,7 @@
 #include <FslSimpleUI/Base/System/Event/IEventHandler.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/UIStats.hpp>
+#include <FslSimpleUI/Render/Base/DrawClipContext.hpp>
 #include <deque>
 #include <map>
 #include <memory>
@@ -146,6 +147,8 @@ namespace Fsl
       //! the root node
       std::shared_ptr<TreeNode> m_root;
       PxRectangle m_rootRectPx;
+      bool m_clipEnabled{false};
+      PxRectangle m_rootClipRectPx;
 
       bool m_updateCacheDirty{true};
       bool m_resolveCacheDirty{true};
@@ -192,6 +195,9 @@ namespace Fsl
       {
         return m_stats;
       }
+
+      void SetClipRectangle(const bool enabled, const PxRectangle& clipRectanglePx);
+
 
       void ProcessEvents();
       void Resized(const PxExtent2D& extentPx, const uint32_t densityDpi);
@@ -252,7 +258,8 @@ namespace Fsl
     private:
       inline bool PerformLayout();
       inline void RebuildDeques();
-      void RebuildDeques(const std::shared_ptr<TreeNode>& node, const PxRectangle& parentRectPx, const ItemVisibility parentVisibility);
+      void RebuildDeques(const std::shared_ptr<TreeNode>& node, const PxRectangle& parentRectPx, const ItemVisibility parentVisibility,
+                         DrawClipContext drawClipContext);
       inline void ProcessEventsPreUpdate();
       inline void ProcessEventsPostUpdate(const TimeSpan& timespan);
       inline void ProcessEventsPostResolve(const TimeSpan& timespan);

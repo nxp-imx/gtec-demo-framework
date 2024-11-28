@@ -42,10 +42,10 @@ namespace Fsl
     using value_type = PxValueU;
     using raw_value_type = value_type::raw_value_type;
 
-    value_type Left{0};
-    value_type Top{0};
-    value_type Right{0};
-    value_type Bottom{0};
+    PxValueU Left{0};
+    PxValueU Top{0};
+    PxValueU Right{0};
+    PxValueU Bottom{0};
 
     constexpr PxThicknessU() noexcept = default;
 

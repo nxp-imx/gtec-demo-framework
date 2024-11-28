@@ -42,8 +42,8 @@ namespace Fsl
     using value_type = PxValueU;
     using raw_value_type = value_type::raw_value_type;
 
-    value_type X{0};
-    value_type Y{0};
+    PxValueU X{0};
+    PxValueU Y{0};
 
     constexpr PxPoint2U() noexcept = default;
 

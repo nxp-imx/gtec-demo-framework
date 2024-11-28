@@ -30,6 +30,7 @@
 #
 #****************************************************************************************************************************************************
 
+from email.policy import default
 from typing import Any
 #from typing import Dict
 from typing import List
@@ -45,6 +46,8 @@ from FslBuildGen import PluginSharedValues
 from FslBuildGen.Build import Builder
 from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
 from FslBuildGen.Build.DataTypes import CommandType
+from FslBuildGen.Build.ForAllConfig import ForAllConfig
+from FslBuildGen.Build.ForAllConfig import ForAllMode
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.Log import Log
@@ -64,6 +67,8 @@ class DefaultValue(object):
     DryRun = False
     EnableContentBuilder = True
     ForAllExe = None
+    ForAll = None
+    FilterForFeatures = None
     GenType = "default"
     IgnoreNotSupported = False
     ListExtensions = False
@@ -78,12 +83,23 @@ class DefaultValue(object):
 
 
 class LocalToolConfig(ToolAppConfig):
+    @staticmethod
+    def CreateForAllConfig(forAllExe: Optional[str], forAll: Optional[str], filterFeatureNameList: Optional[List[str]] = None) -> Optional[ForAllConfig]:
+        # Only one of the ForAll... parameters can be set
+        if forAllExe is not None:
+            if forAll is not None:
+                raise Exception("Only one of the ForAll parameters can be set")
+            return ForAllConfig.CreateForAllExeConfig(forAllExe, filterFeatureNameList)
+        elif forAll is not None:
+            return ForAllConfig.CreateForAllPackagesConfig(forAll, filterFeatureNameList)
+        return None
+
     def __init__(self) -> None:
         super().__init__()
 
         self.DryRun = DefaultValue.DryRun
         self.EnableContentBuilder = DefaultValue.EnableContentBuilder
-        self.ForAllExe = DefaultValue.ForAllExe  # type: Optional[str]
+        self.ForAllConfig = LocalToolConfig.CreateForAllConfig(DefaultValue.ForAllExe, DefaultValue.ForAll)
         self.GenType = DefaultValue.GenType
         self.IgnoreNotSupported = DefaultValue.IgnoreNotSupported
         self.ListExtensions = DefaultValue.ListExtensions
@@ -111,10 +127,12 @@ class ToolFlowBuild(AToolAppFlow):
         # Configure the ToolAppConfig part
         localToolConfig.SetToolAppConfigValues(self.ToolAppContext.ToolAppConfig)
 
+        filterForFeatures = ParseUtil.ParseFeatureList(args.FilterForFeatures) if isinstance(args.FilterForFeatures, str) else None
+
         # Configure the local part
         localToolConfig.DryRun = args.DryRun
         localToolConfig.EnableContentBuilder = ParseUtil.ParseBool(args.ContentBuilder)
-        localToolConfig.ForAllExe = args.ForAllExe
+        localToolConfig.ForAllConfig = LocalToolConfig.CreateForAllConfig(args.ForAllExe, args.ForAll, filterForFeatures)
         localToolConfig.GenType = args.GenType
         localToolConfig.IgnoreNotSupported = args.IgnoreNotSupported
         localToolConfig.ListExtensions = args.ListExtensions
@@ -182,7 +200,7 @@ class ToolFlowBuild(AToolAppFlow):
             requestedPackages = BuildHelper.FindRequestedPackages(self.Log, packages, requestedFiles)
             Builder.BuildPackages(self.Log, config.GetBuildDir(), config.SDKPath, config.SDKConfigTemplatePath, config.DisableWrite, config.IsDryRun,
                                   toolConfig, generatorContext, packages, requestedPackages, localToolConfig.BuildVariantConstraints,
-                                  localToolConfig.RemainingArgs, localToolConfig.ForAllExe, platformGeneratorPlugin,
+                                  localToolConfig.RemainingArgs, localToolConfig.ForAllConfig, platformGeneratorPlugin,
                                   localToolConfig.EnableContentBuilder, localToolConfig.ForceClaimInstallArea, localToolConfig.BuildThreads,
                                   localToolConfig.Command, localToolConfig.CommandArgs, True)
 
@@ -224,7 +242,10 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         parser.add_argument('--DryRun', action='store_true', help='Nothing will be build')
         parser.add_argument('--IgnoreNotSupported', action='store_true', help='try to build things that are marked as not supported')
         parser.add_argument('--ContentBuilder', default=defaultContentBuilder, help='Enable/disable the content builder')
-        parser.add_argument('--ForAllExe', default=DefaultValue.ForAllExe, help='For each executable run the given command. (EXE) = the full path to the executable. (EXE_NAME) = name of the executable. (EXE_PATH) = the executables dir. (PACKAGE_PATH) = full path to package (CONTENT_PATH) = full path to package content directory. *Experimental*')
+        parser.add_argument('--ForAllExe', default=DefaultValue.ForAllExe, help='For each executable run the given command. (EXE) = the full path to the executable. (EXE_NAME) = name of the executable. (EXE_PATH) = the executables dir. (PACKAGE_NAME) = full name of package, (PACKAGE_PATH) = full path to package (CONTENT_PATH) = full path to package content directory, (BUILD_PATH) = the build path, (RUN_PATH) = the run path. *Experimental*')
+        parser.add_argument('--ForAll', default=DefaultValue.ForAll, help='For all packages, run the given command. (BUILD_PATH) = the build path, (PACKAGE_NAME) = full name of package, (PACKAGE_PATH) = full path to package, (RUN_PATH) = the run path. *Experimental*')
+        parser.add_argument('--FilterForFeatures', default=DefaultValue.FilterForFeatures,
+                            help='The list of features that are required for ForAll to be executed. For example [OpenGLES2] to run the ForAll command on a qualifying package that use OpenGLES2.')
         parser.add_argument('-c', "--Command", default=DefaultValue.Command, help='The build command, defaults to build. Choices: {0}. Beware install is not supported by all build backends'.format(", ".join(allCommandTypes)))
         parser.add_argument("--CommandArgs", default=DefaultValue.CommandArgs, help='Custom arguments for the command')
         parser.add_argument('--details', action='store_true', help='Provide extended details (affects the --List operations)')

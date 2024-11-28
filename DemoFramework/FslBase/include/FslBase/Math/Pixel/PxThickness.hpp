@@ -46,10 +46,10 @@ namespace Fsl
     using raw_value_type = value_type::raw_value_type;
 
   private:
-    value_type m_left;
-    value_type m_top;
-    value_type m_right;
-    value_type m_bottom;
+    PxSize1D m_left;
+    PxSize1D m_top;
+    PxSize1D m_right;
+    PxSize1D m_bottom;
 
   public:
     constexpr PxThickness() noexcept = default;

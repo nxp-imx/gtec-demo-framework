@@ -50,7 +50,7 @@ namespace Fsl
     using raw_unsigned_value_type = unsigned_value_type::raw_value_type;
 
   private:
-    value_type m_value;
+    PxValue m_value;
 
     explicit constexpr PxSize1D(const raw_value_type value) noexcept
       : m_value(value >= 0 ? value : 0)

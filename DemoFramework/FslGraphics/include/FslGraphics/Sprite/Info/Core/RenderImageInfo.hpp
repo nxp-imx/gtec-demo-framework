@@ -62,16 +62,8 @@ namespace Fsl
     {
     }
 
-    constexpr bool operator==(const RenderImageInfo& rhs) const
-    {
-      return TextureArea == rhs.TextureArea && ScaledSizePx == rhs.ScaledSizePx && ScaledTrimMarginPxf == rhs.ScaledTrimMarginPxf &&
-             ScaledTrimmedSizePxf == rhs.ScaledTrimmedSizePxf;
-    }
-
-    constexpr bool operator!=(const RenderImageInfo& rhs) const
-    {
-      return !(*this == rhs);
-    }
+    // op==
+    constexpr bool operator==(const RenderImageInfo& other) const noexcept = default;
   };
 }
 

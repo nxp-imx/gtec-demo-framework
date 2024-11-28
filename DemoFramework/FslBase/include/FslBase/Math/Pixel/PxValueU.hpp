@@ -40,7 +40,7 @@ namespace Fsl
     using value_type = uint32_t;
     using raw_value_type = uint32_t;
 
-    value_type Value{0};
+    uint32_t Value{0};
 
     inline constexpr PxValueU() noexcept = default;
 

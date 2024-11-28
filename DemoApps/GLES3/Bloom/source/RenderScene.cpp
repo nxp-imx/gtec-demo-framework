@@ -47,12 +47,9 @@
 namespace Fsl
 {
   using namespace GLES3;
-  using namespace Graphics3D;
-  using namespace SceneFormat;
 
-
-  using BasicMesh = GenericMesh<VertexPositionNormalTangentTexture, uint16_t>;
-  using BasicScene = GenericScene<BasicMesh>;
+  using BasicMesh = Graphics3D::GenericMesh<VertexPositionNormalTangentTexture, uint16_t>;
+  using BasicScene = Graphics3D::GenericScene<BasicMesh>;
 
   namespace
   {
@@ -114,7 +111,7 @@ namespace Fsl
     const auto fullModelPath = IO::Path::Combine(contentPath, strFileName);
 
     FSLLOG3_INFO("Loading scene '{}'", fullModelPath);
-    BasicSceneFormat sceneFormat;
+    SceneFormat::BasicSceneFormat sceneFormat;
     auto scene = sceneFormat.Load<BasicScene>(fullModelPath);
 
 

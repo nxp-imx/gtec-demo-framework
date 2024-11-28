@@ -40,7 +40,7 @@ namespace Fsl
   {
   public:
     //! @brief Get the render size in pixels
-    virtual PxSize2D GetRenderSizePx() const = 0;
+    virtual PxSize2D GetRenderSizePx() const noexcept = 0;
   };
 }
 

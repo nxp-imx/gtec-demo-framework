@@ -35,7 +35,6 @@
 #include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
 #include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslGraphics/Color.hpp>
-#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslSimpleUI/Base/Control/LabelBase.hpp>
@@ -157,7 +156,7 @@ namespace Fsl::UI
       ItemAlignmentUtil::CalcAlignmentPx(m_propertyContentAlignmentY.Get(), renderSizePx.Height() - stringSizePx.Height()));
 
     const auto color = m_propertyIsEnabled.Get() ? m_propertyFontColor.InternalColor : m_propertyFontDisabledColor.InternalColor;
-    context.CommandBuffer.Draw(m_fontMesh.Get(), dstPosPxf, m_cachedMeasureMinimalFontSizePx, GetFinalBaseColor() * color);
+    context.CommandBuffer.Draw(m_fontMesh.Get(), dstPosPxf, m_cachedMeasureMinimalFontSizePx, GetFinalBaseColor() * color, context.ClipContext);
   }
 
 

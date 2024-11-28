@@ -69,12 +69,15 @@ namespace Fsl
 
   void SpatialHashGrid2D::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
   {
+    base_type::ConfigurationChanged(windowMetrics);
     m_shared.ConfigurationChanged(windowMetrics);
   }
 
 
   void SpatialHashGrid2D::Update(const DemoTime& demoTime)
   {
+    base_type::Update(demoTime);
+
     m_shared.Update(demoTime);
 
     // Deal with the new Vulkan coordinate system (see method description for more info).

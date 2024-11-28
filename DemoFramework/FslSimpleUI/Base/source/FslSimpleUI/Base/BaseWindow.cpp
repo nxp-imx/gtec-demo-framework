@@ -474,6 +474,11 @@ namespace Fsl::UI
     return uiContext->WindowManager->PointFromScreen(this, screenPointPx);
   }
 
+  PxPoint2 BaseWindow::PointToScreen(const PxPoint2& windowPointPx) const
+  {
+    auto uiContext = GetContext()->TheUIContext.Get();
+    return uiContext->WindowManager->PointToScreen(this, windowPointPx);
+  }
 
   PxPoint2 BaseWindow::PointFrom(const IWindowId* const pFromWin, const PxPoint2& pointPx) const
   {
@@ -563,6 +568,25 @@ namespace Fsl::UI
 
       auto uiContext = GetContext()->TheUIContext.Get();
       uiContext->WindowManager->TrySetWindowFlags(this, flags, false);
+    }
+  }
+
+
+  void BaseWindow::Set(const WindowFlags flags, bool enabled)
+  {
+    if (enabled != m_flags.IsEnabled(flags))
+    {
+      if (enabled)
+      {
+        m_flags.Enable(flags);
+      }
+      else
+      {
+        m_flags.Disable(flags);
+      }
+
+      auto uiContext = GetContext()->TheUIContext.Get();
+      uiContext->WindowManager->TrySetWindowFlags(this, flags, enabled);
     }
   }
 

@@ -81,6 +81,12 @@ namespace Fsl::UI
   }
 
 
+  bool VelocityTracker::HasVelocityEntries() const noexcept
+  {
+    return !m_strategyX->IsEmpty() || !m_strategyY->IsEmpty();
+  }
+
+
   void VelocityTracker::Clear()
   {
     FSLLOG3_VERBOSE5("AddMovement clear");

@@ -56,6 +56,8 @@ namespace Fsl::UI
     VelocityTracker();
     ~VelocityTracker() = default;
 
+    bool HasVelocityEntries() const noexcept;
+
     void Clear();
     void AddMovement(const MillisecondTickCount32 timestamp, const DpPoint2F positionDpf);
     bool TryGetVelocity(DpPoint2F& rValue) const noexcept;

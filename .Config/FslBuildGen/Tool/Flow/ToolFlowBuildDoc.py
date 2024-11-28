@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #****************************************************************************************************************************************************
-# Copyright 2017 NXP
+# Copyright 2017, 2024 NXP
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,8 @@
 #
 #****************************************************************************************************************************************************
 
+from re import S
+from tkinter import CURRENT
 from typing import Any
 #from typing import Callable
 from typing import cast
@@ -46,6 +48,7 @@ from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
 from FslBuildGen.BuildConfig.BuildDocConfiguration import BuildDocConfiguration
 from FslBuildGen.Config import Config
+from FslBuildGen.Build.ForAllConfig import ForAllConfig
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Engine.EngineResolveConfig import EngineResolveConfig
@@ -192,14 +195,13 @@ def TryLoadTextFileAsLines(path: str) -> Optional[List[str]]:
     return lines
 
 
-def TryLoadReadMe(basicConfig: BasicConfig, path: str) -> Optional[List[str]]:
+def TryLoadReadMe(path: str) -> Optional[List[str]]:
     lines = TryLoadTextFileAsLines(path)
     if lines is None:
         return None
 
     RightStripLines(lines)
     return lines
-
 
 class OptionArgument:
     OptionNone = 0
@@ -427,7 +429,7 @@ def TryBuildAndRun(toolAppContext: ToolAppContext, config: Config, package: Pack
 
         toolFlowConfig = ToolFlowBuild.GetDefaultLocalConfig()
         toolFlowConfig.SetToolAppConfigValues(toolAppContext.ToolAppConfig)
-        toolFlowConfig.ForAllExe = '(EXE) --System.Arguments.Save {0} -h'.format(tmpOutputFilename)
+        toolFlowConfig.ForAllConfig = ForAllConfig.CreateForAllExeConfig('(EXE) --System.Arguments.Save {0} -h'.format(tmpOutputFilename))
         buildFlow = ToolFlowBuild.ToolFlowBuild(toolAppContext)
         buildFlow.Process(workDir, config.ToolConfig, toolFlowConfig)
 
@@ -458,6 +460,9 @@ def ExtractArguments(toolAppContext: ToolAppContext, config: Config, exePackages
         #return res
     return res
 
+def IsNamespaceRootMDFile(lines: List[str]) -> bool:
+    return len(lines) > 0 and lines[0].startswith("<!-- #AG_PROJECT_NAMESPACE_ROOT# -->")
+
 def __TryFindRequirementInSet(requirements: List[PackageRequirement], ignoreRequirementSet: Set[str]) -> Optional[PackageRequirement]:
     for requirement in requirements:
         if requirement.Name in ignoreRequirementSet:
@@ -476,8 +481,74 @@ def __RemoveIgnored(log: Log, packages: List[Package], ignoreRequirementSet: Set
             log.LogPrint("Skipping '{0}' because requirement '{1}' was set to skip".format(package.Name, skipRequirement.Name))
     return filteredPackages
 
+class NamespaceReadmeRecord(object):
+    def __init__(self, packageLocationRootDirEx: str, filePath: str, fileContent: List[str], caption: str) -> None:
+        super().__init__()
+        self.PackageLocationRootDirEx = packageLocationRootDirEx
+        self.FilePath = filePath
+        self.FileDirectoryEx = IOUtil.GetDirectoryName(filePath) + '/'
+        self.FileContent = fileContent
+        self.Caption = caption
+        self.NewContent = [] # type: List[str]
+        self.Keys = set() # type: Set[str]
+
+class NamespaceRecord(object):
+    def __init__(self, namespaceName: str):
+        super().__init__()
+        self.NamespaceName = namespaceName
+        self.PackageList = [] # type: List[Package]
+
+    def AddPackage(self, packageDirToReadme: Dict[str, Optional[NamespaceReadmeRecord]], package: Package) -> None:
+        self.PackageList.append(package)
+        self.__PopulatePackageDirToReadme(packageDirToReadme, package)
+
+    def __PopulatePackageDirToReadme(self, packageDirToReadme: Dict[str, Optional[NamespaceReadmeRecord]], package: Package) -> None:
+        if  package.Path is None:
+          raise Exception("internal error")
+        packageAbsoluteDirPath = package.Path.AbsoluteDirPath
+        packageRootPath = package.Path.PackageRootLocation.ResolvedPathEx
+
+        # If the package is not located at the package root then skip the package dir and start at the parent
+        self.__AddClosestNamespaceGroupReadme(packageDirToReadme, packageRootPath, packageAbsoluteDirPath, True)
+
+    def __AddClosestNamespaceGroupReadme(self, packageDirToReadme: Dict[str, Optional[NamespaceReadmeRecord]], packageLocationRootDirEx: str,
+                                         currentPackageDir: str, skipDirReadmeCheck: bool) -> Optional[NamespaceReadmeRecord]:
+        isRoot = False
+        if not currentPackageDir.startswith(packageLocationRootDirEx):
+            isRoot = currentPackageDir == packageLocationRootDirEx[0:-1]
+            if not isRoot:
+                raise Exception("usage error, the package dir '{0}' did not start with the package root dir '{1}'".format(currentPackageDir, packageLocationRootDirEx[0:-1]))
+
+        # Check if the package dir has been cached
+        if currentPackageDir in packageDirToReadme:
+            return packageDirToReadme[currentPackageDir]
+
+        # Allow us to skip reading the README.md file located in the package root.
+        # Since it will likely always be present and its not a target for this.
+        if not skipDirReadmeCheck:
+            readmeFile = IOUtil.Join(currentPackageDir, "README.md")
+            fileContent = TryLoadReadMe(readmeFile)
+            if fileContent is not None:
+                if IsNamespaceRootMDFile(fileContent):
+                    caption = IOUtil.GetFileName(IOUtil.GetDirectoryName(readmeFile))
+                    readmeRecord = NamespaceReadmeRecord(packageLocationRootDirEx, readmeFile, fileContent, caption)
+                    packageDirToReadme[currentPackageDir] = readmeRecord
+                    return readmeRecord
+
+        # Not found yet
+        if not isRoot:
+            foundFile = self.__AddClosestNamespaceGroupReadme(packageDirToReadme, packageLocationRootDirEx, IOUtil.GetDirectoryName(currentPackageDir), False)
+            packageDirToReadme[currentPackageDir] = foundFile
+            return foundFile
+        return None
+
+
+# def CheckForNamespaceRootReadMe(activeRootDir: ToolConfigRootDirectory, namespaceDict: Dict[str, List[Package]]):
+#     pass
+
 def ProcessPackages(toolAppContext: ToolAppContext, config: Config, packages: List[Package], activeRootDir: ToolConfigRootDirectory,
-                    extractArguments: Optional[str], buildDocConfiguration: BuildDocConfiguration, currentDir: str) -> List[str]:
+                    extractArguments: Optional[str], buildDocConfiguration: BuildDocConfiguration, currentDir: str,
+                    projectRootNamespaceReadmeRecord: NamespaceReadmeRecord) -> List[NamespaceReadmeRecord]:
     log = config # type: Log
     ignoreRequirementSet = set() # type: Set[str]
     for requirement in buildDocConfiguration.Requirements:
@@ -493,58 +564,88 @@ def ProcessPackages(toolAppContext: ToolAppContext, config: Config, packages: Li
     if extractArguments is not None:
         packageArgumentsDict = ExtractArguments(toolAppContext, config, exePackages, extractArguments, currentDir)
 
-    uniqueDict = {}  # type: Dict[str, List[Package]]
+    # Run through the exe files and group the exe package into 'namespaces'
+    # The dictionary uses the 'namespace' as the key and a list of packages belonging to the namespace as the value
+    packageDirToReadme = dict() # type: Dict[str, Optional[NamespaceReadmeRecord]]
+    namespaceDict = {}  # type: Dict[str, NamespaceRecord]
     for package in exePackages:
-        if not package.NameInfo.Namespace.Value in uniqueDict:
-            uniqueDict[package.NameInfo.Namespace.Value] = []
-        uniqueDict[package.NameInfo.Namespace.Value].append(package)
+        if not package.NameInfo.Namespace.Value in namespaceDict:
+            namespaceDict[package.NameInfo.Namespace.Value] = NamespaceRecord(package.NameInfo.Namespace.Value)
+        namespaceDict[package.NameInfo.Namespace.Value].AddPackage(packageDirToReadme, package)
 
-    # sort the content
-    for packageList in list(uniqueDict.values()):
-        packageList.sort(key=lambda s: s.Name.lower())
-    sortedKeys = list(uniqueDict.keys())
+    # Take all found packages for each namespace and sort them based on their package name
+    for record in list(namespaceDict.values()):
+        record.PackageList.sort(key=lambda s: s.Name.lower())
+
+    # sort the found package namespaces
+    sortedKeys = list(namespaceDict.keys())
     sortedKeys.sort()
 
+    #CheckForNamespaceRootReadMe(activeRootDir, namespaceDict)
+
     # Format it
-    isFirst = True
-    result = []
+    foundReadmeRecords = set()
+    resultReadmeRecords = [] # type: List[NamespaceReadmeRecord]
     for key in sortedKeys:
-        if isFirst:
-            isFirst = False
-        else:
-            result.append("")
-        result.append("## {0}".format(key))
-        result.append("")
-        for package in uniqueDict[key]:
+        for package in namespaceDict[key].PackageList:
             if package.AbsolutePath is None:
                 raise Exception("Invalid package")
             rootDir = config.ToolConfig.TryFindRootDirectory(package.AbsolutePath)
             if rootDir == activeRootDir:
+                # locate the namespace readme record
+                namespaceReadmeRecord = projectRootNamespaceReadmeRecord
+                if package.AbsolutePath in packageDirToReadme:
+                    foundNamespaceReadmeRecord = packageDirToReadme[package.AbsolutePath]
+                    if foundNamespaceReadmeRecord is not None:
+                        namespaceReadmeRecord = foundNamespaceReadmeRecord
+
+                # Append the 'namespace' title
+                if key not in namespaceReadmeRecord.Keys:
+                    namespaceReadmeRecord.Keys.add(key)
+                    if len(namespaceReadmeRecord.NewContent) <= 0:
+                        namespaceReadmeRecord.NewContent.append("")
+                    namespaceReadmeRecord.NewContent.append("## {0}".format(key))
+                    namespaceReadmeRecord.NewContent.append("")
+                    if namespaceReadmeRecord != projectRootNamespaceReadmeRecord:
+                        # Add a link in the main file
+                        projectRootNamespaceReadmeRecord.NewContent.append("## {0}".format(key))
+                        projectRootNamespaceReadmeRecord.NewContent.append("")
+                        linkRelativePath = IOUtil.RelativePath(namespaceReadmeRecord.FileDirectoryEx, projectRootNamespaceReadmeRecord.FileDirectoryEx)
+                        linkRelativePath = IOUtil.Join(linkRelativePath, "README.md")
+                        projectRootNamespaceReadmeRecord.NewContent.append("See [{0}]({1}#{2}) applications".format(key, linkRelativePath, TocEntryLink(key)))
+                        projectRootNamespaceReadmeRecord.NewContent.append("")
+
+                relativeFromPath = namespaceReadmeRecord.FileDirectoryEx
                 config.LogPrintVerbose(4, "Processing package '{0}'".format(package.Name))
-                packageDir = package.AbsolutePath[len(rootDir.ResolvedPath)+1:]
-                result.append("### [{0}]({1})".format(package.NameInfo.ShortName.Value, packageDir))
-                exampleImagePath = IOUtil.Join(package.AbsolutePath, "Example.jpg")
+                packageDir = package.AbsolutePath[len(relativeFromPath):]
+                namespaceReadmeRecord.NewContent.append("### [{0}]({1})".format(package.NameInfo.ShortName.Value, packageDir))
+                namespaceReadmeRecord.NewContent.append("")
+                exampleImagePath = IOUtil.Join(package.AbsolutePath, "Thumbnail.jpg")
+                if not IOUtil.IsFile(exampleImagePath):
+                    exampleImagePath = IOUtil.Join(package.AbsolutePath, "Example.jpg")
                 if IOUtil.IsFile(exampleImagePath):
-                    exampleImagePath = exampleImagePath[len(rootDir.ResolvedPath)+1:]
-                    result.append("")
-                    result.append('<a href="{0}"><img src="{0}" height="108px" title="{1}"></a>'.format(exampleImagePath, package.Name))
-                    result.append("")
+                    exampleImagePath = exampleImagePath[len(relativeFromPath):]
+                    namespaceReadmeRecord.NewContent.append('<a href="{0}"><img src="{0}" height="108px" title="{1}"></a>'.format(exampleImagePath, package.Name))
+                    namespaceReadmeRecord.NewContent.append("")
 
                 readmePath = IOUtil.Join(package.AbsolutePath, "README.md")
-                packageReadMeLines = TryLoadReadMe(config, readmePath)
+                packageReadMeLines = TryLoadReadMe(readmePath)
                 if packageReadMeLines is not None:
                     packageReadMeLines = UpdatePackageReadMe(config, package, packageReadMeLines, packageArgumentsDict, readmePath)
                     SaveReadMe(config, readmePath, packageReadMeLines)
                     brief = TryExtractBrief(config, packageReadMeLines, readmePath)
                     if brief is not None:
-                        result = result + brief
-                        result.append("")
+                        namespaceReadmeRecord.NewContent = namespaceReadmeRecord.NewContent + brief
+                        namespaceReadmeRecord.NewContent.append("")
 
-                result.append("")
+                #namespaceReadmeRecord.NewContent.append("")
+                if namespaceReadmeRecord.FilePath not in foundReadmeRecords:
+                    foundReadmeRecords.add(namespaceReadmeRecord.FilePath)
+                    resultReadmeRecords.append(namespaceReadmeRecord)
             #else:
             #    config.LogPrintVerbose(4, "Skipping package '{0}' with rootDir '{1}' is not part of the activeRootDir '{2}'".format(package.Name, rootDir.ResolvedPath, activeRootDir.ResolvedPath))
 
-    return result
+    return resultReadmeRecords
 
 class DefaultValue(object):
     DryRun = False
@@ -608,7 +709,6 @@ class ToolFlowBuildDoc(AToolAppFlow):
             if not config.IsDryRun:
                 IOUtil.WriteFileUTF8(scrFilePath, finalContent)
 
-
     def Process(self, currentDirPath: str, toolConfig: ToolConfig, localToolConfig: LocalToolConfig) -> None:
         config = Config(self.Log, toolConfig, 'sdk', localToolConfig.BuildVariantConstraints, localToolConfig.AllowDevelopmentPlugins)
         if localToolConfig.DryRun:
@@ -648,27 +748,47 @@ class ToolFlowBuildDoc(AToolAppFlow):
             rootDir = self.__TryLocateRootDirectory(config.ToolConfig.RootDirectories, projectContext.Location)
             if rootDir is None:
                 raise Exception("Root directory not found for location {0}".format(projectContext.Location))
+
             readmePath = IOUtil.Join(rootDir.ResolvedPath, "README.md")
-            packageReadMeLines = TryLoadReadMe(config, readmePath)
-            result = ProcessPackages(self.ToolAppContext, config, packages, rootDir, localToolConfig.ExtractArguments,
-                                     toolConfig.BuildDocConfiguration, currentDirPath)
-            if packageReadMeLines is not None:
-                projectCaption = "# {0} {1}".format(projectContext.ProjectName, projectContext.ProjectVersion)
-                packageReadMeLinesNew = TryReplaceSection(config, packageReadMeLines, "AG_PROJECT_CAPTION", [projectCaption], readmePath)
-                if packageReadMeLinesNew is not None:
-                    packageReadMeLines = packageReadMeLinesNew
+            packageReadMeLines = TryLoadReadMe(readmePath)
+            packageReadMeLines = packageReadMeLines if packageReadMeLines is not None else []
+            projectRootNamepaceRecord = NamespaceReadmeRecord(rootDir.ResolvedPath, readmePath, packageReadMeLines, "")
+            namespaceRecords = ProcessPackages(self.ToolAppContext, config, packages, rootDir, localToolConfig.ExtractArguments,
+                                               toolConfig.BuildDocConfiguration, currentDirPath,
+                                               projectRootNamepaceRecord)
 
-                packageReadMeLinesNew = TryReplaceSection(config, packageReadMeLines, "AG_DEMOAPPS", result, readmePath)
-                if packageReadMeLinesNew is not None:
-                    packageReadMeLines = packageReadMeLinesNew
+            if projectRootNamepaceRecord not in namespaceRecords:
+                namespaceRecords.append(projectRootNamepaceRecord)
 
-                packageReadMeLinesNew = TryInsertTableOfContents(config, packageReadMeLines, localToolConfig.ToCDepth, readmePath)
-                if packageReadMeLinesNew is not None:
-                    packageReadMeLines = packageReadMeLinesNew
+            for namespaceRecord in namespaceRecords:
+                if len(namespaceRecord.FileContent) > 0:
+                    updatedReadMeLines = namespaceRecord.FileContent
+                    projectCaptionLines = ["# {0} {1}".format(projectContext.ProjectName, projectContext.ProjectVersion)]
+                    if namespaceRecord != projectRootNamepaceRecord:
+                        projectCaptionLines[0] = "{0} {1}".format(projectCaptionLines[0], namespaceRecord.Caption)
+                        relativePathToRoot = IOUtil.RelativePath(rootDir.ResolvedPath, namespaceRecord.FileDirectoryEx)
+                        projectCaptionLines.append("")
+                        projectCaptionLines.append("To [main document]({0}/README.md)".format(relativePathToRoot))
 
-                SaveReadMe(config, readmePath, packageReadMeLines)
-            elif config.Verbosity > 2:
-                config.LogPrintWarning("No README.md found in {0}".format(rootDir.ResolvedPath))
+                    updatedReadMeLinesNew = TryReplaceSection(config, updatedReadMeLines, "AG_PROJECT_CAPTION", projectCaptionLines, namespaceRecord.FilePath)
+                    if updatedReadMeLinesNew is not None:
+                        updatedReadMeLines = updatedReadMeLinesNew
+
+                    updatedReadMeLinesNew = TryReplaceSection(config, updatedReadMeLines, "AG_DEMOAPPS", namespaceRecord.NewContent, namespaceRecord.FilePath)
+                    if updatedReadMeLinesNew is not None:
+                        updatedReadMeLines = updatedReadMeLinesNew
+
+                    # WARNING: The table of content might get regenerated during ProcessMDFiles below
+                    tableOfContentDepth = localToolConfig.ToCDepth
+                    if namespaceRecord != projectRootNamepaceRecord:
+                        tableOfContentDepth = tableOfContentDepth + 1
+                    updatedReadMeLinesNew = TryInsertTableOfContents(config, updatedReadMeLines, tableOfContentDepth, namespaceRecord.FilePath)
+                    if updatedReadMeLinesNew is not None:
+                        updatedReadMeLines = updatedReadMeLinesNew
+
+                    SaveReadMe(config, namespaceRecord.FilePath, updatedReadMeLines)
+                elif config.Verbosity > 2:
+                    config.LogPrintWarning("No README.md found at {0}".format(namespaceRecord.FilePath))
 
             if not localToolConfig.NoMdScan:
                 mdFiles = IOUtil.FindFileByExtension(rootDir.ResolvedPath, ".md", minimalConfig.IgnoreDirectories)
@@ -684,8 +804,8 @@ class ToolFlowBuildDoc(AToolAppFlow):
 
 
     def ProcessMDFile(self, config: Config, filename: str, localToolConfig: LocalToolConfig) -> None:
-        packageReadMeLines = TryLoadReadMe(config, filename)
-        if packageReadMeLines is not None and self.HasLineThatContain(packageReadMeLines, "#AG_TOC_BEGIN#"):
+        packageReadMeLines = TryLoadReadMe(filename)
+        if packageReadMeLines is not None and self.HasLineThatContain(packageReadMeLines, "#AG_TOC_BEGIN#") and not IsNamespaceRootMDFile(packageReadMeLines):
             packageReadMeLinesNew = TryInsertTableOfContents(config, packageReadMeLines, localToolConfig.ToCDepth, filename)
             if packageReadMeLinesNew is not None:
                 packageReadMeLines = packageReadMeLinesNew

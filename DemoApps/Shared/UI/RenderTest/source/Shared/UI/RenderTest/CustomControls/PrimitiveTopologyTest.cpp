@@ -55,7 +55,7 @@ namespace Fsl::UI::Custom
   namespace
   {
     void DrawCustomLineList(UIRawBasicMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx,
-                            const RenderBasicImageInfo& renderInfo, const ICustomDrawData* const pCustomDrawData)
+                            const DrawClipContext& clipContext, const RenderBasicImageInfo& renderInfo, const ICustomDrawData* const pCustomDrawData)
     {
       const float leftPxf = dstPositionPxf.X.Value;
       const float topPxf = dstPositionPxf.Y.Value;
@@ -83,7 +83,7 @@ namespace Fsl::UI::Custom
     }
 
     void DrawCustomLineStrip(UIRawBasicMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx,
-                             const RenderBasicImageInfo& renderInfo, const ICustomDrawData* const pCustomDrawData)
+                             const DrawClipContext& clipContext, const RenderBasicImageInfo& renderInfo, const ICustomDrawData* const pCustomDrawData)
     {
       const float leftPxf = dstPositionPxf.X.Value;
       const float topPxf = dstPositionPxf.Y.Value;
@@ -107,7 +107,7 @@ namespace Fsl::UI::Custom
     }
 
     void DrawCustomTriangle(UIRawBasicMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx,
-                            const RenderBasicImageInfo& renderInfo, const ICustomDrawData* const pCustomDrawData)
+                            const DrawClipContext& clipContext, const RenderBasicImageInfo& renderInfo, const ICustomDrawData* const pCustomDrawData)
     {
       const float leftPxf = dstPositionPxf.X.Value;
       const float topPxf = dstPositionPxf.Y.Value;
@@ -189,13 +189,16 @@ namespace Fsl::UI::Custom
       switch (m_contentPrimitiveTopology)
       {
       case BasicPrimitiveTopology::LineList:
-        context.CommandBuffer.DrawCustom(m_content.Get(), context.TargetRect.Location(), RenderSizePx(), finalContentColor, DrawCustomLineList, {});
+        context.CommandBuffer.DrawCustom(m_content.Get(), context.TargetRect.Location(), RenderSizePx(), finalContentColor, context.ClipContext,
+                                         DrawCustomLineList, {});
         break;
       case BasicPrimitiveTopology::LineStrip:
-        context.CommandBuffer.DrawCustom(m_content.Get(), context.TargetRect.Location(), RenderSizePx(), finalContentColor, DrawCustomLineStrip, {});
+        context.CommandBuffer.DrawCustom(m_content.Get(), context.TargetRect.Location(), RenderSizePx(), finalContentColor, context.ClipContext,
+                                         DrawCustomLineStrip, {});
         break;
       case BasicPrimitiveTopology::TriangleList:
-        context.CommandBuffer.DrawCustom(m_content.Get(), context.TargetRect.Location(), RenderSizePx(), finalContentColor, DrawCustomTriangle, {});
+        context.CommandBuffer.DrawCustom(m_content.Get(), context.TargetRect.Location(), RenderSizePx(), finalContentColor, context.ClipContext,
+                                         DrawCustomTriangle, {});
         break;
       }
     }

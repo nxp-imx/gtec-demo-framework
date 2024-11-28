@@ -40,7 +40,7 @@ namespace Fsl::UI
     constexpr explicit CommandDrawAtOffsetAndSize(const EncodedCommand& command) noexcept
       : EncodedCommand(command)
     {
-      assert(command.Type == DrawCommandType::DrawAtOffsetAndSize);
+      assert(command.State.Type() == DrawCommandType::DrawAtOffsetAndSize);
     }
 
     constexpr MeshHandle GetMesh() const noexcept
@@ -63,10 +63,15 @@ namespace Fsl::UI
       return DstColor;
     }
 
-    inline constexpr static EncodedCommand Encode(const MeshHandle hMesh, const PxVector2& dstPositionPxf, const PxSize2D dstSizePx,
-                                                  const UIRenderColor dstColor) noexcept
+    constexpr PxAreaRectangleF GetClipRectanglePxf() const noexcept
     {
-      return {DrawCommandType::DrawAtOffsetAndSize, hMesh, dstPositionPxf, dstSizePx, dstColor, 0};
+      return ClipRectanglePxf;
+    }
+
+    inline constexpr static EncodedCommand Encode(const MeshHandle hMesh, const PxVector2& dstPositionPxf, const PxSize2D dstSizePx,
+                                                  const UIRenderColor dstColor, const DrawClipContext& clipContext) noexcept
+    {
+      return {DrawCommandType::DrawAtOffsetAndSize, hMesh, dstPositionPxf, dstSizePx, dstColor, clipContext};
     }
   };
 }

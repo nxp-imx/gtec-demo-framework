@@ -35,7 +35,6 @@
 #include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
 #include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslGraphics/Color.hpp>
-#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Sprite/ISizedSprite.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
@@ -124,12 +123,13 @@ namespace Fsl::UI
 
     if (!m_propertyRotateImageCW.Get())
     {
-      context.CommandBuffer.Draw(m_content.Get(), context.TargetRect.Location(), RenderSizePx(), GetFinalBaseColor() * GetContentInternalColor());
+      context.CommandBuffer.Draw(m_content.Get(), context.TargetRect.Location(), RenderSizePx(), GetFinalBaseColor() * GetContentInternalColor(),
+                                 context.ClipContext);
     }
     else
     {
       context.CommandBuffer.DrawRotated90CW(m_content.Get(), context.TargetRect.Location(), RenderSizePx(),
-                                            GetFinalBaseColor() * GetContentInternalColor());
+                                            GetFinalBaseColor() * GetContentInternalColor(), context.ClipContext);
     }
   }
 

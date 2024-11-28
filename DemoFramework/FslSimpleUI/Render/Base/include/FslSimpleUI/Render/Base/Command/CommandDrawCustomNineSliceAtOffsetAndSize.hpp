@@ -40,7 +40,7 @@ namespace Fsl::UI
     constexpr explicit CommandDrawCustomNineSliceAtOffsetAndSize(const EncodedCommand& command) noexcept
       : EncodedCommand(command)
     {
-      assert(command.Type == DrawCommandType::DrawCustomNineSliceAtOffsetAndSize);
+      assert(command.State.Type() == DrawCommandType::DrawCustomNineSliceAtOffsetAndSize);
     }
 
     constexpr MeshHandle GetMesh() const noexcept
@@ -69,9 +69,10 @@ namespace Fsl::UI
     }
 
     inline constexpr static EncodedCommand Encode(const MeshHandle hMesh, const PxVector2& dstPositionPxf, const PxSize2D dstSizePx,
-                                                  const UIRenderColor dstColor, const uint32_t customDrawFunctionIndex) noexcept
+                                                  const UIRenderColor dstColor, const DrawClipContext& clipContext,
+                                                  const uint32_t customDrawFunctionIndex) noexcept
     {
-      return {DrawCommandType::DrawCustomNineSliceAtOffsetAndSize, hMesh, dstPositionPxf, dstSizePx, dstColor, customDrawFunctionIndex};
+      return {DrawCommandType::DrawCustomNineSliceAtOffsetAndSize, hMesh, dstPositionPxf, dstSizePx, dstColor, clipContext, customDrawFunctionIndex};
     }
   };
 }

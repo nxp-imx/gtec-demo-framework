@@ -49,12 +49,19 @@ namespace Fsl::UI::RenderIMBatch
   class BasicPreprocessor
   {
     bool m_allowDepthBuffer;
+    PxSize2D m_windowSizePx;
     PreprocessResult m_result;
 
   public:
-    explicit BasicPreprocessor(const bool allowDepthBuffer)
+    explicit BasicPreprocessor(const bool allowDepthBuffer, const PxSize2D windowSizePx)
       : m_allowDepthBuffer(allowDepthBuffer)
+      , m_windowSizePx(windowSizePx)
     {
+    }
+
+    void OnConfigurationChanged(const PxSize2D windowSizePx)
+    {
+      m_windowSizePx = windowSizePx;
     }
 
     inline void Process(std::vector<ProcessedCommandRecord>& rProcessedCommandRecords, ReadOnlySpan<EncodedCommand> commandSpan,
@@ -63,13 +70,13 @@ namespace Fsl::UI::RenderIMBatch
       if (m_allowDepthBuffer)
       {
         // When we have a depth buffer we split the opaque and transparent commands
-        m_result = PreprocessUtil::Preprocess(rProcessedCommandRecords, commandSpan, meshManager);
+        m_result = PreprocessUtil::Preprocess(rProcessedCommandRecords, commandSpan, meshManager, m_windowSizePx);
       }
       else
       {
         // When we have no depth buffer we force process all entries into the same render queue
         // to preserve the draw order
-        m_result = PreprocessUtil::PreprocessForceTransparent(rProcessedCommandRecords, commandSpan, meshManager);
+        m_result = PreprocessUtil::PreprocessForceTransparent(rProcessedCommandRecords, commandSpan, meshManager, m_windowSizePx);
       }
       assert(m_allowDepthBuffer || GetOpaqueSpan(rProcessedCommandRecords).empty());
     }

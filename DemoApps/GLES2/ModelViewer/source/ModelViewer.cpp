@@ -54,7 +54,6 @@ namespace Fsl
 {
   using namespace GLES2;
 
-
   namespace
   {
     constexpr int32_t GraphRes = 20000;
@@ -236,7 +235,7 @@ namespace Fsl
       event.Handled();
       break;
     default:
-      DemoAppGLES2::OnKeyEvent(event);
+      base_type::OnKeyEvent(event);
       break;
     }
   }
@@ -269,7 +268,7 @@ namespace Fsl
       }
       break;
     default:
-      DemoAppGLES2::OnMouseButtonEvent(event);
+      base_type::OnMouseButtonEvent(event);
       break;
     }
   }
@@ -277,7 +276,7 @@ namespace Fsl
 
   void ModelViewer::OnMouseMoveEvent(const MouseMoveEvent& event)
   {
-    DemoAppGLES2::OnMouseMoveEvent(event);
+    base_type::OnMouseMoveEvent(event);
 
     if (m_camera.IsDragging())
     {
@@ -289,8 +288,15 @@ namespace Fsl
 
   void ModelViewer::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
-    DemoAppGLES2::OnMouseWheelEvent(event);
+    base_type::OnMouseWheelEvent(event);
     m_camera.AddZoom(static_cast<float>(event.GetDelta()) * -0.001f);
+  }
+
+
+  void ModelViewer::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
+  {
+    base_type::ConfigurationChanged(windowMetrics);
+    m_camera.SetScreenResolution(windowMetrics.GetSizePx());
   }
 
 

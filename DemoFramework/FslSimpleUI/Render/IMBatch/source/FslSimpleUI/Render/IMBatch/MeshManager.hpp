@@ -35,6 +35,8 @@
 #include <FslBase/Span/SpanUtil_Vector.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFontGlyphPosition.hpp>
+#include <FslGraphics/Sprite/IImageSprite.hpp>
+#include <FslGraphics/Sprite/INineSliceSprite.hpp>
 #include <FslGraphics/Sprite/ISprite.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
 #include <FslSimpleUI/Render/Base/DrawCommandBufferEx.hpp>
@@ -45,6 +47,9 @@
 #include <vector>
 #include "MaterialLookup.hpp"
 #include "MeshTransparencyFlags.hpp"
+#include "Primitive/ImageRenderPrimitive.hpp"
+#include "Primitive/NineSliceRenderPrimitive.hpp"
+#include "Primitive/SpriteFontRenderPrimitive.hpp"
 #include "RenderDrawSpriteType.hpp"
 
 namespace Fsl
@@ -86,21 +91,19 @@ namespace Fsl::UI::RenderIMBatch
 
     struct DummySpriteMeshRecord
     {
+      ImageRenderPrimitive Primitive;
       std::shared_ptr<ISprite> Sprite;
       BatchMaterialHandle MaterialHandle;
       uint32_t SpriteMaterialIndex{0};
-      uint32_t VertexCapacity{0};
-      uint32_t IndexCapacity{0};
       bool IsOpaque{false};
 
       DummySpriteMeshRecord() = default;
-      DummySpriteMeshRecord(std::shared_ptr<ISprite> sprite, const BatchMaterialHandle materialHandle, const uint32_t spriteMaterialIndex,
-                            const bool isOpaque, const uint32_t vertexCapacity, const uint32_t indexCapacity)
-        : Sprite(std::move(sprite))
+      DummySpriteMeshRecord(const ImageRenderPrimitive& primitive, std::shared_ptr<ISprite> sprite, const BatchMaterialHandle materialHandle,
+                            const uint32_t spriteMaterialIndex, const bool isOpaque)
+        : Primitive(primitive)
+        , Sprite(std::move(sprite))
         , MaterialHandle(materialHandle)
         , SpriteMaterialIndex(spriteMaterialIndex)
-        , VertexCapacity(vertexCapacity)
-        , IndexCapacity(indexCapacity)
         , IsOpaque(isOpaque)
       {
       }
@@ -110,23 +113,21 @@ namespace Fsl::UI::RenderIMBatch
       }
     };
 
-    struct BasicImageSpriteMeshRecord
+    struct ImageMeshRecord
     {
-      std::shared_ptr<BasicImageSprite> Sprite;
+      ImageRenderPrimitive Primitive;
+      std::shared_ptr<IImageSprite> Sprite;
       BatchMaterialHandle MaterialHandle;
       uint32_t SpriteMaterialIndex{0};
-      uint32_t VertexCapacity{0};
-      uint32_t IndexCapacity{0};
       bool IsOpaque{false};
 
-      BasicImageSpriteMeshRecord() = default;
-      BasicImageSpriteMeshRecord(std::shared_ptr<BasicImageSprite> sprite, const BatchMaterialHandle materialHandle,
-                                 const uint32_t spriteMaterialIndex, const bool isOpaque, const uint32_t vertexCapacity, const uint32_t indexCapacity)
-        : Sprite(std::move(sprite))
+      ImageMeshRecord() = default;
+      ImageMeshRecord(const ImageRenderPrimitive& primitive, std::shared_ptr<IImageSprite> sprite, const BatchMaterialHandle materialHandle,
+                      const uint32_t spriteMaterialIndex, const bool isOpaque)
+        : Primitive(primitive)
+        , Sprite(std::move(sprite))
         , MaterialHandle(materialHandle)
         , SpriteMaterialIndex(spriteMaterialIndex)
-        , VertexCapacity(vertexCapacity)
-        , IndexCapacity(indexCapacity)
         , IsOpaque(isOpaque)
       {
       }
@@ -136,76 +137,21 @@ namespace Fsl::UI::RenderIMBatch
       }
     };
 
-    struct BasicNineSliceSpriteMeshRecord
+    struct NineSliceMeshRecord
     {
-      std::shared_ptr<BasicNineSliceSprite> Sprite;
+      NineSliceRenderPrimitive Primitive;
+      std::shared_ptr<INineSliceSprite> Sprite;
       BatchMaterialHandle MaterialHandle;
       uint32_t SpriteMaterialIndex{0};
-      uint32_t VertexCapacity{0};
-      uint32_t IndexCapacity{0};
       bool IsOpaque{false};
 
-      BasicNineSliceSpriteMeshRecord() = default;
-      BasicNineSliceSpriteMeshRecord(std::shared_ptr<BasicNineSliceSprite> sprite, const BatchMaterialHandle materialHandle,
-                                     const uint32_t spriteMaterialIndex, const bool isOpaque, const uint32_t vertexCapacity,
-                                     const uint32_t indexCapacity)
-        : Sprite(std::move(sprite))
+      NineSliceMeshRecord() = default;
+      NineSliceMeshRecord(const NineSliceRenderPrimitive& primitive, std::shared_ptr<INineSliceSprite> sprite,
+                          const BatchMaterialHandle materialHandle, const uint32_t spriteMaterialIndex, const bool isOpaque)
+        : Primitive(primitive)
+        , Sprite(std::move(sprite))
         , MaterialHandle(materialHandle)
         , SpriteMaterialIndex(spriteMaterialIndex)
-        , VertexCapacity(vertexCapacity)
-        , IndexCapacity(indexCapacity)
-        , IsOpaque(isOpaque)
-      {
-      }
-
-      void UpdateCache()
-      {
-      }
-    };
-
-    struct ImageSpriteMeshRecord
-    {
-      std::shared_ptr<ImageSprite> Sprite;
-      BatchMaterialHandle MaterialHandle;
-      uint32_t SpriteMaterialIndex{0};
-      uint32_t VertexCapacity{0};
-      uint32_t IndexCapacity{0};
-      bool IsOpaque{false};
-
-      ImageSpriteMeshRecord() = default;
-      ImageSpriteMeshRecord(std::shared_ptr<ImageSprite> sprite, const BatchMaterialHandle materialHandle, const uint32_t spriteMaterialIndex,
-                            const bool isOpaque, const uint32_t vertexCapacity, const uint32_t indexCapacity)
-        : Sprite(std::move(sprite))
-        , MaterialHandle(materialHandle)
-        , SpriteMaterialIndex(spriteMaterialIndex)
-        , VertexCapacity(vertexCapacity)
-        , IndexCapacity(indexCapacity)
-        , IsOpaque(isOpaque)
-      {
-      }
-
-      void UpdateCache()
-      {
-      }
-    };
-
-    struct NineSliceSpriteMeshRecord
-    {
-      std::shared_ptr<NineSliceSprite> Sprite;
-      BatchMaterialHandle MaterialHandle;
-      uint32_t SpriteMaterialIndex{0};
-      uint32_t VertexCapacity{0};
-      uint32_t IndexCapacity{0};
-      bool IsOpaque{false};
-
-      NineSliceSpriteMeshRecord() = default;
-      NineSliceSpriteMeshRecord(std::shared_ptr<NineSliceSprite> sprite, const BatchMaterialHandle materialHandle, const uint32_t spriteMaterialIndex,
-                                const bool isOpaque, const uint32_t vertexCapacity, const uint32_t indexCapacity)
-        : Sprite(std::move(sprite))
-        , MaterialHandle(materialHandle)
-        , SpriteMaterialIndex(spriteMaterialIndex)
-        , VertexCapacity(vertexCapacity)
-        , IndexCapacity(indexCapacity)
         , IsOpaque(isOpaque)
       {
       }
@@ -230,27 +176,25 @@ namespace Fsl::UI::RenderIMBatch
 
     struct OptimizedNineSliceSpriteMeshRecord
     {
+      NineSliceRenderPrimitive Primitive;
       std::shared_ptr<OptimizedNineSliceSprite> Sprite;
       BatchMaterialHandle OpaqueMaterialHandle;
       uint32_t OpaqueSpriteMaterialIndex{0};
       BatchMaterialHandle TransparentMaterialHandle;
       uint32_t TransparentSpriteMaterialIndex{0};
-      uint32_t VertexCapacity{0};
-      uint32_t IndexCapacity{0};
       MeshTransparencyFlags Transparency{MeshTransparencyFlags::Opaque};
 
       OptimizedNineSliceSpriteMeshRecord() = default;
-      OptimizedNineSliceSpriteMeshRecord(std::shared_ptr<OptimizedNineSliceSprite> sprite, const BatchMaterialHandle opaqueMaterialHandle,
-                                         const uint32_t opaqueSpriteMaterialIndex, const BatchMaterialHandle transparentMaterialHandle,
-                                         const uint32_t transparentSpriteMaterialIndex, const uint32_t vertexCapacity, const uint32_t indexCapacity,
+      OptimizedNineSliceSpriteMeshRecord(const NineSliceRenderPrimitive& primitive, std::shared_ptr<OptimizedNineSliceSprite> sprite,
+                                         const BatchMaterialHandle opaqueMaterialHandle, const uint32_t opaqueSpriteMaterialIndex,
+                                         const BatchMaterialHandle transparentMaterialHandle, const uint32_t transparentSpriteMaterialIndex,
                                          const MeshTransparencyFlags meshTransparency)
-        : Sprite(std::move(sprite))
+        : Primitive(primitive)
+        , Sprite(std::move(sprite))
         , OpaqueMaterialHandle(opaqueMaterialHandle)
         , OpaqueSpriteMaterialIndex(opaqueSpriteMaterialIndex)
         , TransparentMaterialHandle(transparentMaterialHandle)
         , TransparentSpriteMaterialIndex(transparentSpriteMaterialIndex)
-        , VertexCapacity(vertexCapacity)
-        , IndexCapacity(indexCapacity)
         , Transparency(meshTransparency)
       {
       }
@@ -291,6 +235,7 @@ namespace Fsl::UI::RenderIMBatch
 
     struct SpriteFontMeshRecord
     {
+      SpriteFontRenderPrimitive Primitive;
       std::shared_ptr<SpriteFont> Sprite;
       // NOLINTNEXTLINE(readability-identifier-naming)
       std::string m_text;
@@ -300,18 +245,15 @@ namespace Fsl::UI::RenderIMBatch
       uint32_t m_glyphCount{};
       BatchMaterialHandle MaterialHandle;
       uint32_t SpriteMaterialIndex{0};
-      uint32_t VertexCapacity{0};
-      uint32_t IndexCapacity{0};
       bool IsOpaque{false};
 
       SpriteFontMeshRecord() = default;
-      SpriteFontMeshRecord(std::shared_ptr<SpriteFont> sprite, const BatchMaterialHandle materialHandle, const uint32_t spriteMaterialIndex,
-                           const bool isOpaque, const uint32_t vertexCapacity, const uint32_t indexCapacity)
-        : Sprite(std::move(sprite))
+      SpriteFontMeshRecord(const SpriteFontRenderPrimitive& primitive, std::shared_ptr<SpriteFont> sprite, const BatchMaterialHandle materialHandle,
+                           const uint32_t spriteMaterialIndex, const bool isOpaque)
+        : Primitive(primitive)
+        , Sprite(std::move(sprite))
         , MaterialHandle(materialHandle)
         , SpriteMaterialIndex(spriteMaterialIndex)
-        , VertexCapacity(vertexCapacity)
-        , IndexCapacity(indexCapacity)
         , IsOpaque(isOpaque)
       {
       }
@@ -341,10 +283,8 @@ namespace Fsl::UI::RenderIMBatch
   private:
     MaterialLookup m_materialLookup;
     HandleVector<DummySpriteMeshRecord> m_meshesDummy;
-    HandleVector<BasicImageSpriteMeshRecord> m_meshesBasicImageSprite;
-    HandleVector<BasicNineSliceSpriteMeshRecord> m_meshesBasicNineSliceSprite;
-    HandleVector<ImageSpriteMeshRecord> m_meshesImageSprite;
-    HandleVector<NineSliceSpriteMeshRecord> m_meshesNineSliceSprite;
+    HandleVector<ImageMeshRecord> m_meshesImageSprite;
+    HandleVector<NineSliceMeshRecord> m_meshesNineSliceSprite;
     HandleVector<OptimizedNineSliceSpriteMeshRecord> m_meshesOptimizedNineSliceSprite;
     HandleVector<SpriteFontMeshRecord> m_meshesSpriteFont;
     Capacity m_capacity;
@@ -365,27 +305,16 @@ namespace Fsl::UI::RenderIMBatch
     uint32_t GetMeshCount() const noexcept
     {
       // return m_meshes.Count();
-      return m_meshesBasicImageSprite.Count() + m_meshesBasicNineSliceSprite.Count() + m_meshesImageSprite.Count() + m_meshesNineSliceSprite.Count() +
-             m_meshesOptimizedNineSliceSprite.Count() + m_meshesSpriteFont.Count();
+      return m_meshesImageSprite.Count() + m_meshesNineSliceSprite.Count() + m_meshesOptimizedNineSliceSprite.Count() + m_meshesSpriteFont.Count();
     }
 
 
-    const BasicImageSpriteMeshRecord& UncheckedGetBasicImageSprite(const int32_t handle) const noexcept
-    {
-      return m_meshesBasicImageSprite.FastGet(handle);
-    }
-
-    const BasicNineSliceSpriteMeshRecord& UncheckedGetBasicNineSliceSprite(const int32_t handle) const noexcept
-    {
-      return m_meshesBasicNineSliceSprite.FastGet(handle);
-    }
-
-    const ImageSpriteMeshRecord& UncheckedGetImageSprite(const int32_t handle) const noexcept
+    const ImageMeshRecord& UncheckedGetImageSprite(const int32_t handle) const noexcept
     {
       return m_meshesImageSprite.FastGet(handle);
     }
 
-    const NineSliceSpriteMeshRecord& UncheckedGetNineSliceSprite(const int32_t handle) const noexcept
+    const NineSliceMeshRecord& UncheckedGetNineSliceSprite(const int32_t handle) const noexcept
     {
       return m_meshesNineSliceSprite.FastGet(handle);
     }

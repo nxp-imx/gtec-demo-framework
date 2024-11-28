@@ -40,7 +40,7 @@ namespace Fsl
     using value_type = float;
     using raw_value_type = float;
 
-    value_type Value{0};
+    float Value{0};
 
     inline constexpr DpValueF() noexcept = default;
 

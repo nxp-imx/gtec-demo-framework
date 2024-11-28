@@ -37,6 +37,7 @@
 #include <FslSimpleUI/Base/DefaultAnim.hpp>
 #include <FslSimpleUI/Base/Event/WindowMouseOverEvent.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
+#include <FslSimpleUI/Render/Base/DrawClipContext.hpp>
 #include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
 
 namespace Fsl::UI
@@ -70,7 +71,8 @@ namespace Fsl::UI
 
 
   void SliderRenderImpl::Draw(DrawCommandBuffer& commandBuffer, const PxVector2 dstPositionPxf, const UIRenderColor finalColor,
-                              const PxValue cursorPositionPx, const bool isDragging, const SpriteUnitConverter& spriteUnitConverter)
+                              const PxValue cursorPositionPx, const bool isDragging, const DrawClipContext& clipContext,
+                              const SpriteUnitConverter& spriteUnitConverter)
   {
     FSL_PARAM_NOT_USED(isDragging);
 
@@ -80,12 +82,13 @@ namespace Fsl::UI
       if (!m_verticalGraphicsRotationEnabled)
       {
         // ImageImpl::Draw(batch, pSprite, dstPositionPxf, renderSizePx, backgroundColor);
-        commandBuffer.Draw(m_background.Sprite.Get(), dstPositionPxf, m_arrangeCache.RenderSizePx, finalColor * backgroundColor);
+        commandBuffer.Draw(m_background.Sprite.Get(), dstPositionPxf, m_arrangeCache.RenderSizePx, finalColor * backgroundColor, clipContext);
       }
       else
       {
         // ImageImpl::DrawRotated90CW(batch, pSprite, dstPositionPxf, renderSizePx, backgroundColor);
-        commandBuffer.DrawRotated90CW(m_background.Sprite.Get(), dstPositionPxf, m_arrangeCache.RenderSizePx, finalColor * backgroundColor);
+        commandBuffer.DrawRotated90CW(m_background.Sprite.Get(), dstPositionPxf, m_arrangeCache.RenderSizePx, finalColor * backgroundColor,
+                                      clipContext);
       }
     }
 
@@ -100,26 +103,26 @@ namespace Fsl::UI
       {
         PxVector2 cursorPositionPxf(dstPositionPxf.X + TypeConverter::UncheckedTo<PxValueF>(cursorPositionPx - cursorOriginPx.X), dstPositionPxf.Y);
 
-        commandBuffer.Draw(m_cursor.Sprite.Get(), cursorPositionPxf, cursorRenderSizePx, finalColor * cursorColor);
+        commandBuffer.Draw(m_cursor.Sprite.Get(), cursorPositionPxf, cursorRenderSizePx, finalColor * cursorColor, clipContext);
 
         // Draw the overlay (if enabled)
         if (m_cursorOverlay.Sprite.IsValid() && m_cursorOverlay.CurrentColor.GetValue().RawA() > 0)
         {
           commandBuffer.Draw(m_cursorOverlay.Sprite.Get(), cursorPositionPxf, m_cursorOverlay.Sprite.FastGetRenderSizePx(),
-                             finalColor * m_cursorOverlay.CurrentColor.GetValue());
+                             finalColor * m_cursorOverlay.CurrentColor.GetValue(), clipContext);
         }
       }
       else
       {
         PxVector2 cursorPositionPxf(dstPositionPxf.X, dstPositionPxf.Y + TypeConverter::UncheckedTo<PxValueF>(cursorPositionPx - cursorOriginPx.Y));
 
-        commandBuffer.Draw(m_cursor.Sprite.Get(), cursorPositionPxf, cursorRenderSizePx, finalColor * cursorColor);
+        commandBuffer.Draw(m_cursor.Sprite.Get(), cursorPositionPxf, cursorRenderSizePx, finalColor * cursorColor, clipContext);
 
         // Draw the overlay (if enabled)
         if (m_cursorOverlay.Sprite.IsValid() && m_cursorOverlay.CurrentColor.GetValue().RawA() > 0)
         {
           commandBuffer.Draw(m_cursorOverlay.Sprite.Get(), cursorPositionPxf, m_cursorOverlay.Sprite.FastGetRenderSizePx(),
-                             finalColor * m_cursorOverlay.CurrentColor.GetValue());
+                             finalColor * m_cursorOverlay.CurrentColor.GetValue(), clipContext);
         }
       }
     }

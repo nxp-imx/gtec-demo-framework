@@ -36,6 +36,7 @@
 #include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <Shared/UI/Benchmark/App/ITestApp.hpp>
+#include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkScene.hpp>
 #include <memory>
 #include <vector>
 
@@ -65,14 +66,20 @@ namespace Fsl
       bool EmulateDpiEnabled{false};
       uint16_t EmulatedDpi{0};
       PxViewport AppViewportPx;
+      bool AppClipEnabled{false};
+      PxRectangle AppClipRectanglePx;
 
-      constexpr ConfigRecord(const bool emulateDpiEnabled, const uint16_t emulatedDpi, const PxViewport appViewportPx)
+      constexpr ConfigRecord(const bool emulateDpiEnabled, const uint16_t emulatedDpi, const PxViewport appViewportPx, const bool appClipEnabled,
+                             const PxRectangle& appClipRectanglePx)
         : EmulateDpiEnabled(emulateDpiEnabled)
         , EmulatedDpi(emulatedDpi)
         , AppViewportPx(appViewportPx)
+        , AppClipEnabled(appClipEnabled)
+        , AppClipRectanglePx(appClipRectanglePx)
       {
       }
     };
+
     struct AppRecord
     {
       std::unique_ptr<ITestApp> TestApp;
@@ -86,6 +93,7 @@ namespace Fsl
     ConfigRecord m_config;
     DemoWindowMetrics m_realWindowMetrics;
     DemoWindowMetrics m_appWindowMetrics;
+    AppBenchmarkScene m_benchmarkScene;
     std::shared_ptr<IDemoAppControl> m_demoAppControl;
     std::shared_ptr<DemoPerformanceCapture> m_demoPerformanceCapture;
 
@@ -95,7 +103,8 @@ namespace Fsl
     AppRecord m_appRecord;
 
   public:
-    TestAppHost(const ServiceProvider& serviceProvider, const DemoWindowMetrics& windowMetrics, const bool useCustomModule = false);
+    TestAppHost(const ServiceProvider& serviceProvider, const DemoWindowMetrics& windowMetrics, const AppBenchmarkScene benchmarkScene,
+                const bool useCustomModule = false);
     ~TestAppHost() override;
 
     UI::UIColor GetRootColor() const;
@@ -118,6 +127,8 @@ namespace Fsl
     void StopTestApp();
 
     void SetAppRectangle(const PxRectangle& appRectPx);
+    void SetAppClipRectangle(const bool enabled, const PxRectangle& clipRectanglePx);
+
 
     void AppUpdate(const DemoTime& demoTime);
     void AppDraw(const DemoTime& demoTime);

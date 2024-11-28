@@ -223,7 +223,8 @@ namespace Fsl::UI
       // ImageImpl::Draw(*m_windowContext->Batch2D, backgroundSprite, context.TargetRect.Location(), renderSizePx,
       // m_backgroundCurrentColor.GetValue());
       const auto hMesh = (!IsEnabled() || !m_isHovering) ? m_background.Sprite.Get() : m_background.HoverSprite.Get();
-      context.CommandBuffer.Draw(hMesh, context.TargetRect.Location(), renderSizePx, finalColor * m_backgroundCurrentColor.GetValue());
+      context.CommandBuffer.Draw(hMesh, context.TargetRect.Location(), renderSizePx, finalColor * m_backgroundCurrentColor.GetValue(),
+                                 context.ClipContext);
     }
 
     {
@@ -232,7 +233,7 @@ namespace Fsl::UI
       PxPoint2 adjustPx = (renderSizePx - desiredImageSizePx) / PxValue(2);
       PxVector2 dstPositionPxf = context.TargetRect.Location() + TypeConverter::To<PxVector2>(adjustPx);
       // ImageImpl::Draw(*m_windowContext->Batch2D, m_content.get(), dstPositionPxf, desiredImageSize, m_currentColor.GetValue());
-      context.CommandBuffer.Draw(m_content.Get(), dstPositionPxf, desiredImageSizePx, finalColor * m_currentColor.GetValue());
+      context.CommandBuffer.Draw(m_content.Get(), dstPositionPxf, desiredImageSizePx, finalColor * m_currentColor.GetValue(), context.ClipContext);
     }
   }
 

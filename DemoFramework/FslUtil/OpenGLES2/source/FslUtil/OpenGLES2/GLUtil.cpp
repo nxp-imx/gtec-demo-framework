@@ -41,9 +41,9 @@
 #include <cassert>
 #include <cstring>
 
-namespace Fsl::GLES2
+namespace Fsl::GLES2::GLUtil
 {
-  std::vector<StringViewLite> GLUtil::GetExtensions()
+  std::vector<StringViewLite> GetExtensions()
   {
     const auto* pszExtensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
     if (pszExtensions == nullptr)
@@ -55,7 +55,7 @@ namespace Fsl::GLES2
   }
 
 
-  bool GLUtil::HasExtension(const char* const pszExtensionName)
+  bool HasExtension(const char* const pszExtensionName)
   {
     if (pszExtensionName == nullptr)
     {
@@ -94,7 +94,7 @@ namespace Fsl::GLES2
     return false;
   }
 
-  void GLUtil::Capture(Bitmap& rBitmap, const PixelFormat pixelFormat)
+  void Capture(Bitmap& rBitmap, const PixelFormat pixelFormat)
   {
     // Read the viewport to get the current size
     std::array<GLint, 4> viewport{};
@@ -105,7 +105,7 @@ namespace Fsl::GLES2
   }
 
 
-  void GLUtil::Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const PxRectangle& srcRectanglePx)
+  void Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const PxRectangle& srcRectanglePx)
   {
     // We don't need to clear as we are going to overwrite everything anyway
     // We utilize PixelFormatLayout::R8G8B8A8 here since that is what glReadPixels is filling it with
@@ -126,7 +126,7 @@ namespace Fsl::GLES2
   }
 
 
-  GLenum GLUtil::Convert(const PrimitiveType primitiveType)
+  GLenum Convert(const PrimitiveType primitiveType)
   {
     switch (primitiveType)
     {
@@ -144,7 +144,7 @@ namespace Fsl::GLES2
   }
 
 
-  std::vector<GLint> GLUtil::GetCompressedTextureFormats()
+  std::vector<GLint> GetCompressedTextureFormats()
   {
     GLint count = 0;
     glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &count);

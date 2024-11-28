@@ -723,7 +723,7 @@ def _ScanPackageContent(log: Log, licenseConfig: LicenseConfig, scanPackageList:
             if not disableWrite and package.AbsolutePath is not None:
                 dstFilename = IOUtil.Join(package.AbsolutePath, licenseConfig.LicenseFilename)
                 licenseManager.WriteLicenseIfChanged(log, dstFilename, packageLicense)
-        elif package.Type == PackageType.Executable and package.AbsolutePath is not None and not disableWrite:
+        elif package.AllowCheck and package.Type == PackageType.Executable and package.AbsolutePath is not None and not disableWrite:
             # no licenses, so remove the license if it exist
             dstFilename = IOUtil.Join(package.AbsolutePath, licenseConfig.LicenseFilename)
             if IOUtil.IsFile(dstFilename):

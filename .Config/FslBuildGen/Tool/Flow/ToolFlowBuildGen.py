@@ -195,11 +195,11 @@ class ToolFlowBuildGen(AToolAppFlow):
 
                 localToolConfigCommand = CommandType.Config;
                 localToolConfigEnableContentBuilder = True
-                localToolConfigForAllExe = None
+                localToolConfigForAllConfig = None
 
                 Builder.BuildPackages(self.Log, config.GetBuildDir(), config.SDKPath, config.SDKConfigTemplatePath, config.DisableWrite, config.IsDryRun,
                                       toolConfig, generatorContext, packages, requestedPackages, localToolConfig.BuildVariantConstraints,
-                                      localToolConfig.RemainingArgs, localToolConfigForAllExe, platformGeneratorPlugin,
+                                      localToolConfig.RemainingArgs, localToolConfigForAllConfig, platformGeneratorPlugin,
                                       localToolConfigEnableContentBuilder, localToolConfig.ForceClaimInstallArea, localToolConfig.BuildThreads,
                                       localToolConfigCommand, [], True)
 

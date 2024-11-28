@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/BasicTypes.hpp>
 #include <FslGraphics/Debug/Render/Basic/DebugBasicFrontFace.hpp>
 #include <ostream>
 

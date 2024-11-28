@@ -93,6 +93,8 @@ O           | Toggle on demand rendering on/off
 S           | Toggle SDF fonts on/off
 E           | Toggle emulate dpi on/off
 F2          | Show the 'root' color changer
+F3          | Toggle root UI clipping rectangle editing on/off.
+F4          | Toggle root UI clipping on/off.
 Left arrow  | dpi slider decrease
 Right arrow | dpi slider increase
 Up arrow    | dpi slider increase by one
@@ -136,6 +138,7 @@ Command line arguments':
 
 Argument                        |Description                                                                                                                                                         |Source
 --------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------
+--BenchmarkScene \<arg>         |Select the benchmark scene to use: 0 (default), dev                                                                                                                 |Demo
 --Compare \<arg>                |Always compare a benchmark to the supplied result file                                                                                                              |Demo
 --NoChart                       |Disable the chart UI                                                                                                                                                |Demo
 --RunDefaultBench               |Run the default bench, this forces the use of the default input recording and forces the scene to bench                                                             |Demo

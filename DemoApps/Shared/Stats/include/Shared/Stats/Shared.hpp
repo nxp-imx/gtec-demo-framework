@@ -82,7 +82,7 @@ namespace Fsl
 
 
       explicit ChartDataRecord(ChardRecord appCpu, std::vector<ChardRecord>&& cores, std::shared_ptr<UI::ChartData>&& appRam)
-        : AppCpu(std::move(std::move(appCpu)))
+        : AppCpu(std::move(appCpu))
         , Cores(std::move(cores))
         , AppRam(std::move(appRam))
       {

@@ -211,7 +211,7 @@ namespace Fsl::UI
       SliderBase<T>::WinDraw(context);
 
       m_impl.Draw(context.CommandBuffer, context.TargetRect.Location(), this->GetFinalBaseColor(), this->GetCursorPositionPx(), this->IsDragging(),
-                  this->m_windowContext->UnitConverter);
+                  context.ClipContext, this->m_windowContext->UnitConverter);
     }
 
   protected:

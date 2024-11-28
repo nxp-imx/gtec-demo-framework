@@ -41,6 +41,7 @@ namespace Fsl::UI
     Tap,
     Flick,
     FreeDrag,
+    DragCanceled,
     DragComplete
   };
 }

@@ -46,6 +46,7 @@ Command line arguments':
 
 Argument                        |Description                                                                                                                                                         |Source
 --------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------
+--SaveXsd \<arg>                |Save the current UI XSD file                                                                                                                                        |Demo
 --ActualDpi \<arg>              |ActualDpi [x,y] Override the actual dpi reported by the native window                                                                                               |DemoHost
 --DensityDpi \<arg>             |DensityDpi \<number> Override the density dpi reported by the native window                                                                                         |DemoHost
 --DisplayId \<arg>              |DisplayId \<number>                                                                                                                                                 |DemoHost

@@ -664,7 +664,7 @@ namespace Fsl::VulkanBasic
 
 
   Vulkan::VUImageMemoryView DemoAppVulkanBasic::CreateBasicDepthImageView(const Vulkan::VUDevice& device, const VkExtent2D& depthImageExtent,
-                                                                          const VkCommandPool commandPool)
+                                                                          const VkCommandPool commandPool, const VkSampleCountFlagBits sampleCount)
   {
     FSLLOG3_VERBOSE2("DemoAppVulkanBasic::CreateBasicDepthImageView()");
 
@@ -677,7 +677,7 @@ namespace Fsl::VulkanBasic
     imageCreateInfo.extent = {depthImageExtent.width, depthImageExtent.height, 1};
     imageCreateInfo.mipLevels = 1;
     imageCreateInfo.arrayLayers = 1;
-    imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imageCreateInfo.samples = sampleCount;
     imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     imageCreateInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
     imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;

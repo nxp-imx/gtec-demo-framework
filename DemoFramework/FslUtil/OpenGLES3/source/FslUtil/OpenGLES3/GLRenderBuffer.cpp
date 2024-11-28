@@ -49,6 +49,13 @@ namespace Fsl::GLES3
   }
 
 
+  GLRenderBuffer::GLRenderBuffer(const GLuint handle, const PxSize2D& size, const GLenum format)
+    : m_handle(GLValues::InvalidHandle)
+  {
+    Reset(handle, size, format);
+  }
+
+
   GLRenderBuffer::~GLRenderBuffer()
   {
     Reset();
@@ -76,5 +83,17 @@ namespace Fsl::GLES3
     GL_CHECK(glGenRenderbuffers(1, &m_handle));
     GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, m_handle));
     GL_CHECK(glRenderbufferStorage(GL_RENDERBUFFER, format, size.RawWidth(), size.RawHeight()));
+  }
+
+  void GLRenderBuffer::Reset(const GLuint handle, const PxSize2D& size, const GLenum format)
+  {
+    if (m_handle != GLValues::InvalidHandle)
+    {
+      Reset();
+    }
+
+    m_handle = handle;
+    m_format = format;
+    m_size = size;
   }
 }

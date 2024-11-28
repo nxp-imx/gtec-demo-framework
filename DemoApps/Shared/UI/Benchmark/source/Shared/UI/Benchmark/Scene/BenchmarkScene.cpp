@@ -58,7 +58,7 @@ namespace Fsl
       return {createInfo.AppInfo.Name,
               createInfo.AppInfo.Version,
               createInfo.AppInfo.DebugMode,
-              AppBenchmarkScene::Scene0,
+              createInfo.BenchmarkScene,
               VersionInfo(1, 0),
               createInfo.WindowMetrics.GetSizePx(),
               NumericCast<uint16_t>(createInfo.WindowMetrics.DensityDpi)};

@@ -34,6 +34,7 @@
 #include <FslBase/Math/Dp/DpPoint2.hpp>
 #include <FslBase/Transition/TransitionVector2.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
+#include <FslSimpleUI/Base/ItemTextLocation.hpp>
 #include <FslSimpleUI/Base/Mesh/SimpleSpriteFontMesh.hpp>
 #include <FslSimpleUI/Base/Mesh/SizedSpriteMesh.hpp>
 #include <FslSimpleUI/Base/Property/DependencyPropertyUIColor.hpp>
@@ -54,6 +55,13 @@ namespace Fsl
     class ToggleButton : public BaseWindow
     {
       using base_type = BaseWindow;
+
+      enum class EventButtonState
+      {
+        Up,
+        Down,
+        DownClaimed
+      };
 
       struct FontRecord
       {
@@ -140,11 +148,18 @@ namespace Fsl
       GraphicsRecord m_background;
       HoverOverlayRecord m_hoverOverlay;
       SpriteFontMeasureInfo m_cachedFontMeasureInfo;
+      PxValue m_cachedTextOffsetPx;
+      PxValue m_cachedImageOffsetPx;
+      PxSize1D m_cachedImageSizePx;
+      EventButtonState m_eventButtonState{EventButtonState::Up};
 
       DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyImageAlignment{ItemAlignment::Near};
       DataBinding::TypedDependencyProperty<bool> m_propertyIsChecked{false};
       DataBinding::TypedDependencyProperty<bool> m_propertyIsEnabled{true};
       DataBinding::TypedDependencyProperty<StringViewLite> m_propertyText;
+      DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyTextAlignment{ItemAlignment::Near};
+      DataBinding::TypedDependencyProperty<ItemTextLocation> m_propertyTextLocation{ItemTextLocation::Left};
+
 
     public:
       // NOLINTNEXTLINE(readability-identifier-naming)
@@ -181,6 +196,10 @@ namespace Fsl
       static DataBinding::DependencyPropertyDefinition PropertyIsEnabled;
       // NOLINTNEXTLINE(readability-identifier-naming)
       static DataBinding::DependencyPropertyDefinition PropertyText;
+      // NOLINTNEXTLINE(readability-identifier-naming)
+      static DataBinding::DependencyPropertyDefinition PropertyTextAlignment;
+      // NOLINTNEXTLINE(readability-identifier-naming)
+      static DataBinding::DependencyPropertyDefinition PropertyTextLocation;
 
       explicit ToggleButton(const std::shared_ptr<WindowContext>& context);
 
@@ -214,6 +233,20 @@ namespace Fsl
       {
         return SetText(StringViewLite(str));
       }
+
+      ItemAlignment GetTextAlignment() const noexcept
+      {
+        return m_propertyTextAlignment.Get();
+      }
+
+      bool SetTextAlignment(const ItemAlignment value);
+
+      ItemTextLocation GetTextLocation() const noexcept
+      {
+        return m_propertyTextLocation.Get();
+      }
+
+      bool SetTextLocation(const ItemTextLocation value);
 
       ItemAlignment GetImageAlignment() const noexcept
       {
@@ -362,6 +395,11 @@ namespace Fsl
     protected:
       void OnClickInput(const std::shared_ptr<WindowInputClickEvent>& theEvent) final;
       void OnMouseOver(const std::shared_ptr<WindowMouseOverEvent>& theEvent) final;
+
+      //! Returns the rectangle of the button that is considered a 'claim' area if pressed
+      //! If this returns PxRectangle.Empty then nothing will be considered a claim area
+      //! The rectangle is in window space (so the point 0,0 is at the top left of the window)
+      PxRectangle TryGetButtonClaimRectangle() const noexcept;
 
       PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final;
       PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;

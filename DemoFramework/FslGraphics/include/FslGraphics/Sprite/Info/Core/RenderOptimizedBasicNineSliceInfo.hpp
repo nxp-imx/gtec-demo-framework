@@ -1,7 +1,7 @@
-#ifndef FSLGRAPHICS_SPRITE_INFO_CORE_RENDERNINESLICEINFOEX_HPP
-#define FSLGRAPHICS_SPRITE_INFO_CORE_RENDERNINESLICEINFOEX_HPP
+#ifndef FSLGRAPHICS_SPRITE_INFO_CORE_RENDEROPTIMIZEDBASICNINESLICEINFO_HPP
+#define FSLGRAPHICS_SPRITE_INFO_CORE_RENDEROPTIMIZEDBASICNINESLICEINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2020 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxTrimmedNineSlice.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslBase/Math/Pixel/PxThickness.hpp>
 #include <FslGraphics/NativeNineSliceTextureArea.hpp>
 #include <FslGraphics/TextureAtlas/AtlasNineSliceFlags.hpp>
 
 namespace Fsl
 {
   //! @brief Represents a atlas texture 2d image with no trim
-  struct RenderNineSliceInfoEx
+  struct RenderOptimizedBasicNineSliceInfo
   {
     //! The UV coordinates on the source atlas texture in native texture coordinates
     NativeNineSliceTextureArea TextureArea;
@@ -50,36 +51,32 @@ namespace Fsl
     //! The scaled image size in pixels
     PxSize2D ScaledSizePx;
 
-    //! The scaled image trim in pixels
-    PxThicknessF ScaledTrimMarginPxf;
-
-    //! The scaled trimmed nine slice (basically the nine slice information minus the trim, scaled to the current density)
-    PxThicknessF ScaledTrimmedNineSlicePxf;
+    //! The scaled nine slice
+    PxThickness ScaledNineSlicePx;
 
     //! The scaled content margin
     PxThickness ScaledContentMarginPx;
 
-    constexpr RenderNineSliceInfoEx() = default;
-    constexpr RenderNineSliceInfoEx(const NativeNineSliceTextureArea& imageNativeNineSliceTextureArea, const AtlasNineSliceFlags flags,
-                                    const PxTrimmedNineSlice& trimemdNineSlice)
+    constexpr RenderOptimizedBasicNineSliceInfo() = default;
+    constexpr RenderOptimizedBasicNineSliceInfo(const NativeNineSliceTextureArea& imageNativeNineSliceTextureArea, const AtlasNineSliceFlags flags,
+                                                const PxSize2D scaledImageSizePx, const PxThickness& scaledNineSlicePx,
+                                                const PxThickness& scaledContentMarginPx)
       : TextureArea(imageNativeNineSliceTextureArea)
       , Flags(flags)
-      , ScaledSizePx(trimemdNineSlice.SizePx)
-      , ScaledTrimMarginPxf(trimemdNineSlice.TrimMarginPxf)
-      , ScaledTrimmedNineSlicePxf(trimemdNineSlice.TrimmedNineSlicePxf)
-      , ScaledContentMarginPx(trimemdNineSlice.ContentMarginPx)
+      , ScaledSizePx(scaledImageSizePx)
+      , ScaledNineSlicePx(scaledNineSlicePx)
+      , ScaledContentMarginPx(scaledContentMarginPx)
     {
     }
 
 
-    constexpr bool operator==(const RenderNineSliceInfoEx& rhs) const
+    constexpr bool operator==(const RenderOptimizedBasicNineSliceInfo& rhs) const
     {
-      return TextureArea == rhs.TextureArea && Flags == rhs.Flags && ScaledSizePx == rhs.ScaledSizePx &&
-             ScaledTrimMarginPxf == rhs.ScaledTrimMarginPxf && ScaledTrimmedNineSlicePxf == rhs.ScaledTrimmedNineSlicePxf &&
+      return TextureArea == rhs.TextureArea && Flags == rhs.Flags && ScaledSizePx == rhs.ScaledSizePx && ScaledNineSlicePx == rhs.ScaledNineSlicePx &&
              ScaledContentMarginPx == rhs.ScaledContentMarginPx;
     }
 
-    constexpr bool operator!=(const RenderNineSliceInfoEx& rhs) const
+    constexpr bool operator!=(const RenderOptimizedBasicNineSliceInfo& rhs) const
     {
       return !(*this == rhs);
     }

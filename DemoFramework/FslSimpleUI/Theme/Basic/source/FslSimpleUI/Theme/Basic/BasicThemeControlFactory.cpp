@@ -45,6 +45,7 @@
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/Logic/RadioGroup.hpp>
 #include <FslSimpleUI/Base/Control/RadioButton.hpp>
+#include <FslSimpleUI/Base/Control/ScrollViewer.hpp>
 #include <FslSimpleUI/Base/Control/SimpleImageButton.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
@@ -253,6 +254,26 @@ namespace Fsl::UI::Theme
     default:
       return {};
     }
+  }
+
+
+  std::shared_ptr<ScrollViewer> BasicThemeControlFactory::CreateScrollViewer(const std::shared_ptr<BaseWindow>& content,
+                                                                             const ScrollModeFlags scrollMode, const bool clipContent)
+  {
+    auto control = std::make_shared<ScrollViewer>(m_context);
+    control->SetContent(content);
+
+    control->SetCursorX(m_resources->TexScrollbarH);
+    control->SetCursorY(m_resources->TexScrollbarV);
+    control->SetCursorColor(m_colors.Scrollbar.Cursor);
+
+    control->SetScrollMode(scrollMode);
+    control->SetClipContent(clipContent);
+    control->SetAlignmentX(ItemAlignment::Stretch);
+    control->SetAlignmentY(ItemAlignment::Stretch);
+
+    control->FinishAnimation();
+    return control;
   }
 
 

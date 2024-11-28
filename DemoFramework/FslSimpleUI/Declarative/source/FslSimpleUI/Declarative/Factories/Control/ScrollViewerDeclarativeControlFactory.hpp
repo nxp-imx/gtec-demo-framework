@@ -47,7 +47,7 @@ namespace Fsl::UI::Declarative
 
     std::shared_ptr<BaseWindow> Create(const DeclarativeControlFactoryCreateInfo& createInfo) final
     {
-      return std::make_shared<UI::ScrollViewer>(createInfo.ThemeControlFactory.GetContext());
+      return createInfo.ThemeControlFactory.CreateScrollViewer({}, ScrollModeFlags::NotDefined, false);
     }
   };
 }

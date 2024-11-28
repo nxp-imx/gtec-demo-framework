@@ -133,6 +133,16 @@ namespace Fsl
     FSL_PARAM_NOT_USED(viewportPx);
   }
 
+
+  void UIDemoAppExtensionBase::SYS_SetClipRectangle(const bool enabled, const PxRectangle& clipRectanglePx)
+  {
+    if (m_activitySystem)
+    {
+      m_activitySystem->SetClipRectangle(enabled, clipRectanglePx);
+    }
+  }
+
+
   void UIDemoAppExtensionBase::RegisterEventListener(const std::shared_ptr<UI::IEventListener>& eventListener)
   {
     m_activitySystem->RegisterEventListener(eventListener);

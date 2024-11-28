@@ -36,6 +36,7 @@
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Transition/TransitionUIColor.hpp>
 #include <Shared/UI/Benchmark/DemoAppExtensionForwarder.hpp>
+#include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkScene.hpp>
 #include <Shared/UI/Benchmark/SceneAppInfo.hpp>
 #include <Shared/UI/Benchmark/SceneId.hpp>
 #include <memory>
@@ -91,6 +92,7 @@ namespace Fsl
     ServiceProvider m_serviceProvider;
     IO::Path m_settingsPath;
     std::shared_ptr<AppSettings> m_settings;
+    AppBenchmarkScene m_benchmarkScene{AppBenchmarkScene::Scene0};
 
     SceneRecord m_sceneRecord;
 

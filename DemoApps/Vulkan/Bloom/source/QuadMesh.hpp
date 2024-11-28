@@ -40,7 +40,7 @@ namespace Fsl
   struct QuadMesh
   {
     Vulkan::VMVertexBuffer VertexBuffer;
-    std::array<VkVertexInputAttributeDescription, 2> AttributeDescription;
+    std::array<VkVertexInputAttributeDescription, 2> AttributeDescription{};
     VkVertexInputBindingDescription BindingDescription{};
   };
 }

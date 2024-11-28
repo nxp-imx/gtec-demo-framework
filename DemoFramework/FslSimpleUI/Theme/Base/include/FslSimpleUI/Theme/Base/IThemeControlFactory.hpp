@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Dp/DpThicknessF.hpp>
 #include <FslSimpleUI/Base/Control/FmtValueLabel.hpp>
+#include <FslSimpleUI/Base/Control/ScrollModeFlags.hpp>
 #include <FslSimpleUI/Base/Control/Slider.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <FslSimpleUI/Base/UIColor.hpp>
@@ -68,6 +69,7 @@ namespace Fsl
     class Label;
     class RadioButton;
     class RadioGroup;
+    class ScrollViewer;
     class SimpleImageButton;
     class Switch;
 
@@ -84,6 +86,11 @@ namespace Fsl
         virtual const IThemeResources& GetResources() const = 0;
         virtual UIColor GetThemePrimaryDarkColor() const = 0;
         virtual DpThicknessF GetDefaultMarginDp(const ElementType elementType) const = 0;
+
+        // ----- CreateScrollViewer
+
+        virtual std::shared_ptr<ScrollViewer> CreateScrollViewer(const std::shared_ptr<BaseWindow>& content, const ScrollModeFlags scrollMode,
+                                                                 const bool clipContent) = 0;
 
         // ----- CreateDivider
 

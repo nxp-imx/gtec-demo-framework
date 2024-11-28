@@ -46,7 +46,7 @@ namespace Fsl
 
     static UI::RenderSystemInfo GetRenderSystemInfo(const AppRenderMethod batchMethod);
 
-    std::unique_ptr<ITestApp> Create(const UIDemoAppExtensionCreateInfo& createInfo) final;
+    std::unique_ptr<ITestApp> Create(const UIDemoAppExtensionCreateInfo& createInfo, const AppBenchmarkScene benchmarkScene) final;
   };
 }
 

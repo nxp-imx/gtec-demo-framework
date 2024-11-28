@@ -36,7 +36,6 @@
 #include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
 #include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslGraphics/Color.hpp>
-#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslSimpleUI/Base/Control/LabelButton.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
@@ -131,7 +130,8 @@ namespace Fsl::UI
     if (m_fontMesh.IsValid())
     {
       const auto color = !IsDown() ? m_propertyColorUp.InternalColor : m_propertyColorDown.InternalColor;
-      context.CommandBuffer.Draw(m_fontMesh.Get(), context.TargetRect.TopLeft(), m_cachedMeasureMinimalFontSizePx, GetFinalBaseColor() * color);
+      context.CommandBuffer.Draw(m_fontMesh.Get(), context.TargetRect.TopLeft(), m_cachedMeasureMinimalFontSizePx, GetFinalBaseColor() * color,
+                                 context.ClipContext);
     }
   }
 

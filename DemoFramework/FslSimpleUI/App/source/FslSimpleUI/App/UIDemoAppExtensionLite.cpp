@@ -109,7 +109,6 @@ namespace Fsl
     UIDemoAppExtensionBase::SYS_SetRenderSystemViewport(viewportPx);
   }
 
-
   void UIDemoAppExtensionLite::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
   {
     FSLLOG3_VERBOSE("UIDemoAppExtensionLite::ConfigurationChanged: {}", windowMetrics)

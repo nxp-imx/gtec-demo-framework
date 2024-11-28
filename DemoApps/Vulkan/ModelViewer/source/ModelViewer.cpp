@@ -566,7 +566,7 @@ namespace Fsl
       event.Handled();
       break;
     default:
-      VulkanBasic::DemoAppVulkanBasic::OnKeyEvent(event);
+      base_type::OnKeyEvent(event);
       break;
     }
   }
@@ -599,7 +599,7 @@ namespace Fsl
       }
       break;
     default:
-      VulkanBasic::DemoAppVulkanBasic::OnMouseButtonEvent(event);
+      base_type::OnMouseButtonEvent(event);
       break;
     }
   }
@@ -607,7 +607,7 @@ namespace Fsl
 
   void ModelViewer::OnMouseMoveEvent(const MouseMoveEvent& event)
   {
-    VulkanBasic::DemoAppVulkanBasic::OnMouseMoveEvent(event);
+    base_type::OnMouseMoveEvent(event);
 
     if (m_camera.IsDragging())
     {
@@ -619,8 +619,15 @@ namespace Fsl
 
   void ModelViewer::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
-    VulkanBasic::DemoAppVulkanBasic::OnMouseWheelEvent(event);
+    base_type::OnMouseWheelEvent(event);
     m_camera.AddZoom(static_cast<float>(event.GetDelta()) * -0.001f);
+  }
+
+
+  void ModelViewer::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
+  {
+    base_type::ConfigurationChanged(windowMetrics);
+    m_camera.SetScreenResolution(windowMetrics.GetSizePx());
   }
 
 

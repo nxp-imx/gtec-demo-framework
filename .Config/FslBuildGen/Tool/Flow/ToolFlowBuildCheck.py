@@ -411,10 +411,13 @@ class ToolFlowBuildCheck(AToolAppFlow):
             self.__ApplyScanSource(self.Log, localToolConfig, config.IsSDKBuild, config.DisableWrite, filteredPackageList, customPackageFileFilter, gitExeName)
 
         # Finally do the resource license scan if requested
-        if localToolConfig.ScanLicense:
+        if localToolConfig.ScanLicense or localToolConfig.LicenseList:
+            disableWrite = config.DisableWrite
+            if not localToolConfig.ScanLicense:
+                disableWrite = True
             licenseConfig = LicenseConfig('License.json', toolConfig.DefaultCompany, 'CC0-1.0', "Example.jpg")
             self.__ScanResourceLicenses(self.Log, localToolConfig, toolConfig.GetMinimalConfig(generator.CMakeConfig), config.IsSDKBuild,
-                                        config.DisableWrite, closestGenFilePath, filteredPackageList, localToolConfig.LicenseList,
+                                        disableWrite, closestGenFilePath, filteredPackageList, localToolConfig.LicenseList,
                                         localToolConfig.LicenseSaveCSVs, licenseConfig)
 
     def __PreparePackages(self, log: Log, localToolConfig: LocalToolConfig,
@@ -596,7 +599,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         parser.add_argument('--scanDeps', action='store_true', help="Scan all package dependencies of the specified package)")
         parser.add_argument('--scanCopyright', action='store_true', help='Scan files for significant differences between the current branch and master and update the copyright accordingly')
         parser.add_argument('--license', action='store_true', help='Scan all resources for license issues. This scans for all {0} files'.format(ScanResourceLicenseFiles.GetExtensionList()))
-        parser.add_argument('--licenseList', action='store_true', help='List all licenses.')
+        parser.add_argument('--licenseList', action='store_true', help='List all licenses. To ensure the list is up to date its a good idea to add --license as well')
         parser.add_argument('--licenseSaveCSVs', action='store_true', help='Save CSVs.')
         parser.add_argument('--repair', action='store_true', help='Will attempt to fix common mistakes, beware this modifies your source files so use it at your own risk!.')
         parser.add_argument('--dryRun', action='store_true', help='No files will be created')

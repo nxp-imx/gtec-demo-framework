@@ -43,6 +43,7 @@ from FslBuildGen import IOUtil
 #from FslBuildGen import ParseUtil
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.Build.Filter import PackageFilter
+from FslBuildGen.Build.ForAllConfig import ForAllConfig
 #from FslBuildGen.Config import Config
 #from FslBuildGen.Context.GeneratorContext import GeneratorContext
 #from FslBuildGen.DataTypes import PackageType
@@ -163,7 +164,7 @@ class ToolFlowBuildRun(AToolAppFlow):
         toolFlowConfig = ToolFlowBuild.GetDefaultLocalConfig()
         toolFlowConfig.SetToolAppConfigValues(toolAppContext.ToolAppConfig)
         toolFlowConfig.RemainingArgs = ToolAppConfigDefaultValue.RemainingArgs
-        toolFlowConfig.ForAllExe = '(EXE) {0}'.format(" ".join(localToolConfig.RemainingArgs))
+        toolFlowConfig.ForAllConfig = ForAllConfig.CreateForAllExeConfig('(EXE) {0}'.format(" ".join(localToolConfig.RemainingArgs)))
         toolFlowConfig.PackageConfigurationType = localToolConfig.PackageConfigurationType
 
         buildFlow = ToolFlowBuild.ToolFlowBuild(toolAppContext)
