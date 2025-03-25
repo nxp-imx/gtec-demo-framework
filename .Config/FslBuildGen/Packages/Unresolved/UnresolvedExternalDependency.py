@@ -34,12 +34,12 @@
 from typing import Optional
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import ExternalDependencyType
-from FslBuildGen.Version import Version
+from FslBuildGen.SemanticVersion2 import SemanticVersion2
 from FslBuildGen.Packages.Unresolved.UnresolvedExternalDependencyPackageManager import UnresolvedExternalDependencyPackageManager
 
 class UnresolvedExternalDependency(object):
     def __init__(self, name: str, debugName: str, targetName: str, include: Optional[str], location: Optional[str],
-                 hintPath: Optional[str], version: Optional[Version], publicKeyToken: Optional[str],
+                 hintPath: Optional[str], version: Optional[SemanticVersion2], publicKeyToken: Optional[str],
                  processorArchitecture: Optional[str], culture: Optional[str], packageManager: Optional[UnresolvedExternalDependencyPackageManager],
                  ifCondition: Optional[str], elementType: ExternalDependencyType, accessType: AccessType, isManaged: bool = False) -> None:
         super().__init__()

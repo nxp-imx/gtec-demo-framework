@@ -102,6 +102,9 @@ namespace Fsl
     static Quaternion Normalize(const Quaternion& quaternion);
     static void Normalize(Quaternion& rResult, const Quaternion& quaternion);
 
+    //! Convert quaternion (x, y, z, w) to Euler angles (roll, pitch, yaw)
+    // Vector3 ToEulerAngles() const;
+
     //! @brief Tests for equality.
     constexpr bool operator==(const Quaternion& rhs) const
     {

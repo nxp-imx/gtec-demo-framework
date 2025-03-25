@@ -37,6 +37,7 @@
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/Font/BitmapFontChar.hpp>
 #include <FslGraphics/Font/BitmapFontKerning.hpp>
+#include <FslGraphics/Font/BitmapFontSdfParams.hpp>
 #include <FslGraphics/Font/BitmapFontType.hpp>
 #include <string>
 #include <vector>
@@ -45,31 +46,6 @@ namespace Fsl
 {
   class BitmapFont final
   {
-  public:
-    struct SdfParams
-    {
-      // If this is zero it means its not defined
-      uint16_t Spread{0};
-      float Scale{1.0f};
-
-      constexpr SdfParams() noexcept = default;
-      constexpr SdfParams(const uint16_t spread, const float scale) noexcept
-        : Spread(spread)
-        , Scale(scale)
-      {
-      }
-
-      constexpr bool operator==(const SdfParams& rhs) const noexcept
-      {
-        return Spread == rhs.Spread && Scale == rhs.Scale;
-      }
-      constexpr bool operator!=(const SdfParams& rhs) const noexcept
-      {
-        return !(*this == rhs);
-      }
-    };
-
-  private:
     //! This is the name of the true type font
     std::string m_name;
 
@@ -92,7 +68,7 @@ namespace Fsl
     //! The name of the font type
     BitmapFontType m_fontType{BitmapFontType::Bitmap};
 
-    SdfParams m_sdfParams;
+    BitmapFontSdfParams m_sdfParams;
 
     // A sorted vector of chars (sorted on Id low to high)
     std::vector<BitmapFontChar> m_chars;
@@ -104,15 +80,15 @@ namespace Fsl
     BitmapFont() = default;
 
     BitmapFont(std::string name, const uint16_t dpi, const uint16_t size, const PxValueU16 lineSpacingPx, const PxValueU16 baseLinePx,
-               const PxThicknessU16& paddingPx, std::string textureName, const BitmapFontType fontType, const SdfParams& sdfParams,
+               const PxThicknessU16& paddingPx, std::string textureName, const BitmapFontType fontType, const BitmapFontSdfParams& sdfParams,
                std::vector<BitmapFontChar> chars, std::vector<BitmapFontKerning> kernings);
 
     BitmapFont(const StringViewLite name, const uint16_t dpi, const uint16_t size, const PxValueU16 lineSpacingPx, const PxValueU16 baseLinePx,
-               const PxThicknessU16& paddingPx, const StringViewLite textureName, const BitmapFontType fontType, const SdfParams& sdfParams,
+               const PxThicknessU16& paddingPx, const StringViewLite textureName, const BitmapFontType fontType, const BitmapFontSdfParams& sdfParams,
                const ReadOnlySpan<BitmapFontChar> chars, const ReadOnlySpan<BitmapFontKerning> kernings);
 
     BitmapFont(const StringViewLite name, const uint16_t dpi, const uint16_t size, const PxValueU16 lineSpacingPx, const PxValueU16 baseLinePx,
-               const PxThicknessU16& paddingPx, const StringViewLite textureName, const BitmapFontType fontType, const SdfParams& sdfParams,
+               const PxThicknessU16& paddingPx, const StringViewLite textureName, const BitmapFontType fontType, const BitmapFontSdfParams& sdfParams,
                std::vector<BitmapFontChar> chars, std::vector<BitmapFontKerning> kernings);
 
 
@@ -176,12 +152,12 @@ namespace Fsl
       return SpanUtil::AsReadOnlySpan(m_kernings);
     }
 
-    SdfParams GetSdfParams() const
+    BitmapFontSdfParams GetSdfParams() const
     {
       return m_sdfParams;
     }
 
-    void SetSdfParams(const SdfParams params)
+    void SetSdfParams(const BitmapFontSdfParams& params)
     {
       m_sdfParams = params;
     }

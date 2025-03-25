@@ -13,10 +13,17 @@
 // Based on a example called 'Gears' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
-#include <Shared/VulkanWillemsDemoAppExperimental/VulkanBuffer.hpp>
-#include <Shared/VulkanWillemsDemoAppExperimental/VulkanDevice.hpp>
-#include <Shared/VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
+#include <FslGraphics/Vertices/BasicVertexDeclarationArray.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationArray.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
+#include <FslGraphics/Vertices/VertexElement.hpp>
+#include <FslUtil/Vulkan1_0/Managed/VMIndexBuffer.hpp>
+#include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>
+#include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
+#include <FslUtil/Vulkan1_0/VUDevice.hpp>
+#include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
 #include <glm/glm.hpp>
+#include <cstddef>
 #include <vector>
 
 namespace Fsl
@@ -27,22 +34,7 @@ namespace Fsl
     float Normal[3]{};    // NOLINT(modernize-avoid-c-arrays)
     float Color[3]{};     // NOLINT(modernize-avoid-c-arrays)
 
-    Vertex()
-    //: Pos{} // bogus warning in VC2013
-    //, Normal{}
-    //, Color{}
-    {
-      // Bypass warning
-      Pos[0] = 0;
-      Pos[1] = 0;
-      Pos[2] = 0;
-      Color[0] = 0;
-      Color[1] = 0;
-      Color[2] = 0;
-      Normal[0] = 0;
-      Normal[1] = 0;
-      Normal[2] = 0;
-    }
+    Vertex() = default;
 
     Vertex(const glm::vec3& p, const glm::vec3& n, const glm::vec3& c)
     {
@@ -55,6 +47,23 @@ namespace Fsl
       Normal[0] = n.x;
       Normal[1] = n.y;
       Normal[2] = n.z;
+    }
+
+    constexpr static VertexDeclarationArray<3> GetVertexDeclarationArray()
+    {
+      constexpr BasicVertexDeclarationArray<3> Elements = {
+        VertexElement(offsetof(Vertex, Pos), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElement(offsetof(Vertex, Normal), VertexElementFormat::Vector3, VertexElementUsage::Color, 0),
+        VertexElement(offsetof(Vertex, Color), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0),
+      };
+      return {Elements, sizeof(Vertex)};
+    }
+
+
+    static VertexDeclarationSpan AsVertexDeclarationSpan()
+    {
+      constexpr static VertexDeclarationArray<3> Decl = GetVertexDeclarationArray();
+      return Decl.AsReadOnlySpan();
     }
   };
 
@@ -83,37 +92,40 @@ namespace Fsl
       glm::vec3 LightPos;
     };
 
-    Willems::VulkanDevice* m_pVulkanDevice;
+    struct Resources
+    {
+      Vulkan::VUBufferMemory UniformData;
+      VkDescriptorSet DescriptorSet{VK_NULL_HANDLE};
+    };
+
+    Vulkan::VUPhysicalDeviceRecord m_physicalDevice;
+    VkDevice m_device;
+    std::shared_ptr<Vulkan::VMBufferManager> m_bufferManager;
 
     glm::vec3 m_color{};
     glm::vec3 m_pos{};
     float m_rotSpeed = 0.0f;
     float m_rotOffset = 0.0f;
 
-    Willems::VulkanBuffer m_vertexBuffer;
-    Willems::VulkanBuffer m_indexBuffer;
+    Vulkan::VMVertexBuffer m_vertexBuffer;
+    Vulkan::VMIndexBuffer m_indexBuffer;
     uint32_t m_indexCount = 0;
 
     UBO m_ubo{};
-    Willems::VulkanUniformData m_uniformData;
+    std::vector<Resources> m_resources;
 
   public:
-    VkDescriptorSet DescriptorSet;
-
-    explicit VulkanGear(Willems::VulkanDevice* pVulkanDevice);
+    explicit VulkanGear(Vulkan::VUPhysicalDeviceRecord physicalDevice, const VkDevice device, std::shared_ptr<Vulkan::VMBufferManager> bufferManager);
     ~VulkanGear();
 
     void Generate(const GearInfo& gearinfo, const VkQueue queue);
 
-    void UpdateUniformBuffer(const glm::mat4& perspective, const glm::vec3& rotation, const float zoom, const float timer);
-    void SetupDescriptorSet(const VkDescriptorPool pool, const VkDescriptorSetLayout descriptorSetLayout);
-    void Draw(const VkCommandBuffer cmdbuffer, const VkPipelineLayout pipelineLayout);
+    void UpdateUniformBuffer(const uint32_t frameIndex, const glm::mat4& perspective, const glm::mat4& view, const float timer);
+    void SetupDescriptorSet(const uint32_t maxFramesInFlight, const VkDescriptorPool pool, const VkDescriptorSetLayout descriptorSetLayout);
+    void Draw(const uint32_t frameIndex, const VkCommandBuffer cmdbuffer, const VkPipelineLayout pipelineLayout);
 
   private:
     int32_t NewVertex(std::vector<Vertex>& rVBuffer, const float x, const float y, const float z, const glm::vec3& normal);
-    void NewFace(std::vector<uint32_t>& rIBuffer, const int a, const int b, const int c);
-
-    void PrepareUniformBuffer();
   };
 }
 

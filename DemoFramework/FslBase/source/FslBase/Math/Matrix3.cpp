@@ -29,16 +29,43 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Matrix3.hpp>
 #include <FslBase/Math/Matrix3Fields.hpp>
+#include <cmath>
 
 namespace Fsl
 {
-  using namespace Matrix3Fields;
+  //  namespace
+  //  {
+  //    void NormalizeVector(float& rX, float& rY, float& rZ)
+  //    {
+  //      const float length = std::sqrt(rX * rX + rY * rY + rZ * rZ);
+  //      if (length > 0)
+  //      {
+  //        rX /= length;
+  //        rY /= length;
+  //        rZ /= length;
+  //      }
+  //    }
+
+  //    // Extract rotation matrix from a 4x4 transformation matrix
+  //    void NormalizeRotationMatrix(Matrix3& rMatrix)
+  //    {
+  //      // Normalize rows if necessary (to remove scaling)
+  //      float* pRotationMatrix = rMatrix.DirectAccess();
+  //      for (int i = 0; i < 3; ++i)
+  //      {
+  //        NormalizeVector(pRotationMatrix[(3 * i) + 0], pRotationMatrix[(3 * i) + 1], pRotationMatrix[(3 * i) + 2]);
+  //      }
+  //    }
+  //  }
 
 
   Matrix3 Matrix3::Invert(const Matrix3& matrix)
   {
+    using namespace Matrix3Fields;
+
     const float* const pMatrix = matrix.m;
 
     const double determinant = matrix.Determinant();
@@ -57,4 +84,31 @@ namespace Fsl
     result.m[_M33] = static_cast<float>(invDet * (pMatrix[_M11] * pMatrix[_M22] - pMatrix[_M12] * pMatrix[_M21]));
     return result;
   }
+
+  //  Vector3 Matrix3::ToEularAngles() const
+  //  {
+  //    using namespace Matrix3Fields;
+  //
+  //    Matrix3 rotationMatrix = *this;
+  //    NormalizeRotationMatrix(rotationMatrix);
+  //
+  //    float roll, pitch, yaw;
+  //
+  //    // Pitch (y-axis rotation)
+  //    const float* const pMatrix = rotationMatrix.m;
+  //    float sinp = -pMatrix[_M31];
+  //    if (std::abs(sinp) >= 1)
+  //    {
+  //      pitch = std::copysign(MathHelper::PI / 2, sinp);    // Gimbal lock
+  //      roll = 0;
+  //      yaw = std::atan2(-pMatrix[_M12], pMatrix[_M22]);
+  //    }
+  //    else
+  //    {
+  //      pitch = std::asin(sinp);
+  //      roll = std::atan2(pMatrix[_M32], pMatrix[_M33]);
+  //      yaw = std::atan2(pMatrix[_M21], pMatrix[_M11]);
+  //    }
+  //    return {roll, pitch, yaw};
+  //  }
 }

@@ -1,5 +1,26 @@
 # Releases
 
+## Release 6.6.0 (March 25, 2025)
+
+* GLES2, GLES3, Vulkan.SdfFonts
+  * Added support for MTSDF fonts
+  * Added contour rendering
+* Vulkan.AntiAliasing 
+  * App failed to run on on Android Pixel6 due to incorrect descriptor pool size allocations.
+  * Enabled on all platforms.
+* Vulkan.Gears converted to use the common vulkan demo host.  
+* VulkanInfo added vulkan profiles support
+* Misc
+  * Arcball camera control can now be inverted.
+  * Google Angle compatibility testing.
+  * BitmapFont V4 with support for MSDF & MTSDF fonts.
+  * Vulkan demo host fixed a validation layer warning.
+  * Updated to latest Android Studio version.
+  * Updated OpenCV to 4.1.0
+  * Updated RapidVulkan to 1.3.296
+  * Updated PuxiXML top 1.15
+  * Updated FMT to 11.1.2
+
 ## Release 6.5.1 (March 25, 2025)
 
 * Vulkan.AntiAliasing 

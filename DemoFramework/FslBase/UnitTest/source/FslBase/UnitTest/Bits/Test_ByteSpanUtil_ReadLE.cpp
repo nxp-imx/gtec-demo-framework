@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2025 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -145,4 +145,29 @@ TEST(TestBits_ByteSpanUtil_ReadLE, ReadInt64LE)
   EXPECT_EQ(static_cast<int64_t>(uint64_t(0x1514131211107F42u)), ByteSpanUtil::ReadInt64LE(contentSpan, 6));
   EXPECT_EQ(static_cast<int64_t>(uint64_t(0x161514131211107Fu)), ByteSpanUtil::ReadInt64LE(contentSpan, 7));
   EXPECT_EQ(static_cast<int64_t>(uint64_t(0x1716151413121110u)), ByteSpanUtil::ReadInt64LE(contentSpan, 8));
+}
+
+
+TEST(TestBits_ByteSpanUtil_ReadLE, ReadFloatLE)
+{
+  // float testValue = 1337.2f;
+  // uint32_t val = std::bit_cast<uint32_t>(testValue);
+  //  0x44A62666
+  std::array<uint8_t, 4> content = {0x66, 0x26, 0xA7, 0x44};
+  const ReadOnlySpan<uint8_t> contentSpan(content.data(), content.size());
+
+  EXPECT_EQ(1337.2f, ByteSpanUtil::ReadFloatLE(contentSpan, 0));
+}
+
+
+TEST(TestBits_ByteSpanUtil_ReadLE, ReadDoubleLE)
+{
+  // double testValue = 123456789.1;
+  // uint64_t val = std::bit_cast<uint64_t>(testValue);
+
+  // 0x419d6f3454666666
+  std::array<uint8_t, 8> content = {0x66, 0x66, 0x66, 0x54, 0x34, 0x6f, 0x9d, 0x41};
+  const ReadOnlySpan<uint8_t> contentSpan(content.data(), content.size());
+
+  EXPECT_EQ(123456789.1, ByteSpanUtil::ReadDoubleLE(contentSpan, 0));
 }

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2025 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -320,5 +320,90 @@ TEST(TestBits_ByteSpanUtil_WriteLE, WriteLE_Int64)
     ByteSpanUtil::WriteLE(dstSpan, i, value);
     auto writtenValue = ByteSpanUtil::ReadInt64LE(dstSpan, i);
     EXPECT_EQ(value, writtenValue);
+  }
+}
+
+
+TEST(TestBits_ByteSpanUtil_WriteLE, WriteLE_Float)
+{
+  const float src = 1337.2f;
+  std::array<uint8_t, 16> dst{};
+  Span<uint8_t> dstSpan(dst.data(), dst.size());
+
+  // 0x66, 0x26, 0xA7, 0x44
+  EXPECT_EQ(4u, ByteSpanUtil::WriteLE(dstSpan, src));
+  EXPECT_EQ(0x66u, dstSpan[0]);
+  EXPECT_EQ(0x26u, dstSpan[1]);
+  EXPECT_EQ(0xA7u, dstSpan[2]);
+  EXPECT_EQ(0x44u, dstSpan[3]);
+}
+
+
+TEST(TestBits_ByteSpanUtil_WriteLE, WriteLE_Float2)
+{
+  std::array<float, 9> src{1.0f,
+                           0.5f,
+                           1337.0f,
+                           0.9834985f,
+                           std::numeric_limits<float>::infinity(),
+                           std::numeric_limits<float>::min(),
+                           std::numeric_limits<float>::max(),
+                           std::numeric_limits<float>::lowest(),
+                           std::numeric_limits<float>::epsilon()};
+
+  std::array<uint8_t, sizeof(float) * src.size()> dst{};
+  Span<uint8_t> dstSpan(dst.data(), dst.size());
+  ReadOnlySpan<uint8_t> srcSpan(dst.data(), dst.size());
+
+  for (const auto& entry : src)
+  {
+    // Write the entry to memory, then read it back again
+    EXPECT_EQ(4u, ByteSpanUtil::WriteLE(dstSpan, entry));
+    EXPECT_EQ(entry, ByteSpanUtil::ReadFloatLE(srcSpan));
+  }
+}
+
+
+TEST(TestBits_ByteSpanUtil_WriteLE, WriteLE_Double)
+{
+  const double src = 123456789.1;
+  std::array<uint8_t, 16> dst{};
+  Span<uint8_t> dstSpan(dst.data(), dst.size());
+
+  // 0x419d6f3454666666
+  // 0x66, 0x66, 0x66, 0x54, 0x34, 0x6f, 0x9d, 0x41
+  EXPECT_EQ(8u, ByteSpanUtil::WriteLE(dstSpan, src));
+  EXPECT_EQ(0x66u, dstSpan[0]);
+  EXPECT_EQ(0x66u, dstSpan[1]);
+  EXPECT_EQ(0x66u, dstSpan[2]);
+  EXPECT_EQ(0x54u, dstSpan[3]);
+  EXPECT_EQ(0x34u, dstSpan[4]);
+  EXPECT_EQ(0x6Fu, dstSpan[5]);
+  EXPECT_EQ(0x9Du, dstSpan[6]);
+  EXPECT_EQ(0x41u, dstSpan[7]);
+}
+
+
+TEST(TestBits_ByteSpanUtil_WriteLE, WriteLE_Double2)
+{
+  std::array<double, 9> src{1.0,
+                            0.5,
+                            1337.0,
+                            0.9834985,
+                            std::numeric_limits<double>::infinity(),
+                            std::numeric_limits<double>::min(),
+                            std::numeric_limits<double>::max(),
+                            std::numeric_limits<double>::lowest(),
+                            std::numeric_limits<double>::epsilon()};
+
+  std::array<uint8_t, sizeof(double) * src.size()> dst{};
+  Span<uint8_t> dstSpan(dst.data(), dst.size());
+  ReadOnlySpan<uint8_t> srcSpan(dst.data(), dst.size());
+
+  for (const auto& entry : src)
+  {
+    // Write the entry to memory, then read it back again
+    EXPECT_EQ(8u, ByteSpanUtil::WriteLE(dstSpan, entry));
+    EXPECT_EQ(entry, ByteSpanUtil::ReadDoubleLE(srcSpan));
   }
 }

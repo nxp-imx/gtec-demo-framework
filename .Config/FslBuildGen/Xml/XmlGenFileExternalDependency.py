@@ -36,7 +36,7 @@ from typing import Optional
 import xml.etree.ElementTree as ET
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import ExternalDependencyType
-from FslBuildGen.Version import Version
+from FslBuildGen.SemanticVersion2 import SemanticVersion2
 from FslBuildGen.Log import Log
 from FslBuildGen.Xml import FakeXmlElementFactory
 from FslBuildGen.Xml.Exceptions import XmlException
@@ -71,7 +71,7 @@ class XmlGenFileExternalDependency(XmlBase):
         self.Location = self._TryReadAttrib(xmlElement, self.__AttribLocation)  # type: Optional['str']
         # New assembly keywords primarily used for C# assemblies
         self.HintPath = self._TryReadAttrib(xmlElement, self.__AttribHintPath)  # type: Optional['str']
-        self.Version = self._TryReadAttribAsVersion(xmlElement, self.__AttribVersion)  # type: Optional[Version]
+        self.Version = self._TryReadAttribAsSemanticVersion2(xmlElement, self.__AttribVersion)  # type: Optional[SemanticVersion2]
         self.PublicKeyToken = self._TryReadAttrib(xmlElement, self.__AttribPublicKeyToken)  # type: Optional['str']
         self.ProcessorArchitecture = self._TryReadAttrib(xmlElement, self.__AttribProcessorArchitecture)  # type: Optional['str']
         self.Culture = self._TryReadAttrib(xmlElement, self.__AttribCulture)  # type: Optional['str']
@@ -167,7 +167,7 @@ class FakeXmlGenFileExternalDependencyDLL(FakeXmlGenFileExternalDependency):
         super().__init__(log, name, location, access, ExternalDependencyType.DLL, debugName, isManaged=isManaged)
 
 class FakeXmlGenFileExternalDependencyCMakeFindModern(XmlGenFileExternalDependency):
-    def __init__(self, log: Log, name: str, version: Optional[Version], targetName: Optional[str], path: Optional[str], ifCondition: Optional[str]) -> None:
+    def __init__(self, log: Log, name: str, version: Optional[SemanticVersion2], targetName: Optional[str], path: Optional[str], ifCondition: Optional[str]) -> None:
         fakeXmlElementAttribs = {'Name': name, 'Type': ExternalDependencyType.ToString(ExternalDependencyType.CMakeFindModern)}
         if version is not None:
             fakeXmlElementAttribs['Version'] = str(version)

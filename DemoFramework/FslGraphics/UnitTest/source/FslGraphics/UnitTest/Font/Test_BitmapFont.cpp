@@ -65,7 +65,7 @@ TEST(TestFont_BitmapFont, Construct)
   const auto paddingPx = PxThicknessU16::Create(1, 2, 3, 4);
   const StringViewLite textureName("font texture name");
   const BitmapFontType fontType = BitmapFontType::SDF;
-  const BitmapFont::SdfParams sdfParams(2, 1.0f);
+  const BitmapFontSdfParams sdfParams(2, 1.0f);
 
   constexpr const BitmapFontChar Char0(0u, PxRectangleU32::Create(1, 2, 3, 4), PxPoint2::Create(5, 6), PxValueU16(7));
   constexpr const BitmapFontKerning Kerning0(0u, 1u, PxValue::Create(-1));
@@ -99,7 +99,7 @@ TEST(TestFont_BitmapFont, Construct_SortChars)
   const auto paddingPx = PxThicknessU16::Create(1, 2, 3, 4);
   const StringViewLite textureName("font texture name");
   const BitmapFontType fontType = BitmapFontType::SDF;
-  const BitmapFont::SdfParams sdfParams(2, 1.0f);
+  const BitmapFontSdfParams sdfParams(2, 1.0f);
 
   constexpr const BitmapFontChar Char0(3u, PxRectangleU32::Create(1, 2, 3, 4), PxPoint2::Create(5, 6), PxValueU16(7));
   constexpr const BitmapFontChar Char1(2u, PxRectangleU32::Create(1, 2, 3, 4), PxPoint2::Create(5, 6), PxValueU16(7));
@@ -136,7 +136,7 @@ TEST(TestFont_BitmapFont, SortedKernings)
   const auto paddingPx = PxThicknessU16::Create(1, 2, 3, 4);
   const StringViewLite textureName("font texture name");
   const BitmapFontType fontType = BitmapFontType::SDF;
-  const BitmapFont::SdfParams sdfParams(2, 1.0f);
+  const BitmapFontSdfParams sdfParams(2, 1.0f);
 
   constexpr const BitmapFontChar Char0(0u, PxRectangleU32::Create(1, 2, 3, 4), PxPoint2::Create(5, 6), PxValueU16(7));
 
@@ -175,7 +175,7 @@ TEST(TestFont_BitmapFont, Construct_DuplicatedChar)
   const auto paddingPx = PxThicknessU16::Create(1, 2, 3, 4);
   const StringViewLite textureName("font texture name");
   const BitmapFontType fontType = BitmapFontType::SDF;
-  const BitmapFont::SdfParams sdfParams(2, 1.0f);
+  const BitmapFontSdfParams sdfParams(2, 1.0f);
 
   constexpr const BitmapFontChar Char0(0u, PxRectangleU32::Create(1, 2, 3, 4), PxPoint2::Create(5, 6), PxValueU16(7));
   constexpr const BitmapFontChar Char1(1u, PxRectangleU32::Create(1, 2, 3, 4), PxPoint2::Create(5, 6), PxValueU16(7));
@@ -199,7 +199,7 @@ TEST(TestFont_BitmapFont, Construct_DuplicatedKerning)
   const auto paddingPx = PxThicknessU16::Create(1, 2, 3, 4);
   const StringViewLite textureName("font texture name");
   const BitmapFontType fontType = BitmapFontType::SDF;
-  const BitmapFont::SdfParams sdfParams(2, 1.0f);
+  const BitmapFontSdfParams sdfParams(2, 1.0f);
 
   constexpr const BitmapFontChar Char0(0u, PxRectangleU32::Create(1, 2, 3, 4), PxPoint2::Create(5, 6), PxValueU16(7));
   constexpr const BitmapFontKerning Kerning0(0u, 1u, PxValue(-1));

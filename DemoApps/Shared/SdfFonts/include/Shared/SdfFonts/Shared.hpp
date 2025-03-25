@@ -1,7 +1,7 @@
 #ifndef SHARED_SDFFONTS_SHARED_HPP
 #define SHARED_SDFFONTS_SHARED_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2025 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,7 @@
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Control/RadioButton.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
@@ -66,7 +67,8 @@ namespace Fsl
     Normal = 0,
     Outline = 1,
     Shadow = 2,
-    ShadowAndOutline = Outline | Shadow
+    ShadowAndOutline = Outline | Shadow,
+    Contours = 4
   };
 
   constexpr inline SdfFontMode& operator|=(SdfFontMode& rLhs, const SdfFontMode rhs)
@@ -75,14 +77,21 @@ namespace Fsl
     return rLhs;
   }
 
+  enum class SdfType
+  {
+    Sdf = 0,
+    Mtsdf = 1
+  };
+
   struct FontDrawConfig
   {
-    int32_t FontSdfSpread{};
     float FontScale{};
 
     float OutlineDistance{};
     Vector2 ShadowOffset;
     float ShadowSmoothing{};
+    float ContourScale{};
+    SdfType Type{SdfType::Sdf};
   };
 
   class BasicImageSprite;
@@ -97,6 +106,9 @@ namespace Fsl
       std::shared_ptr<UI::Switch> DrawBoundingBoxesCheckBox;
       std::shared_ptr<UI::Switch> DrawOutlineCheckBox;
       std::shared_ptr<UI::Switch> DrawShadowCheckBox;
+      std::shared_ptr<UI::Switch> DrawContoursCB;
+      std::shared_ptr<UI::RadioButton> RbSdf;
+      std::shared_ptr<UI::RadioButton> RbMtsdf;
       std::shared_ptr<UI::SliderAndFmtValueLabel<float>> FontScaleSlider;
       std::shared_ptr<UI::Label> OutlineSliderLabel;
       std::shared_ptr<UI::SliderAndFmtValueLabel<float>> OutlineDistanceSlider;
@@ -106,6 +118,7 @@ namespace Fsl
       std::shared_ptr<UI::SliderAndFmtValueLabel<float>> ShadowOffsetXSlider;
       std::shared_ptr<UI::Label> ShadowOffsetYLabel;
       std::shared_ptr<UI::SliderAndFmtValueLabel<float>> ShadowOffsetYSlider;
+      std::shared_ptr<UI::SliderAndFmtValueLabel<float>> ContourScaleSlider;
       std::shared_ptr<UI::BackgroundLabelButton> ButtonDefault;
       std::shared_ptr<UI::BaseWindow> MainContent;
       std::shared_ptr<UI::Layout> MainLayout;

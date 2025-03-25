@@ -1,7 +1,7 @@
 #ifndef GLES3_SDFFONTS_SDFFONTS_HPP
 #define GLES3_SDFFONTS_SDFFONTS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2025 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,12 +56,15 @@ namespace Fsl
       GLint Smoothing{GLES3::GLValues::InvalidLocation};
       GLint ShadowOffset{GLES3::GLValues::InvalidLocation};
       GLint ShadowSmoothing{GLES3::GLValues::InvalidLocation};
+      GLint ContourScale{GLES3::GLValues::InvalidLocation};
       GLint Texture{GLES3::GLValues::InvalidLocation};
     };
 
 
     struct MeshRecord
     {
+      GLuint CachedShader{GLES3::GLValues::InvalidHandle};
+
       PxPoint2 Offset;
       BitmapFontConfig FontConfig;
 
@@ -98,20 +101,29 @@ namespace Fsl
 
     struct ExampleRecord
     {
-      ShaderRecord Shader;
       FontRecord Font;
       MeshRecord Mesh;
       MeshRecord ScaledMesh;
+    };
+
+    struct FontShaderRecord
+    {
+      ShaderRecord Normal;
+      ShaderRecord Outline;
+      ShaderRecord Shadow;
+      ShaderRecord ShadowAndOutline;
+      ShaderRecord Contours;
     };
 
     struct Resources
     {
       ExampleRecord Normal;
       ExampleRecord Sdf;
+      ExampleRecord Mtsdf;
 
-      ShaderRecord ShaderSdfOutline;
-      ShaderRecord ShaderSdfShadow;
-      ShaderRecord ShaderSdfShadowAndOutline;
+      ShaderRecord ShaderNormal;
+      FontShaderRecord ShadersSdf;
+      FontShaderRecord ShadersMtsdf;
 
       AtlasTexture2D FillTexture;
       Matrix Projection;
@@ -137,25 +149,26 @@ namespace Fsl
   private:
     void DrawMeshes(const FontDrawConfig& fontDrawConfig, const SdfFonts::ShaderRecord& fontSdfShader);
 
-    static void DrawTextMesh(const MeshRecord& mesh, const GLES3::GLTexture& texture, const ShaderRecord& shader, const Matrix& projection,
+    static void DrawTextMesh(const MeshRecord& mesh, const FontRecord& fontRecord, const ShaderRecord& shader, const Matrix& projection,
                              const FontDrawConfig& fontDrawConfig);
 
-    static ExampleRecord PrepareExample(const IContentManager& contentManager, const PxSize1D lineYPx, const IO::Path& vertShaderPath,
-                                        const IO::Path& fragShaderPath, const IO::Path& bitmapFontPath, const IO::Path& fontAtlasTexturePath,
-                                        const StringViewLite& strView, const SpriteNativeAreaCalc& spriteNativeAreaCalc, const uint32_t densityDpi,
+    static FontRecord PrepareFont(const IContentManager& contentManager, const IO::Path& bitmapFontPath, const IO::Path& fontAtlasTexturePath,
+                                  const SpriteNativeAreaCalc& spriteNativeAreaCalc, const uint32_t densityDpi);
+    static ExampleRecord PrepareExample(const IContentManager& contentManager, const PxSize1D lineYPx, const ShaderRecord& shaderNormal,
+                                        const IO::Path& bitmapFontPath, const IO::Path& fontAtlasTexturePath, const StringViewLite& strView,
+                                        const SpriteNativeAreaCalc& spriteNativeAreaCalc, const uint32_t densityDpi,
                                         std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad);
 
     static ShaderRecord GenerateShaderRecord(const IContentManager& contentManager, const IO::Path& vertShaderPath, const IO::Path& fragShaderPath);
 
 
     static MeshRecord GenerateMesh(const PxPoint2& dstPositionPx, const FontRecord& fontRecord, const BitmapFontConfig& fontConfig,
-                                   const ShaderRecord& shader, const StringViewLite& strView,
-                                   std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad);
-    static void RegenerateMeshOnDemand(MeshRecord& rMeshRecord, const PxPoint2& dstPositionPx, const FontRecord& fontRecord,
-                                       const BitmapFontConfig fontConfig, const StringViewLite& strView,
+                                   const StringViewLite& strView, std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad);
+    static void RegenerateMeshOnDemand(MeshRecord& rMeshRecord, const PxPoint2& dstPositionPx, const ShaderRecord& shader,
+                                       const FontRecord& fontRecord, const BitmapFontConfig fontConfig, const StringViewLite& strView,
                                        std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad);
 
-    const ShaderRecord& SelectShaderRecord(const SdfFontMode fontSdfMode);
+    const ShaderRecord& SelectShaderRecord(const SdfFontMode fontSdfMode, const SdfType fontSdfType);
   };
 }
 

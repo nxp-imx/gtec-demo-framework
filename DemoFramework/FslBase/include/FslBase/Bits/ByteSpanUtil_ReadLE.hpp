@@ -1,7 +1,7 @@
 #ifndef FSLBASE_BITS_BYTESPANUTIL_READLE_HPP
 #define FSLBASE_BITS_BYTESPANUTIL_READLE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022, 2024 NXP
+ * Copyright 2020, 2022, 2024-2025 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Span/Span.hpp>
+#include <bit>
 #include <cassert>
 
 namespace Fsl::ByteSpanUtil
@@ -105,6 +106,23 @@ namespace Fsl::ByteSpanUtil
   }
 
 
+  //! @brief Read a float from the given index in little endian format
+  constexpr inline float ReadFloatLE(const ReadOnlySpan<uint8_t> src)
+  {
+    assert(src.size() >= 4);
+    // Read the LE encoded float bit-pattern into a uint32 then bit_cast it to a float
+    return std::bit_cast<float>(ReadUInt32LE(src));
+  }
+
+
+  //! @brief Read a double from the given index in little endian format
+  constexpr inline double ReadDoubleLE(const ReadOnlySpan<uint8_t> src)
+  {
+    assert(src.size() >= 8);
+    // Read the LE encoded double bit-pattern into a uint64 then bit_cast it to a double
+    return std::bit_cast<double>(ReadUInt64LE(src));
+  }
+
   // -----------------------------------------------------------------------------------------------------------------------------------------------
   // Source span with index
   // -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -166,6 +184,20 @@ namespace Fsl::ByteSpanUtil
   {
     assert(index < src.size());
     return ReadInt64LE(src.subspan(index));
+  }
+
+
+  constexpr inline float ReadFloatLE(const ReadOnlySpan<uint8_t> src, const Span<uint8_t>::size_type index)
+  {
+    assert(index < src.size());
+    return ReadFloatLE(src.subspan(index));
+  }
+
+
+  constexpr inline double ReadDoubleLE(const ReadOnlySpan<uint8_t> src, const Span<uint8_t>::size_type index)
+  {
+    assert(index < src.size());
+    return ReadDoubleLE(src.subspan(index));
   }
 }
 

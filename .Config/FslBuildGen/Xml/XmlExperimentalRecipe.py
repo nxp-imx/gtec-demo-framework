@@ -164,17 +164,19 @@ class XmlRecipeValidateCommandFindExecutableFileInPath(XmlRecipeValidateCommand)
     __AttribMinVersion = 'MinVersion'
     __AttribVersionCommand = 'VersionCommand'
     __AttribVersionRegEx = 'VersionRegEx'
+    __AttribVersionSplitChar = 'VersionSplitChar'
 
 
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "FindFileInPath", BuildRecipeValidateCommand.FindExecutableFileInPath)
-        self._CheckAttributes({self.__AttribName, self.__AttribAlternatives, self.__AttribExpectedPath, self.__AttribMinVersion, self.__AttribVersionCommand, self.__AttribVersionRegEx, self._AttribHelp})
+        self._CheckAttributes({self.__AttribName, self.__AttribAlternatives, self.__AttribExpectedPath, self.__AttribMinVersion, self.__AttribVersionCommand, self.__AttribVersionRegEx, self._AttribHelp, self.__AttribVersionSplitChar})
         self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
         alternatives = self._TryReadAttrib(xmlElement, self.__AttribAlternatives)
         self.ExpectedPath = self._TryReadAttrib(xmlElement, self.__AttribExpectedPath)
         self.MinVersion = self._TryReadAttrib(xmlElement, self.__AttribMinVersion)
         self.VersionCommand = self._TryReadAttrib(xmlElement, self.__AttribVersionCommand)
         self.VersionRegEx = self._TryReadAttrib(xmlElement, self.__AttribVersionRegEx)
+        self.VersionSplitChar = self._ReadAttrib(xmlElement, self.__AttribVersionSplitChar, ".")
 
         self.AddOnErrorWarning = self.__ParseAddOnErrorWarning(log, xmlElement)
 
@@ -300,14 +302,16 @@ class XmlRecipeValidateCommandAddTool(XmlRecipeValidateCommand):
     __AttribMinVersion = 'MinVersion'
     __AttribVersionCommand = 'VersionCommand'
     __AttribVersionRegEx = 'VersionRegEx'
+    __AttribVersionSplitChar = 'VersionSplitChar'
 
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "AddTool", BuildRecipeValidateCommand.AddTool)
-        self._CheckAttributes({self.__AttribName, self.__AttribMinVersion, self.__AttribVersionCommand, self.__AttribVersionRegEx, self._AttribHelp})
+        self._CheckAttributes({self.__AttribName, self.__AttribMinVersion, self.__AttribVersionCommand, self.__AttribVersionRegEx, self._AttribHelp, self.__AttribVersionSplitChar})
         self.Name = self._ReadAttrib(xmlElement, self.__AttribName)  # type:str
         self.MinVersion = self._TryReadAttrib(xmlElement, self.__AttribMinVersion)
         self.VersionCommand = self._TryReadAttrib(xmlElement, self.__AttribVersionCommand)
         self.VersionRegEx = self._TryReadAttrib(xmlElement, self.__AttribVersionRegEx)
+        self.VersionSplitChar = self._ReadAttrib(xmlElement, self.__AttribVersionSplitChar, ".")
         if '\\' in self.Name:
             raise Exception("A path can not contain backslash '\\': '{0}'".format(self.Name))
         if self.Name.endswith('/'):

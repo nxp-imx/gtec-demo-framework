@@ -632,6 +632,7 @@ namespace Fsl
     : m_lookup(spriteNativeAreaCalc, textureExtentPx, bitmapFont, densityDpi)
     , m_charPaddingPx(bitmapFont.GetPaddingPx())
     , m_fontType(bitmapFont.GetFontType())
+    , m_sdfParams(bitmapFont.GetSdfParams())
   {
     // dump kerning info
     // auto kerningSpan = bitmapFont.GetKernings();
@@ -648,6 +649,7 @@ namespace Fsl
     m_lookup = SpriteFontFastLookup(spriteNativeAreaCalc, textureExtentPx, bitmapFont, densityDpi);
     m_charPaddingPx = bitmapFont.GetPaddingPx();
     m_fontType = bitmapFont.GetFontType();
+    m_sdfParams = bitmapFont.GetSdfParams();
   }
 
   void TextureAtlasSpriteFont::Reset(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const PxExtent2D textureExtentPx,

@@ -37,6 +37,8 @@ from FslBuildGen import Util
 from FslBuildGen.DataTypes import AccessType
 #from FslBuildGen.Exceptions import UsageErrorException
 from FslBuildGen.Log import Log
+from FslBuildGen.VersionConverter import VersionConverter
+from FslBuildGen.SemanticVersion2 import SemanticVersion2
 from FslBuildGen.Xml import FakeXmlElementFactory
 from FslBuildGen.Xml.Exceptions import XmlUnsupportedPackageNameException
 from FslBuildGen.Xml.Exceptions import XmlUnsupportedSubPackageNameException
@@ -94,7 +96,7 @@ class XmlBase2(XmlBase):
         return dependencies
 
     def ConvertToXmlGenFileExternalDependency(self, value: XmlGenFileFindPackage) -> XmlGenFileExternalDependency:
-        return FakeXmlGenFileExternalDependencyCMakeFindModern(self.Log, value.Name, value.Version, value.TargetName, value.Path, value.IfCondition)
+        return FakeXmlGenFileExternalDependencyCMakeFindModern(self.Log, value.Name, VersionConverter.TryToSemanticVersion2(value.Version), value.TargetName, value.Path, value.IfCondition)
 
 
     def __GetXMLDefines(self, xmlElement: ET.Element) -> List[XmlGenFileDefine]:

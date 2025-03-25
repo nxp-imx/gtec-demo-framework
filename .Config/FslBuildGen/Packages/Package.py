@@ -71,7 +71,7 @@ from FslBuildGen.Packages.Unresolved.UnresolvedPackageVariant import UnresolvedP
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageVariantOption import UnresolvedPackageVariantOption
 #from FslBuildGen.Packages.PackageRequirement import PackageRequirement
 from FslBuildGen.PackagePath import PackagePath
-from FslBuildGen.Version import Version
+from FslBuildGen.SemanticVersion2 import SemanticVersion2
 from FslBuildGen.Xml.Exceptions import XmlException2
 
 # We define the PackageDefine here because it has a dependency to Package and having it externally
@@ -93,7 +93,7 @@ class PackageExternalDependency(PackageElement):
         self.Include = base.Include  # type: Optional[str]
         self.Location = base.Location  # type: Optional[str]
         self.HintPath = base.HintPath  # type: Optional[str]
-        self.Version = base.Version  # type: Optional[Version]
+        self.Version = base.Version  # type: Optional[SemanticVersion2]
         self.PublicKeyToken = base.PublicKeyToken  # type: Optional[str]
         self.ProcessorArchitecture = base.ProcessorArchitecture  # type: Optional[str]
         self.Culture = base.Culture  # type: Optional[str]
@@ -117,12 +117,13 @@ class PackageExternalDependency(PackageElement):
 
 
 class Package(object):
-    def __init__(self, log: Log, configBuildDir: str, preResolvePackageResult: PreResolvePackageResult) -> None:
+    def __init__(self, log: Log, configBuildDir: str, preResolvePackageResult: PreResolvePackageResult, allowExeDependency: bool) -> None:
         super().__init__()
 
         unresolvedPackage = preResolvePackageResult.SourcePackage
 
         self._Log = log
+        self._AllowExeDependency = allowExeDependency
         self.SourceFileHash = unresolvedPackage.SourceFileHash
         self.TemplateType = unresolvedPackage.TemplateType
         self.AllowCheck = unresolvedPackage.Flags.AllowCheck
@@ -345,7 +346,7 @@ class Package(object):
         if packageType == PackageType.Library:
             return True
         elif packageType == PackageType.Executable:
-            return False
+            return self._AllowExeDependency
         elif packageType == PackageType.ExternalLibrary:
             return True
         elif packageType == PackageType.HeaderLibrary:

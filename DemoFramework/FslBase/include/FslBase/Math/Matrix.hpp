@@ -1012,6 +1012,8 @@ namespace Fsl
               m[_M33] != rhs.m[_M33] || m[_M34] != rhs.m[_M34] || m[_M41] != rhs.m[_M41] || m[_M42] != rhs.m[_M42] || m[_M43] != rhs.m[_M43] ||
               m[_M44] != rhs.m[_M44]);
     }
+
+    // Vector3 ToEularAngles() const;
   };
 
   //! @brief Matrix multiply

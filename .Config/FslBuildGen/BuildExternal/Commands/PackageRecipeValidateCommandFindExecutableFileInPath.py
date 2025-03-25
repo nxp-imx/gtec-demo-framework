@@ -41,7 +41,8 @@ from FslBuildGen.BuildExternal.Commands.PackageRecipeValidateCommandFindExecutab
 from FslBuildGen.DataTypes import BuildRecipeValidateCommand
 
 class PackageRecipeValidateCommandFindExecutableFileInPath(PackageRecipeValidateCommand):
-    def __init__(self, name: str, alternatives: List[str], expectedPath: Optional[str], minVersion: Optional[str], versionCommand: Optional[str], versionRegEx: Optional[str],
+    def __init__(self, name: str, alternatives: List[str], expectedPath: Optional[str], minVersion: Optional[str], versionCommand: Optional[str],
+                 versionRegEx: Optional[str], versionSplitChar: str,
                  addOnErrorWarning: List[PackageRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning], help: Optional[str]) -> None:
         super().__init__("FindFileInPath", BuildRecipeValidateCommand.FindExecutableFileInPath, help)
 
@@ -63,6 +64,7 @@ class PackageRecipeValidateCommandFindExecutableFileInPath(PackageRecipeValidate
         self.MinVersion = minVersion
         self.VersionCommand = versionCommand
         self.VersionRegEx = versionRegEx
+        self.VersionSplitChar = versionSplitChar
 
         self.AddOnErrorWarning = addOnErrorWarning
 

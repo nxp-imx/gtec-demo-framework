@@ -25,6 +25,9 @@ Left arrow  | font scale slider decrease by 0.50
 Right arrow | font scale slider increase by 0.50
 Space       | Reset settings to default
 
+Notes:
+
+- [subpixel-distance-transform](https://acko.net/blog/subpixel-distance-transform/)
 
 <!-- #AG_DEMOAPP_COMMANDLINE_ARGUMENTS_BEGIN# -->
 

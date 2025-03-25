@@ -78,8 +78,8 @@ namespace Fsl
   }
 
   BitmapFont::BitmapFont(std::string name, const uint16_t dpi, const uint16_t size, const PxValueU16 lineSpacingPx, const PxValueU16 baseLinePx,
-                         const PxThicknessU16& paddingPx, std::string textureName, const BitmapFontType fontType, const SdfParams& sdfParams,
-                         std::vector<BitmapFontChar> chars, std::vector<BitmapFontKerning> kernings)
+                         const PxThicknessU16& paddingPx, std::string textureName, const BitmapFontType fontType,
+                         const BitmapFontSdfParams& sdfParams, std::vector<BitmapFontChar> chars, std::vector<BitmapFontKerning> kernings)
     : m_name(std::move(name))
     , m_textureName(std::move(textureName))
     , m_dpi(dpi)
@@ -112,7 +112,7 @@ namespace Fsl
 
   BitmapFont::BitmapFont(const StringViewLite name, const uint16_t dpi, const uint16_t size, const PxValueU16 lineSpacingPx,
                          const PxValueU16 baseLinePx, const PxThicknessU16& paddingPx, const StringViewLite textureName,
-                         const BitmapFontType fontType, const SdfParams& sdfParams, const ReadOnlySpan<BitmapFontChar> chars,
+                         const BitmapFontType fontType, const BitmapFontSdfParams& sdfParams, const ReadOnlySpan<BitmapFontChar> chars,
                          const ReadOnlySpan<BitmapFontKerning> kernings)
     : BitmapFont(std::string(name), dpi, size, lineSpacingPx, baseLinePx, paddingPx, std::string(textureName), fontType, sdfParams,
                  SpanUtil::ToVector(chars), SpanUtil::ToVector(kernings))
@@ -122,7 +122,7 @@ namespace Fsl
 
   BitmapFont::BitmapFont(const StringViewLite name, const uint16_t dpi, const uint16_t size, const PxValueU16 lineSpacingPx,
                          const PxValueU16 baseLinePx, const PxThicknessU16& paddingPx, const StringViewLite textureName,
-                         const BitmapFontType fontType, const SdfParams& sdfParams, std::vector<BitmapFontChar> chars,
+                         const BitmapFontType fontType, const BitmapFontSdfParams& sdfParams, std::vector<BitmapFontChar> chars,
                          std::vector<BitmapFontKerning> kernings)
     : BitmapFont(std::string(name), dpi, size, lineSpacingPx, baseLinePx, paddingPx, std::string(textureName), fontType, sdfParams, std::move(chars),
                  std::move(kernings))

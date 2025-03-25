@@ -55,6 +55,8 @@ namespace Fsl::Graphics3D
     Vector3 m_dragStart;
     Vector3 m_dragCurrent;
     Quaternion m_dragRotation;
+    bool m_invertX{false};
+    bool m_invertY{false};
 
   public:
     explicit ArcballCamera(const PxPoint2& screenResolution);
@@ -69,6 +71,26 @@ namespace Fsl::Graphics3D
     float GetZoom() const;
     void SetZoom(const float value);
     void AddZoom(const float value);
+
+    bool GetInvertX() const noexcept
+    {
+      return m_invertX;
+    }
+
+    bool GetInvertY() const noexcept
+    {
+      return m_invertY;
+    }
+
+    void SetInvertX(const bool value) noexcept
+    {
+      m_invertX = value;
+    }
+
+    void SetInvertY(const bool value) noexcept
+    {
+      m_invertY = value;
+    }
 
 
     //! @brief Check if the camera is being dragged

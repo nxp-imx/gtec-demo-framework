@@ -26,6 +26,7 @@ SOFTWARE.
 // The functions in this file are a port of an MIT licensed library: MonoGame - Vector2.cs.
 
 #include <FslBase/Exceptions.hpp>
+// #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/MatrixFields.hpp>
 #include <FslBase/Math/Quaternion.hpp>
@@ -686,6 +687,31 @@ namespace Fsl
     rResult.Z = quaternion.Z * num;
     rResult.W = quaternion.W * num;
   }
+
+
+  //  Vector3 Quaternion::ToEulerAngles() const
+  //  {
+  //    // Roll (x-axis rotation)
+  //    const float sinrCosp = 2 * (W * X + Y * Z);
+  //    const float cosrCosp = 1 - 2 * (X * X + Y * Y);
+  //    const float roll = std::atan2(sinrCosp, cosrCosp);
+  //
+  //    // Pitch (y-axis rotation)
+  //    const float sinp = 2 * (W * Y - Z * X);
+  //    float pitch;
+  //    if (std::abs(sinp) >= 1)
+  //      pitch = std::copysign(MathHelper::PI / 2, sinp);    // Use 90 degrees if out of range
+  //    else
+  //      pitch = std::asin(sinp);
+  //
+  //    // Yaw (z-axis rotation)
+  //    const float sinyCosp = 2 * (W * Z + X * Y);
+  //    const float cosyCosp = 1 - 2 * (Y * Y + Z * Z);
+  //    const float yaw = std::atan2(sinyCosp, cosyCosp);
+  //
+  //    return {roll, pitch, yaw};
+  //  }
+
 
   // public static Quaternion Quaternion::operator -(Quaternion quaternion)
   //{

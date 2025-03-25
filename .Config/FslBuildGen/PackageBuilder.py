@@ -65,7 +65,7 @@ class PackageBuilder(object):
                  platformName: str, hostPlatformName: str, basicBuildConfig: BasicBuildConfig, generatorInfo: GeneratorInfo,
                  genFiles: List[XmlGenFile], packageManagerFilter: PackageManagerFilter,
                  externalVariantConstraints: ExternalVariantConstraints, engineResolveConfig: EngineResolveConfig,
-                 filterMode: FilterMode,
+                 filterMode: FilterMode, allowExeDependency: bool,
                  logVerbosity: int = 1, writeGraph: bool = False) -> None:
         super().__init__()
 
@@ -74,7 +74,7 @@ class PackageBuilder(object):
 
         packageManager = PackageManager(log, configBuildDir, configIgnoreNotSupported, toolConfig, platformName, hostPlatformName, basicBuildConfig,
                                         generatorInfo, genFiles, packageManagerFilter, externalVariantConstraints, engineResolveConfig,
-                                        writeGraph, filterMode)
+                                        writeGraph, filterMode, allowExeDependency)
         packages = packageManager.Packages
 
         # Build a graph containing all packages

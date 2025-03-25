@@ -213,7 +213,7 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
         sourceFiles = CMakeGeneratorUtil.ExpandPathAndJoin(toolConfig, package, package.ResolvedBuildSourceFiles)
         linkLibrariesDirectDependencies = CMakeGeneratorUtil.BuildTargetLinkLibrariesForDirectDependencies(config, package,
                                                                                                            template.PackageDependencyTargetLinkLibraries,
-                                                                                                           template.PackageDependencyFindPackage,
+                                                                                                           template.PackageDependencyFindPackageInternal,
                                                                                                            ignoreLibs)
         linkLibrariesDirectDependencies = linkLibrariesDirectDependencies.replace(Variable.RecipeVariant, "${ANDROID_ABI}")
         directDefinitions = CMakeGeneratorUtil.BuildDirectDefinitions(config, package, template.PackageDependencyTargetCompileDefinitions)

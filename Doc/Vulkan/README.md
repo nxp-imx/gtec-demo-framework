@@ -414,7 +414,7 @@ DFSimpleUI101              |    Y    |
 DisplacementMapping        |         |
 DynamicTerrainTessellation |         |
 GammaCorrection            |    Y    |
-Gears                      |         |
+Gears                      |    Y    |
 HDR01_BasicToneMapping     |    Y    |
 HDR02_FBBasicToneMapping   |    Y    |
 HDR03_SkyboxTonemapping    |    Y    |
@@ -437,4 +437,6 @@ TexturingCubeMap           |         |
 Triangle                   |    Y    |
 Vulkan101                  |    Y    |
 VulkanComputeMandelbrot    |         |
-VulkanInfo                 |         |
+VulkanInfo                 |    X    |
+
+X = not relevant

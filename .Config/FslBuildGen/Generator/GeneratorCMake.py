@@ -217,7 +217,7 @@ class GeneratorCMake(GeneratorBase):
 
         linkLibrariesDirectDependencies = CMakeGeneratorUtil.BuildTargetLinkLibrariesForDirectDependencies(log, package,
                                                                                                            template.PackageDependencyTargetLinkLibraries,
-                                                                                                           template.PackageDependencyFindPackage)
+                                                                                                           template.PackageDependencyFindPackageInternal)
 
         extraDefines = None
         if generatorMode == CMakeGeneratorMode.Tidy and not package.IsVirtual:

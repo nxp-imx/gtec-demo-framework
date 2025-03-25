@@ -13,6 +13,7 @@ layout(push_constant) uniform LayerBlock
   uniform float ShadowSmoothing;
   // Between 0 and 0.5, 0 = thick outline, 0.5 = no outline
   uniform float OutlineDistance;
+  uniform float ContourScale;
 }
 g_pushConstant;
 

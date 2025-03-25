@@ -39,6 +39,7 @@
 #include <FslBase/Span/Span.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/Font/BitmapFontConfig.hpp>
+#include <FslGraphics/Font/BitmapFontSdfParams.hpp>
 #include <FslGraphics/Font/BitmapFontType.hpp>
 #include <FslGraphics/Font/FontGlyphRange.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFontFastLookup.hpp>
@@ -57,6 +58,7 @@ namespace Fsl
     SpriteFontCharInfo m_unknownChar;
     PxThicknessU16 m_charPaddingPx;
     BitmapFontType m_fontType{BitmapFontType::Bitmap};
+    BitmapFontSdfParams m_sdfParams;
 
   public:
     // move assignment operator
@@ -72,11 +74,13 @@ namespace Fsl
         m_unknownChar = other.m_unknownChar;
         m_charPaddingPx = other.m_charPaddingPx;
         m_fontType = other.m_fontType;
+        m_sdfParams = other.m_sdfParams;
 
         // Remove the data from other
         other.m_unknownChar = {};
         other.m_charPaddingPx = {};
         other.m_fontType = BitmapFontType::Bitmap;
+        other.m_sdfParams = {};
       }
       return *this;
     }
@@ -87,10 +91,12 @@ namespace Fsl
       , m_unknownChar(other.m_unknownChar)
       , m_charPaddingPx(other.m_charPaddingPx)
       , m_fontType(other.m_fontType)
+      , m_sdfParams(other.m_sdfParams)
     {
       other.m_unknownChar = {};
       other.m_charPaddingPx = {};
       other.m_fontType = BitmapFontType::Bitmap;
+      other.m_sdfParams = {};
     }
 
     TextureAtlasSpriteFont(const TextureAtlasSpriteFont&) = delete;
@@ -106,12 +112,27 @@ namespace Fsl
     {
       m_lookup.Clear();
       m_unknownChar = {};
+      m_charPaddingPx = {};
+      m_fontType = BitmapFontType::Bitmap;
+      m_sdfParams = {};
     }
 
     void Reset(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const PxExtent2D textureExtentPx, const BitmapFont& bitmapFont,
                const uint32_t densityDpi);
     void Reset(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const PxExtent2D textureExtentPx, const ITextureAtlas& textureAtlas,
                const IFontBasicKerning& basicFontKerning, const uint32_t densityDpi);
+
+    BitmapFontType GetFontType() const
+    {
+      return m_fontType;
+    }
+
+
+    BitmapFontSdfParams GetSdfParams() const
+    {
+      return m_sdfParams;
+    }
+
 
     PxSize1D BaseLinePx() const
     {

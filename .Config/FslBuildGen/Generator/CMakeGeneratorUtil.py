@@ -108,6 +108,7 @@ class CodeTemplateCMake(object):
         self.PackageDependencyTargetLinkLibraries = self.__ReadFile("PackageDependency_target_link_libraries.txt")
         self.PackageDependencyTargetCompileDefinitions = self.__ReadFile("PackageDependency_target_compile_definitions.txt")
         self.PackageDependencyFindPackage = self.__ReadFile("PackageDependency_find_package.txt")
+        self.PackageDependencyFindPackageInternal = self.__ReadOptionalFile("PackageDependency_find_package_internal.txt", self.PackageDependencyFindPackage)
         self.SnippetTargetCompileOptionsDefault = self.__ReadFile("Snippet_TargetCompileOptions_Default.txt")
         self.SnippetTargetCompileFeaturesDefault = self.__ReadFile("Snippet_TargetCompileFeatures_Default.txt")
         self.SnippetTargetCompileFeaturesInterface = self.__ReadFile("Snippet_TargetCompileFeatures_Interface.txt")

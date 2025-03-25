@@ -27,6 +27,7 @@ SOFTWARE.
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Matrix.hpp>
+// #include <FslBase/Math/MatrixConverter.hpp>
 #include <FslBase/Math/MatrixFields.hpp>
 #include <FslBase/Math/Plane.hpp>
 #include <FslBase/Math/Quaternion.hpp>
@@ -1230,6 +1231,13 @@ namespace Fsl
     m[_M43] = 0.0f;
     m[_M44] = 1.0f;
   }
+
+
+  //  Vector3 Matrix::ToEularAngles() const
+  //  {
+  //    const auto rotationMatrix = MatrixConverter::ToMatrix3(*this);
+  //    return rotationMatrix.ToEularAngles();
+  //  }
 
 
   void Matrix::Subtract(const Matrix& matrix1, const Matrix& matrix2, Matrix& rResult)

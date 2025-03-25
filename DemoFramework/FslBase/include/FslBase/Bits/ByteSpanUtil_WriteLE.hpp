@@ -1,7 +1,7 @@
 #ifndef FSLBASE_BITS_BYTESPANUTIL_WRITELE_HPP
 #define FSLBASE_BITS_BYTESPANUTIL_WRITELE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022, 2024 NXP
+ * Copyright 2020, 2022, 2024-2025 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Span/Span.hpp>
+#include <bit>
 #include <cassert>
 
 namespace Fsl::ByteSpanUtil
@@ -301,6 +302,22 @@ namespace Fsl::ByteSpanUtil
     return 8;
   }
 
+
+  //! @brief Write a float to the given span in little endian format
+  constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const float value)
+  {
+    // Encode the float bit-pattern to a uint32 and write it
+    return WriteLE(dst, std::bit_cast<uint32_t>(value));
+  }
+
+
+  //! @brief Write a double to the given span in little endian format
+  constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const double value)
+  {
+    // Encode the double bit-pattern to a uint64 and write it
+    return WriteLE(dst, std::bit_cast<uint64_t>(value));
+  }
+
   // -----------------------------------------------------------------------------------------------------------------------------------------------
   // -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -357,8 +374,22 @@ namespace Fsl::ByteSpanUtil
     return WriteLE(dst.subspan(dstIndex), value);
   }
 
-  //! @brief Write a int64_t v the given dstIndex in little endian format
+  //! @brief Write a int64_t to the given dstIndex in little endian format
   constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const int64_t value)
+  {
+    assert(dstIndex < dst.size());
+    return WriteLE(dst.subspan(dstIndex), value);
+  }
+
+  //! @brief Write a float to the given dstIndex in little endian format
+  constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const float value)
+  {
+    assert(dstIndex < dst.size());
+    return WriteLE(dst.subspan(dstIndex), value);
+  }
+
+  //! @brief Write a double to the given dstIndex in little endian format
+  constexpr inline Span<uint8_t>::size_type WriteLE(Span<uint8_t> dst, const Span<uint8_t>::size_type dstIndex, const double value)
   {
     assert(dstIndex < dst.size());
     return WriteLE(dst.subspan(dstIndex), value);

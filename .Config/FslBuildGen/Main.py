@@ -165,6 +165,7 @@ class PackageLoadAndResolveProcess(object):
         configIsDryRun = self.Config.IsDryRun
         configIgnoreNotSupported = self.Config.IgnoreNotSupported
         configAllowVariantExtension = self.Config.AllowVariantExtension
+        configAllowExeDependency = self.Config.AllowExeDependency
         configGroupException = self.Config.GroupException
         toolConfig = self.Config.ToolConfig
 
@@ -172,7 +173,7 @@ class PackageLoadAndResolveProcess(object):
                                           configGroupException, toolConfig, platformContext, sourceGenFiles, autoAddRecipeExternals, fullResolve,
                                           self.MarkExternalLibFirstUse,
                                           packageFilters.RecipeFilterManager, packageManagerFilter, externalVariantConstraints,
-                                          engineResolveConfig, self.__writeGraph, filterMode)
+                                          engineResolveConfig, self.__writeGraph, filterMode, configAllowExeDependency)
         self.IsFullResolve = fullResolve
         self.Packages = packageResolver.Packages
         return self.Packages

@@ -5,7 +5,7 @@
     <Define Name="FSL_ENABLE_FMT" Access="Public"/>
     <Define Name="FMT_UNICODE" Value="0" Access="Public"/>
     <Platform Name="Android;Ubuntu;Windows;QNX;Emscripten" Supported="true">
-      <Dependency Name="Recipe.fmt_11_0"/>
+      <Dependency Name="Recipe.fmt_11_1"/>
     </Platform>    
     <Platform Name="Yocto" Supported="true">
       <ExternalDependency Name="fmt" Access="Public" Type="StaticLib"/>

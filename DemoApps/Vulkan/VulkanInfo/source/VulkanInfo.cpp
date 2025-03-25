@@ -43,6 +43,8 @@
 #include <RapidVulkan/Debug/Strings/VkPhysicalDeviceType.hpp>
 #include <RapidVulkan/Debug/Strings/VkQueueFlagBits.hpp>
 #include <fmt/format.h>
+#include "CustomWriter.hpp"
+#include "Profiles.hpp"
 // Included last as a workaround
 #include <FslUtil/Vulkan1_0/Debug/BitFlags.hpp>
 
@@ -281,22 +283,6 @@ namespace Fsl
       VK_FORMAT_ASTC_12x12_UNORM_BLOCK,        // = 183,
       VK_FORMAT_ASTC_12x12_SRGB_BLOCK,         // = 184,
     };
-
-    class CustomWriter
-    {
-    public:
-      void Print(const char* const psz) noexcept
-      {
-        Logger::WriteLine(LogType::Info, psz);
-      }
-
-      template <typename... Args>
-      void Print(fmt::format_string<Args...> formatString, const Args&... args) noexcept
-      {
-        Logger::WriteLine(LogType::Info, formatString, args...);
-      }
-    };
-
 
     void LogPhysicalDeviceLimits(CustomWriter& rWriter, const VkPhysicalDeviceLimits& limits)
     {
@@ -651,5 +637,7 @@ namespace Fsl
     //  deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     //  VUDevice device(physicalDevices[i], deviceCreateInfo);
     //}
+    Profiles profiles;
+    profiles.LogProfiles(writer);
   }
 }

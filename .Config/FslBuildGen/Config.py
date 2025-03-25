@@ -86,6 +86,7 @@ class Config(BaseConfig):
         self.GroupException = True  # type: bool
         # Variant extension is getting closer to working, so lets enable it
         self.AllowVariantExtension = True  # type: bool
+        self.AllowExeDependency = toolConfig.ProjectRootConfig.AllowExeDependency # type: bool
         self.GenFileName = toolConfig.GenFileName
 
         self.AllowDevelopmentPlugins = allowDevelopmentPlugins

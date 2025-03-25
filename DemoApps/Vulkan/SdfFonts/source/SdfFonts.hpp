@@ -1,7 +1,7 @@
 #ifndef VULKAN_SDFFONTS_SDFFONTS_HPP
 #define VULKAN_SDFFONTS_SDFFONTS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2025 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,6 +59,7 @@ namespace Fsl
       float ShadowOffsetY{};
       float ShadowSmoothing{};
       float OutlineDistance{};
+      float ContourScale{};
     };
 
     struct MeshRecord
@@ -97,17 +98,27 @@ namespace Fsl
       RapidVulkan::DescriptorPool MainDescriptorPool;
       VkDescriptorSet DescriptorSetNormal{};
       VkDescriptorSet DescriptorSetSdf{};
+      VkDescriptorSet DescriptorSetMtsdf{};
       RapidVulkan::PipelineLayout MainPipelineLayout;
 
       ExampleRecord Normal;
       ExampleRecord Sdf;
+      ExampleRecord Mtsdf;
 
       RapidVulkan::ShaderModule VertShader;
       RapidVulkan::ShaderModule FragShaderText;
+
       RapidVulkan::ShaderModule FragShaderSdf;
       RapidVulkan::ShaderModule FragShaderSdfOutline;
       RapidVulkan::ShaderModule FragShaderSdfShadow;
       RapidVulkan::ShaderModule FragShaderSdfShadowAndOutline;
+      RapidVulkan::ShaderModule FragShaderSdfContours;
+
+      RapidVulkan::ShaderModule FragShaderMtsdf;
+      RapidVulkan::ShaderModule FragShaderMtsdfOutline;
+      RapidVulkan::ShaderModule FragShaderMtsdfShadow;
+      RapidVulkan::ShaderModule FragShaderMtsdfShadowAndOutline;
+      RapidVulkan::ShaderModule FragShaderMtsdfContours;
 
       AtlasTexture2D FillTexture;
 
@@ -118,14 +129,32 @@ namespace Fsl
       Resources& operator=(Resources&& other) noexcept = delete;
     };
 
+    struct FontPipelines
+    {
+      RapidVulkan::GraphicsPipeline Normal;
+      RapidVulkan::GraphicsPipeline Outline;
+      RapidVulkan::GraphicsPipeline Shadow;
+      RapidVulkan::GraphicsPipeline ShadowAndOutline;
+      RapidVulkan::GraphicsPipeline Contours;
+
+      void Reset() noexcept
+      {
+        // Reset in destruction order
+        Contours.Reset();
+        ShadowAndOutline.Reset();
+        Shadow.Reset();
+        Outline.Reset();
+        Normal.Reset();
+      }
+    };
+
+
     struct DependentResources
     {
       RapidVulkan::RenderPass MainRenderPass;
       RapidVulkan::GraphicsPipeline PipelineNormal;
-      RapidVulkan::GraphicsPipeline PipelineSdf;
-      RapidVulkan::GraphicsPipeline PipelineSdfOutline;
-      RapidVulkan::GraphicsPipeline PipelineSdfShadow;
-      RapidVulkan::GraphicsPipeline PipelineSdfShadowAndOutline;
+      FontPipelines PipelineSdf;
+      FontPipelines PipelineMtsdf;
 
       DependentResources() = default;
       DependentResources(const DependentResources&) = delete;
@@ -136,9 +165,7 @@ namespace Fsl
       void Reset() noexcept
       {
         // Reset in destruction order
-        PipelineSdfShadowAndOutline.Reset();
-        PipelineSdfShadow.Reset();
-        PipelineSdfOutline.Reset();
+        PipelineMtsdf.Reset();
         PipelineSdf.Reset();
         PipelineNormal.Reset();
         MainRenderPass.Reset();
@@ -173,8 +200,12 @@ namespace Fsl
     void DrawNow(const VkCommandBuffer hCmdBuffer, const uint32_t currentFrameIndex);
     void DrawMeshes(const VkCommandBuffer hCmdBuffer, const uint32_t currentFrameIndex, const FontDrawConfig& fontDrawConfig,
                     const RapidVulkan::GraphicsPipeline& sdfPipeline);
-    void DrawTextMesh(const VkCommandBuffer hCmdBuffer, const uint32_t currentFrameIndex, const MeshRecord& mesh, const Vulkan::VUTexture& texture,
+    void DrawTextMesh(const VkCommandBuffer hCmdBuffer, const uint32_t currentFrameIndex, const MeshRecord& mesh, const FontRecord& fontRecord,
                       const RapidVulkan::GraphicsPipeline& pipeline, const VkDescriptorSet descriptorSet, const FontDrawConfig& fontDrawConfig);
+
+
+    FontRecord PrepareFont(const IContentManager& contentManager, const IO::Path& bitmapFontPath, const IO::Path& fontAtlasTexturePath,
+                           const SpriteNativeAreaCalc& spriteNativeAreaCalc, const uint32_t densityDpi);
 
     ExampleRecord PrepareExample(const uint32_t maxFramesInFlight, const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager,
                                  const IContentManager& contentManager, const PxSize1D lineYPx, const IO::Path& bitmapFontPath,
@@ -189,7 +220,7 @@ namespace Fsl
                                 const FontRecord& fontRecord, const BitmapFontConfig fontConfig, const StringViewLite& strView,
                                 std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad);
 
-    const RapidVulkan::GraphicsPipeline& SelectPipeline(const SdfFontMode fontSdfMode);
+    const RapidVulkan::GraphicsPipeline& SelectPipeline(const SdfFontMode fontSdfMode, const SdfType fontSdfType);
   };
 }
 

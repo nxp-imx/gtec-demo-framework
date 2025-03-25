@@ -15,6 +15,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Vector.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -24,9 +25,33 @@
 
 namespace Fsl
 {
-  VulkanGear::VulkanGear(Willems::VulkanDevice* pVulkanDevice)
-    : m_pVulkanDevice(pVulkanDevice)
-    , DescriptorSet(VK_NULL_HANDLE)
+  namespace
+  {
+    void NewFace(std::vector<uint32_t>& rIBuffer, const int a, const int b, const int c)
+    {
+      rIBuffer.push_back(a);
+      rIBuffer.push_back(b);
+      rIBuffer.push_back(c);
+    }
+
+    Vulkan::VUBufferMemory CreateUniformBuffer(const Vulkan::VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkDeviceSize size)
+    {
+      VkBufferCreateInfo bufferInfo{};
+      bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+      bufferInfo.pNext = nullptr;
+      bufferInfo.flags = 0;
+      bufferInfo.size = size;
+      bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+
+      return {physicalDevice, device, bufferInfo, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT};
+    }
+
+  }
+
+  VulkanGear::VulkanGear(Vulkan::VUPhysicalDeviceRecord physicalDevice, const VkDevice device, std::shared_ptr<Vulkan::VMBufferManager> bufferManager)
+    : m_physicalDevice(physicalDevice)
+    , m_device(device)
+    , m_bufferManager(std::move(bufferManager))
   {
   }
 
@@ -167,68 +192,17 @@ namespace Fsl
       NewFace(iBuffer, ix1, ix3, ix2);
     }
 
-    const auto vertexBufferSize = UncheckedNumericCast<uint32_t>(vBuffer.size() * sizeof(Vertex));
-    const auto indexBufferSize = UncheckedNumericCast<uint32_t>(iBuffer.size() * sizeof(uint32_t));
-
-    const bool useStaging = true;
-
-    if (useStaging)
-    {
-      // Create staging buffers
-      // Vertex data
-      auto vertexStaging =
-        m_pVulkanDevice->CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, vertexBufferSize, vBuffer.data());
-
-      // Index data
-      auto indexStaging =
-        m_pVulkanDevice->CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, indexBufferSize, iBuffer.data());
-
-      // Create device local buffers
-      // Vertex buffer
-      m_vertexBuffer = m_pVulkanDevice->CreateBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                                                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBufferSize);
-      // Index buffer
-
-      m_indexBuffer = m_pVulkanDevice->CreateBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                                                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBufferSize);
-
-      {    // Copy from staging buffers
-        RapidVulkan::CommandBuffer copyCmd = m_pVulkanDevice->CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
-
-        VkBufferCopy copyRegion{};
-        copyRegion.size = vertexBufferSize;
-
-        vkCmdCopyBuffer(copyCmd.Get(), vertexStaging.GetBuffer(), m_vertexBuffer.GetBuffer(), 1, &copyRegion);
-
-        copyRegion.size = indexBufferSize;
-        vkCmdCopyBuffer(copyCmd.Get(), indexStaging.GetBuffer(), m_indexBuffer.GetBuffer(), 1, &copyRegion);
-
-        m_pVulkanDevice->FlushCommandBuffer(copyCmd, queue, true);
-      }
-    }
-    else
-    {
-      // Vertex buffer
-      m_vertexBuffer =
-        m_pVulkanDevice->CreateBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, vertexBufferSize, vBuffer.data());
-
-      // Index buffer
-      m_indexBuffer =
-        m_pVulkanDevice->CreateBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, indexBufferSize, iBuffer.data());
-    }
+    m_vertexBuffer.Reset(m_bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vBuffer), Vulkan::VMBufferUsage::STATIC);
+    m_indexBuffer.Reset(m_bufferManager, iBuffer, Vulkan::VMBufferUsage::STATIC);
 
     m_indexCount = UncheckedNumericCast<uint32_t>(iBuffer.size());
-    PrepareUniformBuffer();
   }
 
 
-  void VulkanGear::UpdateUniformBuffer(const glm::mat4& perspective, const glm::vec3& rotation, const float zoom, const float timer)
+  void VulkanGear::UpdateUniformBuffer(const uint32_t frameIndex, const glm::mat4& perspective, const glm::mat4& view, const float timer)
   {
     m_ubo.Projection = perspective;
-
-    m_ubo.View = glm::lookAt(glm::vec3(0, 0, -zoom), glm::vec3(-1.0, -1.5, 0), glm::vec3(0, 1, 0));
-    m_ubo.View = glm::rotate(m_ubo.View, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    m_ubo.View = glm::rotate(m_ubo.View, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    m_ubo.View = view;
 
     m_ubo.Model = glm::mat4(1.0f);
     m_ubo.Model = glm::translate(m_ubo.Model, m_pos);
@@ -242,45 +216,48 @@ namespace Fsl
     m_ubo.LightPos.x = std::sin(glm::radians(timer)) * 8.0f;
     m_ubo.LightPos.z = std::cos(glm::radians(timer)) * 8.0f;
 
-    {    // Transfer
-      void* pData = nullptr;
-      m_uniformData.Memory.MapMemory(0, sizeof(m_ubo), 0, &pData);
-      std::memcpy(pData, &m_ubo, sizeof(m_ubo));
-      m_uniformData.Memory.UnmapMemory();
+    m_resources[frameIndex].UniformData.Upload(0, &m_ubo, sizeof(m_ubo));
+  }
+
+
+  void VulkanGear::SetupDescriptorSet(const uint32_t maxFramesInFlight, const VkDescriptorPool pool, const VkDescriptorSetLayout descriptorSetLayout)
+  {
+    m_resources.resize(maxFramesInFlight);
+
+    for (auto& rFrame : m_resources)
+    {
+      rFrame.UniformData = CreateUniformBuffer(m_physicalDevice, m_device, sizeof(m_ubo));
+
+      VkDescriptorSetAllocateInfo allocInfo{};
+      allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+      allocInfo.pNext = nullptr;
+      allocInfo.descriptorPool = pool;
+      allocInfo.descriptorSetCount = 1;
+      allocInfo.pSetLayouts = &descriptorSetLayout;
+
+      RAPIDVULKAN_CHECK(vkAllocateDescriptorSets(m_device, &allocInfo, &rFrame.DescriptorSet));
+
+      // Binding 0 : Vertex shader uniform buffer
+      auto vertUboBufferInfo = rFrame.UniformData.GetDescriptorBufferInfo();
+      VkWriteDescriptorSet writeDescriptorSet{};
+      writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+      writeDescriptorSet.pNext = nullptr;
+      writeDescriptorSet.dstSet = rFrame.DescriptorSet;
+      writeDescriptorSet.dstBinding = 0;
+      writeDescriptorSet.descriptorCount = 1;
+      writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+      writeDescriptorSet.pBufferInfo = &vertUboBufferInfo;
+
+      vkUpdateDescriptorSets(m_device, 1, &writeDescriptorSet, 0, nullptr);
     }
   }
 
 
-  void VulkanGear::SetupDescriptorSet(const VkDescriptorPool pool, const VkDescriptorSetLayout descriptorSetLayout)
-  {
-    VkDescriptorSetAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.pNext = nullptr;
-    allocInfo.descriptorPool = pool;
-    allocInfo.descriptorSetCount = 1;
-    allocInfo.pSetLayouts = &descriptorSetLayout;
-
-    RAPIDVULKAN_CHECK(vkAllocateDescriptorSets(m_pVulkanDevice->GetDevice(), &allocInfo, &DescriptorSet));
-
-    // Binding 0 : Vertex shader uniform buffer
-    VkWriteDescriptorSet writeDescriptorSet{};
-    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    writeDescriptorSet.pNext = nullptr;
-    writeDescriptorSet.dstSet = DescriptorSet;
-    writeDescriptorSet.dstBinding = 0;
-    writeDescriptorSet.descriptorCount = 1;
-    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    writeDescriptorSet.pBufferInfo = &m_uniformData.Descriptor;
-
-    vkUpdateDescriptorSets(m_pVulkanDevice->GetDevice(), 1, &writeDescriptorSet, 0, nullptr);
-  }
-
-
-  void VulkanGear::Draw(const VkCommandBuffer cmdbuffer, const VkPipelineLayout pipelineLayout)
+  void VulkanGear::Draw(const uint32_t frameIndex, const VkCommandBuffer cmdbuffer, const VkPipelineLayout pipelineLayout)
   {
     VkDeviceSize offsets = 0;
 
-    vkCmdBindDescriptorSets(cmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &DescriptorSet, 0, nullptr);
+    vkCmdBindDescriptorSets(cmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &m_resources[frameIndex].DescriptorSet, 0, nullptr);
     vkCmdBindVertexBuffers(cmdbuffer, 0, 1, m_vertexBuffer.GetBufferPointer(), &offsets);
     vkCmdBindIndexBuffer(cmdbuffer, m_indexBuffer.GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
     vkCmdDrawIndexed(cmdbuffer, m_indexCount, 1, 0, 0, 1);
@@ -292,46 +269,5 @@ namespace Fsl
     Vertex v(glm::vec3(x, y, z), normal, m_color);
     rVBuffer.push_back(v);
     return static_cast<int32_t>(rVBuffer.size()) - 1;
-  }
-
-
-  void VulkanGear::NewFace(std::vector<uint32_t>& rIBuffer, const int a, const int b, const int c)
-  {
-    rIBuffer.push_back(a);
-    rIBuffer.push_back(b);
-    rIBuffer.push_back(c);
-  }
-
-
-  void VulkanGear::PrepareUniformBuffer()
-  {
-    VkBufferCreateInfo bufferInfo{};
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.pNext = nullptr;
-    bufferInfo.flags = 0;
-    bufferInfo.size = sizeof(m_ubo);
-    bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-
-    m_uniformData.Buffer.Reset(m_pVulkanDevice->GetDevice(), bufferInfo);
-
-    const VkMemoryRequirements memReqs = m_uniformData.Buffer.GetBufferMemoryRequirements();
-
-    // Vertex shader uniform buffer block
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.pNext = nullptr;
-    allocInfo.allocationSize = memReqs.size;
-    allocInfo.memoryTypeIndex =
-      m_pVulkanDevice->GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-    m_uniformData.Memory.Reset(m_pVulkanDevice->GetDevice(), allocInfo);
-
-    RAPIDVULKAN_CHECK(vkBindBufferMemory(m_pVulkanDevice->GetDevice(), m_uniformData.GetBuffer(), m_uniformData.GetMemory(), 0));
-
-    m_uniformData.Descriptor = VkDescriptorBufferInfo{};
-    m_uniformData.Descriptor.buffer = m_uniformData.GetBuffer();
-    m_uniformData.Descriptor.offset = 0;
-    m_uniformData.Descriptor.range = static_cast<VkDeviceSize>(sizeof(m_ubo));
-    m_uniformData.AllocSize = UncheckedNumericCast<uint32_t>(allocInfo.allocationSize);
   }
 }

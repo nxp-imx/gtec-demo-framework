@@ -57,13 +57,15 @@ namespace Fsl::Graphics3D
       constexpr float MaxZoom = std::numeric_limits<float>::max();
     }
 
-    inline Vector3 MapToSphere(const Vector2& screenResolutionBounds, const PxPoint2& point)
+    inline Vector3 MapToSphere(const Vector2& screenResolutionBounds, const PxPoint2& point, const bool invertX, const bool invertY)
     {
       Vector2 scaledPoint;
 
       // Adjust point coords and scale down to range of [-1 ... 1]
-      scaledPoint.X = (static_cast<float>(point.X.Value) * screenResolutionBounds.X) - 1.0f;
-      scaledPoint.Y = 1.0f - (static_cast<float>(point.Y.Value) * screenResolutionBounds.Y);
+      scaledPoint.X = !invertX ? (static_cast<float>(point.X.Value) * screenResolutionBounds.X) - 1.0f
+                               : 1.0f - (static_cast<float>(point.X.Value) * screenResolutionBounds.X);
+      scaledPoint.Y = invertY ? (static_cast<float>(point.Y.Value) * screenResolutionBounds.Y) - 1.0f
+                              : 1.0f - (static_cast<float>(point.Y.Value) * screenResolutionBounds.Y);
 
       // Compute the square of the length of the vector to the point from the center
       const float length = (scaledPoint.X * scaledPoint.X) + (scaledPoint.Y * scaledPoint.Y);
@@ -170,7 +172,7 @@ namespace Fsl::Graphics3D
     FSLLOG3_WARNING_IF(m_isDragging, "Already dragging. Please end the drag before starting a new one.");
     m_isDragging = true;
     // Map the point to the sphere
-    m_dragStart = MapToSphere(m_screenResolutionBounds, position);
+    m_dragStart = MapToSphere(m_screenResolutionBounds, position, m_invertX, m_invertY);
     m_dragRotation = Quaternion::Identity();
   }
 
@@ -183,7 +185,7 @@ namespace Fsl::Graphics3D
     }
 
     // Map the point to the sphere
-    m_dragCurrent = MapToSphere(m_screenResolutionBounds, position);
+    m_dragCurrent = MapToSphere(m_screenResolutionBounds, position, m_invertX, m_invertY);
 
     // Return the quaternion equivalent to the rotation
     m_dragRotation = CalcRotation(m_dragStart, m_dragCurrent);
@@ -194,7 +196,7 @@ namespace Fsl::Graphics3D
   {
     FSLLOG3_WARNING_IF(!m_isDragging, "Not dragging, please start a drag before stopping it");
     Drag(position);
-    m_dragStart = MapToSphere(m_screenResolutionBounds, position);
+    m_dragStart = MapToSphere(m_screenResolutionBounds, position, m_invertX, m_invertY);
     m_rotationMatrix *= Matrix::CreateFromQuaternion(m_dragRotation);
     m_isDragging = false;
   }

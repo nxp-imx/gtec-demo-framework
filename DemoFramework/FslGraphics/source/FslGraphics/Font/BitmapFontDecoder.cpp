@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2025 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@
 #include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 #include <FslBase/NumericCast.hpp>
 #include <FslGraphics/Font/BitmapFontDecoder.hpp>
+#include <FslGraphics/Log/Font/FmtBitmapFontType.hpp>
 // #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/IO/File.hpp>
 #include <fmt/format.h>
@@ -49,11 +50,12 @@ namespace Fsl
     {
       constexpr const uint32_t Version2 = 2;
       constexpr const uint32_t Version3 = 3;
+      constexpr const uint32_t Version4 = 4;
 
       // NBF, since this is written as little endian it becomes FBN in the file :/
       constexpr const uint32_t Magic = 0x004E4246;
       constexpr const uint32_t MinVersion = Version2;
-      constexpr const uint32_t MaxVersion = Version3;
+      constexpr const uint32_t MaxVersion = Version4;
 
       constexpr const uint32_t HeaderOffsetMagic = 0;
       constexpr const uint32_t HeaderOffsetVersion = 4;
@@ -94,15 +96,19 @@ namespace Fsl
 
     BitmapFontType ReadBitmapFontType(ReadOnlySpan<uint8_t>& rSpan)
     {
-      const uint32_t value = ValueCompression::ReadSimpleUInt32(rSpan);
-      switch (static_cast<BitmapFontType>(value))
+      const auto value = static_cast<BitmapFontType>(ValueCompression::ReadSimpleUInt32(rSpan));
+      switch (value)
       {
       case BitmapFontType::Bitmap:
         return BitmapFontType::Bitmap;
       case BitmapFontType::SDF:
         return BitmapFontType::SDF;
+      case BitmapFontType::MSDF:
+        return BitmapFontType::MSDF;
+      case BitmapFontType::MTSDF:
+        return BitmapFontType::MTSDF;
       default:
-        throw FormatException("Unsupported bitmap font type");
+        throw FormatException(fmt::format("Unsupported bitmap font type: {}", value));
       }
     }
 
@@ -179,21 +185,29 @@ namespace Fsl
     auto size = ValueCompression::ReadSimpleUInt16(remainingContent);
     auto lineSpacingPx = PxValueU16(ValueCompression::ReadSimpleUInt16(remainingContent));
     auto baseLinePx = PxValueU16(ValueCompression::ReadSimpleUInt16(remainingContent));
-    uint16_t sdfSpread = 0;
     uint16_t sdfDesiredBaseLinePx = 0;
+    float sdfDistanceRange = 0.0f;
     uint16_t paddingLeft = 0;
     uint16_t paddingTop = 0;
     uint16_t paddingRight = 0;
     uint16_t paddingBottom = 0;
-    if (currentVersion == NBFHeader::Version3)
+    if (currentVersion >= NBFHeader::Version3)
     {
+      uint16_t sdfSpread = 0;    // Replaced in V4 with sdfDistanceRange
       paddingLeft = ValueCompression::ReadSimpleUInt16(remainingContent);
       paddingTop = ValueCompression::ReadSimpleUInt16(remainingContent);
       paddingRight = ValueCompression::ReadSimpleUInt16(remainingContent);
       paddingBottom = ValueCompression::ReadSimpleUInt16(remainingContent);
       sdfSpread = ValueCompression::ReadSimpleUInt16(remainingContent);
       sdfDesiredBaseLinePx = ValueCompression::ReadSimpleUInt16(remainingContent);
+      sdfDistanceRange = static_cast<float>(sdfSpread);
     }
+    if (currentVersion >= NBFHeader::Version4)
+    {
+      sdfDistanceRange = ByteSpanUtil::ReadFloatLE(remainingContent);
+      remainingContent = remainingContent.subspan(4u);
+    }
+
     auto textureName = ReadString(remainingContent);
     auto fontType = ReadBitmapFontType(remainingContent);
 
@@ -206,7 +220,7 @@ namespace Fsl
 
     const float sdfScale = sdfDesiredBaseLinePx == 0 ? 1.0f : static_cast<float>(sdfDesiredBaseLinePx) / static_cast<float>(baseLinePx.Value);
     const auto paddingPx = PxThicknessU16::Create(paddingLeft, paddingTop, paddingRight, paddingBottom);
-    BitmapFont::SdfParams sdfParams(sdfSpread, sdfScale);
+    BitmapFontSdfParams sdfParams(sdfDistanceRange, sdfScale);
     return {std::move(name),        dpi,      size,      lineSpacingPx,    baseLinePx,         paddingPx,
             std::move(textureName), fontType, sdfParams, std::move(chars), std::move(kernings)};
   }

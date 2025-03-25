@@ -355,6 +355,7 @@ class XmlProjectRootConfigFile(XmlBase):
         self.DefaultPackageLanguage = PackageLanguage.CPP  # type: PackageLanguage
         self.DefaultCompany = LocalInvalidValues.INVALID_COMPANY_NAME  # type: str
         self.ToolConfigFile = LocalInvalidValues.INVALID_FILE_NAME  # type: str
+        self.AllowExeDependency = False # type: bool
         self.RequirePackageCreationYear = False
         self.XmlExperimental = None # type: Optional[XmlExperimental]
         self.XmlPackageConfiguration = []  # type: List[XmlConfigPackageConfiguration]
@@ -382,8 +383,9 @@ class XmlProjectRootConfigFile(XmlBase):
                 toolConfigFilePath = self._ReadAttrib(projectElem, 'ToolConfigFile')  # type: str
                 self.DefaultPackageLanguage = self.__GetDefaultPackageLanguage(projectElem)
                 self.DefaultCompany = self._ReadAttrib(projectElem, 'DefaultCompany')
-                # if this is set to true each package is required to contian a 'CreationYear=""' attribute
+                # if this is set to true each package is required to contain a 'CreationYear=""' attribute
                 self.RequirePackageCreationYear = self._ReadBoolAttrib(projectElem, 'RequirePackageCreationYear', False)
+                self.AllowExeDependency = self._ReadBoolAttrib(projectElem, 'AllowExeDependency', False)
                 self.ToolConfigFile = variableProcessor.ResolvePathToAbsolute(toolConfigFilePath, self.XMLElement)
                 self.XmlPackageConfiguration = _LoadPackageConfigurations(log, projectElem, filename)
                 self.XmlBasePackages = _LoadAddBasePackage(log, projectElem, filename)

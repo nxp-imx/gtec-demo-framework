@@ -58,7 +58,7 @@ namespace Fsl::SimpleUIApp
       if (bitmapFont.GetFontType() == BitmapFontType::SDF && pBasicMaterial != nullptr)
       {
         auto sdfParams = bitmapFont.GetSdfParams();
-        float sdfSmooth = SdfFontUtil::CalcSmooth(sdfParams.Spread, sdfParams.Scale);
+        float sdfSmooth = SdfFontUtil::CalcSmooth(sdfParams.DistanceRange, sdfParams.Scale);
         pBasicMaterial->Material.SetSdfSmooth(sdfSmooth);
       }
     }

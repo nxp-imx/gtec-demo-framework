@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022, 2025 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,9 @@
 #include <FslSimpleUI/App/UISpriteToTextureUtil.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
+#include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Control/ScrollViewer.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
@@ -67,18 +69,19 @@ namespace Fsl
 
   namespace LocalConfig
   {
-    //! This should really be part of the font file
-    constexpr const int32_t FontSpread = 4;
     constexpr const ConstrainedValue<float> OutlineDistanceDefaultValue(0.2f, 0.0f, 1.0f);
     constexpr const ConstrainedValue<float> ShadowSmoothingDefaultValue(0.2f, 0.0f, 1.0f);
     constexpr const ConstrainedValue<float> ShadowOffsetXDefaultValue(0.2f, -1.0f, 1.0f);
     constexpr const ConstrainedValue<float> ShadowOffsetYDefaultValue(0.2f, -1.0f, 1.0f);
+    constexpr const ConstrainedValue<float> ContourScaleDefaultValue(0.25f, 0.2f, 2.0f);
+
 
     constexpr const bool KerningEnabled = true;
     constexpr const bool DrawBoundingBoxes = false;
     constexpr const bool DrawOutlineDefaultValue = false;
     constexpr const bool DrawShadowDefaultValue = false;
-    constexpr const ConstrainedValue<float> Scale(4.0, 0.1f, 10.0f);
+    constexpr const bool DrawContoursDefaultValue = false;
+    constexpr const ConstrainedValue<float> Scale(4.0, 0.2f, 20.0f);
   }
 
   Shared::Shared(const DemoAppConfig& config)
@@ -124,7 +127,8 @@ namespace Fsl
 
   void Shared::OnContentChanged(const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
-    if (theEvent->GetSource() == m_uiRecord.DrawOutlineCheckBox || theEvent->GetSource() == m_uiRecord.DrawShadowCheckBox)
+    if (theEvent->GetSource() == m_uiRecord.DrawOutlineCheckBox || theEvent->GetSource() == m_uiRecord.DrawShadowCheckBox ||
+        theEvent->GetSource() == m_uiRecord.DrawContoursCB)
     {
       UpdateLinkedUIState();
     }
@@ -139,9 +143,29 @@ namespace Fsl
     }
     switch (event.GetKey())
     {
+    case VirtualKey::B:
+      {
+        m_uiRecord.DrawBoundingBoxesCheckBox->Toggle();
+        break;
+      }
     case VirtualKey::K:
       {
         m_uiRecord.KerningCheckBox->Toggle();
+        break;
+      }
+    case VirtualKey::C:
+      {
+        m_uiRecord.DrawContoursCB->Toggle();
+        break;
+      }
+    case VirtualKey::O:
+      {
+        m_uiRecord.DrawOutlineCheckBox->Toggle();
+        break;
+      }
+    case VirtualKey::S:
+      {
+        m_uiRecord.DrawShadowCheckBox->Toggle();
         break;
       }
     case VirtualKey::Delete:
@@ -151,10 +175,10 @@ namespace Fsl
       m_uiRecord.FontScaleSlider->AddValue(0.01f);
       break;
     case VirtualKey::LeftArrow:
-      m_uiRecord.FontScaleSlider->SubValue(0.5f);
+      m_uiRecord.FontScaleSlider->SubValue(0.2f);
       break;
     case VirtualKey::RightArrow:
-      m_uiRecord.FontScaleSlider->AddValue(0.5f);
+      m_uiRecord.FontScaleSlider->AddValue(0.2f);
       break;
     case VirtualKey::Space:
       {
@@ -193,18 +217,27 @@ namespace Fsl
     auto mode = SdfFontMode::Normal;
     mode |= (m_uiRecord.DrawOutlineCheckBox->IsChecked() ? SdfFontMode::Outline : SdfFontMode::Normal);
     mode |= (m_uiRecord.DrawShadowCheckBox->IsChecked() ? SdfFontMode::Shadow : SdfFontMode::Normal);
+
+    if (m_uiRecord.DrawContoursCB->IsChecked())
+    {
+      // Contours is a 'override'
+      mode = SdfFontMode::Contours;
+    }
     return mode;
   }
+
 
   bool Shared::GetKerningEnabled() const
   {
     return m_uiRecord.KerningCheckBox->IsChecked();
   }
 
+
   bool Shared::GetBoundingBoxesEnabled() const
   {
     return m_uiRecord.DrawBoundingBoxesCheckBox->IsChecked();
   }
+
 
   FontDrawConfig Shared::GetFontDrawConfig() const
   {
@@ -212,7 +245,9 @@ namespace Fsl
     const auto outlineDistance = 1.0f - m_uiRecord.OutlineDistanceSlider->GetValue();
     const auto shadowSmoothing = m_uiRecord.ShadowSmoothingSlider->GetValue();
     const Vector2 shadowOffset(m_uiRecord.ShadowOffsetXSlider->GetValue(), m_uiRecord.ShadowOffsetYSlider->GetValue());
-    return {LocalConfig::FontSpread, fontScale, outlineDistance, shadowOffset, shadowSmoothing};
+    const auto contourScale = m_uiRecord.ContourScaleSlider->GetValue();
+    const auto sdfType = m_uiRecord.RbSdf->IsChecked() ? SdfType::Sdf : SdfType::Mtsdf;
+    return {fontScale, outlineDistance, shadowOffset, shadowSmoothing, contourScale, sdfType};
   }
 
 
@@ -244,11 +279,14 @@ namespace Fsl
     m_uiRecord.KerningCheckBox->SetIsChecked(LocalConfig::KerningEnabled);
     m_uiRecord.DrawOutlineCheckBox->SetIsChecked(LocalConfig::DrawOutlineDefaultValue);
     m_uiRecord.DrawShadowCheckBox->SetIsChecked(LocalConfig::DrawShadowDefaultValue);
+    m_uiRecord.DrawContoursCB->SetIsChecked(LocalConfig::DrawContoursDefaultValue);
     m_uiRecord.FontScaleSlider->SetValue(LocalConfig::Scale.Get());
     m_uiRecord.OutlineDistanceSlider->SetValue(LocalConfig::OutlineDistanceDefaultValue.Get());
     m_uiRecord.ShadowSmoothingSlider->SetValue(LocalConfig::ShadowSmoothingDefaultValue.Get());
     m_uiRecord.ShadowOffsetXSlider->SetValue(LocalConfig::ShadowOffsetXDefaultValue.Get());
     m_uiRecord.ShadowOffsetYSlider->SetValue(LocalConfig::ShadowOffsetYDefaultValue.Get());
+    m_uiRecord.ContourScaleSlider->SetValue(LocalConfig::ContourScaleDefaultValue.Get());
+    m_uiRecord.RbSdf->SetIsChecked(true);
     UpdateLinkedUIState();
   }
 
@@ -267,6 +305,10 @@ namespace Fsl
       m_uiRecord.ShadowOffsetXSlider->SetEnabled(isEnabled);
       m_uiRecord.ShadowOffsetYLabel->SetEnabled(isEnabled);
       m_uiRecord.ShadowOffsetYSlider->SetEnabled(isEnabled);
+    }
+    {    // Contours enabled / disabled
+      auto isEnabled = m_uiRecord.DrawContoursCB->IsChecked();
+      m_uiRecord.ContourScaleSlider->SetEnabled(isEnabled);
     }
   }
 
@@ -295,11 +337,23 @@ namespace Fsl
     auto shadowOffsetYLabel = rUIFactory.CreateLabel("Offset.Y");
     shadowOffsetYLabel->SetAlignmentY(UI::ItemAlignment::Center);
 
+    auto sdfContoursLabel = rUIFactory.CreateLabel("SDF Contours");
+    sdfContoursLabel->SetAlignmentY(UI::ItemAlignment::Center);
+    auto sdfContourScaleLabel = rUIFactory.CreateLabel("Scale");
+    sdfContourScaleLabel->SetAlignmentY(UI::ItemAlignment::Center);
+
+    auto typeLabel = rUIFactory.CreateLabel("Type:");
+    auto radioGroupSdf = rUIFactory.CreateRadioGroup("sdf");
+    auto rbSdf = rUIFactory.CreateRadioButton(radioGroupSdf, "Sdf", true);
+    auto rbMtsdf = rUIFactory.CreateRadioButton(radioGroupSdf, "Mtsdf", false);
+
     auto scaleSlider = rUIFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::Scale);
     auto outlineDistanceSlider = rUIFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::OutlineDistanceDefaultValue);
     auto shadowSmoothingSlider = rUIFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::ShadowSmoothingDefaultValue);
     auto shadowOffsetXSlider = rUIFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::ShadowOffsetXDefaultValue);
     auto shadowOffsetYSlider = rUIFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::ShadowOffsetYDefaultValue);
+    auto contourScaleSlider = rUIFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::ContourScaleDefaultValue);
+
 
     auto kerningCB = rUIFactory.CreateSwitch(LocalConfig::KerningEnabled);
     kerningCB->SetAlignmentX(UI::ItemAlignment::Stretch);
@@ -309,6 +363,8 @@ namespace Fsl
     drawOutlineCB->SetAlignmentX(UI::ItemAlignment::Stretch);
     auto drawShadowCB = rUIFactory.CreateSwitch(LocalConfig::DrawShadowDefaultValue);
     drawShadowCB->SetAlignmentX(UI::ItemAlignment::Stretch);
+    auto drawContoursCB = rUIFactory.CreateSwitch(LocalConfig::DrawContoursDefaultValue);
+    drawContoursCB->SetAlignmentX(UI::ItemAlignment::Stretch);
 
 
     auto menuGrid = std::make_shared<UI::GridLayout>(context);
@@ -316,6 +372,8 @@ namespace Fsl
     menuGrid->SetAlignmentY(UI::ItemAlignment::Stretch);
     menuGrid->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Auto));
     menuGrid->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Star, 1));
+    menuGrid->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Auto));
+    menuGrid->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Auto));
     menuGrid->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Auto));
     menuGrid->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Auto));
     menuGrid->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Auto));
@@ -343,18 +401,39 @@ namespace Fsl
     menuGrid->AddChild(shadowOffsetXSlider, 1, 7);
     menuGrid->AddChild(shadowOffsetYLabel, 0, 8);
     menuGrid->AddChild(shadowOffsetYSlider, 1, 8);
+    menuGrid->AddChild(sdfContoursLabel, 0, 9);
+    menuGrid->AddChild(drawContoursCB, 1, 9);
+    menuGrid->AddChild(sdfContourScaleLabel, 0, 10);
+    menuGrid->AddChild(contourScaleSlider, 1, 10);
     menuGrid->SetWidth(UI::DpLayoutSize1D(DpValue(250)));
 
+    auto menuStack = std::make_shared<UI::StackLayout>(context);
+    // menuStack->SetAlignmentX(UI::ItemAlignment::Stretch);
+    menuStack->SetOrientation(UI::LayoutOrientation::Vertical);
+    menuStack->AddChild(menuGrid);
+    menuStack->AddChild(rUIFactory.CreateDivider(UI::LayoutOrientation::Horizontal));
+    menuStack->AddChild(typeLabel);
+    menuStack->AddChild(rbSdf);
+    menuStack->AddChild(rbMtsdf);
 
-    auto menuBar = rUIFactory.CreateLeftBar(menuGrid);
+    auto btnDefault = rUIFactory.CreateTextButton(UI::Theme::ButtonType::Contained, "Set defaults");
+    btnDefault->SetAlignmentX(UI::ItemAlignment::Center);
+    btnDefault->SetAlignmentY(UI::ItemAlignment::Far);
+
+    auto menuScrollViewer = rUIFactory.CreateScrollViewer(menuStack, UI::ScrollModeFlags::TranslateY, true);
+    auto menuMainLayout = std::make_shared<UI::GridLayout>(context);
+    menuMainLayout->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Auto));
+    menuMainLayout->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Star, 1.0f));
+    menuMainLayout->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Auto));
+    menuMainLayout->AddChild(menuScrollViewer, 0, 0);
+    menuMainLayout->AddChild(btnDefault, 0, 1);
+
+    auto menuBar = rUIFactory.CreateLeftBar(menuMainLayout);
 
     auto dummy = std::make_shared<UI::BaseWindow>(context);
     dummy->SetAlignmentX(UI::ItemAlignment::Stretch);
     dummy->SetAlignmentY(UI::ItemAlignment::Stretch);
 
-    auto btnDefault = rUIFactory.CreateTextButton(UI::Theme::ButtonType::Contained, "Set defaults");
-    btnDefault->SetAlignmentX(UI::ItemAlignment::Center);
-    btnDefault->SetAlignmentY(UI::ItemAlignment::Far);
 
     // Create the root layout and add it to the window manager
     auto mainLayout = std::make_shared<UI::GridLayout>(context);
@@ -365,12 +444,14 @@ namespace Fsl
     mainLayout->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Star));
     mainLayout->AddChild(dummy, 1, 0);
     mainLayout->AddChild(menuBar, 0, 0);
-    mainLayout->AddChild(btnDefault, 0, 0);
 
     record.KerningCheckBox = kerningCB;
     record.DrawBoundingBoxesCheckBox = drawBoundingBoxesCB;
     record.DrawOutlineCheckBox = drawOutlineCB;
     record.DrawShadowCheckBox = drawShadowCB;
+    record.DrawContoursCB = drawContoursCB;
+    record.RbSdf = rbSdf;
+    record.RbMtsdf = rbMtsdf;
     record.FontScaleSlider = scaleSlider;
     record.OutlineSliderLabel = outlineDistanceLabel;
     record.OutlineDistanceSlider = outlineDistanceSlider;
@@ -380,6 +461,7 @@ namespace Fsl
     record.ShadowOffsetXSlider = shadowOffsetXSlider;
     record.ShadowOffsetYLabel = shadowOffsetYLabel;
     record.ShadowOffsetYSlider = shadowOffsetYSlider;
+    record.ContourScaleSlider = contourScaleSlider;
     record.ButtonDefault = btnDefault;
     record.MainContent = dummy;
     record.MainLayout = mainLayout;

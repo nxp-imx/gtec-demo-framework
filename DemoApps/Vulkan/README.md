@@ -1,6 +1,6 @@
 <!-- #AG_PROJECT_NAMESPACE_ROOT# -->
 <!-- #AG_PROJECT_CAPTION_BEGIN# -->
-# DemoFramework 6.5.1 Vulkan
+# DemoFramework 6.6.0 Vulkan
 
 To [main document](../../README.md)
 <!-- #AG_PROJECT_CAPTION_END# -->

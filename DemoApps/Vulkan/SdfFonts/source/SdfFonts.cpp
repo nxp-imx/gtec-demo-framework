@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022-2023 NXP
+ * Copyright 2020, 2022-2023, 2025 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,20 +53,32 @@ namespace Fsl
 
       constexpr const float DefaultZPos = 0.0f;
 
-      constexpr const IO::PathView NormalFontAtlasTexturePath("Font/NormalAtlas/FontAtlas.png");
-      constexpr const IO::PathView NormalFontPath("Font/NormalAtlas/FontAtlas_Font.nbf");
+      constexpr const IO::PathView NormalFontAtlasTexturePath("Bitmap.png");
+      constexpr const IO::PathView NormalFontPath("Bitmap_SoftMaskFont.nbf");
 
-      constexpr const IO::PathView SdfFontAtlasTexturePath("Font/SdfAtlas/FontAtlas.png");
-      constexpr const IO::PathView SdfFontPath("Font/SdfAtlas/FontAtlas_Font.nbf");
+      constexpr const IO::PathView SdfFontAtlasTexturePath("Sdf.png");
+      constexpr const IO::PathView SdfFontPath("Sdf_SdfFont.nbf");
+
+      constexpr const IO::PathView MtsdfFontAtlasTexturePath("Mtsdf.png");
+      constexpr const IO::PathView MtsdfFontPath("Mtsdf_MtsdfFont.nbf");
 
       // constexpr const IO::PathView FillTexturePath("Fill/Fill.png");
 
       constexpr const IO::PathView TextVertShader("Text.vert.spv");
       constexpr const IO::PathView TextFragShader("Text.frag.spv");
+
       constexpr const IO::PathView TextSdfFragShader("Text-sdf.frag.spv");
       constexpr const IO::PathView TextSdfOutlineFragShader("Text-sdfOutline.frag.spv");
       constexpr const IO::PathView TextSdfShadowFragShader("Text-sdfDropShadow.frag.spv");
       constexpr const IO::PathView TextSdfShadowAndOutlineFragShader("Text-sdfDropShadowAndOutline.frag.spv");
+      constexpr const IO::PathView TextSdfContoursFragShader("Text-sdfContours.frag.spv");
+
+      constexpr const IO::PathView TextMtsdfFragShader("Text-mtsdf.frag.spv");
+      constexpr const IO::PathView TextMtsdfOutlineFragShader("Text-mtsdfOutline.frag.spv");
+      constexpr const IO::PathView TextMtsdfShadowFragShader("Text-mtsdfDropShadow.frag.spv");
+      constexpr const IO::PathView TextMtsdfShadowAndOutlineFragShader("Text-mtsdfDropShadowAndOutline.frag.spv");
+      constexpr const IO::PathView TextMtsdfContoursFragShader("Text-mtsdfContours.frag.spv");
+
 
       constexpr const StringViewLite TextLine0("The quick brown fox jumps over the lazy dog! Hello World.");
       // constexpr StringViewLite TextLine1("abcdefghijklmnopqrstuvwxyz");
@@ -121,14 +133,14 @@ namespace Fsl
 
     RapidVulkan::DescriptorPool CreateDescriptorPool(const Vulkan::VUDevice& device, const uint32_t count)
     {
-      // Example uses one ubo and one image sampler
+      // Example uses one image sampler
       std::array<VkDescriptorPoolSize, 1> poolSizes{};
       poolSizes[0].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-      poolSizes[0].descriptorCount = count;
+      poolSizes[0].descriptorCount = 1;
 
       VkDescriptorPoolCreateInfo descriptorPoolInfo{};
       descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-      descriptorPoolInfo.maxSets = count;
+      descriptorPoolInfo.maxSets = 3 * count;
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
@@ -357,13 +369,25 @@ namespace Fsl
     m_resources.Sdf =
       PrepareExample(maxFramesInFlight, m_resources.BufferManager, *contentManager, line1YPx, LocalConfig::SdfFontPath,
                      LocalConfig::SdfFontAtlasTexturePath, LocalConfig::TextLine0, spriteNativeAreaCalc, densityDpi, m_positionsScratchpad);
+    m_resources.Mtsdf =
+      PrepareExample(maxFramesInFlight, m_resources.BufferManager, *contentManager, line1YPx, LocalConfig::MtsdfFontPath,
+                     LocalConfig::MtsdfFontAtlasTexturePath, LocalConfig::TextLine0, spriteNativeAreaCalc, densityDpi, m_positionsScratchpad);
 
     m_resources.VertShader.Reset(m_device.Get(), 0, contentManager->ReadBytes(LocalConfig::TextVertShader));
     m_resources.FragShaderText.Reset(m_device.Get(), 0, contentManager->ReadBytes(LocalConfig::TextFragShader));
+
     m_resources.FragShaderSdf.Reset(m_device.Get(), 0, contentManager->ReadBytes(LocalConfig::TextSdfFragShader));
     m_resources.FragShaderSdfOutline.Reset(m_device.Get(), 0, contentManager->ReadBytes(LocalConfig::TextSdfOutlineFragShader));
     m_resources.FragShaderSdfShadow.Reset(m_device.Get(), 0, contentManager->ReadBytes(LocalConfig::TextSdfShadowFragShader));
     m_resources.FragShaderSdfShadowAndOutline.Reset(m_device.Get(), 0, contentManager->ReadBytes(LocalConfig::TextSdfShadowAndOutlineFragShader));
+    m_resources.FragShaderSdfContours.Reset(m_device.Get(), 0, contentManager->ReadBytes(LocalConfig::TextSdfContoursFragShader));
+
+    m_resources.FragShaderMtsdf.Reset(m_device.Get(), 0, contentManager->ReadBytes(LocalConfig::TextMtsdfFragShader));
+    m_resources.FragShaderMtsdfOutline.Reset(m_device.Get(), 0, contentManager->ReadBytes(LocalConfig::TextMtsdfOutlineFragShader));
+    m_resources.FragShaderMtsdfShadow.Reset(m_device.Get(), 0, contentManager->ReadBytes(LocalConfig::TextMtsdfShadowFragShader));
+    m_resources.FragShaderMtsdfShadowAndOutline.Reset(m_device.Get(), 0, contentManager->ReadBytes(LocalConfig::TextMtsdfShadowAndOutlineFragShader));
+    m_resources.FragShaderMtsdfContours.Reset(m_device.Get(), 0, contentManager->ReadBytes(LocalConfig::TextMtsdfContoursFragShader));
+
     m_resources.VertShader.Reset(m_device.Get(), 0, contentManager->ReadBytes(LocalConfig::TextVertShader));
 
     m_resources.FillTexture = m_shared.GetFillTexture();
@@ -378,8 +402,10 @@ namespace Fsl
 
       m_resources.DescriptorSetNormal = CreateDescriptorSet(m_resources.MainDescriptorPool, m_resources.MainDescriptorSetLayout);
       m_resources.DescriptorSetSdf = CreateDescriptorSet(m_resources.MainDescriptorPool, m_resources.MainDescriptorSetLayout);
+      m_resources.DescriptorSetMtsdf = CreateDescriptorSet(m_resources.MainDescriptorPool, m_resources.MainDescriptorSetLayout);
       UpdateDescriptorSet(m_device.Get(), m_resources.DescriptorSetNormal, m_resources.Normal.Font.Texture);
       UpdateDescriptorSet(m_device.Get(), m_resources.DescriptorSetSdf, m_resources.Sdf.Font.Texture);
+      UpdateDescriptorSet(m_device.Get(), m_resources.DescriptorSetMtsdf, m_resources.Mtsdf.Font.Texture);
 
       m_resources.MainPipelineLayout = CreatePipelineLayout(m_resources.MainDescriptorSetLayout, sizeof(PushConstantRecord));
     }
@@ -467,24 +493,53 @@ namespace Fsl
       m_resources.MainPipelineLayout, context.SwapchainImageExtent, premultipliedBlendFactor, m_resources.VertShader.Get(),
       m_resources.FragShaderText.Get(), m_resources.Normal.Mesh.Mesh.GetMeshDescription(), m_dependentResources.MainRenderPass.Get(), 0);
 
-    const MeshDescription sdfMeshDescription(m_resources.Sdf.Mesh.Mesh.GetMeshDescription());
 
     const auto sdfBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-    m_dependentResources.PipelineSdf =
+
+    // SDF
+    const MeshDescription sdfMeshDescription(m_resources.Sdf.Mesh.Mesh.GetMeshDescription());
+    m_dependentResources.PipelineSdf.Normal =
       CreatePipeline(m_resources.MainPipelineLayout, context.SwapchainImageExtent, sdfBlendFactor, m_resources.VertShader.Get(),
                      m_resources.FragShaderSdf.Get(), sdfMeshDescription, m_dependentResources.MainRenderPass.Get(), 0);
 
-    m_dependentResources.PipelineSdfOutline =
+    m_dependentResources.PipelineSdf.Outline =
       CreatePipeline(m_resources.MainPipelineLayout, context.SwapchainImageExtent, sdfBlendFactor, m_resources.VertShader.Get(),
                      m_resources.FragShaderSdfOutline.Get(), sdfMeshDescription, m_dependentResources.MainRenderPass.Get(), 0);
 
-    m_dependentResources.PipelineSdfShadow =
+    m_dependentResources.PipelineSdf.Shadow =
       CreatePipeline(m_resources.MainPipelineLayout, context.SwapchainImageExtent, sdfBlendFactor, m_resources.VertShader.Get(),
                      m_resources.FragShaderSdfShadow.Get(), sdfMeshDescription, m_dependentResources.MainRenderPass.Get(), 0);
 
-    m_dependentResources.PipelineSdfShadowAndOutline =
+    m_dependentResources.PipelineSdf.ShadowAndOutline =
       CreatePipeline(m_resources.MainPipelineLayout, context.SwapchainImageExtent, sdfBlendFactor, m_resources.VertShader.Get(),
                      m_resources.FragShaderSdfShadowAndOutline.Get(), sdfMeshDescription, m_dependentResources.MainRenderPass.Get(), 0);
+
+    m_dependentResources.PipelineSdf.Contours =
+      CreatePipeline(m_resources.MainPipelineLayout, context.SwapchainImageExtent, sdfBlendFactor, m_resources.VertShader.Get(),
+                     m_resources.FragShaderSdfContours.Get(), sdfMeshDescription, m_dependentResources.MainRenderPass.Get(), 0);
+
+    // MTSDF
+    const MeshDescription mtsdfMeshDescription(m_resources.Mtsdf.Mesh.Mesh.GetMeshDescription());
+    m_dependentResources.PipelineMtsdf.Normal =
+      CreatePipeline(m_resources.MainPipelineLayout, context.SwapchainImageExtent, sdfBlendFactor, m_resources.VertShader.Get(),
+                     m_resources.FragShaderMtsdf.Get(), mtsdfMeshDescription, m_dependentResources.MainRenderPass.Get(), 0);
+
+    m_dependentResources.PipelineMtsdf.Outline =
+      CreatePipeline(m_resources.MainPipelineLayout, context.SwapchainImageExtent, sdfBlendFactor, m_resources.VertShader.Get(),
+                     m_resources.FragShaderMtsdfOutline.Get(), mtsdfMeshDescription, m_dependentResources.MainRenderPass.Get(), 0);
+
+    m_dependentResources.PipelineMtsdf.Shadow =
+      CreatePipeline(m_resources.MainPipelineLayout, context.SwapchainImageExtent, sdfBlendFactor, m_resources.VertShader.Get(),
+                     m_resources.FragShaderMtsdfShadow.Get(), mtsdfMeshDescription, m_dependentResources.MainRenderPass.Get(), 0);
+
+    m_dependentResources.PipelineMtsdf.ShadowAndOutline =
+      CreatePipeline(m_resources.MainPipelineLayout, context.SwapchainImageExtent, sdfBlendFactor, m_resources.VertShader.Get(),
+                     m_resources.FragShaderMtsdfShadowAndOutline.Get(), mtsdfMeshDescription, m_dependentResources.MainRenderPass.Get(), 0);
+
+    m_dependentResources.PipelineMtsdf.Contours =
+      CreatePipeline(m_resources.MainPipelineLayout, context.SwapchainImageExtent, sdfBlendFactor, m_resources.VertShader.Get(),
+                     m_resources.FragShaderMtsdfContours.Get(), mtsdfMeshDescription, m_dependentResources.MainRenderPass.Get(), 0);
+
 
     return m_dependentResources.MainRenderPass.Get();
   }
@@ -504,11 +559,13 @@ namespace Fsl
     const auto fontDrawConfig = m_shared.GetFontDrawConfig();
     const auto fontScale = PxSize1DF::Create(fontDrawConfig.FontScale);
     const auto fontSdfMode = m_shared.GetSdfMode();
-    const auto& fontSdfPipeline = SelectPipeline(fontSdfMode);
+    const auto& fontSdfPipeline = SelectPipeline(fontSdfMode, fontDrawConfig.Type);
+
+    auto& rSdfRecord = fontDrawConfig.Type == SdfType::Sdf ? m_resources.Sdf : m_resources.Mtsdf;
 
     const PxPoint2 line0Px(contentOffset.X, contentOffset.Y);
     const PxPoint2 line1Px(contentOffset.X, line0Px.Y + m_resources.Normal.Font.Font.LineSpacingPx());
-    const PxPoint2 line2Px(contentOffset.X, line1Px.Y + m_resources.Sdf.Font.Font.LineSpacingPx());
+    const PxPoint2 line2Px(contentOffset.X, line1Px.Y + rSdfRecord.Font.Font.LineSpacingPx());
     const PxPoint2 line3Px(
       contentOffset.X, line2Px.Y + TypeConverter::UncheckedChangeTo<PxSize1D>(PxSize1DF(m_resources.Normal.Font.Font.LineSpacingPx()) * fontScale));
 
@@ -518,19 +575,19 @@ namespace Fsl
 
     RegenerateMeshOnDemand(m_resources.Normal.Mesh, currentFrameIndex, line0Px, m_resources.Normal.Font, fontConfigNormal, LocalConfig::TextLine0,
                            m_positionsScratchpad);
-    RegenerateMeshOnDemand(m_resources.Sdf.Mesh, currentFrameIndex, line1Px, m_resources.Sdf.Font, fontConfigNormal, LocalConfig::TextLine0,
+    RegenerateMeshOnDemand(rSdfRecord.Mesh, currentFrameIndex, line1Px, rSdfRecord.Font, fontConfigNormal, LocalConfig::TextLine0,
                            m_positionsScratchpad);
     RegenerateMeshOnDemand(m_resources.Normal.ScaledMesh, currentFrameIndex, line2Px, m_resources.Normal.Font, fontConfigScaled,
                            LocalConfig::TextLine0, m_positionsScratchpad);
-    RegenerateMeshOnDemand(m_resources.Sdf.ScaledMesh, currentFrameIndex, line3Px, m_resources.Sdf.Font, fontConfigScaled, LocalConfig::TextLine0,
+    RegenerateMeshOnDemand(rSdfRecord.ScaledMesh, currentFrameIndex, line3Px, rSdfRecord.Font, fontConfigScaled, LocalConfig::TextLine0,
                            m_positionsScratchpad);
 
     const auto baseLine0Px = line0Px + PxPoint2(PxValue(0), m_resources.Normal.Font.Font.BaseLinePx());
-    const auto baseLine1Px = line1Px + PxPoint2(PxValue(0), m_resources.Sdf.Font.Font.BaseLinePx());
+    const auto baseLine1Px = line1Px + PxPoint2(PxValue(0), rSdfRecord.Font.Font.BaseLinePx());
     const auto baseLine2Px =
       line2Px + PxPoint2(PxValue(0), TypeConverter::UncheckedChangeTo<PxSize1D>((PxSize1DF(m_resources.Normal.Font.Font.BaseLinePx()) * fontScale)));
     const auto baseLine3Px =
-      line3Px + PxPoint2(PxValue(0), TypeConverter::UncheckedChangeTo<PxSize1D>((PxSize1DF(m_resources.Sdf.Font.Font.BaseLinePx()) * fontScale)));
+      line3Px + PxPoint2(PxValue(0), TypeConverter::UncheckedChangeTo<PxSize1D>((PxSize1DF(rSdfRecord.Font.Font.BaseLinePx()) * fontScale)));
 
     // Draw baselines
     {
@@ -556,10 +613,10 @@ namespace Fsl
       m_nativeBatch->Begin(BlendState::Opaque);
       m_shared.DrawBoundingBoxes(*m_nativeBatch, line0Px, LocalConfig::TextLine0, m_resources.Normal.Font.Font, fontConfigNormal,
                                  m_positionsScratchpad);
-      m_shared.DrawBoundingBoxes(*m_nativeBatch, line1Px, LocalConfig::TextLine0, m_resources.Sdf.Font.Font, fontConfigNormal, m_positionsScratchpad);
+      m_shared.DrawBoundingBoxes(*m_nativeBatch, line1Px, LocalConfig::TextLine0, rSdfRecord.Font.Font, fontConfigNormal, m_positionsScratchpad);
       m_shared.DrawBoundingBoxes(*m_nativeBatch, line2Px, LocalConfig::TextLine0, m_resources.Normal.Font.Font, fontConfigScaled,
                                  m_positionsScratchpad);
-      m_shared.DrawBoundingBoxes(*m_nativeBatch, line3Px, LocalConfig::TextLine0, m_resources.Sdf.Font.Font, fontConfigScaled, m_positionsScratchpad);
+      m_shared.DrawBoundingBoxes(*m_nativeBatch, line3Px, LocalConfig::TextLine0, rSdfRecord.Font.Font, fontConfigScaled, m_positionsScratchpad);
       m_nativeBatch->End();
     }
     m_shared.Draw();
@@ -573,36 +630,38 @@ namespace Fsl
 
     {    // draw normal
       const auto& example = m_resources.Normal;
-      DrawTextMesh(hCmdBuffer, currentFrameIndex, example.Mesh, example.Font.Texture, m_dependentResources.PipelineNormal,
-                   m_resources.DescriptorSetNormal, drawConfig);
-      DrawTextMesh(hCmdBuffer, currentFrameIndex, example.ScaledMesh, example.Font.Texture, m_dependentResources.PipelineNormal,
+      DrawTextMesh(hCmdBuffer, currentFrameIndex, example.Mesh, example.Font, m_dependentResources.PipelineNormal, m_resources.DescriptorSetNormal,
+                   drawConfig);
+      DrawTextMesh(hCmdBuffer, currentFrameIndex, example.ScaledMesh, example.Font, m_dependentResources.PipelineNormal,
                    m_resources.DescriptorSetNormal, fontDrawConfig);
     }
 
     {    // draw sdf
-      const auto& example = m_resources.Sdf;
-      DrawTextMesh(hCmdBuffer, currentFrameIndex, example.Mesh, example.Font.Texture, sdfPipeline, m_resources.DescriptorSetSdf, drawConfig);
-      DrawTextMesh(hCmdBuffer, currentFrameIndex, example.ScaledMesh, example.Font.Texture, sdfPipeline, m_resources.DescriptorSetSdf,
-                   fontDrawConfig);
+      const auto& example = fontDrawConfig.Type == SdfType::Sdf ? m_resources.Sdf : m_resources.Mtsdf;
+      const auto& descriptorSetSdf = fontDrawConfig.Type == SdfType::Sdf ? m_resources.DescriptorSetSdf : m_resources.DescriptorSetMtsdf;
+
+      DrawTextMesh(hCmdBuffer, currentFrameIndex, example.Mesh, example.Font, sdfPipeline, descriptorSetSdf, drawConfig);
+      DrawTextMesh(hCmdBuffer, currentFrameIndex, example.ScaledMesh, example.Font, sdfPipeline, descriptorSetSdf, fontDrawConfig);
     }
   }
 
 
   void SdfFonts::DrawTextMesh(const VkCommandBuffer hCmdBuffer, const uint32_t currentFrameIndex, const MeshRecord& mesh,
-                              const Vulkan::VUTexture& /*texture*/, const RapidVulkan::GraphicsPipeline& pipeline,
-                              const VkDescriptorSet descriptorSet, const FontDrawConfig& fontDrawConfig)
+                              const FontRecord& fontRecord, const RapidVulkan::GraphicsPipeline& pipeline, const VkDescriptorSet descriptorSet,
+                              const FontDrawConfig& fontDrawConfig)
   {
-    const auto fontSdfSpread = static_cast<float>(fontDrawConfig.FontSdfSpread);
-
     m_pushConstants.OutlineDistance = (fontDrawConfig.OutlineDistance > 0.0f ? 0.5f * fontDrawConfig.OutlineDistance : 0.0f);
+    const float fontSdfSpread = std::max(fontRecord.Font.GetSdfParams().DistanceRange, 1.0f);
     m_pushConstants.Smoothing = 0.25f / (fontSdfSpread * fontDrawConfig.FontScale);
+
     {
-      auto maxOffsetX = fontSdfSpread / static_cast<float>(m_resources.Sdf.Font.Texture.GetSize().RawWidth());
-      auto maxOffsetY = fontSdfSpread / static_cast<float>(m_resources.Sdf.Font.Texture.GetSize().RawHeight());
+      auto maxOffsetX = fontSdfSpread / static_cast<float>(fontRecord.Texture.GetSize().RawWidth());
+      auto maxOffsetY = fontSdfSpread / static_cast<float>(fontRecord.Texture.GetSize().RawHeight());
       m_pushConstants.ShadowOffsetX = fontDrawConfig.ShadowOffset.X != 0.0f ? maxOffsetX * fontDrawConfig.ShadowOffset.X : 0.0f;
       m_pushConstants.ShadowOffsetY = fontDrawConfig.ShadowOffset.Y != 0.0f ? maxOffsetY * fontDrawConfig.ShadowOffset.Y : 0.0f;
     }
     m_pushConstants.ShadowSmoothing = (fontDrawConfig.ShadowSmoothing > 0.0f ? 0.5f * fontDrawConfig.ShadowSmoothing : 0.0f);
+    m_pushConstants.ContourScale = fontDrawConfig.ContourScale;
 
     vkCmdPushConstants(hCmdBuffer, m_resources.MainPipelineLayout.Get(), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
                        sizeof(m_pushConstants), &m_pushConstants);
@@ -618,6 +677,19 @@ namespace Fsl
     vkCmdDrawIndexed(hCmdBuffer, indexRange.Length, 1, indexRange.Start, 0, 0);
   }
 
+
+  SdfFonts::FontRecord SdfFonts::PrepareFont(const IContentManager& contentManager, const IO::Path& bitmapFontPath,
+                                             const IO::Path& fontAtlasTexturePath, const SpriteNativeAreaCalc& spriteNativeAreaCalc,
+                                             const uint32_t densityDpi)
+  {
+    auto texture = ReadTexture(m_device, m_deviceQueue, contentManager, fontAtlasTexturePath);
+    auto font =
+      AppHelper::ReadFont(spriteNativeAreaCalc, TypeConverter::To<PxExtent2D>(texture.GetSize()), contentManager, bitmapFontPath, densityDpi);
+
+    return {std::move(texture), std::move(font)};
+  }
+
+
   SdfFonts::ExampleRecord SdfFonts::PrepareExample(const uint32_t maxFramesInFlight, const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager,
                                                    const IContentManager& contentManager, const PxSize1D lineYPx, const IO::Path& bitmapFontPath,
                                                    const IO::Path& fontAtlasTexturePath, const StringViewLite& strView,
@@ -628,9 +700,7 @@ namespace Fsl
     ExampleRecord result;
 
     FSLLOG3_INFO("- Loading font");
-    result.Font.Texture = ReadTexture(m_device, m_deviceQueue, contentManager, fontAtlasTexturePath);
-    result.Font.Font = AppHelper::ReadFont(spriteNativeAreaCalc, TypeConverter::To<PxExtent2D>(result.Font.Texture.GetSize()), contentManager,
-                                           bitmapFontPath, densityDpi);
+    result.Font = PrepareFont(contentManager, bitmapFontPath, fontAtlasTexturePath, spriteNativeAreaCalc, densityDpi);
 
     FSLLOG3_INFO("- Generating mesh");
     const BitmapFontConfig fontConfig(1.0f);
@@ -671,6 +741,7 @@ namespace Fsl
     return {dstPositionPx, fontConfig, DynamicMesh(bufferManager, vertices, dstIndexSpan, maxFramesInFlight)};
   }
 
+
   void SdfFonts::RegenerateMeshOnDemand(MeshRecord& rMeshRecord, const uint32_t currentFrameIndex, const PxPoint2& dstPositionPx,
                                         const FontRecord& fontRecord, const BitmapFontConfig fontConfig, const StringViewLite& strView,
                                         std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad)
@@ -700,19 +771,23 @@ namespace Fsl
     rMeshRecord.Mesh.EndWrite();
   }
 
-  const RapidVulkan::GraphicsPipeline& SdfFonts::SelectPipeline(const SdfFontMode fontSdfMode)
+
+  const RapidVulkan::GraphicsPipeline& SdfFonts::SelectPipeline(const SdfFontMode fontSdfMode, const SdfType fontSdfType)
   {
+    const FontPipelines& pipeline = fontSdfType == SdfType::Sdf ? m_dependentResources.PipelineSdf : m_dependentResources.PipelineMtsdf;
+
     switch (fontSdfMode)
     {
     case SdfFontMode::Outline:
-      return m_dependentResources.PipelineSdfOutline;
+      return pipeline.Outline;
     case SdfFontMode::Shadow:
-      return m_dependentResources.PipelineSdfShadow;
+      return pipeline.Shadow;
     case SdfFontMode::ShadowAndOutline:
-      return m_dependentResources.PipelineSdfShadowAndOutline;
+      return pipeline.ShadowAndOutline;
+    case SdfFontMode::Contours:
+      return pipeline.Contours;
     default:
-      return m_dependentResources.PipelineSdf;
+      return pipeline.Normal;
     }
   }
-
 }

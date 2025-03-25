@@ -10,15 +10,25 @@
           "Font/NormalAtlas/FontAtlas_Font.fbk",
           "Font/NormalAtlas/FontAtlas_Font.nbf",
           "Font/NormalAtlas/License.json",
-          "Font/SdfAtlas/FontAtlas.bta",
-          "Font/SdfAtlas/FontAtlas.png",
-          "Font/SdfAtlas/FontAtlas_Font.fbk",
-          "Font/SdfAtlas/FontAtlas_Font.nbf",
-          "Font/SdfAtlas/License.json",
           "UIAtlas/License.json",
           "UIAtlas/UIAtlas_*dpi.bta",
           "UIAtlas/UIAtlas_*dpi.png",
           "UIAtlas/UIAtlas_*dpi_Font.nbf"
+        ]
+      },
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/Mtsdf/Gen",
+        "Content": [
+          "Bitmap.bta",
+          "Bitmap.png",
+          "Bitmap_SoftMaskFont.nbf",
+          "Sdf.bta",
+          "Sdf.png",
+          "Sdf_SdfFont.nbf",
+          "Mtsdf.bta",
+          "Mtsdf.png",
+          "Mtsdf_MtsdfFont.nbf",
+          "License.json"
         ]
       }
     ]

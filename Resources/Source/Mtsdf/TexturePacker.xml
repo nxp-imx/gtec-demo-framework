@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TexturePacker xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="1">
+  <AtlasConfig TransparencyMode="premultiply"/>
+  <CreateAtlas Name="Gen/Bitmap">
+    <AddBitmapFont Path="Font/SoftMask/SoftMaskFont.json" Type="bitmap" OutputFontFormat="nbf"/>
+  </CreateAtlas>
+  <CreateAtlas Name="Gen/Sdf">
+    <AddBitmapFont Path="Font/Sdf/SdfFont.json" Type="sdf" OutputFontFormat="nbf"/>
+  </CreateAtlas>
+  <CreateAtlas Name="Gen/Msdf">
+    <AddBitmapFont Path="Font/Msdf/MsdfFont.json" Type="msdf" OutputFontFormat="nbf"/>
+  </CreateAtlas>
+  <CreateAtlas Name="Gen/Mtsdf">
+    <AddBitmapFont Path="Font/Mtsdf/MtsdfFont.json" Type="mtsdf" OutputFontFormat="nbf"/>
+  </CreateAtlas>
+  <CreateAtlas Name="Gen/Bitmap-Flip">
+    <AddBitmapFont Path="Font/SoftMask-Flip/SoftMaskFont-Flip.json" Type="bitmap" OutputFontFormat="nbf"/>
+  </CreateAtlas>
+  <CreateAtlas Name="Gen/Msdf-Flip">
+    <AddBitmapFont Path="Font/Msdf-Flip/MsdfFont-Flip.json" Type="msdf" OutputFontFormat="nbf"/>
+  </CreateAtlas>
+</TexturePacker>

@@ -29,6 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/FrameInfo.hpp>
 #include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
 #include <FslDemoService/Graphics/Control/GraphicsBeginFrameInfo.hpp>
@@ -38,10 +39,28 @@
 
 namespace Fsl
 {
+  namespace
+  {
+    const char* SafeToCString(const GLubyte* psz)
+    {
+      return psz == nullptr ? "nullptr" : reinterpret_cast<const char*>(psz);
+    }
+  }
+
   DemoAppGLES2::DemoAppGLES2(const DemoAppConfig& demoAppConfig)
     : ADemoApp(demoAppConfig)
     , m_graphicsServiceHost(demoAppConfig.DemoServiceProvider.Get<IGraphicsServiceHost>())
   {
+    const GLubyte* vendor = glGetString(GL_VENDOR);                           // GPU vendor
+    const GLubyte* renderer = glGetString(GL_RENDERER);                       // GPU model
+    const GLubyte* version = glGetString(GL_VERSION);                         // OpenGL ES version
+    const GLubyte* glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);    // GLSL version
+
+    FSLLOG3_INFO("Vendor: {}", SafeToCString(vendor));
+    FSLLOG3_INFO("Renderer: {}", SafeToCString(renderer));
+    FSLLOG3_INFO("Version: {}", SafeToCString(version));
+    FSLLOG3_INFO("GLSL Version: {}", SafeToCString(glslVersion));
+
     {    // Adjust the default viewport to fix apps that forget to handle it
       const PxSize2D sizePx = demoAppConfig.WindowMetrics.GetSizePx();
       glViewport(0, 0, sizePx.RawWidth(), sizePx.RawHeight());

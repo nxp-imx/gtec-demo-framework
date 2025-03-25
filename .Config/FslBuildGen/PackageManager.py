@@ -103,9 +103,10 @@ class PackageManager(object):
     def __init__(self, log: Log, configBuildDir: str, configIgnoreNotSupported: bool, toolConfig: ToolConfig, platformName: str,
                  hostPlatformName: str, basicBuildConfig: BasicBuildConfig, generatorInfo: GeneratorInfo, genFiles: List[XmlGenFile],
                  packageManagerFilter: PackageManagerFilter, externalVariantConstraints: ExternalVariantConstraints,
-                 engineResolveConfig: EngineResolveConfig, writeGraph: bool, filterMode: FilterMode) -> None:
+                 engineResolveConfig: EngineResolveConfig, writeGraph: bool, filterMode: FilterMode, allowExeDependency: bool) -> None:
         super().__init__()
 
+        self._AllowExeDependency = allowExeDependency
         self.__GeneratorInfo = generatorInfo
         self.__ProjectContextCache = ProjectContextCache()
 
@@ -123,7 +124,7 @@ class PackageManager(object):
         uniqueDict = {}  # type: Dict[PackageInstanceName, Package]
         for unresolvedPackage in unresolvedPackages:
             if unresolvedPackage.SourcePackage.NameInfo.FullName not in uniqueDict:
-                uniqueDict[unresolvedPackage.SourcePackage.NameInfo.FullName] = Package(log, configBuildDir, unresolvedPackage)
+                uniqueDict[unresolvedPackage.SourcePackage.NameInfo.FullName] = Package(log, configBuildDir, unresolvedPackage, self._AllowExeDependency)
             else:
                 raise InternalErrorException("Package has been defined multiple times, this ought to have been caught earlier")
 
@@ -199,7 +200,7 @@ class PackageManager(object):
                                                                         hostPlatformName, genFile, True)
         packageLookupDict = PreResolver.CreatePackageLookupDict(self.__unresolvedPackages)
         preResolvedPackageResult = PreResolver.PreResolvePackage(log, packageLookupDict, processedPackage, 0xffffffff)
-        package = Package(log, configBuildDir, preResolvedPackageResult)
+        package = Package(log, configBuildDir, preResolvedPackageResult, self._AllowExeDependency)
 
         self.__ResolvePackageDependencies(package, self.OriginalPackageDict)
         if not insertAtFront:

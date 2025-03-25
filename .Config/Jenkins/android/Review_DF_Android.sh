@@ -3,6 +3,13 @@ set -o errexit
 
 source $WORKSPACE/.Config/Jenkins/android/PrepareJenkinsEnvironment.sh
 
+echo --- Java environment info:
+echo JAVA_HOME: $JAVA_HOME
+echo ---
+ls $JAVA_HOME/bin
+echo ---
+which javac
+
 #FslBuild.py --noGitHash -t sdk -vv --BuildTime --UseFeatures [EGL,OpenGLES2,OpenGLES3,OpenGLES3.1,Vulkan,EarlyAccess,Test_RequireUserInputToExit]
 #FslBuild.py --noGitHash -t sdk -vv --BuildTime --UseFeatures [EGL,OpenGLES2,OpenGLES3,OpenGLES3.1,EarlyAccess,Test_RequireUserInputToExit]
 

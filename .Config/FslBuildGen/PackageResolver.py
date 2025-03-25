@@ -123,7 +123,7 @@ class PackageResolver(object):
                  fullResolve: bool, markExternalLibFirstUse: bool, recipeFilterManager: RecipeFilterManager,
                  packageManagerFilter: PackageManagerFilter, externalVariantConstraints: ExternalVariantConstraints,
                  engineResolveConfig: EngineResolveConfig,
-                 writeGraph: bool, filterMode: FilterMode) -> None:
+                 writeGraph: bool, filterMode: FilterMode, allowExeDependency: bool) -> None:
         """
         fullResolve
         - if this is false only the dependencies, platform, requirements and not supported will be resolved.
@@ -148,7 +148,7 @@ class PackageResolver(object):
             packageBuilder = PackageBuilder(log, configBuildDir, configIgnoreNotSupported, configGroupException, toolConfig,
                                             platformContext.PlatformName, platformContext.HostPlatformName, basicBuildConfig, self.__GeneratorInfo,
                                             genFiles, packageManagerFilter, externalVariantConstraints, engineResolveConfig,
-                                            filterMode, logVerbosity, writeGraph)
+                                            filterMode, allowExeDependency, logVerbosity, writeGraph)
             packages = packageBuilder.AllPackages
 
             if fullResolve:

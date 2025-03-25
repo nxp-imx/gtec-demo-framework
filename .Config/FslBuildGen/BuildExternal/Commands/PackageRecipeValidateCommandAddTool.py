@@ -38,7 +38,8 @@ from FslBuildGen.DataTypes import BuildRecipeValidateCommand
 from FslBuildGen.DataTypes import BuildRecipeValidateMethod
 
 class PackageRecipeValidateCommandAddTool(PackageRecipeValidateCommand):
-    def __init__(self, name: str, minVersion: Optional[str], versionCommand: Optional[str], versionRegEx: Optional[str], help: Optional[str]) -> None:
+    def __init__(self, name: str, minVersion: Optional[str], versionCommand: Optional[str], versionRegEx: Optional[str],
+                 versionSplitChar: str, help: Optional[str]) -> None:
         super().__init__("AddTool", BuildRecipeValidateCommand.AddTool, help)
         if '\\' in name:
             raise Exception("A path can not contain backslash '\\': '{0}'".format(name))
@@ -49,6 +50,7 @@ class PackageRecipeValidateCommandAddTool(PackageRecipeValidateCommand):
         self.MinVersion = minVersion
         self.VersionCommand = versionCommand
         self.VersionRegEx = versionRegEx
+        self.VersionSplitChar = versionSplitChar
         self.__ValidateVersionCheck()
 
     def __ValidateVersionCheck(self) -> None:

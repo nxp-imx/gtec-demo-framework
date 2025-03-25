@@ -318,7 +318,8 @@ class ValidationEngine(object):
             self.__CheckOnErrorWarning(foundVersionList, versionRegEx, warning)
 
     def __TryValidateCommandVersion(self, cmd: str, versionCommand: str, versionRegEx: str, minVersion: Optional[str],
-                                    addOnErrorWarning: List[PackageRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning]) -> List[int]:
+                                    addOnErrorWarning: List[PackageRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning],
+                                    versionSplitChar: str) -> List[int]:
         output = ""
         try:
             runCmd = [cmd, versionCommand]
@@ -343,11 +344,16 @@ class ValidationEngine(object):
         if len(match.groups()) != 1:
             self.__Log.DoPrintWarning("The regex '{0}' did not capture a group with version information".format(versionRegEx))
         matchResult = match.group(1)
+        return self.__TryParseVersion(versionRegEx, minVersion, addOnErrorWarning, matchResult, versionSplitChar)
+
+
+    def __TryParseVersion(self, versionRegEx: str, minVersion: Optional[str],
+                          addOnErrorWarning: List[PackageRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning], matchResult: str, splitChar: str) -> List[int]:
         try:
             # time to parse the version string
-            foundVersionList = Util.ParseVersionString(matchResult, maxValues=4)
+            foundVersionList = Util.ParseVersionString(matchResult, splitChar=splitChar, maxValues=4)
             if minVersion is not None:
-                minVersionList = Util.ParseVersionString(minVersion, maxValues=4)
+                minVersionList = Util.ParseVersionString(minVersion, splitChar=splitChar, maxValues=4)
                 if len(minVersionList) > len(foundVersionList):
                     self.__Log.DoPrintWarning("The regex '{0}' did not capture the enough version number elements to compare against the min version '{1}'".format(versionRegEx, minVersion))
                     return []
@@ -383,7 +389,8 @@ class ValidationEngine(object):
             if result and value is not None and command.VersionCommand is not None:
                 if command.VersionCommand is None or command.VersionRegEx is None:
                     raise Exception("Internal error")
-                foundVersion = self.__TryValidateCommandVersion(value, command.VersionCommand, command.VersionRegEx, command.MinVersion, command.AddOnErrorWarning)
+                foundVersion = self.__TryValidateCommandVersion(value, command.VersionCommand, command.VersionRegEx, command.MinVersion,
+                                                                command.AddOnErrorWarning, command.VersionSplitChar)
                 result = len(foundVersion) > 0
 
             # Cache information about what we discovered
@@ -489,7 +496,7 @@ class ValidationEngine(object):
             if result and value is not None and command.VersionCommand is not None:
                 if command.VersionCommand is None or command.VersionRegEx is None:
                     raise Exception("Internal error")
-                foundVersion = self.__TryValidateCommandVersion(value, command.VersionCommand, command.VersionRegEx, command.MinVersion, [])
+                foundVersion = self.__TryValidateCommandVersion(value, command.VersionCommand, command.VersionRegEx, command.MinVersion, [], command.VersionSplitChar)
                 result = len(foundVersion) > 0
 
             exeRecord = PackageRecipeResultFoundExecutable(command.Name, command.Name, value, self.__ToVersion(foundVersion))

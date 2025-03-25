@@ -40,7 +40,7 @@ namespace Fsl
   struct SimpleMesh
   {
     Vulkan::VMVertexBuffer VertexBuffer;
-    std::vector<VkVertexInputAttributeDescription> VertexAttributeDescription{};
+    std::vector<VkVertexInputAttributeDescription> VertexAttributeDescription;
     VkVertexInputBindingDescription VertexInputBindingDescription{};
   };
 }

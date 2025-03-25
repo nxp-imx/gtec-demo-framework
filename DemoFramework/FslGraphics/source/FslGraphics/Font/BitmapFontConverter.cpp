@@ -288,7 +288,7 @@ namespace Fsl
               PxThicknessU16(),
               basicFontKerning.GetPathName().AsStringViewLite(),
               fontType,
-              BitmapFont::SdfParams(),
+              BitmapFontSdfParams(),
               chars,
               kernings};
     }

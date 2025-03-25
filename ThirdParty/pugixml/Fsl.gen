@@ -5,7 +5,7 @@
     <Requirement Name="Lib_pugixml" Type="feature"/>
     <Define Name="FSL_ENABLE_PUGIXML" Access="Public"/>
     <Platform Name="Android;Ubuntu;Windows;QNX;Emscripten" Supported="true">
-      <Dependency Name="Recipe.pugixml_1_14"/>
+      <Dependency Name="Recipe.pugixml_1_15"/>
     </Platform>    
     <Platform Name="Yocto" Supported="true">
       <ExternalDependency Name="pugixml" Access="Public" Type="StaticLib"/>

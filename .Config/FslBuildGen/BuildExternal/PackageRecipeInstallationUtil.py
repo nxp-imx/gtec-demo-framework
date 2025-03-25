@@ -82,7 +82,7 @@ class PackageRecipeInstallationUtil(object):
 
     @staticmethod
     def ToPackageRecipeValidateCommandAddTool(pathBuilder: PathBuilder, command: XmlRecipeValidateCommandAddTool) -> PackageRecipeValidateCommandAddTool:
-        return PackageRecipeValidateCommandAddTool(command.Name, command.MinVersion, command.VersionCommand, command.VersionRegEx, command.Help)
+        return PackageRecipeValidateCommandAddTool(command.Name, command.MinVersion, command.VersionCommand, command.VersionRegEx, command.VersionSplitChar, command.Help)
 
     @staticmethod
     def ToPackageRecipeValidateCommandEnvironmentVariable(command: XmlRecipeValidateCommandEnvironmentVariable) -> PackageRecipeValidateCommandEnvironmentVariable:
@@ -105,7 +105,7 @@ class PackageRecipeInstallationUtil(object):
         addOnErrorWarningList = PackageRecipeInstallationUtil.ToPackageRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarningList(command.AddOnErrorWarning)
         return PackageRecipeValidateCommandFindExecutableFileInPath(command.Name, command.Alternatives, command.ExpectedPath,
                                                                     command.MinVersion, command.VersionCommand, command.VersionRegEx,
-                                                                    addOnErrorWarningList, command.Help)
+                                                                    command.VersionSplitChar, addOnErrorWarningList, command.Help)
 
     @staticmethod
     def ToPackageRecipeValidateCommandFindFileInPath(command: XmlRecipeValidateCommandFindFileInPath) -> PackageRecipeValidateCommandFindFileInPath:
