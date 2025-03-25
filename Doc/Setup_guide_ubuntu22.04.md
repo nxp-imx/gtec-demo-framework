@@ -125,13 +125,13 @@ Install the Vulkan SDK, See the [official SDK guide](https://vulkan.lunarg.com/d
     cd ~/sdk
     ```
 
-4. Download the 4.6.0 release for ubuntu, unzip it, remove the download, enter the directory
+4. Download the 4.10.0 release for ubuntu, unzip it, remove the download, enter the directory
 
     ```bash
-    wget https://github.com/opencv/opencv/archive/4.6.0.zip
-    unzip 4.6.0.zip
-    rm 4.6.0.zip
-    cd opencv-4.6.0
+    wget https://github.com/opencv/opencv/archive/4.10.0.zip
+    unzip 4.10.0.zip
+    rm 4.10.0.zip
+    cd opencv-4.10.0
     ```
 
 5. Build OpenCV
@@ -162,7 +162,7 @@ Install the Vulkan SDK, See the [official SDK guide](https://vulkan.lunarg.com/d
 
 ## Add OpenVX support
 
-1. Follow the guide for setting up OpenCL and OpenCV support. (need OpenCV4.2)
+1. Follow the guide for setting up OpenCL and OpenCV support. (need OpenCV4.10)
 2. Continue the normal setup.
 
 The build chain will download and compile a OpenVX implementation.

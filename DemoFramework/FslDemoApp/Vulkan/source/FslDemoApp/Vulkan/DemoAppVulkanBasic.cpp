@@ -335,7 +335,7 @@ namespace Fsl::VulkanBasic
     const VkFence queueSubmitFence = frameRecord.QueueSubmitFence.Get();
 
     // Submit the draw operations
-    const VkPipelineStageFlags waitDstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    const VkPipelineStageFlags waitDstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -594,6 +594,11 @@ namespace Fsl::VulkanBasic
       // Basic renderPass no depth buffer
       return {m_device.Get(), 0, 1, &colorAttachmentDescription, 1, &subpassDescription, 1, &subpassDependency};
     }
+
+    // Ensure that the correct dst masks are set
+    subpassDependency.srcStageMask |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    subpassDependency.dstStageMask |= VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    subpassDependency.dstAccessMask |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
     VkAttachmentDescription depthAttachmentDescription{};
     depthAttachmentDescription.format = m_dependentResources.DepthImage.Image().GetFormat();

@@ -1,5 +1,17 @@
 # Latest version
 
+## Release 6.6.0
+
+* Updated OpenCV to 4.1.0
+
+## Release 6.5.1
+
+* Vulkan.AntiAliasing 
+  * App failed to run on on Android Pixel6 due to incorrect descriptor pool size allocations.
+* OpenCV 4.10 is now recommended.
+* Vulkan demo host
+  * Fixed a validation layer warning.
+
 ## Release 6.5.0
 
 * Added GLES3 and Vulkan AntiAliasing sample: MSAA, SSAA

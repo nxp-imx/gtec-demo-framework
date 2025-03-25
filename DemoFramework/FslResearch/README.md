@@ -1,6 +1,6 @@
 <!-- #AG_PROJECT_NAMESPACE_ROOT# -->
 <!-- #AG_PROJECT_CAPTION_BEGIN# -->
-# DemoFramework 6.5.0 FslResearch
+# DemoFramework 6.5.1 FslResearch
 
 To [main document](../../README.md)
 <!-- #AG_PROJECT_CAPTION_END# -->

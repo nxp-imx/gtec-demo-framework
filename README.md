@@ -1,5 +1,5 @@
 <!-- #AG_PROJECT_CAPTION_BEGIN# -->
-# DemoFramework 6.5.0
+# DemoFramework 6.5.1
 <!-- #AG_PROJECT_CAPTION_END# -->
 
 A multi-platform framework for fast and easy demo development.
@@ -82,7 +82,7 @@ since the exact same demo/benchmark code run on all of them.
 
 ## Technical overview
 
-* Written in a limited subset of [C++ 17](https://en.wikipedia.org/wiki/C%2B%2B17) and
+* Written in a limited subset of [C++ 20](https://en.wikipedia.org/wiki/C%2B%2B20) and
 uses [RAII](http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization) to manage resources.
 * Uses a limited subset of [STL](https://en.wikipedia.org/wiki/Standard_Template_Library) to make it easier to port.
 * No copyleft restrictions from GPL / L-GPL licenses.

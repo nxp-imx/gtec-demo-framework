@@ -9,7 +9,7 @@
   * [Add OpenGL ES support](#add-opengl-es-support)
   * [Add Vulkan support](#add-vulkan-support)
   * [Add OpenCL support](#add-opencl-support)
-  * [Add OpenCV 4.6 support](#add-opencv-46-support)
+  * [Add OpenCV 4.10 support](#add-opencv-410-support)
   * [Add OpenVX support](#add-openvx-support)
 * [To Compile and run an existing sample application](#to-compile-and-run-an-existing-sample-application)
   * [To Compile and run an existing GLES2 sample application](#to-compile-and-run-an-existing-gles2-sample-application)
@@ -96,13 +96,13 @@ Install the Vulkan SDK, See the [official SDK guide](https://vulkan.lunarg.com/d
 1. Download and install a OpenCL implementation. Beware we depend on cmake's find_package support to locate the installed OpenCL implementation.
 2. Continue the normal setup.
 
-## Add OpenCV 4.6 support
+## Add OpenCV 4.10 support
 
-1. Install the 4.6.0 sdk files.
+1. Install the 4.10.0 sdk files.
 2. Configure the environment variable OPENCV_DIR to point to the sdk location like this
 
     ```bash
-    set OPENCV_DIR=c:\_sdk\opencv-4.6.0\build
+    set OPENCV_DIR=c:\_sdk\opencv-4.10.0\build
     ```
 
 3. Continue the normal setup.

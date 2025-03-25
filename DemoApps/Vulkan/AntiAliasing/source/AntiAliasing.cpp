@@ -526,9 +526,11 @@ namespace Fsl
     RapidVulkan::DescriptorPool CreateDescriptorPool(const Vulkan::VUDevice& device, const uint32_t count)
     {
       // Example uses one ubo and one image sampler
-      std::array<VkDescriptorPoolSize, 1> poolSizes{};
+      std::array<VkDescriptorPoolSize, 2> poolSizes{};
       poolSizes[0].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-      poolSizes[0].descriptorCount = count;
+      poolSizes[0].descriptorCount = 3 * count;
+      poolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+      poolSizes[1].descriptorCount = 2 * count;
 
       VkDescriptorPoolCreateInfo descriptorPoolInfo{};
       descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -538,7 +540,6 @@ namespace Fsl
 
       return {device.Get(), descriptorPoolInfo};
     }
-
 
     RapidVulkan::GraphicsPipeline CreatePipeline(const RapidVulkan::PipelineLayout& pipelineLayout, const VkExtent2D& extent,
                                                  const VkShaderModule vertexShaderModule, const VkShaderModule fragmentShaderModule,
@@ -1118,14 +1119,19 @@ namespace Fsl
     RapidVulkan::DescriptorPool postProcessDescriptorPool = CreateDescriptorPool(device, maxFramesInFlight);
     std::vector<FrameResources> mainFrameResources(maxFramesInFlight);
 
+    FSLLOG3_VERBOSE("Creating frame resources");
     for (auto& rFrame : mainFrameResources)
     {
+      FSLLOG3_VERBOSE("- Creating effect descriptor set");
       rFrame.DescriptorSetEffect = CreateDescriptorSet(postProcessDescriptorPool, postProcessResources.DescriptorSetLayout);
       rFrame.CustomZoomVertUboBuffer = CreateUBO(device, sizeof(VertexUBOData));
       rFrame.ZoomVertUboBuffer = CreateUBO(device, sizeof(VertexUBOData));
+      FSLLOG3_VERBOSE("- Creating custom zoom descriptor set");
       rFrame.CustomZoomDescriptorSet = CreateDescriptorSet(postProcessDescriptorPool, zoomResources.DescriptorSetLayout);
+      FSLLOG3_VERBOSE("- Creating zoom descriptor set");
       rFrame.ZoomDescriptorSet = CreateDescriptorSet(postProcessDescriptorPool, zoomResources.DescriptorSetLayout);
     }
+    FSLLOG3_VERBOSE("Frame resources completed");
 
 
     return {std::move(line),
