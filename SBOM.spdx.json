@@ -1,0 +1,171 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2025-08-24T08:06:29Z",
+    "creators": [
+      "Organization: NXP"
+    ],
+    "licenseListVersion": "3.20"
+  },
+  "name": "gtec-demo-framework-LF_6.12.34_2.1.0",
+  "dataLicense": "CC0-1.0",
+  "hasExtractedLicensingInfos": [
+    {
+      "licenseId": "LicenseRef-d26bcb7d-5bc8-4f05-8942-a3a42728a2e4",
+      "extractedText": "Public domain code is not subject to any license.",
+      "name": "Public Domain"
+    }
+  ],
+  "documentNamespace": "https://nxp.com/spdx/6863a92e-254c-4318-909b-e1100039dbbc",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-package-6863a92e-254c-4318-909b-e1100039dbbc",
+      "name": "gtec-demo-framework",
+      "versionInfo": "LF_6.12.34_2.1.0",
+      "licenseConcluded": "(BSD-3-Clause)",
+      "licenseDeclared": "(BSD-3-Clause)",
+      "downloadLocation": "https://github.com/nxp-imx/gtec-demo-framework -b lf-6.12.34-2.1.0",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-b0519fdf-f189-4235-b1d7-6ee1ff15c6ae",
+      "name": "fonts-open-sans",
+      "versionInfo": "1.11",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "http://www.opensans.com/",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: fonts-open-sans",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-0f90f27f-2c40-4a53-9ee5-e1e7afa052e7",
+      "name": "Khronos Group - OpenVG",
+      "versionInfo": "1.1",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "http://www.khronos.org/openvg/",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: Khronos Group - OpenVG",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-8487e106-f955-4a1a-bcbb-66c163129738",
+      "name": "Khronos Group - Vulkan",
+      "versionInfo": "1.4",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: Khronos Group - Vulkan",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-f2e206d2-dcf5-4edb-9e88-cd336c8663c7",
+      "name": "librust-sysexits-dev",
+      "versionInfo": "0.8.4",
+      "licenseConcluded": "(Apache-2.0 OR MIT)",
+      "licenseDeclared": "(Apache-2.0 OR MIT)",
+      "homepage": "http://tracker.debian.org/pkg/rust-sysexits",
+      "downloadLocation": "http://http.debian.net/debian/pool/main/r/rust-sysexits",
+      "originator": "Organization: debian",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:deb/debian/librust-sysexits-dev@0.8.4-1?arch=armel",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "ff28cb64-3b07-42a1-9e17-59c3233a171d",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-b103f175-8751-478e-adcf-d1a94957fa89",
+      "name": "SaschaWillems/Vulkan",
+      "versionInfo": "VK_API_VERSION_105",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://github.com/SaschaWillems/Vulkan",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: SaschaWillems/Vulkan",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-21c8b943-30dd-49b6-9e26-59abb3063f22",
+      "name": "Topsis-Raj-102217077",
+      "versionInfo": "0.1.1",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://pypi.org/project/Topsis-Raj-102217077/",
+      "downloadLocation": "https://pypi.org/project/Topsis-Raj-102217077/0.1.1",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/topsis-raj-102217077@0.1.1",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "7c8c1458-48b0-426d-a46b-580645b45022",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-package-6863a92e-254c-4318-909b-e1100039dbbc"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-6863a92e-254c-4318-909b-e1100039dbbc",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-package-f2e206d2-dcf5-4edb-9e88-cd336c8663c7"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-6863a92e-254c-4318-909b-e1100039dbbc",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-b0519fdf-f189-4235-b1d7-6ee1ff15c6ae"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-6863a92e-254c-4318-909b-e1100039dbbc",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-package-21c8b943-30dd-49b6-9e26-59abb3063f22"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-6863a92e-254c-4318-909b-e1100039dbbc",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-package-0f90f27f-2c40-4a53-9ee5-e1e7afa052e7"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-6863a92e-254c-4318-909b-e1100039dbbc",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-8487e106-f955-4a1a-bcbb-66c163129738"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-6863a92e-254c-4318-909b-e1100039dbbc",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-package-b103f175-8751-478e-adcf-d1a94957fa89"
+    }
+  ]
+}
