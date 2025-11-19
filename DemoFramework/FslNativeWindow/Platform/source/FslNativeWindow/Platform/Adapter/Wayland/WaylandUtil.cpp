@@ -66,24 +66,34 @@ namespace Fsl::WaylandUtil
     case KEY_F12:
       return VirtualKey::F12;
     case KEY_0:
+    case KEY_KP0:
       return VirtualKey::Code0;
     case KEY_1:
+    case KEY_KP1:
       return VirtualKey::Code1;
     case KEY_2:
+    case KEY_KP2:
       return VirtualKey::Code2;
     case KEY_3:
+    case KEY_KP3:
       return VirtualKey::Code3;
     case KEY_4:
+    case KEY_KP4:
       return VirtualKey::Code4;
     case KEY_5:
+    case KEY_KP5:
       return VirtualKey::Code5;
     case KEY_6:
+    case KEY_KP6:
       return VirtualKey::Code6;
     case KEY_7:
+    case KEY_KP7:
       return VirtualKey::Code7;
     case KEY_8:
+    case KEY_KP8:
       return VirtualKey::Code8;
     case KEY_9:
+    case KEY_KP9:
       return VirtualKey::Code9;
     case KEY_A:
       return VirtualKey::A;
