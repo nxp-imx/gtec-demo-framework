@@ -2,13 +2,13 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-08-24T08:06:29Z",
+    "created": "2025-11-12T06:53:06Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.20"
   },
-  "name": "gtec-demo-framework-LF_6.12.34_2.1.0",
+  "name": "gtec-demo-framework-LF_6.12.49_2.2.0",
   "dataLicense": "CC0-1.0",
   "hasExtractedLicensingInfos": [
     {
@@ -17,15 +17,112 @@
       "name": "Public Domain"
     }
   ],
-  "documentNamespace": "https://nxp.com/spdx/6863a92e-254c-4318-909b-e1100039dbbc",
+  "documentNamespace": "https://nxp.com/spdx/858749d6-44be-45c5-bdf8-521ffbcf4a66",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-6863a92e-254c-4318-909b-e1100039dbbc",
+      "SPDXID": "SPDXRef-package-0f90f27f-2c40-4a53-9ee5-e1e7afa052e7",
+      "name": "Khronos Group - OpenVG",
+      "versionInfo": "1.1",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "http://www.khronos.org/openvg/",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: Khronos Group - OpenVG",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-1f9bb4a7-91f7-4c2d-956b-3d1df0e2bbe1",
+      "name": "queued_animated_sprites_macroquad",
+      "versionInfo": "0.1.0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://crates.io/crates/queued_animated_sprites_macroquad",
+      "downloadLocation": "https://crates.io/crates/queued_animated_sprites_macroquad/0.1.0",
+      "originator": "Organization: crates",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/queued_animated_sprites_macroquad@0.1.0",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "387fccb5-be4b-4171-8ffa-11987550fe20",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-34de22e7-3dc4-4d26-a70f-176a2e54d464",
+      "name": "cansi",
+      "versionInfo": "1.1.0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://github.com/kurtlawrence/cansi",
+      "downloadLocation": "https://crates.io/crates/cansi/1.1.0",
+      "originator": "Organization: crates",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/cansi@1.1.0",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "e56de86b-687f-4a29-a6fb-a0d184e5d4d3",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-7455690b-8527-4708-9445-75a239ddf0dc",
+      "name": "mepeyew",
+      "versionInfo": "0.3.1",
+      "licenseConcluded": "BSD-2-Clause",
+      "licenseDeclared": "BSD-2-Clause",
+      "homepage": "https://github.com/davnotdev/mepeyew",
+      "downloadLocation": "https://crates.io/crates/mepeyew/0.3.1",
+      "originator": "Organization: crates",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:cargo/mepeyew@0.3.1",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "b407bc5b-91d2-440b-8e1e-a5d2cee352df",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-8487e106-f955-4a1a-bcbb-66c163129738",
+      "name": "Khronos Group - Vulkan",
+      "versionInfo": "1.4",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: Khronos Group - Vulkan",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
       "name": "gtec-demo-framework",
-      "versionInfo": "LF_6.12.34_2.1.0",
+      "versionInfo": "LF_6.12.49_2.2.0",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://github.com/nxp-imx/gtec-demo-framework -b lf-6.12.34-2.1.0",
+      "downloadLocation": "https://github.com/nxp-imx/gtec-demo-framework -b lf-6.12.49-2.2.0",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
@@ -45,55 +142,6 @@
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-0f90f27f-2c40-4a53-9ee5-e1e7afa052e7",
-      "name": "Khronos Group - OpenVG",
-      "versionInfo": "1.1",
-      "licenseConcluded": "MIT",
-      "licenseDeclared": "MIT",
-      "homepage": "http://www.khronos.org/openvg/",
-      "downloadLocation": "NOASSERTION",
-      "originator": "Organization: Khronos Group - OpenVG",
-      "supplier": "NOASSERTION",
-      "externalRefs": [],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-8487e106-f955-4a1a-bcbb-66c163129738",
-      "name": "Khronos Group - Vulkan",
-      "versionInfo": "1.4",
-      "licenseConcluded": "Apache-2.0",
-      "licenseDeclared": "Apache-2.0",
-      "downloadLocation": "NOASSERTION",
-      "originator": "Organization: Khronos Group - Vulkan",
-      "supplier": "NOASSERTION",
-      "externalRefs": [],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-f2e206d2-dcf5-4edb-9e88-cd336c8663c7",
-      "name": "librust-sysexits-dev",
-      "versionInfo": "0.8.4",
-      "licenseConcluded": "(Apache-2.0 OR MIT)",
-      "licenseDeclared": "(Apache-2.0 OR MIT)",
-      "homepage": "http://tracker.debian.org/pkg/rust-sysexits",
-      "downloadLocation": "http://http.debian.net/debian/pool/main/r/rust-sysexits",
-      "originator": "Organization: debian",
-      "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:deb/debian/librust-sysexits-dev@0.8.4-1?arch=armel",
-          "referenceType": "purl"
-        },
-        {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "ff28cb64-3b07-42a1-9e17-59c3233a171d",
-          "referenceType": "BlackDuck-ComponentOrigin"
-        }
-      ],
-      "filesAnalyzed": false
-    },
-    {
       "SPDXID": "SPDXRef-package-b103f175-8751-478e-adcf-d1a94957fa89",
       "name": "SaschaWillems/Vulkan",
       "versionInfo": "VK_API_VERSION_105",
@@ -107,24 +155,24 @@
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-21c8b943-30dd-49b6-9e26-59abb3063f22",
-      "name": "Topsis-Raj-102217077",
-      "versionInfo": "0.1.1",
-      "licenseConcluded": "MIT",
-      "licenseDeclared": "MIT",
-      "homepage": "https://pypi.org/project/Topsis-Raj-102217077/",
-      "downloadLocation": "https://pypi.org/project/Topsis-Raj-102217077/0.1.1",
-      "originator": "Organization: pypi",
+      "SPDXID": "SPDXRef-package-f079ac77-2cca-4f97-be85-cdadc7854931",
+      "name": "kaguya_rs",
+      "versionInfo": "0.1.4",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://github.com/fgoinai/KaguyaRs",
+      "downloadLocation": "https://crates.io/crates/kaguya_rs/0.1.4",
+      "originator": "Organization: crates",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/topsis-raj-102217077@0.1.1",
+          "referenceLocator": "pkg:cargo/kaguya_rs@0.1.4",
           "referenceType": "purl"
         },
         {
           "referenceCategory": "OTHER",
-          "referenceLocator": "7c8c1458-48b0-426d-a46b-580645b45022",
+          "referenceLocator": "0496857e-7c2a-4447-a0f0-c20ec25dcad9",
           "referenceType": "BlackDuck-ComponentOrigin"
         }
       ],
@@ -133,39 +181,49 @@
   ],
   "relationships": [
     {
-      "spdxElementId": "SPDXRef-DOCUMENT",
-      "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-6863a92e-254c-4318-909b-e1100039dbbc"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-6863a92e-254c-4318-909b-e1100039dbbc",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-package-f2e206d2-dcf5-4edb-9e88-cd336c8663c7"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-6863a92e-254c-4318-909b-e1100039dbbc",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-b0519fdf-f189-4235-b1d7-6ee1ff15c6ae"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-6863a92e-254c-4318-909b-e1100039dbbc",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-package-21c8b943-30dd-49b6-9e26-59abb3063f22"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-6863a92e-254c-4318-909b-e1100039dbbc",
+      "spdxElementId": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-package-0f90f27f-2c40-4a53-9ee5-e1e7afa052e7"
     },
     {
-      "spdxElementId": "SPDXRef-package-6863a92e-254c-4318-909b-e1100039dbbc",
+      "spdxElementId": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-1f9bb4a7-91f7-4c2d-956b-3d1df0e2bbe1"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-34de22e7-3dc4-4d26-a70f-176a2e54d464"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-7455690b-8527-4708-9445-75a239ddf0dc"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
       "relationshipType": "DYNAMIC_LINK",
       "relatedSpdxElement": "SPDXRef-package-8487e106-f955-4a1a-bcbb-66c163129738"
     },
     {
-      "spdxElementId": "SPDXRef-package-6863a92e-254c-4318-909b-e1100039dbbc",
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-b0519fdf-f189-4235-b1d7-6ee1ff15c6ae"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-package-b103f175-8751-478e-adcf-d1a94957fa89"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-f079ac77-2cca-4f97-be85-cdadc7854931"
     }
   ]
 }
