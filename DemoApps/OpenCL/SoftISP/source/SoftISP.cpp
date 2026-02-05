@@ -89,7 +89,7 @@ namespace Fsl
       static_assert(sizeof(cl_char) == 1);    // The rest of the code assumes this is true, so lets get a compile time error if its not
       assert(dstSpan.size() == sizeof(cl_char) * LocalConfig::ImgSize * 4);
 
-      RAPIDOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), outBuffer.Get(), CL_FALSE, 0, dstSpan.size(), dstSpan.data(), 0, nullptr, nullptr));
+      RAPIDOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), outBuffer.Get(), CL_TRUE, 0, dstSpan.size(), dstSpan.data(), 0, nullptr, nullptr));
     }
   }
 
@@ -339,7 +339,7 @@ namespace Fsl
       CopyToBMP(bitmap, fileName, SpanUtil::AsSpan(m_dst4));
       if (m_denoiseEn)
       {
-        RAPIDOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), m_deviceImg[8].Get(), CL_FALSE, 0, sizeof(cl_char) * LocalConfig::ImgSize * 4,
+        RAPIDOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), m_deviceImg[8].Get(), CL_TRUE, 0, sizeof(cl_char) * LocalConfig::ImgSize * 4,
                                               m_dst5.data(), 0, nullptr, nullptr));
         fileName = "4-RemoveNoise.bmp";
         CopyToBMP(bitmap, fileName, SpanUtil::AsSpan(m_dst5));
