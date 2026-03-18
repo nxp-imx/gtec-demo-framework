@@ -58,6 +58,8 @@
 #include "Control/CustomControlFactory.hpp"
 #include "Control/CustomUIConfig.hpp"
 #include "SceneCreateInfo.hpp"
+#include <chrono>
+#include <ctime>
 
 namespace Fsl
 {
@@ -230,7 +232,7 @@ namespace Fsl
       // layout->AddChild(labelVal4, 1, 4);
       // return layout;
 
-      auto dateString = fmt::format("{0:%Y-%m-%d} {0:%H:%M:%S}", fmt::localtime(sourceData.Time));
+      auto dateString = fmt::format("{0:%Y-%m-%d} {0:%H:%M:%S}", *(std::localtime(&sourceData.Time)));
       auto debugString = sourceData.Info.AppDebugMode ? StringViewLite(" (Debug)") : StringViewLite();
       auto descLabel =
         uiFactory.CreateLabel(fmt::format(FMT_STRING("Scene: {}, {}x{}px {}dpi, {}, {} V{}{}"), static_cast<uint32_t>(sourceData.Info.Scene),
