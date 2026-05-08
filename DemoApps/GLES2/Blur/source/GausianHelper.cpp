@@ -99,7 +99,7 @@ namespace Fsl
         std::stringstream str;
         str << std::setprecision(13) << std::fixed;
 
-        str << "  vec4 color;\n";
+        str << "  vec4 color = vec4(0.0);\n";
         int index = 0;
         for (int i = halfLength; i > 0; --i)
         {
@@ -188,7 +188,7 @@ namespace Fsl
     std::stringstream str;
     str << std::setprecision(13) << std::fixed;
 
-    str << "  vec4 color;\n";
+    str << "  vec4 color = vec4(0.0);\n";
     int index = 0;
     for (int y = 0; y < length; ++y)
     {
@@ -222,8 +222,8 @@ namespace Fsl
     strX << std::setprecision(13) << std::fixed;
     strY << std::setprecision(13) << std::fixed;
 
-    strX << "  vec4 color;\n";
-    strY << "  vec4 color;\n";
+    strX << "  vec4 color = vec4(0.0);\n";
+    strY << "  vec4 color = vec4(0.0);\n";
     for (int i = halfLength; i > 0; --i)
     {
       strX << "  color += texture2D(s_texture,v_texcoord + vec2(" << (texStep.X * static_cast<float>(-i)) << ", 0.0)) * "
@@ -272,8 +272,8 @@ namespace Fsl
     strX << std::setprecision(13) << std::fixed;
     strY << std::setprecision(13) << std::fixed;
 
-    strX << "  vec4 color;\n";
-    strY << "  vec4 color;\n";
+    strX << "  vec4 color = vec4(0.0);\n";
+    strY << "  vec4 color = vec4(0.0);\n";
     for (int i = halfLength; i > 0; --i)
     {
       strX << "  color += texture2D(s_texture,v_texcoord + vec2(" << static_cast<float>(-linearData[i].OffsetX) << ", 0.0)) * "
@@ -348,7 +348,7 @@ namespace Fsl
       std::stringstream str;
       str << std::setprecision(13) << std::fixed;
 
-      str << "  vec4 color;\n";
+      str << "  vec4 color = vec4(0.0);\n";
       int index = 0;
       for (int i = halfLength; i > 0; --i)
       {
