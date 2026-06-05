@@ -2,134 +2,31 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-11-12T06:53:06Z",
+    "created": "2026-06-02T02:42:57Z",
     "creators": [
       "Organization: NXP"
     ],
-    "licenseListVersion": "3.20"
+    "licenseListVersion": "3.26"
   },
-  "name": "gtec-demo-framework-LF_6.12.49_2.2.0",
+  "name": "gtec-demo-framework-lf-6.18.20-2.0.0",
   "dataLicense": "CC0-1.0",
-  "hasExtractedLicensingInfos": [
-    {
-      "licenseId": "LicenseRef-d26bcb7d-5bc8-4f05-8942-a3a42728a2e4",
-      "extractedText": "Public domain code is not subject to any license.",
-      "name": "Public Domain"
-    }
-  ],
-  "documentNamespace": "https://nxp.com/spdx/858749d6-44be-45c5-bdf8-521ffbcf4a66",
+  "hasExtractedLicensingInfos": [],
+  "documentNamespace": "https://nxp.com/spdx/86c5dee3-a738-4da2-87d3-bca15eabd4d4",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-0f90f27f-2c40-4a53-9ee5-e1e7afa052e7",
-      "name": "Khronos Group - OpenVG",
-      "versionInfo": "1.1",
-      "licenseConcluded": "MIT",
-      "licenseDeclared": "MIT",
-      "homepage": "http://www.khronos.org/openvg/",
-      "downloadLocation": "NOASSERTION",
-      "originator": "Organization: Khronos Group - OpenVG",
-      "supplier": "NOASSERTION",
-      "externalRefs": [],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-1f9bb4a7-91f7-4c2d-956b-3d1df0e2bbe1",
-      "name": "queued_animated_sprites_macroquad",
-      "versionInfo": "0.1.0",
-      "licenseConcluded": "MIT",
-      "licenseDeclared": "MIT",
-      "homepage": "https://crates.io/crates/queued_animated_sprites_macroquad",
-      "downloadLocation": "https://crates.io/crates/queued_animated_sprites_macroquad/0.1.0",
-      "originator": "Organization: crates",
-      "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/queued_animated_sprites_macroquad@0.1.0",
-          "referenceType": "purl"
-        },
-        {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "387fccb5-be4b-4171-8ffa-11987550fe20",
-          "referenceType": "BlackDuck-ComponentOrigin"
-        }
-      ],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-34de22e7-3dc4-4d26-a70f-176a2e54d464",
-      "name": "cansi",
-      "versionInfo": "1.1.0",
-      "licenseConcluded": "MIT",
-      "licenseDeclared": "MIT",
-      "homepage": "https://github.com/kurtlawrence/cansi",
-      "downloadLocation": "https://crates.io/crates/cansi/1.1.0",
-      "originator": "Organization: crates",
-      "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/cansi@1.1.0",
-          "referenceType": "purl"
-        },
-        {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "e56de86b-687f-4a29-a6fb-a0d184e5d4d3",
-          "referenceType": "BlackDuck-ComponentOrigin"
-        }
-      ],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-7455690b-8527-4708-9445-75a239ddf0dc",
-      "name": "mepeyew",
-      "versionInfo": "0.3.1",
-      "licenseConcluded": "BSD-2-Clause",
-      "licenseDeclared": "BSD-2-Clause",
-      "homepage": "https://github.com/davnotdev/mepeyew",
-      "downloadLocation": "https://crates.io/crates/mepeyew/0.3.1",
-      "originator": "Organization: crates",
-      "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/mepeyew@0.3.1",
-          "referenceType": "purl"
-        },
-        {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "b407bc5b-91d2-440b-8e1e-a5d2cee352df",
-          "referenceType": "BlackDuck-ComponentOrigin"
-        }
-      ],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-8487e106-f955-4a1a-bcbb-66c163129738",
-      "name": "Khronos Group - Vulkan",
-      "versionInfo": "1.4",
-      "licenseConcluded": "Apache-2.0",
-      "licenseDeclared": "Apache-2.0",
-      "downloadLocation": "NOASSERTION",
-      "originator": "Organization: Khronos Group - Vulkan",
-      "supplier": "NOASSERTION",
-      "externalRefs": [],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
+      "SPDXID": "SPDXRef-package-86c5dee3-a738-4da2-87d3-bca15eabd4d4",
       "name": "gtec-demo-framework",
-      "versionInfo": "LF_6.12.49_2.2.0",
-      "licenseConcluded": "(BSD-3-Clause)",
-      "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://github.com/nxp-imx/gtec-demo-framework -b lf-6.12.49-2.2.0",
+      "versionInfo": "lf-6.18.20-2.0.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "downloadLocation": "https://github.com/nxp-imx/gtec-demo-framework -b lf-6.18.20-2.0.0",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-b0519fdf-f189-4235-b1d7-6ee1ff15c6ae",
+      "SPDXID": "SPDXRef-package-86c5dee3-a738-4da2-87d3-bca15eabd4d4---b0519fdf-f189-4235-b1d7-6ee1ff15c6ae",
       "name": "fonts-open-sans",
       "versionInfo": "1.11",
       "licenseConcluded": "Apache-2.0",
@@ -142,7 +39,32 @@
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-b103f175-8751-478e-adcf-d1a94957fa89",
+      "SPDXID": "SPDXRef-package-86c5dee3-a738-4da2-87d3-bca15eabd4d4---0f90f27f-2c40-4a53-9ee5-e1e7afa052e7",
+      "name": "Khronos Group - OpenVG",
+      "versionInfo": "1.1",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "http://www.khronos.org/openvg/",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: Khronos Group - OpenVG",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-86c5dee3-a738-4da2-87d3-bca15eabd4d4---8487e106-f955-4a1a-bcbb-66c163129738",
+      "name": "Khronos Group - Vulkan",
+      "versionInfo": "1.4",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: Khronos Group - Vulkan",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-86c5dee3-a738-4da2-87d3-bca15eabd4d4---b103f175-8751-478e-adcf-d1a94957fa89",
       "name": "SaschaWillems/Vulkan",
       "versionInfo": "VK_API_VERSION_105",
       "licenseConcluded": "MIT",
@@ -153,77 +75,33 @@
       "supplier": "NOASSERTION",
       "externalRefs": [],
       "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-f079ac77-2cca-4f97-be85-cdadc7854931",
-      "name": "kaguya_rs",
-      "versionInfo": "0.1.4",
-      "licenseConcluded": "Apache-2.0",
-      "licenseDeclared": "Apache-2.0",
-      "homepage": "https://github.com/fgoinai/KaguyaRs",
-      "downloadLocation": "https://crates.io/crates/kaguya_rs/0.1.4",
-      "originator": "Organization: crates",
-      "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:cargo/kaguya_rs@0.1.4",
-          "referenceType": "purl"
-        },
-        {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "0496857e-7c2a-4447-a0f0-c20ec25dcad9",
-          "referenceType": "BlackDuck-ComponentOrigin"
-        }
-      ],
-      "filesAnalyzed": false
     }
   ],
   "relationships": [
     {
-      "spdxElementId": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-package-0f90f27f-2c40-4a53-9ee5-e1e7afa052e7"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-1f9bb4a7-91f7-4c2d-956b-3d1df0e2bbe1"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-34de22e7-3dc4-4d26-a70f-176a2e54d464"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-7455690b-8527-4708-9445-75a239ddf0dc"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-8487e106-f955-4a1a-bcbb-66c163129738"
-    },
-    {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66"
+      "relatedSpdxElement": "SPDXRef-package-86c5dee3-a738-4da2-87d3-bca15eabd4d4"
     },
     {
-      "spdxElementId": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-b0519fdf-f189-4235-b1d7-6ee1ff15c6ae"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
+      "spdxElementId": "SPDXRef-package-86c5dee3-a738-4da2-87d3-bca15eabd4d4",
       "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-package-b103f175-8751-478e-adcf-d1a94957fa89"
+      "relatedSpdxElement": "SPDXRef-package-86c5dee3-a738-4da2-87d3-bca15eabd4d4---0f90f27f-2c40-4a53-9ee5-e1e7afa052e7"
     },
     {
-      "spdxElementId": "SPDXRef-package-858749d6-44be-45c5-bdf8-521ffbcf4a66",
+      "spdxElementId": "SPDXRef-package-86c5dee3-a738-4da2-87d3-bca15eabd4d4",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-f079ac77-2cca-4f97-be85-cdadc7854931"
+      "relatedSpdxElement": "SPDXRef-package-86c5dee3-a738-4da2-87d3-bca15eabd4d4---8487e106-f955-4a1a-bcbb-66c163129738"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-86c5dee3-a738-4da2-87d3-bca15eabd4d4",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-86c5dee3-a738-4da2-87d3-bca15eabd4d4---b0519fdf-f189-4235-b1d7-6ee1ff15c6ae"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-86c5dee3-a738-4da2-87d3-bca15eabd4d4",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-package-86c5dee3-a738-4da2-87d3-bca15eabd4d4---b103f175-8751-478e-adcf-d1a94957fa89"
     }
   ]
 }
